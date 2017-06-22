@@ -1,0 +1,31 @@
+{
+    "name": "c975l/payment-bundle",
+    "type": "symfony-bundle",
+    "description": "Defines form, transactions, database store, etc. for payments using Stripe",
+    "keywords": ["symfony", "bundle", "stripe", "payment"],
+    "homepage": "https://github.com/975L/PaymentBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Laurent Marquet",
+            "email": "laurent.marquet@laposte.net",
+            "homepage": "https://github.com/Laurent3170",
+            "role": "Developer"
+        },
+        {
+            "name": "975L Community",
+            "homepage": "https://github.com/975L"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "symfony/framework-bundle": "3.*",
+        "sensio/framework-extra-bundle": "3.*",
+        "symfony/assetic-bundle": "2.*"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": { "c975L\\PaymentBundle\\": ""
+        }
+    }
+}
