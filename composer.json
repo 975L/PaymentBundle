@@ -21,7 +21,9 @@
         "php": ">=5.5.9",
         "symfony/framework-bundle": "3.*",
         "sensio/framework-extra-bundle": "3.*",
-        "symfony/assetic-bundle": "2.*"
+        "symfony/assetic-bundle": "2.*",
+        "stripe/stripe-php": "3.*",
+        "c975l/email-bundle": "1.*"
     },
     "minimum-stability": "dev",
     "autoload": {
