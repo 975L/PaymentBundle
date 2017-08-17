@@ -181,7 +181,7 @@ use c975L\PaymentBundle\Entity\StripePayment;
      *      name="payment_done")
      * @Method({"GET", "HEAD"})
      */
-    public function localePaymentDone($orderId)
+    public function paymentDone($orderId)
     {
         //Gets the manager
         $em = $this->getDoctrine()->getManager();

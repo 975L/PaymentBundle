@@ -1,5 +1,7 @@
 # Changelog
 
+- Changes in `README.md` (17/08/2017)
+
 v1.2
 ----
 - Add of Timezone config as microtime use UTC (17/08/2017)
