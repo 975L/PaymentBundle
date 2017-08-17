@@ -1,0 +1,35 @@
+{% extends "@c975LPayment/emails/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+
+{% block payment_content %}
+{# Explanation #}
+    <p>
+        {{ 'text.explanation'|trans }}
+    </p>
+{# Description #}
+    <p>
+        {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+    </p>
+{# Amount #}
+    <p>
+        {{ 'label.amount'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
+    </p>
+{# Date #}
+    <p>
+        {{ 'label.date'|trans }} : <strong>{{ payment.creation|localizeddate('medium', 'medium') }}</strong>
+    </p>
+{# Order Id #}
+    <p>
+        {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
+    </p>
+    {% if stripeFee == true %}
+{# Stripe Fee #}
+        <p class="text-muted">
+            {{ 'label.stripe_fee'|trans }} : <strong>{{ (payment.stripeFee / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+{# Income #}
+        <p class="text-muted">
+            {{ 'label.income'|trans }} : <strong>{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+    {% endif %}
+{% endblock %}

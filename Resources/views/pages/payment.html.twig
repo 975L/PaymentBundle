@@ -1,0 +1,65 @@
+{% extends "@c975LPayment/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+{% set title = 'label.payment'|trans %}
+
+{% block payment_content %}
+    <div class="alert alert-info">
+{# Test #}
+        {% if test == true %}
+            <p class="alert alert-danger text-center">
+                *** The keys used are the ones for testing ***
+            </p>
+        {% endif %}
+{# Amount #}
+        <p class="text-center">
+            {{ 'label.payment'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+{# Description #}
+        <p class="text-center">
+            {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+        </p>
+{# Button form #}
+        <div class="text-center">
+            <br />
+            <br />
+            <form action="{{ path('payment_charge') }}" method="POST">
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="{{ key }}"
+                    data-amount="{{ payment.amount }}"
+                    data-currency="{{ payment.currency }}"
+                    data-name="{{ site }}"
+                    data-description="{{ payment.description }}"
+                    data-locale="auto"
+                    data-label="{{ 'label.payment_by_card'|trans }}"
+                    data-zip-code="{{ zipCode }}"
+                    data-alipay="false"
+                    data-bitcoin="{{ bitcoin }}"
+                    {% if image != null %}
+                        data-image="{{ asset(image) }}"
+                    {% endif %}
+                ></script>
+            </form>
+            <br />
+            <br />
+        </div>
+{# Not storing banking information #}
+        <p class="text-center">
+            <strong>
+                {{ 'text.not_store_banking'|trans }}
+            </strong>
+        </p>
+    </div>
+{# Secured page #}
+    <p class="text-center text-muted">
+        {{ 'text.secured_page'|trans|raw }}
+    </p>
+{# Stripe system #}
+    <p class="text-center text-muted">
+        {{ 'text.stripe_system'|trans|raw }}
+    </p>
+{# Image #}
+    <p class="text-center text-muted">
+        <img src="{{ asset('bundles/c975lpayment/images/stripe-cards.jpg') }}" alt="stripe cards" />
+    </p>
+{% endblock %}

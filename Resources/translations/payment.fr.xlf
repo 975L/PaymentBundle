@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="payment.en.xlf">
+        <body>
+            <trans-unit id="1">
+                <source>label.no_payment</source>
+                <target>Pas de paiement</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>text.no_payment</source>
+                <target>Il n'y a actuellement aucun paiement.</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>label.payment</source>
+                <target>Paiement</target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>label.description</source>
+                <target>Description</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>label.payment_by_card</source>
+                <target>Paiement par carte</target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>text.not_store_banking</source>
+                <target><![CDATA[Nous ne stockons PAS les données bancaires]]></target>
+            </trans-unit>
+            <trans-unit id="7">
+                <source>text.secured_page</source>
+                <target><![CDATA[Cette page utilise une connexion sécurisée SSL. Je peux le confirmer en contrôlant que l'URL est bien en https, et qu'un cadenas est bien présent dans ma barre d'adresse.]]></target>
+            </trans-unit>
+            <trans-unit id="8">
+                <source>text.stripe_system</source>
+                <target><![CDATA[Notre système de paiement est fait via <a href="https://stripe.com" target="_blank" rel="nofollow">Stripe</a> et est complètement sûr et sécurisé !]]></target>
+            </trans-unit>
+            <trans-unit id="9">
+                <source>label.payment_done</source>
+                <target>Paiement effectué</target>
+            </trans-unit>
+            <trans-unit id="10">
+                <source>text.email_sent_by</source>
+                <target><![CDATA[Cet email vous a été envoyé par <strong>%site%</strong>.]]></target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>label.hello</source>
+                <target>Bonjour</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>text.thanks_confidence</source>
+                <target><![CDATA[Merci pour votre confiance !
+                        Nous restons à votre disposition pour la moindre demande.]]></target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>text.no_spam</source>
+                <target><![CDATA[Nous conseillons d'enregistrer notre adresse email "%email%" dans votre carnet d'adresses afin que nos emails ne soient pas classés spam.]]></target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>text.regards_team</source>
+                <target><![CDATA[Cordialement,
+                        L'équipe %site%]]></target>
+            </trans-unit>
+            <trans-unit id="15">
+                <source>label.order_id</source>
+                <target>Identifiant de transaction</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>label.date</source>
+                <target>Date et Heure</target>
+            </trans-unit>
+            <trans-unit id="17">
+                <source>label.amount</source>
+                <target>Montant</target>
+            </trans-unit>
+            <trans-unit id="18">
+                <source>text.explanation</source>
+                <target><![CDATA[Le paiement suivant a bien été effectué sur notre site.]]></target>
+            </trans-unit>
+            <trans-unit id="19">
+                <source>text.error_payment</source>
+                <target><![CDATA[L'erreur suivante est survenue durant le processus. L'argent n'a PAS été enlevé du compte. Merci de corriger et de re-soumettre ou contactez nous.]]></target>
+            </trans-unit>
+            <trans-unit id="20">
+                <source>text.error_payment_generic</source>
+                <target><![CDATA[Une erreur est survenue durant le processus. L'argent n'a PAS été enlevé du compte.]]></target>
+            </trans-unit>
+            <trans-unit id="21">
+                <source>label.stripe_fee</source>
+                <target>Commission Stripe estimée</target>
+            </trans-unit>
+            <trans-unit id="22">
+                <source>label.income</source>
+                <target>Revenu net estimé</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

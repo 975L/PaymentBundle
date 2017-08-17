@@ -1,0 +1,11 @@
+{% extends "@c975LPayment/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+{% set title = 'label.no_payment'|trans %}
+
+{% block payment_content %}
+    <div class="row col-sm-8 col-sm-offset-2 col-lg-6 col-lg-offset-3">
+        <p class="alert alert-warning text-center">
+            {{ 'text.no_payment'|trans }}
+        </p>
+    </div>
+{% endblock %}
