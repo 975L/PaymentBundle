@@ -113,6 +113,8 @@ c975_l_payment:
     live: true #Default false
     #(Optional) The Route to return after having charged user's card
     returnRoute: 'payment_done' #null(default)
+    #(Optional) The Timezone as per default it will be UTC
+    timezone: 'Europe/Paris' #null(default)
     #If you want to save the email sent to the database linked to c975L/EmailBundle, see https://github.com/975L/EmailBundle
     database: true #false(default)
     #If you want to display an image in the Stripe form (recommended)
@@ -175,15 +177,11 @@ use c975L\PaymentBundle\Entity\StripePayment;
 
 //PAYMENT DONE
     /**
-     * @Route("/{_locale}/payment-done/{orderId}",
-     *      name="payment_done",
-     *      defaults={
-     *          "_locale": "fr"
-     *      },
-     *      requirements={"_locale": "en|fr|es"})
+     * @Route("/payment-done/{orderId}",
+     *      name="payment_done")
      * @Method({"GET", "HEAD"})
      */
-    public function localePaymentDone(Request $request, $orderId)
+    public function localePaymentDone($orderId)
     {
         //Gets the manager
         $em = $this->getDoctrine()->getManager();
@@ -195,41 +193,60 @@ use c975L\PaymentBundle\Entity\StripePayment;
             throw $this->createNotFoundException();
         }
 
-        //You can test if the payment is finished to do the action
-        if ($stripePayment->getFinished() !== true) {
-            /*
-            * $action should contain anything needed to be achieved after payment is ok.
-            * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
-            * as we want to add the number of credits to the user after payment.
-            * So, we just decode, test the value and do the job.
-            */
-            $action = (array) json_decode($stripePayment->getAction());
-            if (array_key_exists('addCredits', $action)) {
-                $user->addCredits($action['addCredits']);
+        //StripePayment executed
+        if ($stripePayment->getStripeToken() !== null) {
+            //Sets stripePayment as finished
+            if ($stripePayment->getFinished() !== true) {
+                //Gets the user
+                $user = $em->getRepository('UserFilesBundle:User')
+                    ->findOneById($stripePayment->getUserId());
+
+                //Do the action
+                /*
+                * $action should contain anything needed to be achieved after payment is ok.
+                * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
+                * as we want to add the number of credits to the user after payment.
+                * So, we just decode, test the value and do the job.
+                */
+                $action = (array) json_decode($stripePayment->getAction());
+
+                //Add credits
+                if (array_key_exists('addCredits', $action)) {
+                    $user->addCredits($action['addCredits']);
+
+                    //Do any other needed stuff...
+
+                    //DO NOT FORGET to update the payment to set it finished
+                    $stripePayment->setFinished(true);
+
+                    //Persist in database
+                    $em->persist($stripePayment);
+                    $em->persist($user);
+                    $em->flush();
+                }
+
+            //Display the payment data
+            return $this->render('@c975LPayment/pages/order.html.twig', array(
+                'payment' => $stripePayment,
+            ));
             }
+        //StripePayment not executed
+        } else {
+            $stripeService = $this->get(StripePaymentService::class);
+            $stripeService->reUse($stripePayment);
 
-            //Do any other needed stuff...
-
-            //DO NOT FORGET to update the payment to set it finished
-            $stripePayment->setFinished(true);
-
-            //Persist in database
-            $em->persist($stripePayment);
-            $em->persist($user);
-            $em->flush();
+            //Display the payment data
+            return $this->render('@c975LPayment/pages/orderNotExecuted.html.twig', array(
+                'payment' => $stripePayment,
+            ));
         }
-
-        //Display data
-        return $this->render('@c975LPayment/pages/order.html.twig', array(
-            'payment' => $stripePayment,
-            'siteRoute' => $this->getParameter('c975_l_payment.siteRoute'),
-        ));
     }
 ```
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
 
 How to use images
 -----------------
+**Images are NOT officially supported by Stripe!**
 In the Folder `Resources/public/images/` there are two images that can be used to display visual information. `stripe-cards.jpg` has to be installed, except if you override `payment.html.twig`, as ths picture is used in the template.
 
 To install the images simply run
@@ -239,5 +256,5 @@ php bin/console assets:install
 Then tou can use them via
 ```html
 <img src="{{ asset('bundles/c975lpayment/images/stripe-cards.jpg') }}" alt="stripe cards" />
-<img src="{{ asset('bundles/c975lpayment/images/stripe.png') }}" alt="stripe" /></a>
+<img src="{{ asset('bundles/c975lpayment/images/stripe.png') }}" alt="stripe" />
 ```

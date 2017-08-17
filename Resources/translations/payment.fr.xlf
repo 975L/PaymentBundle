@@ -92,6 +92,14 @@
                 <source>label.income</source>
                 <target>Revenu net estimé</target>
             </trans-unit>
+            <trans-unit id="23">
+                <source>text.explanation_not_executed</source>
+                <target><![CDATA[Le paiement suivant a été initié mais non payé sur notre site.]]></target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>label.process_payment</source>
+                <target>Procéder au paiement</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

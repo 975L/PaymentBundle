@@ -74,7 +74,7 @@
             </trans-unit>
             <trans-unit id="18">
                 <source>text.explanation</source>
-                <target><![CDATA[The following payment has been well executed on our site.]]></target>
+                <target><![CDATA[The following payment has been well executed on our website.]]></target>
             </trans-unit>
             <trans-unit id="19">
                 <source>text.error_payment</source>
@@ -91,6 +91,14 @@
             <trans-unit id="22">
                 <source>label.income</source>
                 <target>Estimated net income</target>
+            </trans-unit>
+            <trans-unit id="23">
+                <source>text.explanation_not_executed</source>
+                <target><![CDATA[The following payment has been initiated but not paid on our website.]]></target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>label.process_payment</source>
+                <target>Process to payment</target>
             </trans-unit>
         </body>
     </file>

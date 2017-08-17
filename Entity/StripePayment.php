@@ -119,9 +119,12 @@ class StripePayment
     protected $creation;
 
 
-    public function __construct($data)
+    public function __construct($data, $timezone)
     {
         $now = \DateTime::createFromFormat('U.u', microtime(true));
+        if ($timezone !== null) {
+            $now->setTimeZone(new \DateTimeZone($timezone));
+        }
         $this->setOrderId($now->format('Ymd-His-u'));
         $this->setCreation($now);
         $this->setDataFromArray($data);

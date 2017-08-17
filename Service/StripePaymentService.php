@@ -16,25 +16,36 @@ class StripePaymentService
 {
     private $em;
     private $request;
+    private $container;
 
     public function __construct(
         \Doctrine\ORM\EntityManagerInterface $em,
-        \Symfony\Component\HttpFoundation\RequestStack $requestStack
+        \Symfony\Component\HttpFoundation\RequestStack $requestStack,
+        \Symfony\Component\DependencyInjection\ContainerInterface $container
     )
     {
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
+        $this->container = $container;
     }
 
-    //Creates the stripe payment
+    //Creates the Stripe payment
     public function create($data)
     {
-        $stripePayment = new StripePayment($data);
+        $stripePayment = new StripePayment($data, $this->container->getParameter('c975_l_payment.timezone'));
 
         //Persists data in DB
         $this->em->persist($stripePayment);
         $this->em->flush();
 
+        //Saves in the session
+        $session = $this->request->getSession();
+        $session->set('stripe', $stripePayment);
+    }
+
+    //Re-use a Stripe payment not executed
+    public function reUse($stripePayment)
+    {
         //Saves in the session
         $session = $this->request->getSession();
         $session->set('stripe', $stripePayment);
