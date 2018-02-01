@@ -1,8 +1,12 @@
 # Changelog
 
+v1.3
+----
+- remove of bitcoin option as it will not be supported anymore by Stripe as of 04/23 (01/02/2018)
+
 v1.2.1
 ------
-- Changes in `README.md` (17/08/2017)
+- Changes in `README.md` (01/02/2018)
 
 v1.2
 ----

@@ -43,9 +43,6 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('alipay')
                     ->defaultFalse()
                 ->end()
-                ->booleanNode('bitcoin')
-                    ->defaultFalse()
-                ->end()
             ->end()
         ;
 

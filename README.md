@@ -87,8 +87,6 @@ c975_l_payment:
     zipCode: false #true(default)
     #If you want to use the alipay function
     alipay: true #false(default)
-    #If you want to use the bitcoin function
-    bitcoin: true #false(default)
 ```
 
 Step 4: Enable the Routes

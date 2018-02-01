@@ -21,7 +21,7 @@ use c975L\PaymentBundle\Entity\StripePayment;
 
 class PaymentController extends Controller
 {
-//PAYMENT FORM
+//PAYMENT DISPLAY (FORM)
     /**
      * @Route("/payment",
      *      name="payment_display")
@@ -57,7 +57,6 @@ class PaymentController extends Controller
                 'image' => $this->getParameter('c975_l_payment.image'),
                 'zipCode' => $this->getParameter('c975_l_payment.zipCode') === true ? 'true' : 'false',
                 'alipay' => $this->getParameter('c975_l_payment.alipay') === true ? 'true' : 'false',
-                'bitcoin' => $this->getParameter('c975_l_payment.bitcoin') === true ? 'true' : 'false',
                 'test' => $test,
                 'payment' => $stripePayment,
                 ));
