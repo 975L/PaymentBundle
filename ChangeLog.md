@@ -1,5 +1,7 @@
 # Changelog
 
+v1.2.1
+------
 - Changes in `README.md` (17/08/2017)
 
 v1.2

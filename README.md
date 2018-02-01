@@ -4,10 +4,10 @@ PaymentBundle
 PaymentBundle does the following:
 
 - Defines form to request payment,
-- Stores the transaction in a database table with a unique ID,
+- Stores the transaction in a database table with a unique order id,
 - Sends an email, to the user, of the transaction via [c975LEmailBundle](https://github.com/975L/EmailBundle) as `c975LEmailBundle` provides the possibility to save emails in a database, there is an option to NOT do so via this Bundle,
 - Sends an email, to the site, containing same information as above + fee and estimated income,
-- Creates flash to inform,
+- Creates flash to inform user,
 - Display information about payment after transaction.
 
 This Bundle relies on the use of [Stripe](https://stripe.com/) and its [PHP Library](https://github.com/stripe/stripe-php).
@@ -21,19 +21,11 @@ Bundle installation
 
 Step 1: Download the Bundle
 ---------------------------
-Add the following to your `composer.json > require section`
-```
-"require": {
-    "c975L/payment-bundle": "1.*"
+Use [Composer](https://getcomposer.org) to install the library
+```bash
+    composer require c975L/payment-bundle
 },
 ```
-Then open a command console, enter your project directory and update composer, by executing the following command, to download the latest stable version of this bundle:
-
-```bash
-$ composer update
-```
-
-This command requires you to have Composer installed globally, as explained in the [installation chapter](https://getcomposer.org/doc/00-intro.md) of the Composer documentation.
 
 Step 2: Enable the Bundles
 --------------------------
@@ -56,7 +48,7 @@ class AppKernel extends Kernel
 
 Step 3: Configure the Bundle
 ----------------------------
-Setup your Tinymce API key, optional if you use the cloud version, in `parameters.yml`
+Setup your Stripe API keys, in `parameters.yml`
 ```yml
     #Your Stripe Api keys
     stripe_secret_key_test : YOUR_API_KEY
@@ -73,38 +65,10 @@ And then in `parameters.yml.dist`
     stripe_publishable_key_live: ~
 ```
 
+Check [c975LEmailBundle](https://github.com/975L/EmailBundle)  for its specific configuration
 Then, in the `app/config.yml` file of your project, define the following:
 
 ```yml
-#Swiftmailer Configuration
-swiftmailer:
-    transport: "%mailer_transport%"
-    host:      "%mailer_host%"
-    username:  "%mailer_user%"
-    password:  "%mailer_password%"
-    spool:     { type: memory }
-    auth_mode:  login
-    port:       587
-
-#Doctrine Configuration
-doctrine:
-    dbal:
-        driver:   "%database_driver%"
-        host:     "%database_host%"
-        port:     "%database_port%"
-        dbname:   "%database_name%"
-        user:     "%database_user%"
-        password: "%database_password%"
-        charset:  UTF8
-    orm:
-        auto_generate_proxy_classes: "%kernel.debug%"
-        naming_strategy: doctrine.orm.naming_strategy.underscore
-        auto_mapping: true
-
-#EmailBundle
-c975_l_email:
-    sentFrom: 'contact@example.com'
-
 #PaymentBundle
 c975_l_payment:
     #The site name that will appear on the payment form
