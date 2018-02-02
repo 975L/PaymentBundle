@@ -191,6 +191,11 @@ use c975L\PaymentBundle\Entity\StripePayment;
                 return $this->redirectToRoute('payment_order', array(
                     'orderId' => $orderId,
                 ));
+            //Payment already finished (happens only if stop loading an refresh of the order page)
+            } else {
+                return $this->redirectToRoute('payment_order', array(
+                    'orderId' => $orderId,
+                ));
             }
         //StripePayment not executed
         } else {

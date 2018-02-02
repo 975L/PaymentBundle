@@ -1,5 +1,9 @@
 # Changelog
 
+v1.3.2
+------
+- Add of a else case in the `README.md` for refresh on stopped loading order page (02/02/2018)
+
 v1.3.1
 ------
 - Change in `README.md` to redirect after payment in place of displaying Twig template (02/02/2018)
