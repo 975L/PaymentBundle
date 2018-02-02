@@ -1,5 +1,10 @@
 # Changelog
 
+v1.3.1
+------
+- Change in `README.md` to redirect after payment in place of displaying Twig template (02/02/2018)
+- Add of a Route to display order data (02/02/2018)
+
 v1.3
 ----
 - remove of bitcoin option as it will not be supported anymore by Stripe as of 04/23 (01/02/2018)

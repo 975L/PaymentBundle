@@ -187,10 +187,10 @@ use c975L\PaymentBundle\Entity\StripePayment;
                     $em->flush();
                 }
 
-            //Display the payment data
-            return $this->render('@c975LPayment/pages/order.html.twig', array(
-                'payment' => $stripePayment,
-            ));
+                //Redirects to the order page, but you can change it to your own
+                return $this->redirectToRoute('payment_order', array(
+                    'orderId' => $orderId,
+                ));
             }
         //StripePayment not executed
         } else {

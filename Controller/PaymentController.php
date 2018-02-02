@@ -21,7 +21,7 @@ use c975L\PaymentBundle\Entity\StripePayment;
 
 class PaymentController extends Controller
 {
-//PAYMENT DISPLAY (FORM)
+//DISPLAY (PAYMENT FORM)
     /**
      * @Route("/payment",
      *      name="payment_display")
@@ -64,6 +64,34 @@ class PaymentController extends Controller
 
         //No current payment
         return $this->render('@c975LPayment/pages/noPayment.html.twig');
+    }
+
+//DISPLAY (ORDER)
+    /**
+     * @Route("/payment-order/{orderId}",
+     *      name="payment_order",
+     *      requirements={"orderId": "^[0-9\-]+$"})
+     * @Method({"GET", "HEAD"})
+     */
+    public function displayOrderAction(Request $request, $orderId)
+    {
+        //Gets the manager
+        $em = $this->getDoctrine()->getManager();
+
+        //Gets repository
+        $repository = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment');
+
+        //Loads from DB
+        $stripePayment = $repository->findOneByOrderId($orderId);
+
+        //Not existing payment
+        if (!$stripePayment instanceof StripePayment) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('@c975LPayment/pages/order.html.twig', array(
+            'payment' => $stripePayment,
+        ));
     }
 
 //CHARGE
