@@ -4,7 +4,7 @@
 
 {% block payment_content %}
 {# Explanation #}
-    <p>
+    <p class="alert alert-info text-center">
         {{ 'text.explanation'|trans }}
     </p>
 {# Description #}
@@ -23,16 +23,6 @@
     <p>
         {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
     </p>
-    {% if is_granted('ROLE_ADMIN') %}
-{# Stripe Fee #}
-        <p class="text-muted">
-            {{ 'label.stripe_fee'|trans }} : <strong>{{ (payment.stripeFee / 100)|localizedcurrency(payment.currency) }}</strong>
-        </p>
-{# Income #}
-        <p class="text-muted">
-            {{ 'label.income'|trans }} : <strong>{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
-        </p>
-    {% endif %}
 {# Not storing banking information #}
     <p class="alert alert-info text-center">
         <strong>

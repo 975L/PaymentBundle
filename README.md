@@ -87,6 +87,8 @@ c975_l_payment:
     zipCode: false #true(default)
     #If you want to use the alipay function
     alipay: true #false(default)
+    #User's role needed to enable access to the display of payments
+    roleNeeded: 'ROLE_ADMIN'
 ```
 
 Step 4: Enable the Routes
@@ -105,17 +107,31 @@ Step 5: Create MySql table
 --------------------------
 - Use `/Resources/sql/payment.sql` to create the tables `stripe_payment`. The `DROP TABLE` is commented to avoid dropping by mistake.
 
+
+Ste 6: copy images to web folder
+--------------------------------
+Install images by running
+```bash
+php bin/console assets:install
+```
+It will copy content of folder `Resources/public/images/` to your web folder. They are used to be displayed on the payment form.
+You can also use them in the footer, for this, you may simply use the Twig Extension by pasting the following in iyur footer (or wherever you want).
+```html
+{{ payment_system()|raw }}
+```
+You can also have a look at [official badges from Stripe](https://stripe.com/about/resources?locale=fr).
+
 How to use
 ----------
-In your Controller file, you need to create an array containing the following data, then call the service to create the payment, with this array, and finally redirect to the `payment_display` Route.
+In your Controller file, you need to create an array containing the following data, then call the service to create the payment, with this array, and finally redirect to the `payment_form` Route.
 
 ```php
 //Controller file
-use c975L\PaymentBundle\Service\StripePaymentService;
+use c975L\PaymentBundle\Service\PaymentService;
 //...
 
 //Except amount and currency all the fields are nullable
-$stripeData = array(
+$paymentData = array(
     'amount' => YOUR_AMOUNT, //Must be an integer in cents
     'currency' => YOUR_CURRENCY, //Coded on 3 letters
     'action' => YOUR_ACTION, //See below for explanations
@@ -123,11 +139,11 @@ $stripeData = array(
     'userId' => USER_ID,
     'userIp' => USER_IP,
     );
-$stripeService = $this->get(StripePaymentService::class);
-$stripeService->create($stripeData);
+$paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
+$paymentService->create($paymentData);
 
 //Redirects to the payment
-return $this->redirectToRoute('payment_display');
+return $this->redirectToRoute('payment_form');
 
 ```
 `action` is a special field to store (plain text, json, serialize, etc.) the action you want to achieve after the payment is done. It will mainly be used in the `returnRoute`. You can see below an example.
@@ -135,7 +151,7 @@ return $this->redirectToRoute('payment_display');
 You also need to define a `returnRoute` in your Controller to be able to manage the actions after the payment. This Route has to be defined in the `config.yml` (see above). It will receive the orderId so you can work with it if needed.
 ```php
 //Controller file
-use c975L\PaymentBundle\Entity\StripePayment;
+use c975L\PaymentBundle\Entity\Payment;
 
 //PAYMENT DONE
     /**
@@ -149,19 +165,19 @@ use c975L\PaymentBundle\Entity\StripePayment;
         $em = $this->getDoctrine()->getManager();
 
         //Gets Stripe payment
-        $stripePayment = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment')
+        $payment = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment')
             ->findOneByOrderId($orderId);
-        if (!$stripePayment instanceof StripePayment) {
+        if (!$payment instanceof StripePayment) {
             throw $this->createNotFoundException();
         }
 
         //StripePayment executed
-        if ($stripePayment->getStripeToken() !== null) {
-            //Sets stripePayment as finished
-            if ($stripePayment->getFinished() !== true) {
+        if ($payment->getStripeToken() !== null) {
+            //Sets Payment as finished
+            if ($payment->getFinished() !== true) {
                 //Gets the user
                 $user = $em->getRepository('UserFilesBundle:User')
-                    ->findOneById($stripePayment->getUserId());
+                    ->findOneById($payment->getUserId());
 
                 //Do the action
                 /*
@@ -170,7 +186,7 @@ use c975L\PaymentBundle\Entity\StripePayment;
                 * as we want to add the number of credits to the user after payment.
                 * So, we just decode, test the value and do the job.
                 */
-                $action = (array) json_decode($stripePayment->getAction());
+                $action = (array) json_decode($payment->getAction());
 
                 //Add credits
                 if (array_key_exists('addCredits', $action)) {
@@ -179,49 +195,34 @@ use c975L\PaymentBundle\Entity\StripePayment;
                     //Do any other needed stuff...
 
                     //DO NOT FORGET to update the payment to set it finished
-                    $stripePayment->setFinished(true);
+                    $payment->setFinished(true);
 
                     //Persist in database
-                    $em->persist($stripePayment);
+                    $em->persist($payment);
                     $em->persist($user);
                     $em->flush();
                 }
 
                 //Redirects to the order page, but you can change it to your own
-                return $this->redirectToRoute('payment_order', array(
+                return $this->redirectToRoute('payment_confirm', array(
                     'orderId' => $orderId,
                 ));
             //Payment already finished (happens only if stop loading an refresh of the order page)
             } else {
-                return $this->redirectToRoute('payment_order', array(
+                return $this->redirectToRoute('payment_confirm', array(
                     'orderId' => $orderId,
                 ));
             }
         //StripePayment not executed
         } else {
-            $stripeService = $this->get(StripePaymentService::class);
-            $stripeService->reUse($stripePayment);
+            $paymentService = $this->get(PaymentService::class);
+            $paymentService->reUse($payment);
 
             //Display the payment data
             return $this->render('@c975LPayment/pages/orderNotExecuted.html.twig', array(
-                'payment' => $stripePayment,
+                'payment' => $payment,
             ));
         }
     }
 ```
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
-
-How to use images
------------------
-**Images are NOT officially supported by Stripe!**
-In the Folder `Resources/public/images/` there are two images that can be used to display visual information. `stripe-cards.jpg` has to be installed, except if you override `payment.html.twig`, as ths picture is used in the template.
-
-To install the images simply run
-```bash
-php bin/console assets:install
-```
-Then tou can use them via
-```html
-<img src="{{ asset('bundles/c975lpayment/images/stripe-cards.jpg') }}" alt="stripe cards" />
-<img src="{{ asset('bundles/c975lpayment/images/stripe.png') }}" alt="stripe" />
-```

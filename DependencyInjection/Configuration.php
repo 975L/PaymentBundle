@@ -43,6 +43,9 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('alipay')
                     ->defaultFalse()
                 ->end()
+                ->scalarNode('roleNeeded')
+                    ->defaultValue('ROLE_ADMIN')
+                ->end()
             ->end()
         ;
 

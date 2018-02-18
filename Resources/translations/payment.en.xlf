@@ -24,15 +24,15 @@
             </trans-unit>
             <trans-unit id="6">
                 <source>text.not_store_banking</source>
-                <target><![CDATA[We do NOT store data Banking]]></target>
+                <target>We do NOT store data Banking</target>
             </trans-unit>
             <trans-unit id="7">
                 <source>text.secured_page</source>
-                <target><![CDATA[This page uses a secure SSL connection. I can confirm this by checking that the URL is https, and that a pAdlock is present in my Address bar.]]></target>
+                <target>This page uses a secure SSL connection. I can confirm this by checking that the URL is https, and that a padlock is present in my Address bar.</target>
             </trans-unit>
             <trans-unit id="8">
-                <source>text.stripe_system</source>
-                <target><![CDATA[Our payment system is done via <a href="https://stripe.com" target="_blank" rel="nofollow">Stripe</a> and is completely sure and secured!]]></target>
+                <source>label.payment_system</source>
+                <target>Payment system (PCI/DSS 1)</target>
             </trans-unit>
             <trans-unit id="9">
                 <source>label.payment_done</source>
@@ -74,15 +74,15 @@
             </trans-unit>
             <trans-unit id="18">
                 <source>text.explanation</source>
-                <target><![CDATA[The following payment has been well executed on our website.]]></target>
+                <target>The following payment has been well executed on our website.</target>
             </trans-unit>
             <trans-unit id="19">
                 <source>text.error_payment</source>
-                <target><![CDATA[The following error has occured during the process. The money has NOT been withdrawn from the account. Please correct and re-submit or contact us.]]></target>
+                <target>The following error has occured during the process. The money has NOT been withdrawn from the account. Please correct and re-submit or contact us.</target>
             </trans-unit>
             <trans-unit id="20">
                 <source>text.error_payment_generic</source>
-                <target><![CDATA[An error has occured during the process. The money has NOT been withdrawn from the account.]]></target>
+                <target>An error has occured during the process. The money has NOT been withdrawn from the account.</target>
             </trans-unit>
             <trans-unit id="21">
                 <source>label.stripe_fee</source>
@@ -94,11 +94,31 @@
             </trans-unit>
             <trans-unit id="23">
                 <source>text.explanation_not_executed</source>
-                <target><![CDATA[The following payment has been initiated but not paid on our website.]]></target>
+                <target>The following payment has been initiated but not paid on our website.</target>
             </trans-unit>
             <trans-unit id="24">
                 <source>label.process_payment</source>
                 <target>Process to payment</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>label.action</source>
+                <target>Action</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>text.list_payments</source>
+                <target>List of payments</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>label.email</source>
+                <target>Email</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>text.test_keys</source>
+                <target>!!! Warning, you are currently using the TEST keys, payment will not be debited !!!</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>text.info_payment</source>
+                <target>By clicking on the following button you will proceed to the payment of the service described above.</target>
             </trans-unit>
         </body>
     </file>

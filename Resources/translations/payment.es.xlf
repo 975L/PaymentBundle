@@ -24,15 +24,15 @@
             </trans-unit>
             <trans-unit id="6">
                 <source>text.not_store_banking</source>
-                <target><![CDATA[NO almacenamos datos de Banca]]></target>
+                <target>NO almacenamos datos de Banca</target>
             </trans-unit>
             <trans-unit id="7">
                 <source>text.secured_page</source>
-                <target><![CDATA[Esta página utiliza una conexión segura SSL. Puedo confirmar esto mediante la comprobación de que la URL es https, y que un candado está presente en mi barra de direcciones.]]></target>
+                <target>Esta página utiliza una conexión segura SSL. Puedo confirmar esto mediante la comprobación de que la URL es https, y que un candado está presente en mi barra de direcciones.</target>
             </trans-unit>
             <trans-unit id="8">
-                <source>text.stripe_system</source>
-                <target><![CDATA[Nuestro sistema de pago se realiza a través de <a href="https://stripe.com" target="_blank" rel="nofollow">stripe</a> ¡y es completamente seguro y garantizado!]]></target>
+                <source>label.payment_system</source>
+                <target>Sistema de pago (PCI / DSS 1)</target>
             </trans-unit>
             <trans-unit id="9">
                 <source>label.payment_done</source>
@@ -74,15 +74,15 @@
             </trans-unit>
             <trans-unit id="18">
                 <source>text.explanation</source>
-                <target><![CDATA[El siguiente pago se hizo en nuestro sitio.]]></target>
+                <target>El siguiente pago se hizo en nuestro sitio.</target>
             </trans-unit>
             <trans-unit id="19">
                 <source>text.error_payment</source>
-                <target><![CDATA[El siguiente error se ha producido durante el proceso. El dinero no se ha retirado de la cuenta. Por favor, corregir y volver a presentar o contacto con nosotros.]]></target>
+                <target>El siguiente error se ha producido durante el proceso. El dinero no se ha retirado de la cuenta. Por favor, corregir y volver a presentar o contacto con nosotros.</target>
             </trans-unit>
             <trans-unit id="20">
                 <source>text.error_payment_generic</source>
-                <target><![CDATA[Ha ocurrido un error durante el proceso. El dinero no se ha retirado de la cuenta.]]></target>
+                <target>Ha ocurrido un error durante el proceso. El dinero no se ha retirado de la cuenta.</target>
             </trans-unit>
             <trans-unit id="21">
                 <source>label.stripe_fee</source>
@@ -94,11 +94,31 @@
             </trans-unit>
             <trans-unit id="23">
                 <source>text.explanation_not_executed</source>
-                <target><![CDATA[El siguiente pago se inició pero no pagados en nuestro sitio.]]></target>
+                <target>El siguiente pago se inició pero no pagados en nuestro sitio.</target>
             </trans-unit>
             <trans-unit id="24">
                 <source>label.process_payment</source>
                 <target>Proceder al pago</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>label.action</source>
+                <target>Acción</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>text.list_payments</source>
+                <target>Lista de pagos</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>label.email</source>
+                <target>Email</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>text.test_keys</source>
+                <target>!!! Atención, actualmente está utilizando las claves de TEST, el pago no se debitará !!!</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>text.info_payment</source>
+                <target>Al hacer clic en el siguiente botón, procederá al pago del servicio descrito anteriormente.</target>
             </trans-unit>
         </body>
     </file>

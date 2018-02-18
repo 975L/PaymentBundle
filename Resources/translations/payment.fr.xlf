@@ -24,15 +24,15 @@
             </trans-unit>
             <trans-unit id="6">
                 <source>text.not_store_banking</source>
-                <target><![CDATA[Nous ne stockons PAS les données bancaires]]></target>
+                <target>Nous ne stockons PAS les données bancaires</target>
             </trans-unit>
             <trans-unit id="7">
                 <source>text.secured_page</source>
-                <target><![CDATA[Cette page utilise une connexion sécurisée SSL. Je peux le confirmer en contrôlant que l'URL est bien en https, et qu'un cadenas est bien présent dans ma barre d'adresse.]]></target>
+                <target>Cette page utilise une connexion sécurisée SSL. Je peux le confirmer en contrôlant que l'URL est bien en https, et qu'un cadenas est bien présent dans ma barre d'adresse.</target>
             </trans-unit>
             <trans-unit id="8">
-                <source>text.stripe_system</source>
-                <target><![CDATA[Notre système de paiement est fait via <a href="https://stripe.com" target="_blank" rel="nofollow">Stripe</a> et est complètement sûr et sécurisé !]]></target>
+                <source>label.payment_system</source>
+                <target>Système de paiement (PCI/DSS 1)</target>
             </trans-unit>
             <trans-unit id="9">
                 <source>label.payment_done</source>
@@ -74,15 +74,15 @@
             </trans-unit>
             <trans-unit id="18">
                 <source>text.explanation</source>
-                <target><![CDATA[Le paiement suivant a bien été effectué sur notre site.]]></target>
+                <target>Le paiement suivant a bien été effectué sur notre site.</target>
             </trans-unit>
             <trans-unit id="19">
                 <source>text.error_payment</source>
-                <target><![CDATA[L'erreur suivante est survenue durant le processus. L'argent n'a PAS été enlevé du compte. Merci de corriger et de re-soumettre ou contactez nous.]]></target>
+                <target>L'erreur suivante est survenue durant le processus. L'argent n'a PAS été enlevé du compte. Merci de corriger et de re-soumettre ou contactez nous.</target>
             </trans-unit>
             <trans-unit id="20">
                 <source>text.error_payment_generic</source>
-                <target><![CDATA[Une erreur est survenue durant le processus. L'argent n'a PAS été enlevé du compte.]]></target>
+                <target>Une erreur est survenue durant le processus. L'argent n'a PAS été enlevé du compte.</target>
             </trans-unit>
             <trans-unit id="21">
                 <source>label.stripe_fee</source>
@@ -94,11 +94,31 @@
             </trans-unit>
             <trans-unit id="23">
                 <source>text.explanation_not_executed</source>
-                <target><![CDATA[Le paiement suivant a été initié mais non payé sur notre site.]]></target>
+                <target>Le paiement suivant a été initié mais non payé sur notre site.</target>
             </trans-unit>
             <trans-unit id="24">
                 <source>label.process_payment</source>
                 <target>Procéder au paiement</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>label.action</source>
+                <target>Action</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>text.list_payments</source>
+                <target>List des paiements</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>label.email</source>
+                <target>Email</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>text.test_keys</source>
+                <target>!!! Attention, vous utilisez actuellement les clés de TEST, le paiement ne sera pas débité !!!</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>text.info_payment</source>
+                <target>En cliquant sur le bouton suivant vous pourrez procéder au paiement du service décrit ci-dessus.</target>
             </trans-unit>
         </body>
     </file>

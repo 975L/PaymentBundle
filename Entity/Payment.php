@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity
  */
-class StripePayment
+class Payment
 {
     /**
      * @var int

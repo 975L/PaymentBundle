@@ -1,0 +1,55 @@
+{% extends "@c975LPayment/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+{% set title = 'label.dashboard'|trans({}, 'toolbar') %}
+
+{% block payment_content %}
+{# Toolbar #}
+    {{ toolbar|raw }}
+{# Title #}
+    <div class="text-center">
+        <h2>
+            {{ 'text.list_payments'|trans }}
+        </h2>
+{# List of payments and actions #}
+        <table class="table table-hover table-condensed table-responsive">
+            <thead>
+                <tr>
+                    <th class="text-center"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;{{ knp_pagination_sortable(payments, 'label.order_id'|trans, 'orderId') }}&nbsp;<span class="glyphicon glyphicon-sort"></span></th>
+                    <th class="text-center">{{ knp_pagination_sortable(payments, 'label.amount'|trans, 'amount') }}&nbsp;<span class="glyphicon glyphicon-sort"></span></th>
+                    <th class="text-center">{{ knp_pagination_sortable(payments, 'label.action'|trans, 'action') }}&nbsp;<span class="glyphicon glyphicon-sort"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                    <tr>
+{# OrderId & Display #}
+                        <td class="text-center">
+                            <a href="{{ path('payment_display', {'orderId': payment.orderId}) }}" title="{{ 'label.display'|trans }}">{{ payment.orderId }}</a>
+                        </td>
+{# Amount #}
+                        <td class="text-center">
+                            <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
+                        </td>
+{# Action #}
+                        <td class="text-center">
+                            {{ payment.action }}
+                        </td>
+{# Delete #}
+                        <td class="text-center">
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{# No payments #}
+        {% if payments.getTotalItemCount == 0 %}
+            <p class="alert alert-info">
+                {{ 'label.no_payments'|trans }}
+            </p>
+        {% endif %}
+{# Pagination #}
+        <div class="navigation text-center">
+            {{ knp_pagination_render(payments) }}
+        </div>
+    </div>
+{% endblock %}

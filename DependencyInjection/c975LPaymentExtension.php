@@ -39,5 +39,6 @@ class c975LPaymentExtension extends Extension
         $container->setParameter('c975_l_payment.image', $processedConfig['image']);
         $container->setParameter('c975_l_payment.zipCode', $processedConfig['zipCode']);
         $container->setParameter('c975_l_payment.alipay', $processedConfig['alipay']);
+        $container->setParameter('c975_l_payment.roleNeeded', $processedConfig['roleNeeded']);
     }
 }

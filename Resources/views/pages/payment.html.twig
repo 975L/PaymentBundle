@@ -5,23 +5,29 @@
 {% block payment_content %}
     <div class="alert alert-info">
 {# Test #}
-        {% if test == true %}
+        {% if test != true %}
             <p class="alert alert-danger text-center">
-                *** The keys used are the ones for testing ***
+                {{ 'text.test_keys'|trans }}
             </p>
         {% endif %}
-{# Amount #}
-        <p class="text-center">
-            {{ 'label.payment'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
-        </p>
 {# Description #}
         <p class="text-center">
-            {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+            <strong>{{ 'label.description'|trans }}</strong>
+            <br />
+            {{ payment.description }}
+            <br />
+            <br />
         </p>
+        <div class="well text-center">
+{# Explanation #}
+            <p>
+                {{ 'text.info_payment'|trans }}
+            </p>
+{# Amount #}
+            <p class="lead">
+                {{ (payment.amount / 100)|localizedcurrency(payment.currency) }}
+            </p>
 {# Button form #}
-        <div class="text-center">
-            <br />
-            <br />
             <form action="{{ path('payment_charge') }}" method="POST">
                 <script
                     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -39,8 +45,6 @@
                     {% endif %}
                 ></script>
             </form>
-            <br />
-            <br />
         </div>
 {# Not storing banking information #}
         <p class="text-center">
@@ -48,17 +52,11 @@
                 {{ 'text.not_store_banking'|trans }}
             </strong>
         </p>
+{# Payment system #}
+        {{ payment_system()|raw }}
     </div>
 {# Secured page #}
     <p class="text-center text-muted">
         {{ 'text.secured_page'|trans|raw }}
-    </p>
-{# Stripe system #}
-    <p class="text-center text-muted">
-        {{ 'text.stripe_system'|trans|raw }}
-    </p>
-{# Image #}
-    <p class="text-center text-muted">
-        <img src="{{ asset('bundles/c975lpayment/images/stripe-cards.jpg') }}" alt="stripe cards" />
     </p>
 {% endblock %}

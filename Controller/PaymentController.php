@@ -17,38 +17,121 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use c975L\PaymentBundle\Entity\StripePayment;
+use c975L\PaymentBundle\Entity\Payment;
 
 class PaymentController extends Controller
 {
-//DISPLAY (PAYMENT FORM)
+//DASHBOARD
     /**
-     * @Route("/payment",
-     *      name="payment_display")
+     * @Route("/payment/dashboard",
+     *      name="payment_dashboard")
      * @Method({"GET", "HEAD"})
      */
-    public function displayAction(Request $request)
+    public function dashboardAction(Request $request)
+    {
+        //Gets the user
+        $user = $this->getUser();
+
+        //Returns the dashboard content
+        if ($user !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
+            //Gets the manager
+            $em = $this->getDoctrine()->getManager();
+
+            //Gets repository
+            $repository = $em->getRepository('c975LPaymentBundle:Payment');
+
+            //Pagination
+            $paginator  = $this->get('knp_paginator');
+            $pagination = $paginator->paginate(
+                $repository->findAll(array(), array('id' => 'DESC')),
+                $request->query->getInt('p', 1),
+                50
+            );
+
+            //Defines toolbar
+            $tools  = $this->renderView('@c975LPayment/tools.html.twig', array(
+                'type' => 'dashboard',
+            ));
+            $toolbar = $this->forward('c975L\ToolbarBundle\Controller\ToolbarController::displayAction', array(
+                'tools'  => $tools,
+                'dashboard'  => 'payment',
+            ))->getContent();
+
+            //Returns the dashboard
+            return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
+                'payments' => $pagination,
+                'toolbar' => $toolbar,
+            ));
+        }
+
+        //Access is denied
+        throw $this->createAccessDeniedException();
+    }
+
+//DISPLAY
+    /**
+     * @Route("/payment/{orderId}",
+     *      name="payment_display",
+     *      requirements={"orderId": "^[0-9\-]+$"})
+     * @Method({"GET", "HEAD"})
+     */
+    public function displayAction(Request $request, $orderId)
+    {
+        //Gets the user
+        $user = $this->getUser();
+
+        if ($user !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
+            //Gets the manager
+            $em = $this->getDoctrine()->getManager();
+
+            //Gets repository
+            $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
+
+            //Loads from DB
+            $payment = $repository->findOneByOrderId($orderId);
+
+            //Not existing payment
+            if (!$payment instanceof Payment) {
+                throw $this->createNotFoundException();
+            }
+
+            //Defines toolbar
+            $tools  = $this->renderView('@c975LPayment/tools.html.twig', array(
+                'type' => 'display',
+            ));
+            $toolbar = $this->forward('c975L\ToolbarBundle\Controller\ToolbarController::displayAction', array(
+                'tools'  => $tools,
+                'dashboard'  => 'payment',
+            ))->getContent();
+
+            return $this->render('@c975LPayment/pages/display.html.twig', array(
+                'payment' => $payment,
+                'toolbar' => $toolbar,
+            ));
+        }
+
+        //Access is denied
+        throw $this->createAccessDeniedException();
+    }
+
+//FORM
+    /**
+     * @Route("/payment",
+     *      name="payment_form")
+     * @Method({"GET", "HEAD"})
+     */
+    public function formAction(Request $request)
     {
         //Grabs data from session
-        $stripePayment = $request->getSession()->get('stripe');
+        $payment = $request->getSession()->get('stripe');
 
         //Defines payment
-        if ($stripePayment instanceof StripePayment) {
-            //Stripe key - Tests payments
-            if ($this->getParameter('c975_l_payment.live') === false) {
-                if (!$this->container->hasParameter('stripe_publishable_key_test')) {
-                    throw new InvalidArgumentException();
-                }
-                $stripePublishableKey = $this->getParameter('stripe_publishable_key_test');
-                $test = true;
-            //Stripe key - Live payments
-            } else {
-                if (!$this->container->hasParameter('stripe_publishable_key_live')) {
-                    throw new InvalidArgumentException();
-                }
-                $stripePublishableKey = $this->getParameter('stripe_publishable_key_live');
-                $test = false;
-            }
+        if ($payment instanceof Payment) {
+            //Gets paymentService
+            $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
+
+            //Gets the key and test
+            list($stripePublishableKey, $test) = $paymentService->getPublishableKey($this->getParameter('c975_l_payment.live'));
 
             //Renders the payment
             return $this->render('@c975LPayment/pages/payment.html.twig', array(
@@ -58,7 +141,7 @@ class PaymentController extends Controller
                 'zipCode' => $this->getParameter('c975_l_payment.zipCode') === true ? 'true' : 'false',
                 'alipay' => $this->getParameter('c975_l_payment.alipay') === true ? 'true' : 'false',
                 'test' => $test,
-                'payment' => $stripePayment,
+                'payment' => $payment,
                 ));
         }
 
@@ -66,31 +149,31 @@ class PaymentController extends Controller
         return $this->render('@c975LPayment/pages/noPayment.html.twig');
     }
 
-//DISPLAY (ORDER)
+//CONFIRM CHARGED
     /**
-     * @Route("/payment-order/{orderId}",
-     *      name="payment_order",
+     * @Route("/payment/confirm/{orderId}",
+     *      name="payment_confirm",
      *      requirements={"orderId": "^[0-9\-]+$"})
      * @Method({"GET", "HEAD"})
      */
-    public function displayOrderAction(Request $request, $orderId)
+    public function confirmAction(Request $request, $orderId)
     {
         //Gets the manager
         $em = $this->getDoctrine()->getManager();
 
         //Gets repository
-        $repository = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment');
+        $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
 
         //Loads from DB
-        $stripePayment = $repository->findOneByOrderId($orderId);
+        $payment = $repository->findOneByOrderId($orderId);
 
         //Not existing payment
-        if (!$stripePayment instanceof StripePayment) {
+        if (!$payment instanceof Payment) {
             throw $this->createNotFoundException();
         }
 
         return $this->render('@c975LPayment/pages/order.html.twig', array(
-            'payment' => $stripePayment,
+            'payment' => $payment,
         ));
     }
 
@@ -114,7 +197,7 @@ class PaymentController extends Controller
         $session = $request->getSession();
         $stripeSession = $session->get('stripe');
 
-        if (!$stripeSession instanceof StripePayment) {
+        if (!$stripeSession instanceof Payment) {
             throw $this->createNotFoundException();
         }
 
@@ -129,22 +212,11 @@ class PaymentController extends Controller
 
         //Creates the charge on Stripe's servers - This will charge the user's card
         try {
-            //Stripe key - Tests payments
-            if ($this->getParameter('c975_l_payment.live') === false) {
-                if (!$this->container->hasParameter('stripe_secret_key_test')) {
-                    throw new InvalidArgumentException();
-                }
-                $stripeSecretKey = $this->getParameter('stripe_secret_key_test');
-            //Stripe key - Live payments
-            } else {
-                if (!$this->container->hasParameter('stripe_secret_key_live')) {
-                    throw new InvalidArgumentException();
-                }
-                $stripeSecretKey = $this->getParameter('stripe_secret_key_live');
-            }
+            //Gets paymentService
+            $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 
             //Do the Stripe transaction
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
+            \Stripe\Stripe::setApiKey($paymentService->getSecretKey($this->getParameter('c975_l_payment.live')));
             $charge = \Stripe\Charge::create($payment);
 
             //Deletes data from session
@@ -154,16 +226,16 @@ class PaymentController extends Controller
             $em = $this->getDoctrine()->getManager();
 
             //Updates stripePayment
-            $stripePayment = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment')
+            $payment = $em->getRepository('c975L\PaymentBundle\Entity\Payment')
                 ->findOneByOrderId($stripeSession->getOrderId());
-            if ($stripePayment instanceof StripePayment) {
-                $stripePayment->setStripeFee((int) (($stripePayment->getAmount() * 1.4 / 100) + 25));
-                $stripePayment->setStripeToken($stripeToken);
-                $stripePayment->setStripeTokenType($stripeTokenType);
-                $stripePayment->setStripeEmail($stripeEmail);
+            if ($payment instanceof Payment) {
+                $payment->setStripeFee((int) (($payment->getAmount() * 1.4 / 100) + 25));
+                $payment->setStripeToken($stripeToken);
+                $payment->setStripeTokenType($stripeTokenType);
+                $payment->setStripeEmail($stripeEmail);
 
                 //Persist in DB
-                $em->persist($stripePayment);
+                $em->persist($payment);
                 $em->flush();
             }
 
@@ -173,10 +245,10 @@ class PaymentController extends Controller
             //Creates email for user
             $subject = $this->getParameter('c975_l_payment.site');
             $subject .= ' - ' . $translator->trans('label.payment_done', array(), 'payment');
-            $subject .= ' (' . $stripePayment->getAmount() / 100 . ' ' . $stripePayment->getCurrency() . ')';
+            $subject .= ' (' . $payment->getAmount() / 100 . ' ' . $payment->getCurrency() . ')';
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
                 'locale' => $request->getLocale(),
-                'payment' => $stripePayment,
+                'payment' => $payment,
                 'email' => $this->getParameter('c975_l_email.sentFrom'),
                 'site' => $this->getParameter('c975_l_payment.site'),
                 'stripeFee' => false,
@@ -193,7 +265,7 @@ class PaymentController extends Controller
             //Creates email for site
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
                 'locale' => $request->getLocale(),
-                'payment' => $stripePayment,
+                'payment' => $payment,
                 'email' => $this->getParameter('c975_l_email.sentFrom'),
                 'site' => $this->getParameter('c975_l_payment.site'),
                 'stripeFee' => true,
@@ -209,11 +281,11 @@ class PaymentController extends Controller
 
             //Creates flash
             $flash = $translator->trans('label.payment_done', array(), 'payment');
-            $flash .= ' (' . $stripePayment->getAmount() / 100 . ' ' . $stripePayment->getCurrency() . ')';
+            $flash .= ' (' . $payment->getAmount() / 100 . ' ' . $payment->getCurrency() . ')';
             $session->getFlashBag()->add('success', $flash);
 
             //Redirects to returnRoute
-            return $this->redirectToRoute($this->getParameter('c975_l_payment.returnRoute'), array('orderId' => $stripePayment->getOrderId()));
+            return $this->redirectToRoute($this->getParameter('c975_l_payment.returnRoute'), array('orderId' => $payment->getOrderId()));
 
         //Errors
         } catch (\Stripe\Error\Card $e) {

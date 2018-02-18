@@ -1,0 +1,40 @@
+{% extends "@c975LPayment/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+{% set title = 'label.refund'|trans ~ ' : ' ~ payment.orderId %}
+
+{% block payment_content %}
+{# Toolbar #}
+    {{ toolbar|raw }}
+{# Order Id #}
+    <p>
+        {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
+    </p>
+{# Date #}
+    <p>
+        {{ 'label.date'|trans }} : <strong>{{ payment.creation|localizeddate('medium', 'medium') }}</strong>
+    </p>
+{# Amount #}
+    <p>
+        {{ 'label.amount'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
+    </p>
+{# Stripe Fee #}
+    <p>
+        {{ 'label.stripe_fee'|trans }} : <strong><span style="color:red">-{{ (payment.stripeFee / 100)|localizedcurrency(payment.currency) }}<span></strong>
+    </p>
+{# Income #}
+    <p>
+        {{ 'label.income'|trans }} : <strong><span style="color:darkgreen">+{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
+    </p>
+{# Action #}
+    <p>
+        {{ 'label.action'|trans }} : <strong>{{ payment.action }}</strong>
+    </p>
+{# Email #}
+    <p>
+        {{ 'label.email'|trans }} : <strong>{{ payment.stripeEmail }}</strong>
+    </p>
+{# Description #}
+    <p>
+        {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+    </p>
+{% endblock %}
