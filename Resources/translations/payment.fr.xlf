@@ -118,7 +118,7 @@
             </trans-unit>
             <trans-unit id="29">
                 <source>text.info_payment</source>
-                <target>En cliquant sur le bouton suivant vous pourrez procéder au paiement du service décrit ci-dessus.</target>
+                <target>En cliquant sur le bouton suivant vous pourrez procéder au paiement du service décrit ci-dessous.</target>
             </trans-unit>
         </body>
     </file>
