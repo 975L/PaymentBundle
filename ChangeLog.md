@@ -1,5 +1,9 @@
 # Changelog
 
+v1.4.1
+------
+- Modified payment page (19/02/2018)
+
 v1.4
 ----
 - Change about composer download in `README.md` (04/02/2018)

@@ -10,18 +10,14 @@
                 {{ 'text.test_keys'|trans }}
             </p>
         {% endif %}
-{# Description #}
-        <p class="text-center">
-            <strong>{{ 'label.description'|trans }}</strong>
-            <br />
-            {{ payment.description }}
-            <br />
-            <br />
-        </p>
         <div class="well text-center">
 {# Explanation #}
             <p>
                 {{ 'text.info_payment'|trans }}
+            </p>
+{# Description #}
+            <p class="text-center lead">
+                <strong>>> {{ payment.description }} <<</strong>
             </p>
 {# Amount #}
             <p class="lead">
