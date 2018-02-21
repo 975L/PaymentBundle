@@ -1,5 +1,9 @@
 # Changelog
 
+v1.4.2
+------
+- Corrected warning display when using test keys on payment form (21/02/2018)
+
 v1.4.1
 ------
 - Modified payment page (19/02/2018)
