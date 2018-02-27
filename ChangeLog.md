@@ -1,5 +1,11 @@
 # Changelog
 
+v1.5
+----
+- Abandoned Glyphicon and replaced by fontawesome (22/02/2018)
+- Added c957L/IncludeLibrary to include libraries in layout.html.twig (27/02/2018)
+- Removed email layout and styles to use those defined in c975L\EmailBundle (27/02/2018)
+
 v1.4.2
 ------
 - Corrected warning display when using test keys on payment form (21/02/2018)
