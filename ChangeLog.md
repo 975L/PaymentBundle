@@ -1,5 +1,9 @@
 # Changelog
 
+v1.5.1
+------
+- Added 'is_safe' to Twig extension `PaymentSystem` to remove "|raw" on each call (01/03/2018)
+
 v1.5
 ----
 - Abandoned Glyphicon and replaced by fontawesome (22/02/2018)
