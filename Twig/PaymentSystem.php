@@ -17,7 +17,10 @@ class PaymentSystem extends \Twig_Extension
             new \Twig_SimpleFunction(
                 'payment_system',
                 array($this, 'paymentSystem'),
-                array('needs_environment' => true)
+                array(
+                    'needs_environment' => true,
+                    'is_safe' => array('html'),
+                )
             ),
         );
     }
