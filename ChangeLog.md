@@ -1,5 +1,10 @@
 # Changelog
 
+v1.5.2
+------
+- Corrected source and issues in `composer.json` (04/03/2018)
+- Corrected `README.md` (04/03/2018)
+
 v1.5.1.1
 --------
 - Removed "|raw" in call of `payment_system()` (01/03/2018)
