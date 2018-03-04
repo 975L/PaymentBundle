@@ -1,5 +1,7 @@
 # Changelog
 
+- Added "_locale requirement" part for multilingual prefix in `routing.yml` in `README.md` (04/03/2018)
+
 v1.5.2
 ------
 - Corrected source and issues in `composer.json` (04/03/2018)
