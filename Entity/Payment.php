@@ -118,6 +118,7 @@ class Payment
      */
     protected $creation;
 
+    protected $live;
 
     public function __construct($data, $timezone)
     {
@@ -134,8 +135,10 @@ class Payment
     public function setDataFromArray($data)
     {
         foreach ($data as $key => $value) {
-            $function = 'set' . ucfirst($key);
-            $this->$function($value);
+            $method = 'set' . ucfirst($key);
+            if (method_exists($this, $method)) {
+                $this->$method($value);
+            }
         }
     }
 
@@ -472,5 +475,29 @@ class Payment
     public function getCreation()
     {
         return $this->creation;
+    }
+
+    /**
+     * Set live
+     *
+     * @param \DateTime $live
+     *
+     * @return StripePayment
+     */
+    public function setLive($live)
+    {
+        $this->live = $live;
+
+        return $this;
+    }
+
+    /**
+     * Get live
+     *
+     * @return \DateTime
+     */
+    public function getLive()
+    {
+        return $this->live;
     }
 }

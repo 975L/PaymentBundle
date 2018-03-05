@@ -114,11 +114,20 @@
             </trans-unit>
             <trans-unit id="28">
                 <source>text.test_keys</source>
-                <target>!!! Warning, you are currently using the TEST keys, payment will not be debited !!!</target>
+                <target><![CDATA[!!! Warning, you are currently using the TEST keys, payment will not be debited !!!
+                        The payment data in test are as follows
+                        Card: 4242 4242 4242 4242
+                        Month/Year: any month/year in the future
+                        CVV: 3 random numbers
+                        ]]></target>
             </trans-unit>
             <trans-unit id="29">
                 <source>text.info_payment</source>
                 <target>By clicking on the following button you will proceed to the payment of the service described below.</target>
+            </trans-unit>
+            <trans-unit id="30">
+                <source>text.test_payment</source>
+                <target>This payment is a test, it has not been debited.</target>
             </trans-unit>
         </body>
     </file>

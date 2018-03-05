@@ -1,6 +1,12 @@
 # Changelog
 
+v1.6
+----
 - Added "_locale requirement" part for multilingual prefix in `routing.yml` in `README.md` (04/03/2018)
+- Corrected `test` variable to `live` (05/03/2018)
+- Modified `setDataFromArray()` in Entity (05/03/2018)
+- Added the possibility to test products, so to use test keys, while being live for other products (05/03/2018)
+- Added data to test payment in warning panel (05/03/2018)
 
 v1.5.2
 ------

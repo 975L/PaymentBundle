@@ -32,6 +32,17 @@ class PaymentService
     //Creates the payment
     public function create($data)
     {
+        //Payment or product under test
+        $live = isset($data['live']) ? $data['live'] : $this->container->getParameter('c975_l_payment.live');
+        if ($this->container->getParameter('c975_l_payment.live') === false || $live === false) {
+            $data['description'] = '(TEST) ' . $data['description'];
+            $data['live'] = false;
+        //Payment live
+        } else {
+            $data['live'] = true;
+        }
+
+        //Creates payment
         $payment = new Payment($data, $this->container->getParameter('c975_l_payment.timezone'));
 
         //Persists data in DB
@@ -60,17 +71,15 @@ class PaymentService
                 throw new InvalidArgumentException();
             }
             $stripePublishableKey = $this->container->getParameter('stripe_publishable_key_test');
-            $test = true;
         //Stripe key - Live payments
         } else {
             if (!$this->container->hasParameter('stripe_publishable_key_live')) {
                 throw new InvalidArgumentException();
             }
             $stripePublishableKey = $this->container->getParameter('stripe_publishable_key_live');
-            $test = false;
         }
 
-        return array($stripePublishableKey, $test);
+        return $stripePublishableKey;
     }
 
     //Get secret key

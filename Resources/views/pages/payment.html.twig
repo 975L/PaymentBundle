@@ -5,9 +5,9 @@
 {% block payment_content %}
     <div class="alert alert-info">
 {# Test #}
-        {% if test == true %}
+        {% if live == false %}
             <p class="alert alert-danger text-center">
-                {{ 'text.test_keys'|trans }}
+                {{ 'text.test_keys'|trans|nl2br }}
             </p>
         {% endif %}
         <div class="well text-center">
@@ -17,7 +17,7 @@
             </p>
 {# Description #}
             <p class="text-center lead">
-                <strong>>> {{ payment.description }} <<</strong>
+                <strong> >> {{ payment.description }} << </strong>
             </p>
 {# Amount #}
             <p class="lead">

@@ -7,6 +7,12 @@
     <p class="alert alert-info text-center">
         {{ 'text.explanation'|trans }}
     </p>
+{# Test #}
+    {% if payment.description starts with '(TEST)' %}
+        <p class="alert alert-danger text-center">
+            {{ 'text.test_payment'|trans }}
+        </p>
+    {% endif %}
 {# Description #}
     <p>
         {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>

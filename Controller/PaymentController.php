@@ -130,8 +130,8 @@ class PaymentController extends Controller
             //Gets paymentService
             $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 
-            //Gets the key and test
-            list($stripePublishableKey, $test) = $paymentService->getPublishableKey($this->getParameter('c975_l_payment.live'));
+            //Gets the publishable key
+            $stripePublishableKey = $paymentService->getPublishableKey($payment->getLive());
 
             //Renders the payment
             return $this->render('@c975LPayment/pages/payment.html.twig', array(
@@ -140,7 +140,7 @@ class PaymentController extends Controller
                 'image' => $this->getParameter('c975_l_payment.image'),
                 'zipCode' => $this->getParameter('c975_l_payment.zipCode') === true ? 'true' : 'false',
                 'alipay' => $this->getParameter('c975_l_payment.alipay') === true ? 'true' : 'false',
-                'test' => $test,
+                'live' => $payment->getLive(),
                 'payment' => $payment,
                 ));
         }
@@ -216,7 +216,7 @@ class PaymentController extends Controller
             $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 
             //Do the Stripe transaction
-            \Stripe\Stripe::setApiKey($paymentService->getSecretKey($this->getParameter('c975_l_payment.live')));
+            \Stripe\Stripe::setApiKey($paymentService->getSecretKey($stripeSession->getLive()));
             $charge = \Stripe\Charge::create($payment);
 
             //Deletes data from session
@@ -356,118 +356,5 @@ class PaymentController extends Controller
 
         //Redirects to payment
         return $this->redirectToRoute('payment_display');
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//REFUND
-    /**
-     * @Route("/payment/refund/{orderId}",
-     *      name="payment_refund",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
-     */
-    public function refundAction(Request $request, $orderId)
-    {
-        //Gets the user
-        $user = $this->getUser();
-
-        if ($user !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
-            //Gets the manager
-            $em = $this->getDoctrine()->getManager();
-
-            //Gets repository
-            $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
-
-            //Loads from DB
-            $payment = $repository->findOneByOrderId($orderId);
-
-            //Not existing payment
-            if (!$payment instanceof Payment) {
-                throw $this->createNotFoundException();
-            }
-
-            return $this->render('@c975LPayment/pages/refund.html.twig', array(
-                'payment' => $payment,
-            ));
-        }
-
-        //Access is denied
-        throw $this->createAccessDeniedException();
-    }
-
-//CONFIRM REFUND
-    /**
-     * @Route("/payment/confirm/refund/{orderId}",
-     *      name="payment_confirm_refund",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
-     */
-    public function confirmRefundAction(Request $request, $orderId)
-    {
-        //Gets the user
-        $user = $this->getUser();
-
-        if ($user !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
-            //Gets the manager
-            $em = $this->getDoctrine()->getManager();
-
-            //Gets repository
-            $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
-
-            //Loads from DB
-            $payment = $repository->findOneByOrderId($orderId);
-
-            //Not existing payment
-            if (!$payment instanceof Payment) {
-                throw $this->createNotFoundException();
-            }
-
-dump($payment);
-dump($payment->getStripeToken());
-
-            //Creates the refund on Stripe's servers - This will refund the user's card
-            try {
-                //Gets paymentService
-                $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
-
-                //Do the Stripe refund
-                \Stripe\Stripe::setApiKey($paymentService->getSecretKey($this->getParameter('c975_l_payment.live')));
-                \Stripe\Refund::create(array(
-                    'charge' => $payment->getStripeToken(),
-                ));
-            } catch (Exception $e) {
-                //Something else happened, completely unrelated to Stripe
-                $errMessage = $e->getJsonBody()['error']['message'];
-                $errCode = 'ErrStripeRefund';
-                $displayError = false;
-            }
-
-
-
-
-            return $this->render('@c975LPayment/pages/refund.html.twig', array(
-                'payment' => $payment,
-            ));
-        }
-
-        //Access is denied
-        throw $this->createAccessDeniedException();
     }
 }

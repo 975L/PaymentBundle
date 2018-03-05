@@ -140,6 +140,7 @@ $paymentData = array(
     'description' => YOUR_DESCRIPTION,
     'userId' => USER_ID,
     'userIp' => USER_IP,
+    'live' => false|true,
     );
 $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 $paymentService->create($paymentData);
