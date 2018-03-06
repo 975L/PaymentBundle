@@ -6,6 +6,3 @@ services:
 
     c975L\PaymentBundle\Service\:
         resource: '../../Service/*'
-
-    c975L\PaymentBundle\Twig\:
-        resource: '../../Twig/*'

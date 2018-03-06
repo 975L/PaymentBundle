@@ -117,9 +117,9 @@ Install images by running
 php bin/console assets:install --symlink
 ```
 It will copy content of folder `Resources/public/images/` to your web folder. They are used to be displayed on the payment form.
-You can also use them in the footer, for this, you may simply use the Twig Extension by pasting the following in iyur footer (or wherever you want).
+You can also use them in the footer, for this, you may simply include the html fragment by pasting the following in your footer (or wherever you want).
 ```html
-{{ payment_system() }}
+{% include '@c975LPayment/fragments/paymentSystem.html.twig' %}
 ```
 You can also have a look at [official badges from Stripe](https://stripe.com/about/resources?locale=fr).
 

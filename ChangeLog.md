@@ -1,5 +1,9 @@
 # Changelog
 
+v1.7
+----
+- Suppressed Twig extension to replace by just include the html fragment, to be coherent with other c975L Bundles (06/03/2018)
+
 v1.6
 ----
 - Added "_locale requirement" part for multilingual prefix in `routing.yml` in `README.md` (04/03/2018)
