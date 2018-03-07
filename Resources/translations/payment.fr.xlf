@@ -38,28 +38,6 @@
                 <source>label.payment_done</source>
                 <target>Paiement effectué</target>
             </trans-unit>
-            <trans-unit id="10">
-                <source>text.email_sent_by</source>
-                <target><![CDATA[Cet email vous a été envoyé par <strong>%site%</strong>.]]></target>
-            </trans-unit>
-            <trans-unit id="11">
-                <source>label.hello</source>
-                <target>Bonjour</target>
-            </trans-unit>
-            <trans-unit id="12">
-                <source>text.thanks_confidence</source>
-                <target><![CDATA[Merci pour votre confiance !
-                        Nous restons à votre disposition pour la moindre demande.]]></target>
-            </trans-unit>
-            <trans-unit id="13">
-                <source>text.no_spam</source>
-                <target><![CDATA[Nous conseillons d'enregistrer notre adresse email "%email%" dans votre carnet d'adresses afin que nos emails ne soient pas classés spam.]]></target>
-            </trans-unit>
-            <trans-unit id="14">
-                <source>text.regards_team</source>
-                <target><![CDATA[Cordialement,
-                        L'équipe %site%]]></target>
-            </trans-unit>
             <trans-unit id="15">
                 <source>label.order_id</source>
                 <target>Identifiant de transaction</target>
@@ -128,6 +106,10 @@
             <trans-unit id="30">
                 <source>text.test_payment</source>
                 <target>Ce paiement est un test, il n'a pas été débité.</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>text.wait_page_loading</source>
+                <target>Après la validation, merci d'attendre le chargement complet de la page.</target>
             </trans-unit>
         </body>
     </file>

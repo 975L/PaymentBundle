@@ -156,7 +156,7 @@ class PaymentController extends Controller
      *      requirements={"orderId": "^[0-9\-]+$"})
      * @Method({"GET", "HEAD"})
      */
-    public function confirmAction(Request $request, $orderId)
+    public function confirmAction($orderId)
     {
         //Gets the manager
         $em = $this->getDoctrine()->getManager();
@@ -219,25 +219,28 @@ class PaymentController extends Controller
             \Stripe\Stripe::setApiKey($paymentService->getSecretKey($stripeSession->getLive()));
             $charge = \Stripe\Charge::create($payment);
 
-            //Deletes data from session
-            $session->remove('stripe');
-
             //Gets the manager
             $em = $this->getDoctrine()->getManager();
 
-            //Updates stripePayment
+            //Updates Payment
             $payment = $em->getRepository('c975L\PaymentBundle\Entity\Payment')
                 ->findOneByOrderId($stripeSession->getOrderId());
             if ($payment instanceof Payment) {
-                $payment->setStripeFee((int) (($payment->getAmount() * 1.4 / 100) + 25));
-                $payment->setStripeToken($stripeToken);
-                $payment->setStripeTokenType($stripeTokenType);
-                $payment->setStripeEmail($stripeEmail);
+                $payment
+                    ->setStripeFee((int) (($payment->getAmount() * 1.4 / 100) + 25))
+                    ->setStripeToken($stripeToken)
+                    ->setStripeTokenType($stripeTokenType)
+                    ->setStripeEmail($stripeEmail)
+                    ->setFinished(true)
+                ;
 
                 //Persist in DB
                 $em->persist($payment);
                 $em->flush();
             }
+
+            //Deletes data in session
+            $session->remove('stripe');
 
             //Gets emailService
             $emailService = $this->get(\c975L\EmailBundle\Service\EmailService::class);
@@ -247,7 +250,6 @@ class PaymentController extends Controller
             $subject .= ' - ' . $translator->trans('label.payment_done', array(), 'payment');
             $subject .= ' (' . $payment->getAmount() / 100 . ' ' . $payment->getCurrency() . ')';
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
-                'locale' => $request->getLocale(),
                 'payment' => $payment,
                 'email' => $this->getParameter('c975_l_email.sentFrom'),
                 'site' => $this->getParameter('c975_l_payment.site'),
@@ -264,7 +266,6 @@ class PaymentController extends Controller
 
             //Creates email for site
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
-                'locale' => $request->getLocale(),
                 'payment' => $payment,
                 'email' => $this->getParameter('c975_l_email.sentFrom'),
                 'site' => $this->getParameter('c975_l_payment.site'),
@@ -328,7 +329,6 @@ class PaymentController extends Controller
         //Sends an email on error
         $errMessage = 'Stripe err : ' . $errMessage;
         $body = $this->renderView('@c975LPayment/emails/errorStripe.html.twig', array(
-            'locale' => 'fr',
             'errCode' => $errCode,
             'errMessage' => $errMessage,
             'email' => $this->getParameter('c975_l_email.sentFrom'),

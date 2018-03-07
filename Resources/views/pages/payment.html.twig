@@ -3,25 +3,27 @@
 {% set title = 'label.payment'|trans %}
 
 {% block payment_content %}
-    <div class="alert alert-info">
+    <div>
 {# Test #}
         {% if live == false %}
             <p class="alert alert-danger text-center">
                 {{ 'text.test_keys'|trans|nl2br }}
             </p>
         {% endif %}
-        <div class="well text-center">
+        <div class="alert alert-success text-center">
 {# Explanation #}
             <p>
                 {{ 'text.info_payment'|trans }}
             </p>
 {# Description #}
-            <p class="text-center lead">
-                <strong> >> {{ payment.description }} << </strong>
+            <p class="lead">
+                {{ payment.description }}
             </p>
 {# Amount #}
             <p class="lead">
                 {{ (payment.amount / 100)|localizedcurrency(payment.currency) }}
+                <br />
+                <br />
             </p>
 {# Button form #}
             <form action="{{ path('payment_charge') }}" method="POST">
@@ -41,6 +43,13 @@
                     {% endif %}
                 ></script>
             </form>
+{# Wait page loading #}
+            <p>
+                <br />
+                {{ 'text.wait_page_loading'|trans }}
+                <br />
+                <br />
+            </p>
         </div>
 {# Not storing banking information #}
         <p class="text-center">
@@ -49,7 +58,7 @@
             </strong>
         </p>
 {# Payment system #}
-        {{ payment_system() }}
+        {% include '@c975LPayment/fragments/paymentSystem.html.twig' %}
     </div>
 {# Secured page #}
     <p class="text-center text-muted">

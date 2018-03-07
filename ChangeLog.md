@@ -1,5 +1,13 @@
 # Changelog
 
+v1.8
+----
+- Simplified method to be written on the site side part, by moving parts of it to Route `payment_charge` (07/03/2018)
+- Added a template, for email, to be overriden and that should contain merchant's data, such as address, VAT number, etc.
+- Added text to wait page loading after payment (07/03/2018)
+- Added a different text in email sent for user and merchant (07/03/2018)
+- Suppressed translations for email taken from c975L/EmailBundle (07/03/2018)
+
 v1.7
 ----
 - Suppressed Twig extension to replace by just include the html fragment, to be coherent with other c975L Bundles (06/03/2018)

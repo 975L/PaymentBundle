@@ -1,11 +1,18 @@
 {% extends "@c975LEmail/emails/layout.html.twig" %}
 {% trans_default_domain 'payment' %}
 
-{% block payment_content %}
-{# Explanation #}
-    <p>
-        {{ 'text.explanation'|trans }}
-    </p>
+{% block email_content %}
+{# Explanation for user #}
+    {% if stripeFee == false %}
+        <p>
+            {{ 'text.explanation_user'|trans }}
+        </p>
+{# Explanation for merchant #}
+    {% else %}
+        <p>
+            {{ 'text.explanation_merchant'|trans }}
+        </p>
+    {% endif %}
 {# Description #}
     <p>
         {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
@@ -32,4 +39,6 @@
             {{ 'label.income'|trans }} : <strong>{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
         </p>
     {% endif %}
+{# Merchant's data #}
+    {% include '@c975LPayment/fragments/merchantData.html.twig' %}
 {% endblock %}

@@ -153,7 +153,7 @@ return $this->redirectToRoute('payment_form');
 
 You also need to define a `returnRoute` in your Controller to be able to manage the actions after the payment. This Route has to be defined in the `config.yml` (see above). It will receive the orderId so you can work with it if needed.
 ```php
-//Controller file
+//Your Controller file
 use c975L\PaymentBundle\Entity\Payment;
 
 //PAYMENT DONE
@@ -167,65 +167,51 @@ use c975L\PaymentBundle\Entity\Payment;
         //Gets the manager
         $em = $this->getDoctrine()->getManager();
 
-        //Gets Stripe payment
-        $payment = $em->getRepository('c975L\PaymentBundle\Entity\StripePayment')
+        //Gets Payment
+        $payment = $em->getRepository('c975L\PaymentBundle\Entity\Payment')
             ->findOneByOrderId($orderId);
-        if (!$payment instanceof StripePayment) {
+
+        if (!$payment instanceof Payment) {
             throw $this->createNotFoundException();
         }
 
-        //StripePayment executed
-        if ($payment->getStripeToken() !== null) {
-            //Sets Payment as finished
-            if ($payment->getFinished() !== true) {
-                //Gets the user
-                $user = $em->getRepository('UserFilesBundle:User')
-                    ->findOneById($payment->getUserId());
+        //Do the actions
+        /*
+        * $action should contain anything needed to be achieved after payment is ok.
+        * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
+        * as we want to add the number of credits to the user after payment.
+        * So, we just decode, test the value and do the job.
+        */
+        $action = (array) json_decode($payment->getAction());
 
-                //Do the action
-                /*
-                * $action should contain anything needed to be achieved after payment is ok.
-                * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
-                * as we want to add the number of credits to the user after payment.
-                * So, we just decode, test the value and do the job.
-                */
-                $action = (array) json_decode($payment->getAction());
+        //Add credits
+        if (array_key_exists('addCredits', $action)) {
+            //Gets the user
+            $user = $em->getRepository('UserBundle:User')
+                ->findOneById($payment->getUserId());
 
-                //Add credits
-                if (array_key_exists('addCredits', $action)) {
-                    $user->addCredits($action['addCredits']);
+            //Do needed stuff...
+            $user->addCredits($action['addCredits']);
 
-                    //Do any other needed stuff...
+            //Persists in database
+            $em->persist($user);
+            $em->flush();
 
-                    //DO NOT FORGET to update the payment to set it finished
-                    $payment->setFinished(true);
-
-                    //Persist in database
-                    $em->persist($payment);
-                    $em->persist($user);
-                    $em->flush();
-                }
-
-                //Redirects to the order page, but you can change it to your own
-                return $this->redirectToRoute('payment_confirm', array(
-                    'orderId' => $orderId,
-                ));
-            //Payment already finished (happens only if stop loading an refresh of the order page)
-            } else {
-                return $this->redirectToRoute('payment_confirm', array(
-                    'orderId' => $orderId,
-                ));
-            }
-        //StripePayment not executed
-        } else {
-            $paymentService = $this->get(PaymentService::class);
-            $paymentService->reUse($payment);
-
-            //Display the payment data
-            return $this->render('@c975LPayment/pages/orderNotExecuted.html.twig', array(
-                'payment' => $payment,
+            //Redirects or renders
+            return $this->redirectToRoute('YOUR_ROUTE', array(
             ));
         }
+
+        //Redirects to the confirmation of payment
+        return $this->redirectToRoute('payment_confirm', array(
+            'orderId' => $orderId,
+        ));
     }
 ```
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
+
+Merchant's data
+---------------
+You need to override the template `fragments/merchantData.html.twig` in your `app/Resources/c975LPaymentBundle/views/fragments/merchantData.html.twig` and indicate there all your official data, such as address, VAT number, etc.
+
+This template will be included in the email sent to the user after its payment.

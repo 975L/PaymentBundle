@@ -38,28 +38,6 @@
                 <source>label.payment_done</source>
                 <target>Pago hecho</target>
             </trans-unit>
-            <trans-unit id="10">
-                <source>text.email_sent_by</source>
-                <target><![CDATA[Este correo electrónico fue enviado por <strong>%site%</strong>.]]></target>
-            </trans-unit>
-            <trans-unit id="11">
-                <source>label.hello</source>
-                <target>Hola</target>
-            </trans-unit>
-            <trans-unit id="12">
-                <source>text.thanks_confidence</source>
-                <target><![CDATA[¡Gracias por su confianza!
-                        Quedamos a su disposición para cualquier petición.]]></target>
-            </trans-unit>
-            <trans-unit id="13">
-                <source>text.no_spam</source>
-                <target><![CDATA[Le recomendamos que guarde nuestra dirección de correo electrónico "%email%" en su libreta de direcciones para que nuestros mensajes de correo electrónico no están clasificados spam.]]></target>
-            </trans-unit>
-            <trans-unit id="14">
-                <source>text.regards_team</source>
-                <target><![CDATA[Saludos,
-                        El equipo de %site%]]></target>
-            </trans-unit>
             <trans-unit id="15">
                 <source>label.order_id</source>
                 <target>Identificar de transacción</target>
@@ -128,6 +106,10 @@
             <trans-unit id="30">
                 <source>text.test_payment</source>
                 <target>Este pago es una prueba, no se ha debitado.</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>text.wait_page_loading</source>
+                <target>Después de la validación, gracias por esperar la carga completa de la página.</target>
             </trans-unit>
         </body>
     </file>
