@@ -52,7 +52,7 @@
             </trans-unit>
             <trans-unit id="18">
                 <source>text.explanation</source>
-                <target>Le paiement suivant a bien été effectué sur notre site.</target>
+                <target><![CDATA[Le paiement suivant a bien été effectué sur <strong>%site%</strong>.]]></target>
             </trans-unit>
             <trans-unit id="19">
                 <source>text.error_payment</source>

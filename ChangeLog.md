@@ -1,5 +1,9 @@
 # Changelog
 
+v1.8.1
+------
+- Added site mention in explanation message sent by email (08/03/2018)
+
 v1.8
 ----
 - Simplified method to be written on the site side part, by moving parts of it to Route `payment_charge` (07/03/2018)

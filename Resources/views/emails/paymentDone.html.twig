@@ -2,17 +2,10 @@
 {% trans_default_domain 'payment' %}
 
 {% block email_content %}
-{# Explanation for user #}
-    {% if stripeFee == false %}
-        <p>
-            {{ 'text.explanation_user'|trans }}
-        </p>
-{# Explanation for merchant #}
-    {% else %}
-        <p>
-            {{ 'text.explanation_merchant'|trans }}
-        </p>
-    {% endif %}
+{# Explanation #}
+    <p>
+        {{ 'text.explanation'|trans({'%site%': site})|raw }}
+    </p>
 {# Description #}
     <p>
         {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
