@@ -1,5 +1,9 @@
 # Changelog
 
+v1.8.2
+------
+- Suppressed site + email info sent from Controller for c975L/EmailBundle as theyr are set in Twig overriding `layout.html.twig` (17/03/2018)
+
 v1.8.1
 ------
 - Added site mention in explanation message sent by email (08/03/2018)

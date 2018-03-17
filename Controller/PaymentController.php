@@ -251,8 +251,6 @@ class PaymentController extends Controller
             $subject .= ' (' . $payment->getAmount() / 100 . ' ' . $payment->getCurrency() . ')';
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
                 'payment' => $payment,
-                'email' => $this->getParameter('c975_l_email.sentFrom'),
-                'site' => $this->getParameter('c975_l_payment.site'),
                 'stripeFee' => false,
                 ));
             $emailData = array(
@@ -267,8 +265,6 @@ class PaymentController extends Controller
             //Creates email for site
             $body = $this->renderView('@c975LPayment/emails/paymentDone.html.twig', array(
                 'payment' => $payment,
-                'email' => $this->getParameter('c975_l_email.sentFrom'),
-                'site' => $this->getParameter('c975_l_payment.site'),
                 'stripeFee' => true,
                 ));
             $emailData = array(
@@ -331,8 +327,6 @@ class PaymentController extends Controller
         $body = $this->renderView('@c975LPayment/emails/errorStripe.html.twig', array(
             'errCode' => $errCode,
             'errMessage' => $errMessage,
-            'email' => $this->getParameter('c975_l_email.sentFrom'),
-            'site' => $this->getParameter('c975_l_payment.site'),
             ));
         $emailData = array(
             'subject' => 'StripeError : ' . $errCode,
