@@ -34,6 +34,7 @@ class c975LPaymentExtension extends Extension
         $container->setParameter('c975_l_payment.live', $processedConfig['live']);
         $container->setParameter('c975_l_payment.site', $processedConfig['site']);
         $container->setParameter('c975_l_payment.returnRoute', $processedConfig['returnRoute']);
+        $container->setParameter('c975_l_payment.defaultCurrency', $processedConfig['defaultCurrency']);
         $container->setParameter('c975_l_payment.timezone', $processedConfig['timezone']);
         $container->setParameter('c975_l_payment.database', $processedConfig['database']);
         $container->setParameter('c975_l_payment.image', $processedConfig['image']);

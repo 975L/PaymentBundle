@@ -1,5 +1,12 @@
 # Changelog
 
+v1.9
+----
+- Added button and link payments (19/03/2018)
+- Added free amount payment (19/03/2018)
+- Updated `README.md` (19/03/2018)
+- Added `defaultCurrency` config option (19/03/2018)
+
 v1.8.2
 ------
 - Suppressed site + email info sent from Controller for c975L/EmailBundle as theyr are set in Twig overriding `layout.html.twig` (17/03/2018)

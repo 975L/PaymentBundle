@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Form\PaymentType;
 
 class PaymentController extends Controller
 {
@@ -149,32 +150,87 @@ class PaymentController extends Controller
         return $this->render('@c975LPayment/pages/noPayment.html.twig');
     }
 
-//CONFIRM CHARGED
+//PAYMENT FREE AMOUNT
     /**
-     * @Route("/payment/confirm/{orderId}",
-     *      name="payment_confirm",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
+     * @Route("/payment/request",
+     *      name="payment_free_amount")
+     * @Method({"GET", "HEAD", "POST"})
      */
-    public function confirmAction($orderId)
+    public function freeAmountAction(Request $request)
     {
-        //Gets the manager
-        $em = $this->getDoctrine()->getManager();
+        //Gets user
+        $user = $this->getUser();
+        $userId = $user !== null ? $user->getId() : null;
 
-        //Gets repository
-        $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
+        //Defines form
+        $paymentData = array(
+            'amount' => null,
+            'currency' => $this->getParameter('c975_l_payment.defaultCurrency'),
+            'action' => null,
+            'description' => null,
+            'userId' => $userId,
+            'userIp' => $request->getClientIp(),
+            'live' => $this->getParameter('c975_l_gift_voucher.live'),
+            );
+        $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
+        $form = $this->createForm(PaymentType::class, $payment);
+        $form->handleRequest($request);
 
-        //Loads from DB
-        $payment = $repository->findOneByOrderId($orderId);
+        if ($form->isSubmitted() && $form->isValid()) {
+            //Defines payment (Can't re-use $payment object as not set in session + DB, which is done via PaymentService > create method)
+            $paymentData = array(
+                'amount' => $payment->getAmount() * 100,
+                'currency' => $payment->getCurrency(),
+                'action' => $payment->getAction(),
+                'description' => $payment->getDescription(),
+                'userId' => $payment->getUserId(),
+                'userIp' => $payment->getUserIp(),
+                'live' => $payment->getLive(),
+                );
+            $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
+            $paymentService->create($paymentData);
 
-        //Not existing payment
-        if (!$payment instanceof Payment) {
-            throw $this->createNotFoundException();
+            //Redirects to the payment
+            return $this->redirectToRoute('payment_form');
         }
 
-        return $this->render('@c975LPayment/pages/order.html.twig', array(
+        return $this->render('@c975LPayment/forms/paymentFreeAmount.html.twig', array(
+            'form' => $form->createView(),
             'payment' => $payment,
         ));
+    }
+
+//PAYMENT DEFINED AMOUNT
+    /**
+     * @Route("/payment/request/{text}/{amount}/{currency}",
+     *      name="payment_request",
+     *      requirements={
+     *          "amount": "^[0-9]+$",
+     *          "currency": "^[a-z]{3}$"
+     *      })
+     * @Method({"GET", "HEAD"})
+     */
+    public function requestAction(Request $request, $text, $amount, $currency)
+    {
+        //Gets user
+        $user = $this->getUser();
+        $userId = $user !== null ? $user->getId() : null;
+
+        //Defines payment
+        $paymentData = array(
+            'amount' => $amount,
+            'currency' => $currency,
+            'action' => null,
+            'description' => urldecode($text),
+            'userId' => $userId,
+            'userIp' => $request->getClientIp(),
+            'live' => $this->getParameter('c975_l_payment.live'),
+            );
+        $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
+        $paymentService->create($paymentData);
+
+        //Redirects to the payment
+        return $this->redirectToRoute('payment_form');
     }
 
 //CHARGE
@@ -350,5 +406,33 @@ class PaymentController extends Controller
 
         //Redirects to payment
         return $this->redirectToRoute('payment_display');
+    }
+
+//CONFIRM CHARGED
+    /**
+     * @Route("/payment/confirm/{orderId}",
+     *      name="payment_confirm",
+     *      requirements={"orderId": "^[0-9\-]+$"})
+     * @Method({"GET", "HEAD"})
+     */
+    public function confirmAction($orderId)
+    {
+        //Gets the manager
+        $em = $this->getDoctrine()->getManager();
+
+        //Gets repository
+        $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
+
+        //Loads from DB
+        $payment = $repository->findOneByOrderId($orderId);
+
+        //Not existing payment
+        if (!$payment instanceof Payment) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('@c975LPayment/pages/order.html.twig', array(
+            'payment' => $payment,
+        ));
     }
 }

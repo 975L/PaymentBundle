@@ -1,0 +1,13 @@
+{% trans_default_domain 'payment' %}
+
+{% spaceless %}
+{# Links to form to fill #}
+{% if text == null %}
+    <a href="{{ path('payment_free_amount') }}" class="{{ style }}" title="{{ 'label.make_payment'|trans }}" role="button">
+        {{ 'label.make_payment'|trans }}</a>
+{# Displays button #}
+{% else %}
+    <a href="{{ path('payment_request', {'amount': amount * 100, 'currency': currency, 'text': text|url_encode}) }}" class="{{ style }}" title="{{ text }} ({{ amount|localizedcurrency(currency) }})" role="button">
+        {{ text }} ({{ amount|localizedcurrency(currency) }})</a>
+{% endif %}
+{% endspaceless %}

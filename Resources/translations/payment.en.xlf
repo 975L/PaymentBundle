@@ -111,6 +111,18 @@
                 <source>text.wait_page_loading</source>
                 <target>After the validation, thank you to wait for the complete loading of the page.</target>
             </trans-unit>
+            <trans-unit id="32">
+                <source>label.make_payment</source>
+                <target>Make a payment</target>
+            </trans-unit>
+            <trans-unit id="33">
+                <source>label.cancel</source>
+                <target>Cancel</target>
+            </trans-unit>
+            <trans-unit id="34">
+                <source>text.make_payment</source>
+                <target>Fill out the form below to access the payment</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
