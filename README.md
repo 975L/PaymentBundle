@@ -12,7 +12,7 @@ PaymentBundle does the following:
 
 This Bundle relies on the use of [Stripe](https://stripe.com/) and its [PHP Library](https://github.com/stripe/stripe-php).
 **So you MUST have a Stripe account.**
-It also recomended to use this with a SSL certificat to reassure the user.
+It is also recomended to use this with a SSL certificat to reassure the user.
 
 [Payment Bundle dedicated web page](https://975l.com/en/pages/payment-bundle).
 
