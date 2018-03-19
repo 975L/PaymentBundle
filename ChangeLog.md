@@ -1,5 +1,9 @@
 # Changelog
 
+v1.9.1
+------
+- Set currency to be uppercase in DB and Entity (19/03/2018)
+
 v1.9
 ----
 - Added button and link payments (19/03/2018)

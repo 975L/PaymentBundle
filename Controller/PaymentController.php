@@ -165,7 +165,7 @@ class PaymentController extends Controller
         //Defines form
         $paymentData = array(
             'amount' => null,
-            'currency' => $this->getParameter('c975_l_payment.defaultCurrency'),
+            'currency' => strtoupper($this->getParameter('c975_l_payment.defaultCurrency')),
             'action' => null,
             'description' => null,
             'userId' => $userId,
@@ -180,7 +180,7 @@ class PaymentController extends Controller
             //Defines payment (Can't re-use $payment object as not set in session + DB, which is done via PaymentService > create method)
             $paymentData = array(
                 'amount' => $payment->getAmount() * 100,
-                'currency' => $payment->getCurrency(),
+                'currency' => strtoupper($payment->getCurrency()),
                 'action' => $payment->getAction(),
                 'description' => $payment->getDescription(),
                 'userId' => $payment->getUserId(),
@@ -206,7 +206,7 @@ class PaymentController extends Controller
      *      name="payment_request",
      *      requirements={
      *          "amount": "^[0-9]+$",
-     *          "currency": "^[a-z]{3}$"
+     *          "currency": "^[a-zA-Z]{3}$"
      *      })
      * @Method({"GET", "HEAD"})
      */
@@ -219,7 +219,7 @@ class PaymentController extends Controller
         //Defines payment
         $paymentData = array(
             'amount' => $amount,
-            'currency' => $currency,
+            'currency' => strtoupper($currency),
             'action' => null,
             'description' => urldecode($text),
             'userId' => $userId,

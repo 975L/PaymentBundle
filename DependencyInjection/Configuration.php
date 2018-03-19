@@ -29,7 +29,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('returnRoute')
                 ->end()
                 ->scalarNode('defaultCurrency')
-                    ->defaultValue('eur')
+                    ->defaultValue('EUR')
                 ->end()
                 ->scalarNode('timezone')
                     ->defaultNull()

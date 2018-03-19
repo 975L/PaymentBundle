@@ -19,8 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
 class Payment
 {
     /**
-     * @var int
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,92 +26,66 @@ class Payment
     protected $id;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="finished", type="integer", nullable=true)
      */
     protected $finished;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="order_id", type="string", nullable=true)
      */
     protected $orderId;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="amount", type="integer", nullable=true)
      */
     protected $amount;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="string", nullable=true)
      */
     protected $description;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="currency", type="string", nullable=true)
      */
     protected $currency;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="action", type="string", nullable=true)
      */
     protected $action;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="stripe_fee", type="integer", nullable=true)
      */
     protected $stripeFee;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="stripe_token", type="string", nullable=true)
      */
     protected $stripeToken;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="stripe_token_type", type="string", nullable=true)
      */
     protected $stripeTokenType;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="stripe_email", type="string", nullable=true)
      */
     protected $stripeEmail;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     protected $userId;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="user_ip", type="string", nullable=true)
      */
     protected $userIp;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(name="creation", type="datetime", nullable=true)
      */
     protected $creation;
@@ -270,7 +242,7 @@ class Payment
      */
     public function setCurrency($currency)
     {
-        $this->currency = $currency;
+        $this->currency = strtoupper($currency);
 
         return $this;
     }
@@ -282,7 +254,7 @@ class Payment
      */
     public function getCurrency()
     {
-        return $this->currency;
+        return strtoupper($this->currency);
     }
 
     /**

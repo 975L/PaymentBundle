@@ -79,7 +79,7 @@ c975_l_payment:
     #The Route to return after having charged user's card
     returnRoute: 'payment_done' #null(default)
     #Your default currency three letters code
-    defaultCurrency: 'eur' #'eur'(default)
+    defaultCurrency: 'EUR' #'EUR'(default)
     #(Optional) The Timezone as per default it will be UTC
     timezone: 'Europe/Paris' #null(default)
     #If you want to save the email sent to the database linked to c975L/EmailBundle, see https://github.com/975L/EmailBundle
