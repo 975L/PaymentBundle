@@ -1,5 +1,15 @@
 # Changelog
 
+v1.10
+-----
+- Added `returnRoute` to paymentData as it can't work if there are more than one Bundle using c975LPaymentBundle, it has to be definedat each payment [BC-Break] (20/03/2018)
+- Removed `setFinished` from `chargeAction()` method as it has to be set when the action has been done (20/03/2018)
+- Added Repository class (20/03/2018)
+- Corrected missing `%site%` information in `order.html.twig` template
+- Updated `README.md` for example to redirect, by default, to Route `payment_display` in place of `NotFound` if `returnRoute` is called again after payment finished (20/03/2018)
+- Added Toolbar on `order.html.twig` (20/03/2018)
+- Suppressed Route `payment_confirm` and merged with `payment_display` as they had almost the same goal (20/03/2018)
+
 v1.9.1
 ------
 - Set currency to be uppercase in DB and Entity (19/03/2018)

@@ -76,8 +76,6 @@ c975_l_payment:
     site: 'example.com'
     #If your payment are live or should use the test keys
     live: true #Default false
-    #The Route to return after having charged user's card
-    returnRoute: 'payment_done' #null(default)
     #Your default currency three letters code
     defaultCurrency: 'EUR' #'EUR'(default)
     #(Optional) The Timezone as per default it will be UTC
@@ -142,6 +140,7 @@ $paymentData = array(
     'userId' => USER_ID,
     'userIp' => $request->getClientIp(),
     'live' => false|true,
+    'returnRoute' => 'THE_NAME_OF_YOUR_RETURN_ROUTE', //This Route is defined in your Controller
     );
 $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 $paymentService->create($paymentData);
@@ -152,14 +151,14 @@ return $this->redirectToRoute('payment_form');
 ```
 `action` is a special field to store (plain text, json, serialize, etc.) the action you want to achieve after the payment is done. It will mainly be used in the `returnRoute`. You can see below an example.
 
-You also need to define a `returnRoute` in your Controller to be able to manage the actions after the payment. This Route has to be defined in the `config.yml` (see above). It will receive the orderId so you can work with it if needed.
+You also need to define a `returnRoute` in your Controller to be able to manage the actions after the payment. It will receive the orderId so you can work with it if needed.
 ```php
 //Your Controller file
 use c975L\PaymentBundle\Entity\Payment;
 
+//ReturnRoute after payment, it has been set in the $payment object
 //PAYMENT DONE
     /**
-     * returnRoute defined in config.yml
      * @Route("/payment-done/{orderId}",
      *      name="payment_done")
      * @Method({"GET", "HEAD"})
@@ -171,41 +170,44 @@ use c975L\PaymentBundle\Entity\Payment;
 
         //Gets Payment
         $payment = $em->getRepository('c975L\PaymentBundle\Entity\Payment')
-            ->findOneByOrderId($orderId);
+            ->findOneByOrderIdNotFinished($orderId);
 
-        if (!$payment instanceof Payment) {
-            throw $this->createNotFoundException();
+        if ($payment instanceof Payment) {
+            //Do the actions
+            /*
+            * $action should contain anything needed to be achieved after payment is ok.
+            * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
+            * as we want to add the number of credits to the user after payment.
+            * So, we just decode, test the value and do the job.
+            */
+            //Adds the credits
+            $action = (array) json_decode($payment->getAction());
+            if (array_key_exists('addCredits', $action)) {
+                //Gets the user
+                $user = $em->getRepository('c975LUserBundle:User')
+                    ->findOneById($payment->getUserId());
+
+                //Do needed stuff...
+
+                //Adds credits to user
+                $user->setCredits($user->getCredits() + $action['addCredits']);
+                $em->persist($user);
+
+                //Set payment as finished
+                $payment->setFinished(true);
+                $em->persist($payment);
+
+                //Persists in database
+                $em->flush();
+
+                //Redirects or renders
+                return $this->redirectToRoute('YOUR_ROUTE', array(
+                ));
+            }
         }
 
-        //Do the actions
-        /*
-        * $action should contain anything needed to be achieved after payment is ok.
-        * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
-        * as we want to add the number of credits to the user after payment.
-        * So, we just decode, test the value and do the job.
-        */
-        $action = (array) json_decode($payment->getAction());
-
-        //Add credits
-        if (array_key_exists('addCredits', $action)) {
-            //Gets the user
-            $user = $em->getRepository('c975LUserBundle:User')
-                ->findOneById($payment->getUserId());
-
-            //Do needed stuff...
-            $user->addCredits($action['addCredits']);
-
-            //Persists in database
-            $em->persist($user);
-            $em->flush();
-
-            //Redirects or renders
-            return $this->redirectToRoute('YOUR_ROUTE', array(
-            ));
-        }
-
-        //Redirects to the confirmation of payment
-        return $this->redirectToRoute('payment_confirm', array(
+        //Redirects to the display of payment
+        return $this->redirectToRoute('payment_display', array(
             'orderId' => $orderId,
         ));
     }

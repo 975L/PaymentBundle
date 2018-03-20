@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table(name="stripe_payment")
  * @ORM\HasLifecycleCallbacks()
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="c975L\PaymentBundle\Repository\PaymentRepository")
  */
 class Payment
 {
@@ -91,6 +91,7 @@ class Payment
     protected $creation;
 
     protected $live;
+    protected $returnRoute;
 
     public function __construct($data, $timezone)
     {
@@ -130,7 +131,7 @@ class Payment
     /**
      * Get id
      *
-     * @return int
+     * @return integer
      */
     public function getId()
     {
@@ -142,7 +143,7 @@ class Payment
      *
      * @param integer $finished
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setFinished($finished)
     {
@@ -154,7 +155,7 @@ class Payment
     /**
      * Get finished
      *
-     * @return integer
+     * @return boolean
      */
     public function getFinished()
     {
@@ -166,7 +167,7 @@ class Payment
      *
      * @param string $orderId
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setOrderId($orderId)
     {
@@ -190,7 +191,7 @@ class Payment
      *
      * @param integer $amount
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setAmount($amount)
     {
@@ -214,7 +215,7 @@ class Payment
      *
      * @param string $description
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setDescription($description)
     {
@@ -238,7 +239,7 @@ class Payment
      *
      * @param string $currency
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setCurrency($currency)
     {
@@ -262,7 +263,7 @@ class Payment
      *
      * @param string $action
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setAction($action)
     {
@@ -286,7 +287,7 @@ class Payment
      *
      * @param integer $stripeFee
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setStripeFee($stripeFee)
     {
@@ -310,7 +311,7 @@ class Payment
      *
      * @param string $stripeToken
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setStripeToken($stripeToken)
     {
@@ -334,7 +335,7 @@ class Payment
      *
      * @param string $stripeTokenType
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setStripeTokenType($stripeTokenType)
     {
@@ -358,7 +359,7 @@ class Payment
      *
      * @param string $stripeEmail
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setStripeEmail($stripeEmail)
     {
@@ -382,7 +383,7 @@ class Payment
      *
      * @param integer $userId
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setUserId($userId)
     {
@@ -406,7 +407,7 @@ class Payment
      *
      * @param string $userIp
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setUserIp($userIp)
     {
@@ -430,7 +431,7 @@ class Payment
      *
      * @param \DateTime $creation
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setCreation($creation)
     {
@@ -452,9 +453,9 @@ class Payment
     /**
      * Set live
      *
-     * @param \DateTime $live
+     * @param boolean $live
      *
-     * @return StripePayment
+     * @return Payment
      */
     public function setLive($live)
     {
@@ -466,10 +467,34 @@ class Payment
     /**
      * Get live
      *
-     * @return \DateTime
+     * @return boolean
      */
     public function getLive()
     {
         return $this->live;
+    }
+
+    /**
+     * Set returnRoute
+     *
+     * @param string $returnRoute
+     *
+     * @return Payment
+     */
+    public function setReturnRoute($returnRoute)
+    {
+        $this->returnRoute = $returnRoute;
+
+        return $this;
+    }
+
+    /**
+     * Get returnRoute
+     *
+     * @return string
+     */
+    public function getReturnRoute()
+    {
+        return $this->returnRoute;
     }
 }

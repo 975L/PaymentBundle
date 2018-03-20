@@ -71,6 +71,19 @@ class PaymentController extends Controller
 
 //DISPLAY
     /**
+     * @Route("/payment/confirm/{orderId}",
+     *      name="payment_confirm",
+     *      requirements={"orderId": "^[0-9\-]+$"})
+     * @Method({"GET", "HEAD"})
+     */
+    public function redirectDisplayAction(Request $request, $orderId)
+    {
+        //Redirects to the display
+        return $this->redirectToRoute('payment_display', array(
+            'orderId' => $orderId,
+        ));
+    }
+    /**
      * @Route("/payment/{orderId}",
      *      name="payment_display",
      *      requirements={"orderId": "^[0-9\-]+$"})
@@ -78,25 +91,22 @@ class PaymentController extends Controller
      */
     public function displayAction(Request $request, $orderId)
     {
-        //Gets the user
-        $user = $this->getUser();
+        //Gets the manager
+        $em = $this->getDoctrine()->getManager();
 
-        if ($user !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
-            //Gets the manager
-            $em = $this->getDoctrine()->getManager();
+        //Gets repository
+        $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
 
-            //Gets repository
-            $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
+        //Loads from DB
+        $payment = $repository->findOneByOrderId($orderId);
 
-            //Loads from DB
-            $payment = $repository->findOneByOrderId($orderId);
+        //Not existing payment
+        if (!$payment instanceof Payment) {
+            throw $this->createNotFoundException();
+        }
 
-            //Not existing payment
-            if (!$payment instanceof Payment) {
-                throw $this->createNotFoundException();
-            }
-
-            //Defines toolbar
+        //Defines toolbar
+        if ($this->getUser() !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
             $tools  = $this->renderView('@c975LPayment/tools.html.twig', array(
                 'type' => 'display',
             ));
@@ -104,15 +114,15 @@ class PaymentController extends Controller
                 'tools'  => $tools,
                 'dashboard'  => 'payment',
             ))->getContent();
-
-            return $this->render('@c975LPayment/pages/display.html.twig', array(
-                'payment' => $payment,
-                'toolbar' => $toolbar,
-            ));
+        } else {
+            $toolbar = null;
         }
 
-        //Access is denied
-        throw $this->createAccessDeniedException();
+        return $this->render('@c975LPayment/pages/display.html.twig', array(
+            'payment' => $payment,
+            'toolbar' => $toolbar,
+            'siteName' => $this->getParameter('c975_l_payment.site'),
+        ));
     }
 
 //FORM
@@ -287,7 +297,6 @@ class PaymentController extends Controller
                     ->setStripeToken($stripeToken)
                     ->setStripeTokenType($stripeTokenType)
                     ->setStripeEmail($stripeEmail)
-                    ->setFinished(true)
                 ;
 
                 //Persist in DB
@@ -338,7 +347,7 @@ class PaymentController extends Controller
             $session->getFlashBag()->add('success', $flash);
 
             //Redirects to returnRoute
-            return $this->redirectToRoute($this->getParameter('c975_l_payment.returnRoute'), array('orderId' => $payment->getOrderId()));
+            return $this->redirectToRoute($stripeSession->getReturnRoute(), array('orderId' => $payment->getOrderId()));
 
         //Errors
         } catch (\Stripe\Error\Card $e) {
@@ -406,33 +415,5 @@ class PaymentController extends Controller
 
         //Redirects to payment
         return $this->redirectToRoute('payment_display');
-    }
-
-//CONFIRM CHARGED
-    /**
-     * @Route("/payment/confirm/{orderId}",
-     *      name="payment_confirm",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
-     */
-    public function confirmAction($orderId)
-    {
-        //Gets the manager
-        $em = $this->getDoctrine()->getManager();
-
-        //Gets repository
-        $repository = $em->getRepository('c975L\PaymentBundle\Entity\Payment');
-
-        //Loads from DB
-        $payment = $repository->findOneByOrderId($orderId);
-
-        //Not existing payment
-        if (!$payment instanceof Payment) {
-            throw $this->createNotFoundException();
-        }
-
-        return $this->render('@c975LPayment/pages/order.html.twig', array(
-            'payment' => $payment,
-        ));
     }
 }

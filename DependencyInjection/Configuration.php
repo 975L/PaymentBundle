@@ -26,8 +26,6 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('site')
                 ->end()
-                ->scalarNode('returnRoute')
-                ->end()
                 ->scalarNode('defaultCurrency')
                     ->defaultValue('EUR')
                 ->end()

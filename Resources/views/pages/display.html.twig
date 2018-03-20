@@ -1,40 +1,62 @@
 {% extends "@c975LPayment/layout.html.twig" %}
 {% trans_default_domain 'payment' %}
-{% set title = 'label.payment'|trans ~ ' : ' ~ payment.orderId %}
+{% set title = 'label.order_id'|trans ~ ' : ' ~ payment.orderId %}
 
 {% block payment_content %}
 {# Toolbar #}
     {{ toolbar|raw }}
-{# Order Id #}
-    <p>
-        {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
+{# Explanation #}
+    <p class="alert alert-info text-center">
+        {{ 'text.explanation'|trans({'%site%': siteName})|raw }}
     </p>
-{# Date #}
+{# Test #}
+    {% if payment.description starts with '(TEST)' %}
+        <p class="alert alert-danger text-center">
+            {{ 'text.test_payment'|trans }}
+        </p>
+    {% endif %}
+{# Description #}
     <p>
-        {{ 'label.date'|trans }} : <strong>{{ payment.creation|localizeddate('medium', 'medium') }}</strong>
+        {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
     </p>
 {# Amount #}
     <p>
         {{ 'label.amount'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
     </p>
-{# Stripe Fee #}
+{# Date #}
     <p>
-        {{ 'label.stripe_fee'|trans }} : <strong><span style="color:red">-{{ (payment.stripeFee / 100)|localizedcurrency(payment.currency) }}<span></strong>
+        {{ 'label.date'|trans }} : <strong>{{ payment.creation|localizeddate('medium', 'medium') }}</strong>
     </p>
-{# Income #}
+{# Order Id #}
     <p>
-        {{ 'label.income'|trans }} : <strong><span style="color:darkgreen">+{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
+        {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
     </p>
-{# Action #}
-    <p>
-        {{ 'label.action'|trans }} : <strong>{{ payment.action }}</strong>
-    </p>
-{# Email #}
-    <p>
-        {{ 'label.email'|trans }} : <strong>{{ payment.stripeEmail }}</strong>
-    </p>
+{% if is_granted('ROLE_ADMIN') %}
 {# Description #}
-    <p>
-        {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+        <p class="text-muted">
+            {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+        </p>
+{# Action #}
+        <p class="text-muted">
+            {{ 'label.action'|trans }} : <strong>{{ payment.action }}</strong>
+        </p>
+{# Stripe Fee #}
+        <p class="text-muted">
+            {{ 'label.stripe_fee'|trans }} : <strong><span style="color:red">-{{ (payment.stripeFee / 100)|localizedcurrency(payment.currency) }}<span></strong>
+        </p>
+{# Income #}
+        <p class="text-muted">
+            {{ 'label.income'|trans }} : <strong><span style="color:darkgreen">+{{ ((payment.amount - payment.stripeFee) / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+{# Email #}
+        <p class="text-muted">
+            {{ 'label.email'|trans }} : <strong><a href="mailto:{{ payment.stripeEmail }}">{{ payment.stripeEmail }}</a></strong>
+        </p>
+{% endif %}
+{# Not storing banking information #}
+    <p class="alert alert-info text-center">
+        <strong>
+            {{ 'text.not_store_banking'|trans }}
+        </strong>
     </p>
 {% endblock %}
