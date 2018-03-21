@@ -71,6 +71,7 @@ class PaymentController extends Controller
 
 //DISPLAY
     /**
+     * Kept for retro-compatibility (20/03/2018)
      * @Route("/payment/confirm/{orderId}",
      *      name="payment_confirm",
      *      requirements={"orderId": "^[0-9\-]+$"})
@@ -175,12 +176,12 @@ class PaymentController extends Controller
         //Defines form
         $paymentData = array(
             'amount' => null,
-            'currency' => strtoupper($this->getParameter('c975_l_payment.defaultCurrency')),
+            'currency' => $this->getParameter('c975_l_payment.defaultCurrency'),
             'action' => null,
             'description' => null,
             'userId' => $userId,
             'userIp' => $request->getClientIp(),
-            'live' => $this->getParameter('c975_l_gift_voucher.live'),
+            'live' => $this->getParameter('c975_l_payment.live'),
             );
         $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
         $form = $this->createForm(PaymentType::class, $payment);
@@ -190,7 +191,7 @@ class PaymentController extends Controller
             //Defines payment (Can't re-use $payment object as not set in session + DB, which is done via PaymentService > create method)
             $paymentData = array(
                 'amount' => $payment->getAmount() * 100,
-                'currency' => strtoupper($payment->getCurrency()),
+                'currency' => $payment->getCurrency(),
                 'action' => $payment->getAction(),
                 'description' => $payment->getDescription(),
                 'userId' => $payment->getUserId(),
@@ -347,7 +348,12 @@ class PaymentController extends Controller
             $session->getFlashBag()->add('success', $flash);
 
             //Redirects to returnRoute
-            return $this->redirectToRoute($stripeSession->getReturnRoute(), array('orderId' => $payment->getOrderId()));
+            if ($stripeSession->getReturnRoute() !== null) {
+                return $this->redirectToRoute($stripeSession->getReturnRoute(), array('orderId' => $payment->getOrderId()));
+            //Redirects to payment
+            } else {
+                return $this->redirectToRoute('payment_display', array('orderId' => $payment->getOrderId()));
+            }
 
         //Errors
         } catch (\Stripe\Error\Card $e) {

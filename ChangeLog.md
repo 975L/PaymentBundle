@@ -1,5 +1,11 @@
 # Changelog
 
+v1.10.1
+-------
+- Removed unuseful `strtoupper` (21/03/2018)
+- Corrected Route `payment_free_amount` (21/03/2018)
+- Added return to `payment_display` if no `returnRoute` is defined (21/03/2018)
+
 v1.10
 -----
 - Added `returnRoute` to paymentData as it can't work if there are more than one Bundle using c975LPaymentBundle, it has to be definedat each payment [BC-Break] (20/03/2018)

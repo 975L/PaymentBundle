@@ -163,7 +163,7 @@ use c975L\PaymentBundle\Entity\Payment;
      *      name="payment_done")
      * @Method({"GET", "HEAD"})
      */
-    public function paymentDone($orderId)
+    public function paymentDoneAction($orderId)
     {
         //Gets the manager
         $em = $this->getDoctrine()->getManager();
