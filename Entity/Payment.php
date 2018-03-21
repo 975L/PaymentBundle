@@ -41,6 +41,11 @@ class Payment
     protected $amount;
 
     /**
+     * @ORM\Column(name="vat", type="integer", nullable=true)
+     */
+    protected $vat;
+
+    /**
      * @ORM\Column(name="description", type="string", nullable=true)
      */
     protected $description;
@@ -208,6 +213,30 @@ class Payment
     public function getAmount()
     {
         return $this->amount;
+    }
+
+    /**
+     * Set vat
+     *
+     * @param integer $vat
+     *
+     * @return Payment
+     */
+    public function setVat($vat)
+    {
+        $this->vat = $vat;
+
+        return $this;
+    }
+
+    /**
+     * Get vat
+     *
+     * @return integer
+     */
+    public function getVat()
+    {
+        return $this->vat;
     }
 
     /**

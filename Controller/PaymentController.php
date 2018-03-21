@@ -182,6 +182,7 @@ class PaymentController extends Controller
             'userId' => $userId,
             'userIp' => $request->getClientIp(),
             'live' => $this->getParameter('c975_l_payment.live'),
+            'vat' => $this->getParameter('c975_l_payment.vat'),
             );
         $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
         $form = $this->createForm(PaymentType::class, $payment);
@@ -236,6 +237,7 @@ class PaymentController extends Controller
             'userId' => $userId,
             'userIp' => $request->getClientIp(),
             'live' => $this->getParameter('c975_l_payment.live'),
+            'vat' => $this->getParameter('c975_l_payment.vat'),
             );
         $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
         $paymentService->create($paymentData);

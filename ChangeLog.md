@@ -1,5 +1,11 @@
 # Changelog
 
+v1.11
+-----
+- Added Possibility to pass a VAT to payment to indicate in the display and email (21/03/2018)
+- Added VAT config value for direct payments (21/03/2018)
+- Changed amount from mediumint to int in case of ;-) (21/03/2018)
+
 v1.10.1
 -------
 - Removed unuseful `strtoupper` (21/03/2018)

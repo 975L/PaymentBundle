@@ -10,6 +10,18 @@
     <p>
         {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
     </p>
+    {% if payment.vat != null %}
+{# Amount excluding VAT #}
+        {% set pretaxAmount = (payment.amount / (1 + ((payment.vat / 100) / 100)))|round() %}
+        {% set vatAmount = payment.amount - pretaxAmount %}
+        <p>
+            {{ 'label.amount_excluding_vat'|trans }} : <strong>{{ (pretaxAmount / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+{# VAT amount + rate #}
+        <p>
+            {{ 'label.vat'|trans }}  ({{ payment.vat / 100 }}%): <strong>{{ (vatAmount / 100)|localizedcurrency(payment.currency) }}</strong>
+        </p>
+    {% endif %}
 {# Amount #}
     <p>
         {{ 'label.amount'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>

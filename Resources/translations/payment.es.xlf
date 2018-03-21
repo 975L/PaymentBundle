@@ -123,6 +123,14 @@
                 <source>text.make_payment</source>
                 <target>Rellene el siguiente formulario para acceder al pago</target>
             </trans-unit>
+            <trans-unit id="35">
+                <source>label.amount_excluding_vat</source>
+                <target>Cantidad sin IVA</target>
+            </trans-unit>
+            <trans-unit id="36">
+                <source>label.vat</source>
+                <target>IVA</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

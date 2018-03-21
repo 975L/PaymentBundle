@@ -78,6 +78,8 @@ c975_l_payment:
     live: true #Default false
     #Your default currency three letters code
     defaultCurrency: 'EUR' #'EUR'(default)
+    #(Optional) Your VAT rate for direct payments without % i.e. 5.5 for 5.5%, or 20 for 20%
+    vat: 5.5 #null(default)
     #(Optional) The Timezone as per default it will be UTC
     timezone: 'Europe/Paris' #null(default)
     #If you want to save the email sent to the database linked to c975L/EmailBundle, see https://github.com/975L/EmailBundle
@@ -139,8 +141,9 @@ $paymentData = array(
     'description' => YOUR_DESCRIPTION,
     'userId' => USER_ID,
     'userIp' => $request->getClientIp(),
-    'live' => false|true,
+    'live' => false|true, //If your product is live or not, different from live config value
     'returnRoute' => 'THE_NAME_OF_YOUR_RETURN_ROUTE', //This Route is defined in your Controller
+    'vat' => 'YOUR_VAT_RATE', //Rate value without % i.e. 5.5 for 5.5%, or 20 for 20%
     );
 $paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
 $paymentService->create($paymentData);
