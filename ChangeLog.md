@@ -1,5 +1,9 @@
 # Changelog
 
+v1.11.1
+-------
+- Changed title for payment (26/03/2018)
+
 v1.11
 -----
 - Added Possibility to pass a VAT to payment to indicate in the display and email (21/03/2018)
