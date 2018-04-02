@@ -2,6 +2,12 @@
 {% trans_default_domain 'payment' %}
 
 {% block email_content %}
+{# Test #}
+    {% if payment.description starts with '(TEST)' %}
+        <p class="alert alert-danger text-center">
+            {{ 'text.test_payment'|trans }}
+        </p>
+    {% endif %}
 {# Explanation #}
     <p>
         {{ 'text.explanation'|trans({'%site%': site})|raw }}
