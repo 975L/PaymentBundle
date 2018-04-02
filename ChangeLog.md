@@ -1,5 +1,9 @@
 # Changelog
 
+v1.11.3
+-------
+- Corrected translations (02/04/2018)
+
 v1.11.2
 -------
 - Added warning in email sent about test payments (02/04/2018)

@@ -84,7 +84,7 @@
             </trans-unit>
             <trans-unit id="26">
                 <source>text.list_payments</source>
-                <target>List des paiements</target>
+                <target>Liste des paiements</target>
             </trans-unit>
             <trans-unit id="27">
                 <source>label.email</source>
