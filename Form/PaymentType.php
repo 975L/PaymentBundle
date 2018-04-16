@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -34,7 +35,11 @@ class PaymentType extends AbstractType
                 'attr' => array(
                     'placeholder' => 'label.amount',
                 )))
-            ;
+            ->add('submit', SubmitType::class, array(
+                'label' => 'label.make_payment',
+                'attr' => array('class' => 'btn btn-block btn-lg ' . $submitClass),
+            ))
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

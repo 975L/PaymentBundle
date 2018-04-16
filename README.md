@@ -52,10 +52,10 @@ Step 3: Configure the Bundle
 Setup your Stripe API keys, in `parameters.yml`
 ```yml
     #Your Stripe Api keys
-    stripe_secret_key_test : YOUR_SECRET_TEST_API_KEY
-    stripe_publishable_key_test: YOUR_PUBLISHABLE_TEST_API_KEY
-    stripe_secret_key_live : YOUR_SECRET_LIVE_API_KEY
-    stripe_publishable_key_live: YOUR_PUBLISHABLE_LIVE_API_KEY
+    stripe_secret_key_test : 'YOUR_SECRET_TEST_API_KEY'
+    stripe_publishable_key_test: 'YOUR_PUBLISHABLE_TEST_API_KEY'
+    stripe_secret_key_live : 'YOUR_SECRET_LIVE_API_KEY'
+    stripe_publishable_key_live: 'YOUR_PUBLISHABLE_LIVE_API_KEY'
 ```
 
 And then in `parameters.yml.dist`
@@ -101,10 +101,11 @@ Then, enable the routes by adding them to the `app/config/routing.yml` file of y
 ```yml
 c975_l_payment:
     resource: "@c975LPaymentBundle/Controller/"
-    type:     annotation
-    prefix:   /
+    type: annotation
+    prefix: /
     #Multilingual website use the following
     #prefix: /{_locale}
+    #defaults:   { _locale: %locale% }
     #requirements:
     #    _locale: en|fr|es
 ```
