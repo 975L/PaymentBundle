@@ -49,19 +49,9 @@ class PaymentController extends Controller
                 50
             );
 
-            //Defines toolbar
-            $tools  = $this->renderView('@c975LPayment/tools.html.twig', array(
-                'type' => 'dashboard',
-            ));
-            $toolbar = $this->forward('c975L\ToolbarBundle\Controller\ToolbarController::displayAction', array(
-                'tools'  => $tools,
-                'dashboard'  => 'payment',
-            ))->getContent();
-
             //Returns the dashboard
             return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
                 'payments' => $pagination,
-                'toolbar' => $toolbar,
             ));
         }
 
@@ -106,22 +96,8 @@ class PaymentController extends Controller
             throw $this->createNotFoundException();
         }
 
-        //Defines toolbar
-        if ($this->getUser() !== null && $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
-            $tools  = $this->renderView('@c975LPayment/tools.html.twig', array(
-                'type' => 'display',
-            ));
-            $toolbar = $this->forward('c975L\ToolbarBundle\Controller\ToolbarController::displayAction', array(
-                'tools'  => $tools,
-                'dashboard'  => 'payment',
-            ))->getContent();
-        } else {
-            $toolbar = null;
-        }
-
         return $this->render('@c975LPayment/pages/display.html.twig', array(
             'payment' => $payment,
-            'toolbar' => $toolbar,
             'siteName' => $this->getParameter('c975_l_payment.site'),
         ));
     }

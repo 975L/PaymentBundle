@@ -4,7 +4,7 @@
 
 {% block payment_content %}
 {# Toolbar #}
-    {{ toolbar|raw }}
+    {{ toolbar_display('@c975LPayment/tools.html.twig', 'display', 'md', payment) }}
 {# Explanation #}
     <p class="alert alert-info text-center">
         {{ 'text.explanation'|trans({'%site%': siteName})|raw }}
