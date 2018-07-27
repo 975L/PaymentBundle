@@ -1,5 +1,15 @@
 # Changelog
 
+v1.12
+-----
+- Removed required in composer.json (22/05/2018)
+- Added message for InvalidArgumentException (24/07/2018)
+- Removed 'Action' in Controllers method as not requested anymore (24/07/2018)
+- Use of Yoda-style (24/07/2018)
+- Moved code from Controller > charge() to Service > charge() to keep only glue code in controller, and split it multiples methods (24/07/2018)
+- Added Controller for auto-wire (26/07/2018)
+- Removed toolbar when user has not signed in in payment display (26/07/2018)
+
 v1.11.5
 -------
 - Modified toolbars calls due to modification of c975LToolbarBundle (13/05/2018)

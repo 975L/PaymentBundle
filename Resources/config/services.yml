@@ -4,6 +4,9 @@ services:
         autoconfigure: true
         public: true
 
+    c975L\PaymentBundle\Controller\:
+        resource: '../../Controller/*'
+
     c975L\PaymentBundle\Service\:
         resource: '../../Service/*'
 
