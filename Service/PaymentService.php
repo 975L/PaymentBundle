@@ -108,7 +108,7 @@ class PaymentService
                 ->findOneByOrderId($stripeSession->getOrderId());
             if ($payment instanceof Payment) {
                 $payment
-                    ->setStripeFee((int) (($payment->getAmount() * 1.4 / 100) + 25))
+                    ->setStripeFee((int) (($payment->getAmount() * $this->container->getParameter('c975_l_payment.stripeFeePercentage') / 100) + $this->container->getParameter('c975_l_payment.stripeFeeFixed')))
                     ->setStripeToken($stripeToken)
                     ->setStripeTokenType($stripeTokenType)
                     ->setStripeEmail($stripeEmail)
@@ -238,6 +238,7 @@ class PaymentService
         $body = $this->templating->render('@c975LPayment/emails/errorStripe.html.twig', array(
             'errCode' => $errCode,
             'errMessage' => $errMessage,
+             '_locale' => $this->request->getLocale(),
             ));
         $emailData = array(
             'subject' => 'StripeError : ' . $errCode,
@@ -259,6 +260,7 @@ class PaymentService
         $body = $this->templating->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => false,
+             '_locale' => $this->request->getLocale(),
             ));
         $emailData = array(
             'subject' => $subject,
@@ -280,6 +282,7 @@ class PaymentService
         $body = $this->templating->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => true,
+             '_locale' => $this->request->getLocale(),
             ));
         $emailData = array(
             'subject' => $subject,

@@ -80,6 +80,10 @@ c975_l_payment:
     defaultCurrency: 'EUR' #'EUR'(default)
     #(Optional) Your VAT rate for direct payments without % i.e. 5.5 for 5.5%, or 20 for 20%
     vat: 5.5 #null(default)
+    #(Optional) Your Stripe Fee rate without % i.e. 1.4 for 1.4%
+    stripeFeePercentage: 1.4 #1.4(default)
+    #(Optional) Your Stripe Fee fixed part in cents
+    stripeFeeFixed: 25 #25(default)
     #(Optional) The Timezone as per default it will be UTC
     timezone: 'Europe/Paris' #null(default)
     #If you want to save the email sent to the database linked to c975L/EmailBundle, see https://github.com/975L/EmailBundle

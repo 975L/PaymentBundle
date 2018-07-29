@@ -1,5 +1,10 @@
 # Changelog
 
+v1.13
+-----
+- Added `_locale` variable in sendMail (29/07/2018)
+- Added `stripeFeePercentage` and `stripeFeeFixed` as config values (29/07/2018)
+
 v1.12
 -----
 - Removed required in composer.json (22/05/2018)
