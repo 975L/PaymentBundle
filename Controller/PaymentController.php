@@ -17,12 +17,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentType;
 use c975L\PaymentBundle\Service\PaymentService;
 
 class PaymentController extends Controller
 {
+    private $accessGranted;
+    private $roleNeeded;
+
+    public function __construct(AuthorizationCheckerInterface $authChecker, string $roleNeeded)
+    {
+        $this->accessGranted = $authChecker->isGranted($roleNeeded);
+    }
+
 //DASHBOARD
     /**
      * @Route("/payment/dashboard",
@@ -31,67 +40,41 @@ class PaymentController extends Controller
      */
     public function dashboard(Request $request)
     {
-        //Returns the dashboard content
-        if (null !== $this->getUser() &&
-         $this->get('security.authorization_checker')->isGranted($this->getParameter('c975_l_payment.roleNeeded'))) {
-            //Gets payments
-            $payments = $this->getDoctrine()
-                ->getManager()
-                ->getRepository('c975LPaymentBundle:Payment')
-                ->findAll(array(), array('id' => 'DESC'));
-
-            //Pagination
-            $paginator  = $this->get('knp_paginator');
-            $pagination = $paginator->paginate(
-                $payments,
-                $request->query->getInt('p', 1),
-                50
-            );
-
-            //Returns the dashboard
-            return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
-                'payments' => $pagination,
-            ));
+        //Access denied
+        if (true !== $this->accessGranted) {
+            throw $this->createAccessDeniedException();
         }
 
-        //Access is denied
-        throw $this->createAccessDeniedException();
+        //Gets payments
+        $payments = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('c975LPaymentBundle:Payment')
+            ->findAll(array(), array('id' => 'DESC'));
+
+        //Pagination
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $payments,
+            $request->query->getInt('p', 1),
+            50
+        );
+
+        //Renders the dashboard
+        return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
+            'payments' => $pagination,
+        ));
     }
 
 //DISPLAY
-    /**
-     * Kept for retro-compatibility (20/03/2018)
-     * @Route("/payment/confirm/{orderId}",
-     *      name="payment_confirm",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
-     */
-    public function redirectDisplay(Request $request, $orderId)
-    {
-        //Redirects to the display
-        return $this->redirectToRoute('payment_display', array(
-            'orderId' => $orderId,
-        ));
-    }
     /**
      * @Route("/payment/{orderId}",
      *      name="payment_display",
      *      requirements={"orderId": "^[0-9\-]+$"})
      * @Method({"GET", "HEAD"})
      */
-    public function display(Request $request, $orderId)
+    public function display(Request $request, Payment $payment)
     {
-        //Gets the payment
-        $payment = $this->getDoctrine()
-            ->getManager()
-            ->getRepository('c975L\PaymentBundle\Entity\Payment')
-            ->findOneByOrderId($orderId);
-
-        //Not existing payment
-        if (!$payment instanceof Payment) {
-            throw $this->createNotFoundException();
-        }
-
+        //Renders the payment
         return $this->render('@c975LPayment/pages/display.html.twig', array(
             'payment' => $payment,
             'siteName' => $this->getParameter('c975_l_payment.site'),
@@ -109,9 +92,8 @@ class PaymentController extends Controller
         //Grabs data from session
         $payment = $request->getSession()->get('stripe');
 
-        //Defines payment
+        //Renders the payment form
         if ($payment instanceof Payment) {
-            //Renders the payment
             return $this->render('@c975LPayment/pages/payment.html.twig', array(
                 'key' => $paymentService->getPublishableKey($payment->getLive()),
                 'site' => $this->getParameter('c975_l_payment.site'),

@@ -1,5 +1,11 @@
 # Changelog
 
+v1.13.1
+-------
+- Injected `AuthorizationCheckerInterface` in Controllers to avoid use of `$this->get()` (30/07/2018)
+- Made use of ParamConverter (30/07/2018)
+- Removed Route payment_confirm (30/07/2018)
+
 v1.13
 -----
 - Added `_locale` variable in sendMail (29/07/2018)
