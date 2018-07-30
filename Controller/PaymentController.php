@@ -25,7 +25,6 @@ use c975L\PaymentBundle\Service\PaymentService;
 class PaymentController extends Controller
 {
     private $accessGranted;
-    private $roleNeeded;
 
     public function __construct(AuthorizationCheckerInterface $authChecker, string $roleNeeded)
     {

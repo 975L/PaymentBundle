@@ -1,5 +1,9 @@
 # Changelog
 
+v1.13.1.1
+---------
+- Removed property $roleNeeded as not needed (30/07/2018)
+
 v1.13.1
 -------
 - Injected `AuthorizationCheckerInterface` in Controllers to avoid use of `$this->get()` (30/07/2018)
