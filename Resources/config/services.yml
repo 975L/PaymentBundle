@@ -6,6 +6,9 @@ services:
 
     c975L\PaymentBundle\Controller\:
         resource: '../../Controller/*'
+
+    c975L\PaymentBundle\Security\:
+        resource: '../../Security/*'
         bind:
             $roleNeeded: '%c975_l_payment.roleNeeded%'
 

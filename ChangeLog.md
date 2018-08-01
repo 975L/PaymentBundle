@@ -1,5 +1,9 @@
 # Changelog
 
+v1.14
+-----
+- Made use of Voters for access rights (01/08/2018)
+
 v1.13.1.1
 ---------
 - Removed property $roleNeeded as not needed (30/07/2018)

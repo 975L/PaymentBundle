@@ -24,13 +24,6 @@ use c975L\PaymentBundle\Service\PaymentService;
 
 class PaymentController extends Controller
 {
-    private $accessGranted;
-
-    public function __construct(AuthorizationCheckerInterface $authChecker, string $roleNeeded)
-    {
-        $this->accessGranted = $authChecker->isGranted($roleNeeded);
-    }
-
 //DASHBOARD
     /**
      * @Route("/payment/dashboard",
@@ -39,10 +32,7 @@ class PaymentController extends Controller
      */
     public function dashboard(Request $request)
     {
-        //Access denied
-        if (true !== $this->accessGranted) {
-            throw $this->createAccessDeniedException();
-        }
+        $this->denyAccessUnlessGranted('dashboard', null);
 
         //Gets payments
         $payments = $this->getDoctrine()
