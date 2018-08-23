@@ -1,5 +1,9 @@
 # Changelog
 
+v1.14.1
+-------
+- Added PaymentServiceInterface to work with other projects waiting its refundation (23/08/2018)
+
 v1.14
 -----
 - Made use of Voters for access rights (01/08/2018)

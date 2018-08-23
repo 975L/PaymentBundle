@@ -11,8 +11,9 @@ namespace c975L\PaymentBundle\Service;
 
 use Symfony\Component\HttpFoundation\Request;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Service\PaymentServiceInterface;
 
-class PaymentService
+class PaymentService implements PaymentServiceInterface
 {
     private $container;
     private $em;
