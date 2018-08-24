@@ -12,16 +12,26 @@ namespace c975L\PaymentBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use c975L\PaymentBundle\Entity\Payment;
 
+/**
+ * Repository for Payment Entity
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2018 975L <contact@975l.com>
+ */
 class PaymentRepository extends EntityRepository
 {
-    //Loads Payment
+    /**
+     * Finds Payment not finished with its orderId
+     * @return Payment|null
+     */
     public function findOneByOrderIdNotFinished($orderId)
     {
-        return $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p');
+        $qb->select('p')
             ->where('p.orderId = :orderId')
             ->andWhere('p.finished is NULL')
             ->setParameter('orderId', strtoupper($orderId))
-            ->getQuery()
-            ->getOneOrNullResult();
+            ;
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 }

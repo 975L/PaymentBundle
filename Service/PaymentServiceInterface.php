@@ -9,41 +9,62 @@
 
 namespace c975L\PaymentBundle\Service;
 
-use Symfony\Component\HttpFoundation\Request;
 use c975L\PaymentBundle\Entity\Payment;
 
+/**
+ * Interface to be called for DI for Payment Main related services
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2018 975L <contact@975l.com>
+ */
 interface PaymentServiceInterface
 {
-    //Creates the payment
-    public function create($data);
+    /**
+     * Charges the payment server
+     * @return string|false
+     */
+    public function charge(string $service, Payment $paymentSession);
 
-    //Creates flash
-    public function createFlash($payment);
+    /**
+     * Creates the payment
+     */
+    public function create(array $paymentData);
 
-    //Creates flash for error
-    public function createFlashError($displayError);
+    /**
+     * Creates the payment for a free amount
+     */
+    public function createFreeAmount(Payment $payment);
 
-    //Creates the charge on Stripe's servers - This will charge the user's card
-    public function charge($stripeSession);
+    /**
+     * Creates the payment for a defined amount
+     */
+    public function createDefinedAmount($user, string $text, int $amount, string $currency);
 
-    //Get publishable key
-    public function getPublishableKey($live = false);
+    /**
+     * Defines the data to use for a free amount Payment
+     * @return array
+     */
+    public function defineFreeAmount($user);
 
-    //Get secret key
-    public function getSecretKey($live = false);
+    /**
+     * Gets all the Payment
+     * @return mixed
+     */
+    public function getAll();
 
-    //Re-use a Stripe payment not executed
-    public function reUse($payment);
+    /**
+     * Gets the Payment from session
+     * @return Payment|null
+     */
+    public function getFromSession(string $kind);
 
-    //Sends emails
-    public function sendEmail($payment);
+    /**
+     * Registers the Payment in DB + Session
+     */
+    public function register(Payment $payment);
 
-    //Sends an email on error
-    public function sendEmailError($errCode, $errMessage);
-
-    //Sends email for user
-    public function sendEmailUser($payment);
-
-    //Sends email to the site
-    public function sendEmailSite($payment);
+    /**
+     * Defines PaymentData from session
+     * @return array|null
+     */
+    public function setDataFromSession(string $kind);
 }

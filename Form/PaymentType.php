@@ -16,9 +16,13 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Payment FormType
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2018 975L <contact@975l.com>
+ */
 class PaymentType extends AbstractType
 {
-    //Builds the form
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -37,7 +41,7 @@ class PaymentType extends AbstractType
                 )))
             ->add('submit', SubmitType::class, array(
                 'label' => 'label.make_payment',
-                'attr' => array('class' => 'btn btn-block btn-lg ' . $submitClass),
+                'attr' => array('class' => 'btn btn-block btn-lg btn-primary'),
             ))
         ;
     }

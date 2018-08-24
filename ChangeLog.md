@@ -1,5 +1,17 @@
 # Changelog
 
+v1.15
+-----
+- Added link to BuyMeCoffee (24/08/2018)
+- Added link to apidoc (24/08/2018)
+- Removed FQCN (24/08/2018)
+- Added documentation (24/08/2018)
+- Update `README.md` (24/08/2018)
+- Corrected undefined variable in `PaymentType` (24/08/2018)
+- Made controller skinny (24/08/2018)
+- Split Service in multiple files (24/08/2018)
+- Suppressed `reUse()` method as not used (24/08/2018)
+
 v1.14.1
 -------
 - Added PaymentServiceInterface to work with other projects waiting its refundation (23/08/2018)
@@ -178,7 +190,7 @@ v1.2.1
 v1.2
 ----
 - Add of Timezone config as microtime use UTC (17/08/2017)
-- Creation of a `reUse()` method to create payment form for a payment initiated but not executed
+- Creation of a `reUse()` method to create payment form for a payment initiated but not executed (17/08/2017)
 
 v1.1
 ----

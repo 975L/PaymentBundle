@@ -17,15 +17,37 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentType;
-use c975L\PaymentBundle\Service\PaymentService;
+use c975L\PaymentBundle\Service\PaymentServiceInterface;
 
+/**
+ * Main controller class
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2017 975L <contact@975l.com>
+ */
 class PaymentController extends Controller
 {
+    /**
+     * Stores PaymentService
+     * @var PaymentServiceInterface
+     */
+    private $paymentService;
+
+    public function __construct(PaymentServiceInterface $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
 //DASHBOARD
     /**
+     * Displays the dashboard
+     * @return Response
+     * @throws AccessDeniedException
+     *
      * @Route("/payment/dashboard",
      *      name="payment_dashboard")
      * @Method({"GET", "HEAD"})
@@ -34,28 +56,25 @@ class PaymentController extends Controller
     {
         $this->denyAccessUnlessGranted('dashboard', null);
 
-        //Gets payments
-        $payments = $this->getDoctrine()
-            ->getManager()
-            ->getRepository('c975LPaymentBundle:Payment')
-            ->findAll(array(), array('id' => 'DESC'));
-
         //Pagination
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
-            $payments,
+            $this->paymentService->getAll(),
             $request->query->getInt('p', 1),
             50
         );
 
         //Renders the dashboard
         return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
-            'payments' => $pagination,
+            'payments' => $payments,
         ));
     }
 
 //DISPLAY
     /**
+     * Displays Payment using its orderId
+     * @return Response
+     *
      * @Route("/payment/{orderId}",
      *      name="payment_display",
      *      requirements={"orderId": "^[0-9\-]+$"})
@@ -63,7 +82,6 @@ class PaymentController extends Controller
      */
     public function display(Request $request, Payment $payment)
     {
-        //Renders the payment
         return $this->render('@c975LPayment/pages/display.html.twig', array(
             'payment' => $payment,
             'siteName' => $this->getParameter('c975_l_payment.site'),
@@ -72,26 +90,19 @@ class PaymentController extends Controller
 
 //FORM
     /**
+     * Displays Stripe form to proceed to payment
+     * @return Response
+     *
      * @Route("/payment",
      *      name="payment_form")
      * @Method({"GET", "HEAD"})
      */
-    public function form(Request $request, PaymentService $paymentService)
+    public function form(Request $request)
     {
-        //Grabs data from session
-        $payment = $request->getSession()->get('stripe');
-
-        //Renders the payment form
-        if ($payment instanceof Payment) {
-            return $this->render('@c975LPayment/pages/payment.html.twig', array(
-                'key' => $paymentService->getPublishableKey($payment->getLive()),
-                'site' => $this->getParameter('c975_l_payment.site'),
-                'image' => $this->getParameter('c975_l_payment.image'),
-                'zipCode' => $this->getParameter('c975_l_payment.zipCode') === true ? 'true' : 'false',
-                'alipay' => $this->getParameter('c975_l_payment.alipay') === true ? 'true' : 'false',
-                'live' => $payment->getLive(),
-                'payment' => $payment,
-                ));
+        //Renders form payment
+        $paymentData = $this->paymentService->setDataFromSession('stripe');
+        if (is_array($paymentData)) {
+            return $this->render('@c975LPayment/pages/payment.html.twig', $paymentData);
         }
 
         //No current payment
@@ -100,47 +111,30 @@ class PaymentController extends Controller
 
 //PAYMENT FREE AMOUNT
     /**
+     * Displays the form to proceed to a free amount payment
+     * @return Response|Redirect
+     *
      * @Route("/payment/request",
      *      name="payment_free_amount")
      * @Method({"GET", "HEAD", "POST"})
      */
-    public function freeAmount(Request $request, PaymentService $paymentService)
+    public function freeAmount(Request $request)
     {
-        //Gets userId
-        $userId = null !== $this->getUser() ? $this->getUser()->getId() : null;
-
         //Defines form
-        $paymentData = array(
-            'amount' => null,
-            'currency' => $this->getParameter('c975_l_payment.defaultCurrency'),
-            'action' => null,
-            'description' => null,
-            'userId' => $userId,
-            'userIp' => $request->getClientIp(),
-            'live' => $this->getParameter('c975_l_payment.live'),
-            'vat' => $this->getParameter('c975_l_payment.vat'),
-            );
+        $paymentData = $this->paymentService->defineFreeAmount($this->getUser());
         $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
         $form = $this->createForm(PaymentType::class, $payment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            //Defines payment (Can't re-use $payment object as not set in session + DB, which is done via PaymentService > create method)
-            $paymentData = array(
-                'amount' => $payment->getAmount() * 100,
-                'currency' => $payment->getCurrency(),
-                'action' => $payment->getAction(),
-                'description' => $payment->getDescription(),
-                'userId' => $payment->getUserId(),
-                'userIp' => $payment->getUserIp(),
-                'live' => $payment->getLive(),
-                );
-            $paymentService->create($paymentData);
+            //Creates the Payment
+            $this->paymentService->createFreeAmount($payment);
 
             //Redirects to the payment
             return $this->redirectToRoute('payment_form');
         }
 
+        //Renders form for payment
         return $this->render('@c975LPayment/forms/paymentFreeAmount.html.twig', array(
             'form' => $form->createView(),
             'payment' => $payment,
@@ -149,6 +143,9 @@ class PaymentController extends Controller
 
 //PAYMENT DEFINED AMOUNT
     /**
+     * Displays form for defined amount
+     * @return Redirect
+     *
      * @Route("/payment/request/{text}/{amount}/{currency}",
      *      name="payment_request",
      *      requirements={
@@ -157,23 +154,10 @@ class PaymentController extends Controller
      *      })
      * @Method({"GET", "HEAD"})
      */
-    public function request(Request $request, PaymentService $paymentService, $text, $amount, $currency)
+    public function request(Request $request, $text, $amount, $currency)
     {
-        //Gets userId
-        $userId = null !== $this->getUser() ? $this->getUser()->getId() : null;
-
-        //Defines payment
-        $paymentData = array(
-            'amount' => $amount,
-            'currency' => strtoupper($currency),
-            'action' => null,
-            'description' => urldecode($text),
-            'userId' => $userId,
-            'userIp' => $request->getClientIp(),
-            'live' => $this->getParameter('c975_l_payment.live'),
-            'vat' => $this->getParameter('c975_l_payment.vat'),
-            );
-        $paymentService->create($paymentData);
+        //Creates the Payment
+        $this->paymentService->createDefinedAmount($this->getUser(), $text, $amount, $currency);
 
         //Redirects to the payment
         return $this->redirectToRoute('payment_form');
@@ -181,33 +165,36 @@ class PaymentController extends Controller
 
 //CHARGE
     /**
+     * Proceeds to charge Payment server
+     * @return Redirect
+     * @throws NotFoundHttpException
+     *
      * @Route("/payment-charge",
      *      name="payment_charge")
      * @Method({"GET", "POST", "HEAD"})
      */
-    public function charge(Request $request, PaymentService $paymentService)
+    public function charge(Request $request)
     {
-        //Grabs data from session
-        $stripeSession = $request->getSession()->get('stripe');
+        $payment = $this->paymentService->getFromSession('stripe');
+        if ($payment instanceof Payment) {
+            //Creates the charge on Stripe's servers - This will charge user's card
+            $orderId = $this->paymentService->charge('stripe', $payment);
 
-        if (!$stripeSession instanceof Payment) {
-            throw $this->createNotFoundException();
-        }
+            if (false !== $orderId) {
+                //Redirects to returnRoute, if defined, with orderId
+                if (null !== $payment->getReturnRoute()) {
+                    return $this->redirectToRoute($payment->getReturnRoute(), array('orderId' => $orderId));
+                }
 
-        //Creates the charge on Stripe's servers - This will charge user's card
-        $orderId = $paymentService->charge($stripeSession);
-
-        if (false !== $orderId) {
-            //Redirects to returnRoute, if defined, with orderId
-            if (null !== $stripeSession->getReturnRoute()) {
-                return $this->redirectToRoute($stripeSession->getReturnRoute(), array('orderId' => $orderId));
+                //Redirects to payment
+                return $this->redirectToRoute('payment_display', array('orderId' => $orderId));
             }
 
             //Redirects to payment
-            return $this->redirectToRoute('payment_display', array('orderId' => $orderId));
+            return $this->redirectToRoute('payment_display', array('orderId' => $payment->getOrderId()));
         }
 
-        //Redirects to payment
-        return $this->redirectToRoute('payment_display', array('orderId' => $stripeSession->getOrderId()));
+        //Not found
+        throw $this->createNotFoundException();
     }
 }

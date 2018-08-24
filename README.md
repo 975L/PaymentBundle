@@ -16,7 +16,9 @@ This Bundle relies on the use of [Stripe](https://stripe.com/) and its [PHP Libr
 **So you MUST have a Stripe account.**
 It is also recomended to use this with a SSL certificat to reassure the user.
 
-[Payment Bundle dedicated web page](https://975l.com/en/pages/payment-bundle).
+[PaymentBundle dedicated web page](https://975l.com/en/pages/payment-bundle).
+
+[PaymentBundle API documentation](https://975l.com/apidoc/c975L/PaymentBundle.html).
 
 Bundle installation
 ===================
@@ -131,93 +133,131 @@ You can also have a look at [official badges from Stripe](https://stripe.com/abo
 
 How to use
 ----------
-In your Controller file, you need to create an array containing the following data, then call the service to create the payment, with this array, and finally redirect to the `payment_form` Route.
+The process is the following:
+- User selects a product,
+- User click tp pay,
+- Payment in created in DB,
+- User is redirected to Payment form,
+- User pays,
+- User is redirected to returnRoute,
+- Actions are executed to deliver product (if payment successful),
+- User is redirected to final confirmation or delivery product page.
+
+To achieve this, you have to define 2 Controller Routes and 2 Services method (+ Interface) (while you can do all of this in Controller, Best Practices recommend to keep Controller methods skinny).
+
+Here are the examples for those 3 files:
 
 ```php
-//Your Controller file
-use c975L\PaymentBundle\Service\PaymentService;
-//...
+//Your ServiceInterface file
+namespace App\Service\YourPaymentService;
 
-//Except amount and currency all the fields are nullable
-$paymentData = array(
-    'amount' => YOUR_AMOUNT, //Must be an integer in cents
-    'currency' => YOUR_CURRENCY, //Coded on 3 letters or use "$this->getParameter('c975_l_payment.defaultCurrency')" to get your default currency
-    'action' => YOUR_ACTION, //See below for explanations
-    'description' => YOUR_DESCRIPTION,
-    'userId' => USER_ID,
-    'userIp' => $request->getClientIp(),
-    'live' => false|true, //If your product is live or not, different from live config value
-    'returnRoute' => 'THE_NAME_OF_YOUR_RETURN_ROUTE', //This Route is defined in your Controller
-    'vat' => 'YOUR_VAT_RATE', //Rate value without % i.e. 5.5 for 5.5%, or 20 for 20%
-    );
-$paymentService = $this->get(\c975L\PaymentBundle\Service\PaymentService::class);
-$paymentService->create($paymentData);
-
-//Redirects to the payment
-return $this->redirectToRoute('payment_form');
-
-```
-`action` is a special field to store (plain text, json, serialize, etc.) the action you want to achieve after the payment is done. It will mainly be used in the `returnRoute`. You can see below an example.
-
-You also need to define a `returnRoute` in your Controller to be able to manage the actions after the payment. It will receive the orderId so you can work with it if needed.
-```php
-//Your Controller file
 use c975L\PaymentBundle\Entity\Payment;
 
-//ReturnRoute after payment, it has been set in the $payment object
-//PAYMENT DONE
+interface YourPaymentServiceInterface
+{
+    public function payment($yourNeededData);
+
+    public function validate(Payment $payment);
+}
+```
+
+```php
+//Your Service file
+namespace App\Service\YourPaymentService;
+
+use App\Service\YourPaymentServiceInterface;
+use c975L\PaymentBundle\Service\PaymentServiceInterface;
+
+class YourPaymentService implements YourPaymentServiceInterface
+{
+    public function payment(PaymentServiceInterface $paymentService, $yourNeededData)
+    {
+        /**
+         * Except amount and currency all the fields are nullable
+         * You may use the data define in `$yourNeededData`
+         */
+        $paymentData = array(
+            'amount' => YOUR_AMOUNT, //Must be an integer in cents
+            'currency' => YOUR_CURRENCY, //Coded on 3 letters or use "$this->getParameter('c975_l_payment.defaultCurrency')" to get your default currency
+            'action' => YOUR_ACTION, //Store the action to achieve after the payment. Mainly used by `returnRoute`. As a string, you can store plain text, json, etc.
+            'description' => YOUR_DESCRIPTION,
+            'userId' => USER_ID,
+            'userIp' => $request->getClientIp(),
+            'live' => false|true, //If your product is live or not, different from live config value
+            'returnRoute' => 'THE_NAME_OF_YOUR_RETURN_ROUTE', //This Route is defined in your Controller
+            'vat' => 'YOUR_VAT_RATE', //Rate value without % i.e. 5.5 for 5.5%, or 20 for 20%
+            );
+        $paymentService->create($paymentData);
+    }
+
+    public function validate(Payment $payment)
+    {
+        /**
+         * For example if `$payment->getAction()` contains the result of "json_encode(array('addCredits' => 10));"
+         */
+        $action = (array) json_decode($payment->getAction());
+        if (array_key_exists('addCredits', $action)) {
+            //Gets the user
+            $user = $em->getRepository('c975LUserBundle:User')
+                ->findOneById($payment->getUserId());
+
+            //Adds credits to user
+            $user->setCredits($user->getCredits() + $action['addCredits']);
+            $em->persist($user);
+
+            //Set payment as finished
+            $payment->setFinished(true);
+            $em->persist($payment);
+            $em->flush();
+        }
+    }
+}
+```
+
+```php
+//Your Controller file
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use c975L\PaymentBundle\Entity\Payment;
+use App\Service\YourPaymentServiceInterface;;
+
     /**
+     * Route used to proceed to payment
+     * @return Response
+     *
+     * @Route("proceed-to-payment",
+     *     name="proceed_to_payment")
+     */
+    public function proceedToPayment(YourPaymentServiceInterface $yourPaymentService)
+    {
+        //Creates the Payment
+        $yourPaymentService->payment();
+
+        //Redirects to the payment form
+        return $this->redirectToRoute('payment_form');
+    }
+
+    /**
+     * Return Route used after payment
+     * @return Redirect
+     * @throws NotFoundHttpException
+     *
      * @Route("/payment-done/{orderId}",
      *      name="payment_done")
      * @Method({"GET", "HEAD"})
+     * @ParamConverter("payment",
+     *      options={
+     *          "repository_method" = "findOneByOrderIdNotFinished",
+     *          "mapping": {"orderId": "orderId"},
+     *          "map_method_signature" = true
+     *      })
      */
-    public function paymentDoneAction($orderId)
+    public function paymentDone(YourPaymentServiceInterface $yourPaymentService, Payment $payment)
     {
-        //Gets the manager
-        $em = $this->getDoctrine()->getManager();
+        //Validates the Payment
+        $yourPaymentService->validate($payment);
 
-        //Gets Payment
-        $payment = $em->getRepository('c975L\PaymentBundle\Entity\Payment')
-            ->findOneByOrderIdNotFinished($orderId);
-
-        if ($payment instanceof Payment) {
-            //Do the actions
-            /*
-            * $action should contain anything needed to be achieved after payment is ok.
-            * For example, here it contains the result of "json_encode(array('addCredits' => $credits));",
-            * as we want to add the number of credits to the user after payment.
-            * So, we just decode, test the value and do the job.
-            */
-            //Adds the credits
-            $action = (array) json_decode($payment->getAction());
-            if (array_key_exists('addCredits', $action)) {
-                //Gets the user
-                $user = $em->getRepository('c975LUserBundle:User')
-                    ->findOneById($payment->getUserId());
-
-                //Do needed stuff...
-
-                //Adds credits to user
-                $user->setCredits($user->getCredits() + $action['addCredits']);
-                $em->persist($user);
-
-                //Set payment as finished
-                $payment->setFinished(true);
-                $em->persist($payment);
-
-                //Persists in database
-                $em->flush();
-
-                //Redirects or renders
-                return $this->redirectToRoute('YOUR_ROUTE', array(
-                ));
-            }
-        }
-
-        //Redirects to the display of payment
-        return $this->redirectToRoute('payment_display', array(
-            'orderId' => $orderId,
-        ));
+        //Redirects or renders
+        return $this->redirectToRoute('YOUR_ROUTE');
     }
 ```
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
@@ -234,15 +274,17 @@ You can mention the payment system used (i.e. in the footer) by simply include a
 
 Use payment buttons/links
 -------------------------
-You can add any payment button/link, everywhere you want, by using the Twig extensions with the following code:
-```html
+You can add any payment button/link, wherever you want, by using the Twig extensions with the following code:
+```twig
 {{ payment_button('YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY', 'YOUR_OPTIONAL_STYLES') }}
 {{ payment_link('YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY') }}
 ```
 `AMOUNT` is the real amount (i.e. 12.92), **NOT** the amount in cents.
 
 Or you can use it empty, this will lead user fo fill a form to proceed to payment
-```html
+```twig
 {{ payment_button() }}
 {{ payment_link() }}
 ```
+
+**If this project help you to reduce time to develop, you can [buy me a coffee](https://www.buymeacoffee.com/LaurentMarquet) :)**

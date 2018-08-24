@@ -12,6 +12,10 @@ namespace c975L\PaymentBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * Entity Event (linked to DB table `stripe_payment`)
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2017 975L <contact@975l.com>
+ *
  * @ORM\Table(name="stripe_payment")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="c975L\PaymentBundle\Repository\PaymentRepository")
@@ -19,6 +23,9 @@ use Doctrine\ORM\Mapping as ORM;
 class Payment
 {
     /**
+     * Payment unique id
+     * @var int
+     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -26,76 +33,127 @@ class Payment
     protected $id;
 
     /**
+     * If the Payment is finished
+     * @var bool
+     *
      * @ORM\Column(name="finished", type="integer", nullable=true)
      */
     protected $finished;
 
     /**
+     * OrderId for the Payment
+     * @var string
+     *
      * @ORM\Column(name="order_id", type="string", nullable=true)
      */
     protected $orderId;
 
     /**
+     * Amount in cents for the Payment
+     * @var int
+     *
      * @ORM\Column(name="amount", type="integer", nullable=true)
      */
     protected $amount;
 
     /**
+     * VAT rate without decimal (x 100) for the Payment
+     * @var int
+     *
      * @ORM\Column(name="vat", type="integer", nullable=true)
      */
     protected $vat;
 
     /**
+     * Description for the Payment
+     * @var string
+     *
      * @ORM\Column(name="description", type="string", nullable=true)
      */
     protected $description;
 
     /**
+     * Currency for the Payment
+     * @var string
+     *
      * @ORM\Column(name="currency", type="string", nullable=true)
      */
     protected $currency;
 
     /**
+     * Action to be executed after the payment
+     * @var string
+     *
      * @ORM\Column(name="action", type="string", nullable=true)
      */
     protected $action;
 
     /**
+     * Estimated Stripe fee in cents
+     * @var int
+     *
      * @ORM\Column(name="stripe_fee", type="integer", nullable=true)
      */
     protected $stripeFee;
 
     /**
+     * Stripe token
+     * @var string
+     *
      * @ORM\Column(name="stripe_token", type="string", nullable=true)
      */
     protected $stripeToken;
 
     /**
+     * Stripe token type
+     * @var string
+     *
      * @ORM\Column(name="stripe_token_type", type="string", nullable=true)
      */
     protected $stripeTokenType;
 
     /**
+     * Email used for Stripe Payment
+     * @var string
+     *
      * @ORM\Column(name="stripe_email", type="string", nullable=true)
      */
     protected $stripeEmail;
 
     /**
+     * User unique id (if logged in)
+     * @var int
+     *
      * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     protected $userId;
 
     /**
+     * User IP address
+     * @var string
+     *
      * @ORM\Column(name="user_ip", type="string", nullable=true)
      */
     protected $userIp;
 
     /**
+     * DateTime creation for the Payment
+     * @var \DateTime
+     *
      * @ORM\Column(name="creation", type="datetime", nullable=true)
      */
     protected $creation;
 
+    /**
+     * Wether or not the payments are live (not mapped)
+     * @var bool
+     */
     protected $live;
+
+    /**
+     * Return Route to be used after payment (not mapped)
+     * @var string
+     */
     protected $returnRoute;
 
     public function __construct($data, $timezone)
@@ -109,7 +167,10 @@ class Payment
         $this->setDataFromArray($data);
     }
 
-
+    /**
+     * Hydrates entity from associative array
+     * @param array $data
+     */
     public function setDataFromArray($data)
     {
         foreach ($data as $key => $value) {
@@ -120,23 +181,9 @@ class Payment
         }
     }
 
-
-    /**
-     * Set id
-     *
-     * @param integer $id
-     */
-    public function setId()
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     /**
      * Get id
-     *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -145,9 +192,7 @@ class Payment
 
     /**
      * Set finished
-     *
-     * @param integer $finished
-     *
+     * @param int
      * @return Payment
      */
     public function setFinished($finished)
@@ -159,8 +204,7 @@ class Payment
 
     /**
      * Get finished
-     *
-     * @return boolean
+     * @return bool
      */
     public function getFinished()
     {
@@ -169,9 +213,7 @@ class Payment
 
     /**
      * Set orderId
-     *
-     * @param string $orderId
-     *
+     * @param string
      * @return Payment
      */
     public function setOrderId($orderId)
@@ -183,7 +225,6 @@ class Payment
 
     /**
      * Get orderId
-     *
      * @return string
      */
     public function getOrderId()
@@ -193,9 +234,7 @@ class Payment
 
     /**
      * Set amount
-     *
-     * @param integer $amount
-     *
+     * @param int
      * @return Payment
      */
     public function setAmount($amount)
@@ -207,8 +246,7 @@ class Payment
 
     /**
      * Get amount
-     *
-     * @return integer
+     * @return int
      */
     public function getAmount()
     {
@@ -217,9 +255,7 @@ class Payment
 
     /**
      * Set vat
-     *
-     * @param integer $vat
-     *
+     * @param integer
      * @return Payment
      */
     public function setVat($vat)
@@ -231,8 +267,7 @@ class Payment
 
     /**
      * Get vat
-     *
-     * @return integer
+     * @return int
      */
     public function getVat()
     {
@@ -241,9 +276,7 @@ class Payment
 
     /**
      * Set description
-     *
-     * @param string $description
-     *
+     * @param string
      * @return Payment
      */
     public function setDescription($description)
@@ -255,7 +288,6 @@ class Payment
 
     /**
      * Get description
-     *
      * @return string
      */
     public function getDescription()
@@ -265,9 +297,7 @@ class Payment
 
     /**
      * Set currency
-     *
-     * @param string $currency
-     *
+     * @param string
      * @return Payment
      */
     public function setCurrency($currency)
@@ -279,7 +309,6 @@ class Payment
 
     /**
      * Get currency
-     *
      * @return string
      */
     public function getCurrency()
@@ -289,9 +318,7 @@ class Payment
 
     /**
      * Set action
-     *
-     * @param string $action
-     *
+     * @param string
      * @return Payment
      */
     public function setAction($action)
@@ -303,7 +330,6 @@ class Payment
 
     /**
      * Get action
-     *
      * @return string
      */
     public function getAction()
@@ -313,9 +339,7 @@ class Payment
 
     /**
      * Set stripeFee
-     *
-     * @param integer $stripeFee
-     *
+     * @param int
      * @return Payment
      */
     public function setStripeFee($stripeFee)
@@ -327,8 +351,7 @@ class Payment
 
     /**
      * Get stripeFee
-     *
-     * @return integer
+     * @return int
      */
     public function getStripeFee()
     {
@@ -337,9 +360,7 @@ class Payment
 
     /**
      * Set stripeToken
-     *
-     * @param string $stripeToken
-     *
+     * @param string
      * @return Payment
      */
     public function setStripeToken($stripeToken)
@@ -351,7 +372,6 @@ class Payment
 
     /**
      * Get stripeToken
-     *
      * @return string
      */
     public function getStripeToken()
@@ -361,9 +381,7 @@ class Payment
 
     /**
      * Set stripeTokenType
-     *
-     * @param string $stripeTokenType
-     *
+     * @param string
      * @return Payment
      */
     public function setStripeTokenType($stripeTokenType)
@@ -375,7 +393,6 @@ class Payment
 
     /**
      * Get stripeTokenType
-     *
      * @return string
      */
     public function getStripeTokenType()
@@ -385,9 +402,7 @@ class Payment
 
     /**
      * Set stripeEmail
-     *
-     * @param string $stripeEmail
-     *
+     * @param string
      * @return Payment
      */
     public function setStripeEmail($stripeEmail)
@@ -399,7 +414,6 @@ class Payment
 
     /**
      * Get stripeEmail
-     *
      * @return string
      */
     public function getStripeEmail()
@@ -409,9 +423,7 @@ class Payment
 
     /**
      * Set userId
-     *
-     * @param integer $userId
-     *
+     * @param int
      * @return Payment
      */
     public function setUserId($userId)
@@ -423,8 +435,7 @@ class Payment
 
     /**
      * Get userId
-     *
-     * @return integer
+     * @return int
      */
     public function getUserId()
     {
@@ -433,9 +444,7 @@ class Payment
 
     /**
      * Set userIp
-     *
-     * @param string $userIp
-     *
+     * @param string
      * @return Payment
      */
     public function setUserIp($userIp)
@@ -447,7 +456,6 @@ class Payment
 
     /**
      * Get userIp
-     *
      * @return string
      */
     public function getUserIp()
@@ -457,9 +465,7 @@ class Payment
 
     /**
      * Set creation
-     *
-     * @param \DateTime $creation
-     *
+     * @param \DateTime
      * @return Payment
      */
     public function setCreation($creation)
@@ -471,7 +477,6 @@ class Payment
 
     /**
      * Get creation
-     *
      * @return \DateTime
      */
     public function getCreation()
@@ -481,9 +486,7 @@ class Payment
 
     /**
      * Set live
-     *
-     * @param boolean $live
-     *
+     * @param bool
      * @return Payment
      */
     public function setLive($live)
@@ -495,8 +498,7 @@ class Payment
 
     /**
      * Get live
-     *
-     * @return boolean
+     * @return bool
      */
     public function getLive()
     {
@@ -505,9 +507,7 @@ class Payment
 
     /**
      * Set returnRoute
-     *
-     * @param string $returnRoute
-     *
+     * @param string
      * @return Payment
      */
     public function setReturnRoute($returnRoute)
@@ -519,7 +519,6 @@ class Payment
 
     /**
      * Get returnRoute
-     *
      * @return string
      */
     public function getReturnRoute()

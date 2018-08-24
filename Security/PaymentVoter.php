@@ -14,13 +14,34 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use c975L\PaymentBundle\Entity\Payment;
 
+/**
+ * Voter for Payment access
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2018 975L <contact@975l.com>
+ */
 class PaymentVoter extends Voter
 {
+    /**
+     * @var AccessDecisionManagerInterface
+     */
     private $decisionManager;
+
+    /**
+     * The role needed to be allowed access (defined in config)
+     * @var string
+     */
     private $roleNeeded;
 
+    /**
+     * Used for access to dashboard
+     * @var string
+     */
     public const DASHBOARD = 'dashboard';
 
+    /**
+     * Contains all the available attributes to check with in supports()
+     * @var array
+     */
     private const ATTRIBUTES = array(
         self::DASHBOARD,
     );
@@ -31,6 +52,10 @@ class PaymentVoter extends Voter
         $this->roleNeeded = $roleNeeded;
     }
 
+    /**
+     * Checks if attribute and subject are supported
+     * @return bool
+     */
     protected function supports($attribute, $subject)
     {
         if (null !== $subject) {
@@ -40,6 +65,11 @@ class PaymentVoter extends Voter
         return in_array($attribute, self::ATTRIBUTES);
     }
 
+    /**
+     * Votes if access is granted
+     * @return bool
+     * @throws \LogicException
+     */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $user = $token->getUser();

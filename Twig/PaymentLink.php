@@ -9,6 +9,11 @@
 
 namespace c975L\PaymentBundle\Twig;
 
+/**
+ * Twig extension to display the Payment button using `payment_link(['YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY'])`
+ * @author Laurent Marquet <laurent.marquet@laposte.net>
+ * @copyright 2018 975L <contact@975l.com>
+ */
 class PaymentLink extends \Twig_Extension
 {
     public function getFunctions()
@@ -25,9 +30,13 @@ class PaymentLink extends \Twig_Extension
         );
     }
 
+
+    /**
+     * Returns xhtml code for Payment link
+     * @return string
+     */
     public function paymentLink(\Twig_Environment $environment, $text = null, $amount = null, $currency = null)
     {
-        //Defines link
         return $environment->render('@c975LPayment/fragments/paymentLink.html.twig', array(
                 'text' => $text,
                 'amount' => $amount,

@@ -36,7 +36,7 @@
             </trans-unit>
             <trans-unit id="9">
                 <source>label.payment_done</source>
-                <target>Pago hecho</target>
+                <target>Pago hecho (%amount%)</target>
             </trans-unit>
             <trans-unit id="15">
                 <source>label.order_id</source>
