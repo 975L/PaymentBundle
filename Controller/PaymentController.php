@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentType;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
@@ -52,13 +53,12 @@ class PaymentController extends Controller
      *      name="payment_dashboard")
      * @Method({"GET", "HEAD"})
      */
-    public function dashboard(Request $request)
+    public function dashboard(Request $request, PaginatorInterface $paginator)
     {
         $this->denyAccessUnlessGranted('dashboard', null);
 
         //Pagination
-        $paginator  = $this->get('knp_paginator');
-        $pagination = $paginator->paginate(
+        $payments = $paginator->paginate(
             $this->paymentService->getAll(),
             $request->query->getInt('p', 1),
             50

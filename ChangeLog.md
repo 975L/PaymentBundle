@@ -1,5 +1,9 @@
 # Changelog
 
+v1.15.1
+-------
+- Corrected Dashboard (25/08/2018)
+
 v1.15
 -----
 - Added link to BuyMeCoffee (24/08/2018)
