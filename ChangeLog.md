@@ -1,5 +1,9 @@
 # Changelog
 
+v1.15.1.1
+---------
+- Added missing documentation (25/08/2018)
+
 v1.15.1
 -------
 - Corrected Dashboard (25/08/2018)

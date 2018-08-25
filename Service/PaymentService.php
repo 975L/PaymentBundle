@@ -21,15 +21,44 @@ use c975L\PaymentBundle\Service\Tools\PaymentToolsInterface;
 /**
  * Main Services related to Payment
  * @author Laurent Marquet <laurent.marquet@laposte.net>
- * @copyright 2018 975L <contact@975l.com>
+ * @copyright 2017 975L <contact@975l.com>
  */
 class PaymentService implements PaymentServiceInterface
 {
+    /**
+     * Stores container
+     * @var ContainerInterface
+     */
     private $container;
+
+    /**
+     * Stores EntityManager
+     * @var EntityManagerInterface
+     */
     private $em;
+
+    /**
+     * Stores current Request
+     * @var RequestStack
+     */
     private $request;
+
+    /**
+     * Stores PaymentEmail Service
+     * @var PaymentEmailInterface
+     */
     private $paymentEmail;
+
+    /**
+     * Stores PaymentStripe Service
+     * @var PaymentStripeInterface
+     */
     private $paymentStripe;
+
+    /**
+     * Stores PaymentTools Service
+     * @var PaymentToolsInterface
+     */
     private $paymentTools;
 
     public function __construct(
