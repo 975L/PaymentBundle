@@ -1,5 +1,9 @@
 # Changelog
 
+v1.15.2
+-------
+- Replaced links in dashboard (for purchased) by buttons (25/08/2018)
+
 v1.15.1.1
 ---------
 - Added missing documentation (25/08/2018)

@@ -24,7 +24,7 @@
                     <tr>
 {# OrderId & Display #}
                         <td class="text-center">
-                            <a href="{{ path('payment_display', {'orderId': payment.orderId}) }}" title="{{ 'label.display'|trans({}, 'toolbar') }}">{{ payment.orderId }}</a>
+                            {{ toolbar_button_text(path('payment_display', {'orderId': payment.orderId}), 'display', 'sm', 'true', 'right', payment.orderId) }}
                         </td>
 {# Amount #}
                         <td class="text-center">
