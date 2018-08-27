@@ -1,5 +1,13 @@
 # Changelog
 
+v1.16.1
+-------
+- Changed the FormFactory to the right version and made use of it (27/08/2018)
+- Removed SubmitType from `PaymentType` (27/08/2018)
+- Added IP address to `PaymentType` (27/08/2018)
+- Added gdpr as config value (27/08/2018)
+- Suppressed un-needed translation (27/08/2018)
+
 v1.16
 -----
 - Removed 'true ===' as not needed (25/08/2018)

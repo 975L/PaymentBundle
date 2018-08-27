@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use c975L\ServicesBundle\Service\ServiceToolsInterface;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
 use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
@@ -51,6 +52,12 @@ class PaymentService implements PaymentServiceInterface
     private $paymentEmail;
 
     /**
+     * Stores PaymentFormFactoryInterface
+     * @var PaymentFormFactoryInterface
+     */
+    private $paymentFormFactory;
+
+    /**
      * Stores PaymentStripeInterface
      * @var PaymentStripeInterface
      */
@@ -67,6 +74,7 @@ class PaymentService implements PaymentServiceInterface
         EntityManagerInterface $em,
         RequestStack $requestStack,
         PaymentEmailInterface $paymentEmail,
+        PaymentFormFactoryInterface $paymentFormFactory,
         PaymentStripeInterface $paymentStripe,
         ServiceToolsInterface $serviceTools
     )
@@ -75,6 +83,7 @@ class PaymentService implements PaymentServiceInterface
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
         $this->paymentEmail = $paymentEmail;
+        $this->paymentFormFactory = $paymentFormFactory;
         $this->paymentStripe = $paymentStripe;
         $this->serviceTools = $serviceTools;
     }
@@ -158,6 +167,14 @@ class PaymentService implements PaymentServiceInterface
         //Registers the Payment
         $payment = new Payment($paymentData, $this->container->getParameter('c975_l_payment.timezone'));
         $this->register($payment);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createForm(string $name, Payment $payment)
+    {
+        return $this->paymentFormFactory->create($name, $payment);
     }
 
     /**

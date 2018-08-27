@@ -7,22 +7,21 @@
  * with this source code in the file LICENSE.
  */
 
-namespace c975L\ContactFormBundle\Form;
+namespace c975L\PaymentBundle\Form;
 
 use Symfony\Component\Form\Form;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use c975L\ContactFormBundle\Entity\ContactForm;
-use c975L\ContactFormBundle\Event\ContactFormEvent;
-use c975L\ContactFormBundle\Form\ContactFormType;
-use c975L\ContactFormBundle\Form\ContactFormFactoryInterface;
+use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Form\PaymentType;
+use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 
 /**
- * FormFactory class
+ * PaymentFormFactory class
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */
-class ContactFormFactory implements ContactFormFactoryInterface
+class PaymentFormFactory implements PaymentFormFactoryInterface
 {
     /**
      * Stores container
@@ -42,17 +41,17 @@ class ContactFormFactory implements ContactFormFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function create(string $name, ContactForm $contactForm, ContactFormEvent $event)
+    public function create(string $name, Payment $payment)
     {
-        $contactFormConfig = array();
-
-        if ('display' === $name) {
-            $contactFormConfig = array(
-                'receiveCopy' => $event->getReceiveCopy(),
-                'gdpr' => $this->container->getParameter('c975_l_contact_form.gdpr'),
-            );
+        switch ($name) {
+            case 'free_amount':
+                $config = array('gdpr' => $this->container->getParameter('c975_l_payment.gdpr'));
+                break;
+            default:
+                $config = array();
+                break;
         }
 
-        return $this->formFactory->create(ContactFormType::class, $contactForm, array('contactFormConfig' => $contactFormConfig));
+        return $this->formFactory->create(PaymentType::class, $payment, array('config' => $config));
     }
 }

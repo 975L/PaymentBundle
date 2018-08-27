@@ -123,7 +123,7 @@ class PaymentController extends Controller
         //Defines form
         $paymentData = $this->paymentService->defineFreeAmount($this->getUser());
         $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
-        $form = $this->createForm(PaymentType::class, $payment);
+        $form = $this->paymentService->createForm('free_amount', $payment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

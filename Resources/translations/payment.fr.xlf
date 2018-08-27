@@ -135,10 +135,6 @@
                 <source>label.make_payment</source>
                 <target>Effectuer un paiement</target>
             </trans-unit>
-            <trans-unit id="33">
-                <source>label.cancel</source>
-                <target>Annuler</target>
-            </trans-unit>
             <trans-unit id="34">
                 <source>text.make_payment</source>
                 <target>Remplissez le formulaire ci-dessous pour accéder au paiement</target>

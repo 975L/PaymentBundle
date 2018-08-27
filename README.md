@@ -76,6 +76,8 @@ Then, in the `app/config.yml` file of your project, define the following:
 c975_l_payment:
     #The site name that will appear on the payment form
     site: 'example.com'
+    #If you want to display the checkbox for GDPR agreement
+    gdpr: false #true(default)
     #If your payment are live or should use the test keys
     live: true #Default false
     #Your default currency three letters code

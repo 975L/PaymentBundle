@@ -30,6 +30,12 @@ interface PaymentServiceInterface
     public function create(array $paymentData);
 
     /**
+     * Shortcut to call PaymentFormFactory to create Form
+     * @return Form
+     */
+    public function createForm(string $name, Payment $payment);
+
+    /**
      * Creates the payment for a free amount
      */
     public function createFreeAmount(Payment $payment);

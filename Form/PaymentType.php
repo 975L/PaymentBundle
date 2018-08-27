@@ -11,8 +11,8 @@ namespace c975L\PaymentBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -39,11 +39,25 @@ class PaymentType extends AbstractType
                 'attr' => array(
                     'placeholder' => 'label.amount',
                 )))
-            ->add('submit', SubmitType::class, array(
-                'label' => 'label.make_payment',
-                'attr' => array('class' => 'btn btn-block btn-lg btn-primary'),
-            ))
+            ->add('userIp', TextType::class, array(
+                'label' => 'label.ip',
+                'translation_domain' => 'services',
+                'required' => true,
+                'attr' => array(
+                    'readonly' => true,
+                )))
         ;
+        //GDPR
+        if ($options['config']['gdpr']) {
+            $builder
+                ->add('gdpr', CheckboxType::class, array(
+                    'label' => 'text.gdpr',
+                    'translation_domain' => 'services',
+                    'required' => true,
+                    'mapped' => false,
+                    ))
+            ;
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -53,5 +67,7 @@ class PaymentType extends AbstractType
             'intention'  => 'paymentForm',
             'translation_domain' => 'payment',
         ));
+
+        $resolver->setRequired('config');
     }
 }
