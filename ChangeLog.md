@@ -1,5 +1,14 @@
 # Changelog
 
+v1.16
+-----
+- Removed 'true ===' as not needed (25/08/2018)
+- Updated `README.md` to give the cas the validation after payment fails (25/08/2018)
+- Added dependency on "c975l/config-bundle" and "c975l/services-bundle" (26/08/2018)
+- Added translations for `errorStripe` email template (27/08/2018)
+- Removed un-needed services (27/08/2018)
+- Added a link to payment_display Route in email sent (27/08/2018)
+
 v1.15.2
 -------
 - Replaced links in dashboard (for purchased) by buttons (25/08/2018)

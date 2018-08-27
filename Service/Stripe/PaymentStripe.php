@@ -17,7 +17,7 @@ use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
 
 /**
- * Services related to Payment Stripe
+ * PaymentStripe class
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */

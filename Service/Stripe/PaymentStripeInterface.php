@@ -12,7 +12,7 @@ namespace c975L\PaymentBundle\Service\Stripe;
 use c975L\PaymentBundle\Entity\Payment;
 
 /**
- * Interface to be called for DI for Payment Stripe related services
+ * Interface to be called for DI for PaymentStripeInterface related services
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */

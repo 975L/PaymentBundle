@@ -1,7 +1,25 @@
 {% extends "@c975LEmail/emails/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
 
 {% block email_content %}
+{# Explanation #}
     <p>
-        There was an error with Stripe, the code is <strong>{{ errCode }}</strong> and the message is <strong>{{ errMessage }}</strong>
+        {{ 'text.error_stripe'|trans }}
+    </p>
+{# errCode #}
+    <p>
+        <strong>{{ 'label.code'|trans }}</strong>
+        <br />
+        <blockquote>
+            {{ errCode }}
+        </blockquote>
+    </p>
+{# errMessage #}
+    <p>
+        <strong>{{ 'label.message'|trans }}</strong>
+        <br />
+        <blockquote>
+            {{ errMessage }}
+        </blockquote>
     </p>
 {% endblock %}

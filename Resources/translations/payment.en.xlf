@@ -38,6 +38,26 @@
                 <source>label.payment_done</source>
                 <target>Payment done (%amount%)</target>
             </trans-unit>
+            <trans-unit id="10">
+                <source>text.error_stripe</source>
+                <target>There was an error with a Stripe payment! The money has NOT been withdrawn from the account.</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>text.product_no_delivered</source>
+                <target>ERROR! The payment has been done but the product/service was not delivered! We have been informed and will contact you as soon as possible. Keep track of this payment!</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>label.code</source>
+                <target>Code</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>label.message</source>
+                <target>Message</target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>text.error_validation</source>
+                <target>There was an error after a payment! Money HAS BEEN been debited from the account but the product/service has not been delivered!</target>
+            </trans-unit>
             <trans-unit id="15">
                 <source>label.order_id</source>
                 <target>Transaction identifier</target>

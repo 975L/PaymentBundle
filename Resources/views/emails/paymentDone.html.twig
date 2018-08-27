@@ -38,7 +38,7 @@
     </p>
 {# Order Id #}
     <p>
-        {{ 'label.order_id'|trans }} : <strong>{{ payment.orderId }}</strong>
+        {{ 'label.order_id'|trans }} : <strong><a href="{{ path('payment_display', {'orderId': payment.orderId}) }}">{{ payment.orderId }}</a></strong>
     </p>
     {% if stripeFee == true %}
 {# Stripe Fee #}

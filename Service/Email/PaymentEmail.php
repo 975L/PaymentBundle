@@ -18,7 +18,7 @@ use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
 
 /**
- * Services related to Payment Email
+ * PaymentEmail class
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */
@@ -82,20 +82,39 @@ class PaymentEmail implements PaymentEmailInterface
     /**
      * {@inheritdoc}
      */
-    public function sendError(array $errData)
+    public function sendError(string $object, $data)
     {
-        $body = $this->templating->render('@c975LPayment/emails/errorStripe.html.twig', array(
-            'errCode' => $errData['code'],
-            'errMessage' => 'Stripe err : ' . $errData['message'],
-             '_locale' => $this->request->getLocale(),
-            ));
-        $emailData = array(
-            'subject' => 'StripeError : ' . $errData['code'],
-            'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
-            'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
-            'body' => $body,
-            'ip' => $this->request->getClientIp(),
-            );
+        //Stripe error
+        if ('stripe' === $object) {
+            $errData = $data;
+            $body = $this->templating->render('@c975LPayment/emails/errorStripe.html.twig', array(
+                'errCode' => $errData['code'],
+                'errMessage' => 'PaymentStripe Error : ' . $errData['message'],
+                 '_locale' => $this->request->getLocale(),
+                ));
+            $emailData = array(
+                'subject' => 'StripeError : ' . $errData['code'],
+                'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'body' => $body,
+                'ip' => $this->request->getClientIp(),
+                );
+        //Validation error
+        } elseif ('validation' === $object) {
+            $payment = $data;
+            $body = $this->templating->render('@c975LPayment/emails/errorValidation.html.twig', array(
+                'payment' => $payment,
+                 '_locale' => $this->request->getLocale(),
+                ));
+            $emailData = array(
+                'subject' => 'PaymentValidation Error',
+                'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'body' => $body,
+                'ip' => $this->request->getClientIp(),
+                );
+        }
+
         $this->emailService->send($emailData, $this->container->getParameter('c975_l_payment.database'));
     }
 

@@ -12,7 +12,7 @@ namespace c975L\PaymentBundle\Service\Email;
 use c975L\PaymentBundle\Entity\Payment;
 
 /**
- * Interface to be called for DI for Payment Email related services
+ * Interface to be called for DI for PaymentEmailInterface related services
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */
@@ -26,7 +26,7 @@ interface PaymentEmailInterface
     /**
      * Sends email for error
      */
-    public function sendError(array $errData);
+    public function sendError(string $object, $data);
 
     /**
      * Sends email related to Payment for the user

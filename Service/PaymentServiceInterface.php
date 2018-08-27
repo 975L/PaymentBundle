@@ -12,7 +12,7 @@ namespace c975L\PaymentBundle\Service;
 use c975L\PaymentBundle\Entity\Payment;
 
 /**
- * Interface to be called for DI for Payment Main related services
+ * Interface to be called for DI for PaymentServiceInterface related services
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */
@@ -44,6 +44,11 @@ interface PaymentServiceInterface
      * @return array
      */
     public function defineFreeAmount($user);
+
+    /**
+     * An error has occured after the Payment (Sends email to site + flash)
+     */
+    public function error(Payment $payment);
 
     /**
      * Gets all the Payment

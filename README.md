@@ -135,35 +135,87 @@ How to use
 ----------
 The process is the following:
 - User selects a product,
-- User click tp pay,
-- Payment in created in DB,
+- User clicks to pay,
+- Payment is created in DB,
 - User is redirected to Payment form,
 - User pays,
 - User is redirected to returnRoute,
-- Actions are executed to deliver product (if payment successful),
+- Actions are executed to deliver product (if payment successful or sends an error),
 - User is redirected to final confirmation or delivery product page.
 
-To achieve this, you have to define 2 Controller Routes and 2 Services method (+ Interface) (while you can do all of this in Controller, Best Practices recommend to keep Controller methods skinny).
+To achieve this, you have to define 2 Controller Routes and 2 Services methods (+ Interface) (while you can do all of this in Controller, Best Practices recommend to keep Controller methods skinny).
 
-Here are the examples for those 3 files:
+Here are the examples for those files:
 
 ```php
-//Your ServiceInterface file
-namespace App\Service\YourPaymentService;
+//YourProductServiceInterface file
+namespace App\Service;
 
 use c975L\PaymentBundle\Entity\Payment;
 
-interface YourPaymentServiceInterface
+interface YourProductServiceInterface
 {
-    public function payment($yourNeededData);
-
     public function validate(Payment $payment);
 }
 ```
 
 ```php
-//Your Service file
-namespace App\Service\YourPaymentService;
+//Your ProductService file
+namespace App\Service;
+
+use Doctrine\ORM\EntityManagerInterface;
+use App\Service\YourProductServiceInterface;
+
+class YourProductService implements YourProductServiceInterface
+{
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    public function validate(Payment $payment)
+    {
+        /**
+         * For example if `$payment->getAction()` contains the result of "json_encode(array('addCredits' => 10));"
+         */
+        $action = (array) json_decode($payment->getAction());
+        if (array_key_exists('addCredits', $action)) {
+            //Gets the user
+            $user = $this->em->getRepository('c975LUserBundle:User')
+                ->findOneById($payment->getUserId());
+
+            //Adds credits to user
+            $user->setCredits($user->getCredits() + $action['addCredits']);
+            $this->em->persist($user);
+
+            //Set payment as finished
+            $payment->setFinished(true);
+            $this->em->persist($payment);
+            $this->em->flush();
+
+            return true;
+        }
+
+        return false;
+    }
+}
+```
+
+```php
+//YourPaymentServiceInterface file
+namespace App\Service;
+
+interface YourPaymentServiceInterface
+{
+    public function payment($yourNeededData);
+}
+```
+
+```php
+//Your PaymentService file
+namespace App\Service;
 
 use App\Service\YourPaymentServiceInterface;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
@@ -189,37 +241,23 @@ class YourPaymentService implements YourPaymentServiceInterface
             );
         $paymentService->create($paymentData);
     }
-
-    public function validate(Payment $payment)
-    {
-        /**
-         * For example if `$payment->getAction()` contains the result of "json_encode(array('addCredits' => 10));"
-         */
-        $action = (array) json_decode($payment->getAction());
-        if (array_key_exists('addCredits', $action)) {
-            //Gets the user
-            $user = $em->getRepository('c975LUserBundle:User')
-                ->findOneById($payment->getUserId());
-
-            //Adds credits to user
-            $user->setCredits($user->getCredits() + $action['addCredits']);
-            $em->persist($user);
-
-            //Set payment as finished
-            $payment->setFinished(true);
-            $em->persist($payment);
-            $em->flush();
-        }
-    }
 }
 ```
 
 ```php
 //Your Controller file
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use c975L\PaymentBundle\Entity\Payment;
-use App\Service\YourPaymentServiceInterface;;
+use c975L\PaymentBundle\Service\PaymentServiceInterface;
+use App\Service\YourPaymentServiceInterface;
 
+class PaymentController extends Controller
+{
     /**
      * Route used to proceed to payment
      * @return Response
@@ -244,21 +282,23 @@ use App\Service\YourPaymentServiceInterface;;
      * @Route("/payment-done/{orderId}",
      *      name="payment_done")
      * @Method({"GET", "HEAD"})
-     * @ParamConverter("payment",
-     *      options={
-     *          "repository_method" = "findOneByOrderIdNotFinished",
-     *          "mapping": {"orderId": "orderId"},
-     *          "map_method_signature" = true
-     *      })
      */
-    public function paymentDone(YourPaymentServiceInterface $yourPaymentService, Payment $payment)
+    public function paymentDone(YourProductServiceInterface $yourProductService, PaymentServiceInterface $paymentService, Payment $payment)
     {
         //Validates the Payment
-        $yourPaymentService->validate($payment);
+        $validation = $yourProductService->validate($payment);
 
         //Redirects or renders
-        return $this->redirectToRoute('YOUR_ROUTE');
+        if ($validation) {
+            return $this->redirectToRoute('YOUR_ROUTE');
+        }
+
+         //Payment has been done but product was not validated
+        $paymentService->error($payment);
+
+        return $this->redirectToRoute('payment_display', array('orderId' => $payment->getOrderId()));
     }
+}
 ```
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
 

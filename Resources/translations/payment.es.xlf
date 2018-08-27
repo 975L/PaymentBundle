@@ -38,6 +38,26 @@
                 <source>label.payment_done</source>
                 <target>Pago hecho (%amount%)</target>
             </trans-unit>
+            <trans-unit id="10">
+                <source>text.error_stripe</source>
+                <target>¡Ha ocurrido un error con un pago Stripe ! El dinero no se ha retirado de la cuenta.</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>text.product_no_delivered</source>
+                <target>¡ERROR! ¡El pago se ha realizado pero el/producto/servicio NO fue deliverado! Hemos sido informados y nos contactaremos con usted lo antes posible. ¡Mantenga un registro de este pago!</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>label.code</source>
+                <target>Código</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>label.message</source>
+                <target>Mensaje</target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>text.error_validation</source>
+                <target>¡Ha ocurrido un error después de un pago! El dinero se debita de la cuenta pero el producto/servicio no fue deliverado!</target>
+            </trans-unit>
             <trans-unit id="15">
                 <source>label.order_id</source>
                 <target>Identificar de transacción</target>

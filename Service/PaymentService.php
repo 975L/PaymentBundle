@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use c975L\ServicesBundle\Service\ServiceToolsInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
@@ -19,20 +20,20 @@ use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
 use c975L\PaymentBundle\Service\Tools\PaymentToolsInterface;
 
 /**
- * Main Services related to Payment
+ * PaymentService class
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2017 975L <contact@975l.com>
  */
 class PaymentService implements PaymentServiceInterface
 {
     /**
-     * Stores container
+     * Stores ContainerInterface
      * @var ContainerInterface
      */
     private $container;
 
     /**
-     * Stores EntityManager
+     * Stores EntityManagerInterface
      * @var EntityManagerInterface
      */
     private $em;
@@ -44,22 +45,22 @@ class PaymentService implements PaymentServiceInterface
     private $request;
 
     /**
-     * Stores PaymentEmail Service
+     * Stores PaymentEmailInterface
      * @var PaymentEmailInterface
      */
     private $paymentEmail;
 
     /**
-     * Stores PaymentStripe Service
+     * Stores PaymentStripeInterface
      * @var PaymentStripeInterface
      */
     private $paymentStripe;
 
     /**
-     * Stores PaymentTools Service
-     * @var PaymentToolsInterface
+     * Stores ServiceToolsInterface
+     * @var ServiceToolsInterface
      */
-    private $paymentTools;
+    private $serviceTools;
 
     public function __construct(
         ContainerInterface $container,
@@ -67,7 +68,7 @@ class PaymentService implements PaymentServiceInterface
         RequestStack $requestStack,
         PaymentEmailInterface $paymentEmail,
         PaymentStripeInterface $paymentStripe,
-        PaymentToolsInterface $paymentTools
+        ServiceToolsInterface $serviceTools
     )
     {
         $this->container = $container;
@@ -75,7 +76,7 @@ class PaymentService implements PaymentServiceInterface
         $this->request = $requestStack->getCurrentRequest();
         $this->paymentEmail = $paymentEmail;
         $this->paymentStripe = $paymentStripe;
-        $this->paymentTools = $paymentTools;
+        $this->serviceTools = $serviceTools;
     }
 
     /**
@@ -113,7 +114,7 @@ class PaymentService implements PaymentServiceInterface
             $this->paymentEmail->send($payment, $amount);
 
             //Creates flash
-            $this->paymentTools->createFlash('payment_done', array('%amount%' => $amount));
+            $this->serviceTools->createFlash('payment', 'label.payment_done', 'success', array('%amount%' => $amount));
 
             //Deletes data in session
             $this->request->getSession()->remove('stripe');
@@ -121,11 +122,19 @@ class PaymentService implements PaymentServiceInterface
             return $payment->getOrderId();
         //An error has occured
         } else {
-            //Sends an email
-            $this->paymentEmail->sendError($paymentDone);
+            $errData = $paymentDone;
 
-            //Creates flash
-            $this->paymentTools->createFlashError($paymentDone);
+            //Sends an email
+            $this->paymentEmail->sendError('stripe', $errData);
+
+            //Flash specific error message
+            if ($errData['display']) {
+                $this->serviceTools->createFlash('payment', 'text.error_payment', 'danger');
+                $this->serviceTools->createFlash(null, $errMessage, 'danger');
+            //Flash generic error message
+            } else {
+                $this->serviceTools->createFlash('payment', 'text.error_payment_generic', 'danger');
+            }
         }
 
         return false;
@@ -199,6 +208,18 @@ class PaymentService implements PaymentServiceInterface
     /**
      * {@inheritdoc}
      */
+    public function error(Payment $payment)
+    {
+        //Sends email
+        $this->paymentEmail->sendError('validation', $payment);
+
+        //Creates flash
+        $this->serviceTools->createFlash('payment', 'text.product_no_delivered', 'danger');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getAll()
     {
         return $this->em
@@ -240,8 +261,8 @@ class PaymentService implements PaymentServiceInterface
                 'key' => $this->paymentStripe->getPublishableKey($payment->getLive()),
                 'site' => $this->container->getParameter('c975_l_payment.site'),
                 'image' => $this->container->getParameter('c975_l_payment.image'),
-                'zipCode' => $this->container->getParameter('c975_l_payment.zipCode') === true ? 'true' : 'false',
-                'alipay' => $this->container->getParameter('c975_l_payment.alipay') === true ? 'true' : 'false',
+                'zipCode' => $this->container->getParameter('c975_l_payment.zipCode') ? 'true' : 'false',
+                'alipay' => $this->container->getParameter('c975_l_payment.alipay') ? 'true' : 'false',
                 'live' => $payment->getLive(),
                 'payment' => $payment,
                 );

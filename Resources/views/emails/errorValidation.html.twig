@@ -1,0 +1,33 @@
+{% extends "@c975LEmail/emails/layout.html.twig" %}
+{% trans_default_domain 'payment' %}
+
+{% block email_content %}
+{# Explanation #}
+    <p>
+        {{ 'text.error_validation'|trans }}
+    </p>
+{# Description #}
+    <p>
+        {{ 'label.description'|trans }} : <strong>{{ payment.description }}</strong>
+    </p>
+{# Action #}
+    <p>
+        {{ 'label.action'|trans }} : <strong>{{ payment.action }}</strong>
+    </p>
+{# Amount #}
+    <p>
+        {{ 'label.amount'|trans }} : <strong>{{ (payment.amount / 100)|localizedcurrency(payment.currency) }}</strong>
+    </p>
+{# Date #}
+    <p>
+        {{ 'label.date'|trans }} : <strong>{{ payment.creation|localizeddate('medium', 'medium') }}</strong>
+    </p>
+{# Order Id #}
+    <p>
+        {{ 'label.order_id'|trans }} : <strong><a href="{{ path('payment_display', {'orderId': payment.orderId}) }}">{{ payment.orderId }}</a></strong>
+    </p>
+{# User email #}
+    <p>
+        {{ 'label.email'|trans }} : <strong><a href="mailto:{{ payment.stripeEmail }}">{{ payment.stripeEmail }}</a></strong>
+    </p>
+{% endblock %}
