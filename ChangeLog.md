@@ -1,5 +1,9 @@
 # Changelog
 
+v1.16.2
+-------
+- Fixed Voter constants (31/08/2018)
+
 v1.16.1
 -------
 - Changed the FormFactory to the right version and made use of it (27/08/2018)

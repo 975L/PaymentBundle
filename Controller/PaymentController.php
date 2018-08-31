@@ -22,7 +22,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use c975L\PaymentBundle\Entity\Payment;
-use c975L\PaymentBundle\Form\PaymentType;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 
 /**
@@ -55,7 +54,7 @@ class PaymentController extends Controller
      */
     public function dashboard(Request $request, PaginatorInterface $paginator)
     {
-        $this->denyAccessUnlessGranted('dashboard', null);
+        $this->denyAccessUnlessGranted('c975LPayment-dashboard', null);
 
         //Pagination
         $payments = $paginator->paginate(

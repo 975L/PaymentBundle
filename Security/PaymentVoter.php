@@ -36,7 +36,7 @@ class PaymentVoter extends Voter
      * Used for access to dashboard
      * @var string
      */
-    public const DASHBOARD = 'dashboard';
+    public const DASHBOARD = 'c975LPayment-dashboard';
 
     /**
      * Contains all the available attributes to check with in supports()
@@ -78,6 +78,7 @@ class PaymentVoter extends Voter
         switch ($attribute) {
             case self::DASHBOARD:
                 return $this->decisionManager->decide($token, array($this->roleNeeded));
+                break;
         }
 
         throw new \LogicException('Invalid attribute: ' . $attribute);
