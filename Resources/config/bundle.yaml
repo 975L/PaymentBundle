@@ -62,7 +62,7 @@ c975LPayment:
     stripeFeeFixed:
         type: int
         required: false
-        default: null
+        default: 25
         info: "Your Stripe Fee fixed part in cents: i.e. 25"
     stripe_secret_key_test:
         type: string
