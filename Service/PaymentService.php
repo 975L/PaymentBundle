@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ServicesBundle\Service\ServiceToolsInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
@@ -27,6 +28,12 @@ use c975L\PaymentBundle\Service\Tools\PaymentToolsInterface;
  */
 class PaymentService implements PaymentServiceInterface
 {
+    /**
+     * Stores ConfigServiceInterface
+     * @var ConfigServiceInterface
+     */
+    private $configService;
+
     /**
      * Stores ContainerInterface
      * @var ContainerInterface
@@ -70,6 +77,7 @@ class PaymentService implements PaymentServiceInterface
     private $serviceTools;
 
     public function __construct(
+        ConfigServiceInterface $configService,
         ContainerInterface $container,
         EntityManagerInterface $em,
         RequestStack $requestStack,
@@ -79,6 +87,7 @@ class PaymentService implements PaymentServiceInterface
         ServiceToolsInterface $serviceTools
     )
     {
+        $this->configService = $configService;
         $this->container = $container;
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
@@ -251,6 +260,14 @@ class PaymentService implements PaymentServiceInterface
     public function getFromSession(string $kind)
     {
         return $this->request->getSession()->get($kind);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameter(string $parameter)
+    {
+        return $this->configService->getParameter($parameter);
     }
 
     /**
