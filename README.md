@@ -55,7 +55,7 @@ Check dependencies for their configuration:
 - [Doctrine](https://github.com/doctrine/DoctrineBundle)
 - [KnpPaginatorBundle](https://github.com/KnpLabs/KnpPaginatorBundle)
 - [c975LEmailBundle](https://github.com/975L/EmailBundle)
-- [PHP Library](https://github.com/stripe/stripe-php)
+- [Stripe PHP Library](https://github.com/stripe/stripe-php)
 
 v2.0+ of c975LPaymentBundle uses [c975L/ConfigBundle](https://github.com/975L/ConfigBundle) to manage configuration parameters. Use the Route "/payment/config" with the proper user role to modify them.
 

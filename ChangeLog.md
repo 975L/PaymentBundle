@@ -1,5 +1,7 @@
 # Changelog
 
+- Updated `README.md` (01/09/2018)
+
 v2.0
 ----
 **Upgrading from v1.x? Check UPGRADE.md**
