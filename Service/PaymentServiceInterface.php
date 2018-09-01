@@ -69,6 +69,13 @@ interface PaymentServiceInterface
     public function getFromSession(string $kind);
 
     /**
+     * Returns the value of parameter
+     * @return mixed
+     * @throws \LogicException
+     */
+    public function getParameter(string $parameter);
+
+    /**
      * Registers the Payment in DB + Session
      */
     public function register(Payment $payment);

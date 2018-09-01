@@ -1,0 +1,86 @@
+c975LPayment:
+    roleNeeded:
+        type: string
+        required: true
+        default: ROLE_ADMIN
+        info: "User's role needed to enable access to data linked to PaymentBundle: i.e. ROLE_ADMIN (Default: ROLE_ADMIN)"
+    site:
+        type: string
+        required: true
+        default: null
+        info: "Name of the web site that will appear on the payment form: i.e. Example.com"
+    live:
+        type: bool
+        required: false
+        default: false
+        info: "If your payment are live and will charge user's card (Default: false)"
+    gdpr:
+        type: bool
+        required: false
+        default: true
+        info: "If the checkbox related to GDPR rules should be displayed"
+    database:
+        type: bool
+        required: false
+        default: false
+        info: "If the emails sent after payment should be registered in the database (see https://github.com/975L/EmailBundle)"
+    defaultCurrency:
+        type: string
+        required: true
+        default: EUR
+        info: "Your default currency three letters code: i.e. EUR (Default: EUR)"
+    vat:
+        type: float
+        required: false
+        default: null
+        info: "Your VAT rate for direct payments without %: i.e. 5.5 for 5.5%, or 20 for 20% (Default: null)"
+    timezone:
+        type: string
+        required: false
+        default: null
+        info: "The Timezone as per default it will be UTC: i.e. Europe/Paris (Default: null)"
+    image:
+        type: string
+        required: false
+        default: null
+        info: "Path for the image to display in the Stripe form (recommended): i.e. images/logo.png (Default: null)"
+    zipCode:
+        type: bool
+        required: false
+        default: true
+        info: "If you want to use the zip code function (Default: true)"
+    alipay:
+        type: bool
+        required: false
+        default: false
+        info: "If you want to use the alipay function (Default false)"
+    stripeFeePercentage:
+        type: float
+        required: false
+        default: 1.4
+        info: "Your Stripe Fee rate without %: i.e. 1.4 for 1.4% (Default)"
+    stripeFeeFixed:
+        type: int
+        required: false
+        default: 25
+        info: "Your Stripe Fee fixed part in cents: i.e. 25"
+    stripeSecretKeyTest:
+        type: string
+        required: true
+        default: null
+        info: "The value for your Stripe secret key TEST"
+    stripePublishableKeyTest:
+        type: string
+        required: true
+        default: null
+        info: "The value for your Stripe publishable key TEST"
+    stripeSecretKeyLive:
+        type: string
+        required: true
+        default: null
+        info: "The value for your Stripe secret key LIVE"
+    stripePublishableKeyLive:
+        type: string
+        required: true
+        default: null
+        info: "The value for your Stripe publishable key LIVE"

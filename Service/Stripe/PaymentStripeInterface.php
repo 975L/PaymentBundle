@@ -9,6 +9,7 @@
 
 namespace c975L\PaymentBundle\Service\Stripe;
 
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use c975L\PaymentBundle\Entity\Payment;
 
 /**
@@ -27,12 +28,14 @@ interface PaymentStripeInterface
     /**
      * Gets the Stripe publishable key
      * @return string
+     * @throws InvalidArgumentException
      */
     public function getPublishableKey(bool $live = false);
 
     /**
      * Gets the Stripe Secret key
      * @return string
+     * @throws InvalidArgumentException
      */
     public function getSecretKey(bool $live = false);
 }

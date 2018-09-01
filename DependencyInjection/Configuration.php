@@ -22,50 +22,6 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('c975_l_payment');
-
-        $rootNode
-            ->children()
-                ->scalarNode('live')
-                    ->defaultFalse()
-                ->end()
-                ->scalarNode('site')
-                ->end()
-                ->scalarNode('gdpr')
-                    ->defaultTrue()
-                ->end()
-                ->scalarNode('defaultCurrency')
-                    ->defaultValue('EUR')
-                ->end()
-                ->floatNode('vat')
-                    ->defaultNull()
-                ->end()
-                ->floatNode('stripeFeePercentage')
-                    ->defaultValue(1.4)
-                ->end()
-                ->integerNode('stripeFeeFixed')
-                    ->defaultValue(25)
-                ->end()
-                ->scalarNode('timezone')
-                    ->defaultNull()
-                ->end()
-                ->booleanNode('database')
-                    ->defaultFalse()
-                ->end()
-                ->scalarNode('image')
-                    ->defaultNull()
-                ->end()
-                ->booleanNode('zipCode')
-                    ->defaultTrue()
-                ->end()
-                ->booleanNode('alipay')
-                    ->defaultFalse()
-                ->end()
-                ->scalarNode('roleNeeded')
-                    ->defaultValue('ROLE_ADMIN')
-                ->end()
-            ->end()
-        ;
 
         return $treeBuilder;
     }

@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 
@@ -79,11 +80,44 @@ class PaymentController extends Controller
      *      requirements={"orderId": "^[0-9\-]+$"})
      * @Method({"GET", "HEAD"})
      */
-    public function display(Request $request, Payment $payment)
+    public function display(Request $request, Payment $payment, ConfigServiceInterface $configService)
     {
         return $this->render('@c975LPayment/pages/display.html.twig', array(
             'payment' => $payment,
-            'siteName' => $this->getParameter('c975_l_payment.site'),
+            'siteName' => $configService->getParameter('c975LPayment.site'),
+        ));
+    }
+
+//CONFIG
+    /**
+     * Displays the configuration
+     * @return Response
+     * @throws AccessDeniedException
+     *
+     * @Route("/payment/config",
+     *      name="payment_config")
+     * @Method({"GET", "HEAD", "POST"})
+     */
+    public function config(Request $request, ConfigServiceInterface $configService)
+    {
+        $this->denyAccessUnlessGranted('c975LPayment-config', null);
+
+        //Defines form
+        $form = $configService->createForm('c975l/payment-bundle');
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            //Validates config
+            $configService->setConfig($form);
+
+            //Redirects
+            return $this->redirectToRoute('payment_dashboard');
+        }
+
+        //Renders the config form
+        return $this->render('@c975LConfig/forms/config.html.twig', array(
+            'form' => $form->createView(),
+            'toolbar' => '@c975LPayment',
         ));
     }
 
@@ -117,11 +151,11 @@ class PaymentController extends Controller
      *      name="payment_free_amount")
      * @Method({"GET", "HEAD", "POST"})
      */
-    public function freeAmount(Request $request)
+    public function freeAmount(Request $request, ConfigServiceInterface $configService)
     {
         //Defines form
         $paymentData = $this->paymentService->defineFreeAmount($this->getUser());
-        $payment = new Payment($paymentData, $this->getParameter('c975_l_payment.timezone'));
+        $payment = new Payment($paymentData, $configService->getParameter('c975LPayment.timezone'));
         $form = $this->paymentService->createForm('free_amount', $payment);
         $form->handleRequest($request);
 

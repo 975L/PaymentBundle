@@ -10,8 +10,8 @@
 namespace c975L\PaymentBundle\Form;
 
 use Symfony\Component\Form\Form;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentType;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
@@ -24,17 +24,17 @@ use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 class PaymentFormFactory implements PaymentFormFactoryInterface
 {
     /**
-     * Stores container
-     * @var ContainerInterface
+     * Stores ConfigServiceInterface
+     * @var ConfigServiceInterface
      */
-    private $container;
+    private $configService;
 
     public function __construct(
-        ContainerInterface $container,
+        ConfigServiceInterface $configService,
         FormFactoryInterface $formFactory
     )
     {
-        $this->container = $container;
+        $this->configService = $configService;
         $this->formFactory = $formFactory;
     }
 
@@ -45,7 +45,7 @@ class PaymentFormFactory implements PaymentFormFactoryInterface
     {
         switch ($name) {
             case 'free_amount':
-                $config = array('gdpr' => $this->container->getParameter('c975_l_payment.gdpr'));
+                $config = array('gdpr' => $this->configService->getParameter('c975LPayment.gdpr'));
                 break;
             default:
                 $config = array();
