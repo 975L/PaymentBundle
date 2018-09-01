@@ -155,8 +155,8 @@ class PaymentService implements PaymentServiceInterface
     public function create(array $paymentData)
     {
         //Payment or product under test
-        $live = isset($paymentData['live']) ? $paymentData['live'] : $this->configService->getParameter('c975LPayment..live');
-        if (false === $this->configService->getParameter('c975LPayment..live') || false === $live) {
+        $live = isset($paymentData['live']) ? $paymentData['live'] : $this->configService->getParameter('c975LPayment.live');
+        if (false === $this->configService->getParameter('c975LPayment.live') || false === $live) {
             $paymentData['description'] = '(TEST) ' . $paymentData['description'];
             $paymentData['live'] = false;
         //Payment live
@@ -165,7 +165,7 @@ class PaymentService implements PaymentServiceInterface
         }
 
         //Registers the Payment
-        $payment = new Payment($paymentData, $this->configService->getParameter('c975LPayment..timezone'));
+        $payment = new Payment($paymentData, $this->configService->getParameter('c975LPayment.timezone'));
         $this->register($payment);
     }
 
@@ -199,8 +199,8 @@ class PaymentService implements PaymentServiceInterface
             'description' => urldecode($text),
             'userId' => null !== $user ? $user->getId() : null,
             'userIp' => $this->request->getClientIp(),
-            'live' => $this->configService->getParameter('c975LPayment..live'),
-            'vat' => $this->configService->getParameter('c975LPayment..vat'),
+            'live' => $this->configService->getParameter('c975LPayment.live'),
+            'vat' => $this->configService->getParameter('c975LPayment.vat'),
             );
         $this->create($paymentData);
     }
@@ -212,13 +212,13 @@ class PaymentService implements PaymentServiceInterface
     {
         return array(
             'amount' => null,
-            'currency' => $this->configService->getParameter('c975LPayment..defaultCurrency'),
+            'currency' => $this->configService->getParameter('c975LPayment.defaultCurrency'),
             'action' => 'free_amount_payment',
             'description' => null,
             'userId' => null !== $user ? $user->getId() : null,
             'userIp' => $this->request->getClientIp(),
-            'live' => $this->configService->getParameter('c975LPayment..live'),
-            'vat' => $this->configService->getParameter('c975LPayment..vat'),
+            'live' => $this->configService->getParameter('c975LPayment.live'),
+            'vat' => $this->configService->getParameter('c975LPayment.vat'),
             );
     }
 
@@ -284,10 +284,10 @@ class PaymentService implements PaymentServiceInterface
         if ($payment instanceof Payment) {
             return array(
                 'key' => $this->paymentStripe->getPublishableKey($payment->getLive()),
-                'site' => $this->configService->getParameter('c975LPayment..site'),
-                'image' => $this->configService->getParameter('c975LPayment..image'),
-                'zipCode' => $this->configService->getParameter('c975LPayment..zipCode') ? 'true' : 'false',
-                'alipay' => $this->configService->getParameter('c975LPayment..alipay') ? 'true' : 'false',
+                'site' => $this->configService->getParameter('c975LPayment.site'),
+                'image' => $this->configService->getParameter('c975LPayment.image'),
+                'zipCode' => $this->configService->getParameter('c975LPayment.zipCode') ? 'true' : 'false',
+                'alipay' => $this->configService->getParameter('c975LPayment.alipay') ? 'true' : 'false',
                 'live' => $payment->getLive(),
                 'payment' => $payment,
                 );

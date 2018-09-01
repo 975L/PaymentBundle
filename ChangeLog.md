@@ -1,6 +1,9 @@
 # Changelog
 
+v2.0.1
+------
 - Updated `README.md` (01/09/2018)
+- Fixed 2 "." in getParameter (01/09/2018)
 
 v2.0
 ----
