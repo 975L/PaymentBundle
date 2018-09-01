@@ -4,6 +4,11 @@
 {# Dashboard #}
 {{ toolbar_button(path('payment_dashboard'), 'dashboard', 'md', 'label.payment'|trans) }}
 
+{# Config #}
+{% if type != 'config' %}
+    {{ toolbar_button(path('payment_config'), 'config') }}
+{% endif %}
+
 {# Signout #}
 {{ toolbar_button(path('user_signout'), 'signout') }}
 

@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Security;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 
 /**
@@ -22,15 +23,22 @@ use c975L\PaymentBundle\Entity\Payment;
 class PaymentVoter extends Voter
 {
     /**
+     * Stores ConfigServiceInterface
+     * @var ConfigServiceInterface
+     */
+    private $configService;
+
+    /**
+     * Stores AccessDecisionManagerInterface
      * @var AccessDecisionManagerInterface
      */
     private $decisionManager;
 
     /**
-     * The role needed to be allowed access (defined in config)
+     * Used for access to config
      * @var string
      */
-    private $roleNeeded;
+    public const CONFIG = 'c975LPayment-config';
 
     /**
      * Used for access to dashboard
@@ -43,13 +51,17 @@ class PaymentVoter extends Voter
      * @var array
      */
     private const ATTRIBUTES = array(
+        self::CONFIG,
         self::DASHBOARD,
     );
 
-    public function __construct(AccessDecisionManagerInterface $decisionManager, string $roleNeeded)
+    public function __construct(
+        ConfigServiceInterface $configService,
+        AccessDecisionManagerInterface $decisionManager
+    )
     {
+        $this->configService = $configService;
         $this->decisionManager = $decisionManager;
-        $this->roleNeeded = $roleNeeded;
     }
 
     /**
@@ -76,8 +88,9 @@ class PaymentVoter extends Voter
 
         //Defines access rights
         switch ($attribute) {
+            case self::CONFIG:
             case self::DASHBOARD:
-                return $this->decisionManager->decide($token, array($this->roleNeeded));
+                return $this->decisionManager->decide($token, array($this->configService->getParameter('c975LPayment.roleNeeded', 'c975l/payment-bundle')));
                 break;
         }
 
