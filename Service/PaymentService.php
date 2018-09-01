@@ -10,7 +10,6 @@
 namespace c975L\PaymentBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ServicesBundle\Service\ServiceToolsInterface;
@@ -33,12 +32,6 @@ class PaymentService implements PaymentServiceInterface
      * @var ConfigServiceInterface
      */
     private $configService;
-
-    /**
-     * Stores ContainerInterface
-     * @var ContainerInterface
-     */
-    private $container;
 
     /**
      * Stores EntityManagerInterface
@@ -78,7 +71,6 @@ class PaymentService implements PaymentServiceInterface
 
     public function __construct(
         ConfigServiceInterface $configService,
-        ContainerInterface $container,
         EntityManagerInterface $em,
         RequestStack $requestStack,
         PaymentEmailInterface $paymentEmail,
@@ -88,7 +80,6 @@ class PaymentService implements PaymentServiceInterface
     )
     {
         $this->configService = $configService;
-        $this->container = $container;
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
         $this->paymentEmail = $paymentEmail;
@@ -164,8 +155,8 @@ class PaymentService implements PaymentServiceInterface
     public function create(array $paymentData)
     {
         //Payment or product under test
-        $live = isset($paymentData['live']) ? $paymentData['live'] : $this->container->getParameter('c975_l_payment.live');
-        if (false === $this->container->getParameter('c975_l_payment.live') || false === $live) {
+        $live = isset($paymentData['live']) ? $paymentData['live'] : $this->configService->getParameter('c975LPayment..live');
+        if (false === $this->configService->getParameter('c975LPayment..live') || false === $live) {
             $paymentData['description'] = '(TEST) ' . $paymentData['description'];
             $paymentData['live'] = false;
         //Payment live
@@ -174,7 +165,7 @@ class PaymentService implements PaymentServiceInterface
         }
 
         //Registers the Payment
-        $payment = new Payment($paymentData, $this->container->getParameter('c975_l_payment.timezone'));
+        $payment = new Payment($paymentData, $this->configService->getParameter('c975LPayment..timezone'));
         $this->register($payment);
     }
 
@@ -208,8 +199,8 @@ class PaymentService implements PaymentServiceInterface
             'description' => urldecode($text),
             'userId' => null !== $user ? $user->getId() : null,
             'userIp' => $this->request->getClientIp(),
-            'live' => $this->container->getParameter('c975_l_payment.live'),
-            'vat' => $this->container->getParameter('c975_l_payment.vat'),
+            'live' => $this->configService->getParameter('c975LPayment..live'),
+            'vat' => $this->configService->getParameter('c975LPayment..vat'),
             );
         $this->create($paymentData);
     }
@@ -221,13 +212,13 @@ class PaymentService implements PaymentServiceInterface
     {
         return array(
             'amount' => null,
-            'currency' => $this->container->getParameter('c975_l_payment.defaultCurrency'),
+            'currency' => $this->configService->getParameter('c975LPayment..defaultCurrency'),
             'action' => 'free_amount_payment',
             'description' => null,
             'userId' => null !== $user ? $user->getId() : null,
             'userIp' => $this->request->getClientIp(),
-            'live' => $this->container->getParameter('c975_l_payment.live'),
-            'vat' => $this->container->getParameter('c975_l_payment.vat'),
+            'live' => $this->configService->getParameter('c975LPayment..live'),
+            'vat' => $this->configService->getParameter('c975LPayment..vat'),
             );
     }
 
@@ -293,10 +284,10 @@ class PaymentService implements PaymentServiceInterface
         if ($payment instanceof Payment) {
             return array(
                 'key' => $this->paymentStripe->getPublishableKey($payment->getLive()),
-                'site' => $this->container->getParameter('c975_l_payment.site'),
-                'image' => $this->container->getParameter('c975_l_payment.image'),
-                'zipCode' => $this->container->getParameter('c975_l_payment.zipCode') ? 'true' : 'false',
-                'alipay' => $this->container->getParameter('c975_l_payment.alipay') ? 'true' : 'false',
+                'site' => $this->configService->getParameter('c975LPayment..site'),
+                'image' => $this->configService->getParameter('c975LPayment..image'),
+                'zipCode' => $this->configService->getParameter('c975LPayment..zipCode') ? 'true' : 'false',
+                'alipay' => $this->configService->getParameter('c975LPayment..alipay') ? 'true' : 'false',
                 'live' => $payment->getLive(),
                 'payment' => $payment,
                 );

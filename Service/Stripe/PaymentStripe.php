@@ -12,6 +12,8 @@ namespace c975L\PaymentBundle\Service\Stripe;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
@@ -24,10 +26,10 @@ use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
 class PaymentStripe implements PaymentStripeInterface
 {
     /**
-     * Stores container
-     * @var ContainerInterface
+     * Stores ConfigServiceInterface
+     * @var ConfigServiceInterface
      */
-    private $container;
+    private $configService;
 
     /**
      * Stores current Request
@@ -36,11 +38,11 @@ class PaymentStripe implements PaymentStripeInterface
     private $request;
 
     public function __construct(
-        ContainerInterface $container,
+        ConfigServiceInterface $configService,
         RequestStack $requestStack
     )
     {
-        $this->container = $container;
+        $this->configService = $configService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
@@ -65,7 +67,7 @@ class PaymentStripe implements PaymentStripeInterface
 
             //Updates data for payment done
             $payment
-                ->setStripeFee((int) (($payment->getAmount() * $this->container->getParameter('c975_l_payment.stripeFeePercentage') / 100) + $this->container->getParameter('c975_l_payment.stripeFeeFixed')))
+                ->setStripeFee((int) (($payment->getAmount() * $this->configService->getParameter('c975LPayment.stripeFeePercentage') / 100) + $this->configService->getParameter('c975LPayment.stripeFeeFixed')))
                 ->setStripeToken($this->request->get('stripeToken'))
                 ->setStripeTokenType($this->request->get('stripeTokenType'))
                 ->setStripeEmail($this->request->get('stripeEmail'))
@@ -123,21 +125,17 @@ class PaymentStripe implements PaymentStripeInterface
      */
     public function getPublishableKey(bool $live = false)
     {
-        //Stripe key - Tests payments
-        if ($live === false) {
-            if (!$this->container->hasParameter('stripe_publishable_key_test')) {
-                throw new InvalidArgumentException('No stripe_publishable_key_test');
-            }
-            $stripePublishableKey = $this->container->getParameter('stripe_publishable_key_test');
-        //Stripe key - Live payments
-        } else {
-            if (!$this->container->hasParameter('stripe_publishable_key_live')) {
-                throw new InvalidArgumentException('No stripe_publishable_key_live');
-            }
-            $stripePublishableKey = $this->container->getParameter('stripe_publishable_key_live');
+        $stripePublishableKey = $live ? $this->configService->getParameter('c975LPayment.stripePublishableKeyLive') : $this->configService->getParameter('c975LPayment.stripePublishableKeyTest');
+
+        if (null !== $stripePublishableKey) {
+            return $stripePublishableKey;
         }
 
-        return $stripePublishableKey;
+        if ($live) {
+            throw new InvalidArgumentException('The stripePublishableKeyLive has not been set');
+        }
+
+        throw new InvalidArgumentException('The stripePublishableKeyTest has not been set');
     }
 
     /**
@@ -145,20 +143,16 @@ class PaymentStripe implements PaymentStripeInterface
      */
     public function getSecretKey(bool $live = false)
     {
-        //Stripe key - Tests payments
-        if ($live === false) {
-            if (!$this->container->hasParameter('stripe_secret_key_test')) {
-                throw new InvalidArgumentException('No stripe_secret_key_test');
-            }
-            $stripeSecretKey = $this->container->getParameter('stripe_secret_key_test');
-        //Stripe key - Live payments
-        } else {
-            if (!$this->container->hasParameter('stripe_secret_key_live')) {
-                throw new InvalidArgumentException('No stripe_secret_key_live');
-            }
-            $stripeSecretKey = $this->container->getParameter('stripe_secret_key_live');
+        $stripeSecretKey = $live ? $this->configService->getParameter('c975LPayment.stripeSecretKeyLive') : $this->configService->getParameter('c975LPayment.stripeSecretKeyTest');
+
+        if (null !== $stripeSecretKey) {
+            return $stripeSecretKey;
         }
 
-        return $stripeSecretKey;
+        if ($live) {
+            throw new InvalidArgumentException('The stripeSecretKeyLive has not been set');
+        }
+
+        throw new InvalidArgumentException('The stripeSecretKeyTest has not been set');
     }
 }

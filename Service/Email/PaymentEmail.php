@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
 use Twig_Environment;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\EmailBundle\Service\EmailServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
@@ -25,13 +26,13 @@ use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
 class PaymentEmail implements PaymentEmailInterface
 {
     /**
-     * Stores container
-     * @var ContainerInterface
+     * Stores ConfigServiceInterface
+     * @var ConfigServiceInterface
      */
-    private $container;
+    private $configService;
 
     /**
-     * Stores EmailService
+     * Stores EmailServiceInterface
      * @var EmailServiceInterface
      */
     private $emailService;
@@ -48,20 +49,20 @@ class PaymentEmail implements PaymentEmailInterface
      */
     private $templating;
     /**
-     * Stores Translator
+     * Stores TranslatorInterface
      * @var TranslatorInterface
      */
     private $translator;
 
     public function __construct(
-        ContainerInterface $container,
+        ConfigServiceInterface $configService,
         EmailServiceInterface $emailService,
         RequestStack $requestStack,
         Twig_Environment $templating,
         TranslatorInterface $translator
     )
     {
-        $this->container = $container;
+        $this->configService = $configService;
         $this->emailService = $emailService;
         $this->request = $requestStack->getCurrentRequest();
         $this->templating = $templating;
@@ -73,7 +74,7 @@ class PaymentEmail implements PaymentEmailInterface
      */
     public function send(Payment $payment, string $amount)
     {
-        $subject = $this->container->getParameter('c975_l_payment.site') . ' - ' . $this->translator->trans('label.payment_done', array('%amount%' => $amount), 'payment');
+        $subject = $this->configService->getParameter('c975LPayment.site') . ' - ' . $this->translator->trans('label.payment_done', array('%amount%' => $amount), 'payment');
 
         $this->sendUser($payment, $subject);
         $this->sendSite($payment, $subject);
@@ -94,8 +95,8 @@ class PaymentEmail implements PaymentEmailInterface
                 ));
             $emailData = array(
                 'subject' => 'StripeError : ' . $errData['code'],
-                'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
-                'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'sentFrom' => $this->configService->getParameter('c975LEmail.sentFrom'),
+                'sentTo' => $this->configService->getParameter('c975LEmail.sentFrom'),
                 'body' => $body,
                 'ip' => $this->request->getClientIp(),
                 );
@@ -108,14 +109,14 @@ class PaymentEmail implements PaymentEmailInterface
                 ));
             $emailData = array(
                 'subject' => 'PaymentValidation Error',
-                'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
-                'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
+                'sentFrom' => $this->configService->getParameter('c975LEmail.sentFrom'),
+                'sentTo' => $this->configService->getParameter('c975LEmail.sentFrom'),
                 'body' => $body,
                 'ip' => $this->request->getClientIp(),
                 );
         }
 
-        $this->emailService->send($emailData, $this->container->getParameter('c975_l_payment.database'));
+        $this->emailService->send($emailData, $this->configService->getParameter('c975LPayment.database'));
     }
 
     /**
@@ -130,12 +131,12 @@ class PaymentEmail implements PaymentEmailInterface
             ));
         $emailData = array(
             'subject' => $subject,
-            'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
+            'sentFrom' => $this->configService->getParameter('c975LEmail.sentFrom'),
             'sentTo' => $payment->getStripeEmail(),
             'body' => $body,
             'ip' => $this->request->getClientIp(),
             );
-        $this->emailService->send($emailData, $this->container->getParameter('c975_l_payment.database'));
+        $this->emailService->send($emailData, $this->configService->getParameter('c975LPayment.database'));
     }
 
     /**
@@ -150,11 +151,11 @@ class PaymentEmail implements PaymentEmailInterface
             ));
         $emailData = array(
             'subject' => $subject,
-            'sentFrom' => $this->container->getParameter('c975_l_email.sentFrom'),
-            'sentTo' => $this->container->getParameter('c975_l_email.sentFrom'),
+            'sentFrom' => $this->configService->getParameter('c975LEmail.sentFrom'),
+            'sentTo' => $this->configService->getParameter('c975LEmail.sentFrom'),
             'body' => $body,
             'ip' => $this->request->getClientIp(),
             );
-        $this->emailService->send($emailData, $this->container->getParameter('c975_l_payment.database'));
+        $this->emailService->send($emailData, $this->configService->getParameter('c975LPayment.database'));
     }
 }
