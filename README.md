@@ -30,8 +30,8 @@ Use [Composer](https://getcomposer.org) to install the library
     composer require c975L/payment-bundle
 ```
 
-Step 2: Enable the Bundles
---------------------------
+Step 2: Enable the Bundle
+-------------------------
 Then, enable the bundles by adding them to the list of registered bundles in the `app/AppKernel.php` file of your project:
 
 ```php
@@ -42,7 +42,6 @@ class AppKernel extends Kernel
     {
         $bundles = [
             // ...
-            new c975L\EmailBundle\c975LEmailBundle(),
             new c975L\PaymentBundle\c975LPaymentBundle(),
         ];
     }
@@ -51,56 +50,16 @@ class AppKernel extends Kernel
 
 Step 3: Configure the Bundle
 ----------------------------
-Setup your Stripe API keys, in `parameters.yml`
-```yml
-    #Your Stripe Api keys
-    stripe_secret_key_test : 'YOUR_SECRET_TEST_API_KEY'
-    stripe_publishable_key_test: 'YOUR_PUBLISHABLE_TEST_API_KEY'
-    stripe_secret_key_live : 'YOUR_SECRET_LIVE_API_KEY'
-    stripe_publishable_key_live: 'YOUR_PUBLISHABLE_LIVE_API_KEY'
-```
+Check dependencies for their configuration:
+- [Swiftmailer](https://github.com/symfony/swiftmailer-bundle)
+- [Doctrine](https://github.com/doctrine/DoctrineBundle)
+- [KnpPaginatorBundle](https://github.com/KnpLabs/KnpPaginatorBundle)
+- [c975LEmailBundle](https://github.com/975L/EmailBundle)
+- [PHP Library](https://github.com/stripe/stripe-php)
 
-And then in `parameters.yml.dist`
-```yml
-    stripe_secret_key_test : ~
-    stripe_publishable_key_test: ~
-    stripe_secret_key_live : ~
-    stripe_publishable_key_live: ~
-```
+v2.0+ of c975LPaymentBundle uses [c975L/ConfigBundle](https://github.com/975L/ConfigBundle) to manage configuration parameters. Use the Route "/payment/config" with the proper user role to modify them.
 
-Check [c975LEmailBundle](https://github.com/975L/EmailBundle)  for its specific configuration
-Then, in the `app/config.yml` file of your project, define the following:
-
-```yml
-#PaymentBundle
-c975_l_payment:
-    #The site name that will appear on the payment form
-    site: 'example.com'
-    #If you want to display the checkbox for GDPR agreement
-    gdpr: false #true(default)
-    #If your payment are live or should use the test keys
-    live: true #Default false
-    #Your default currency three letters code
-    defaultCurrency: 'EUR' #'EUR'(default)
-    #(Optional) Your VAT rate for direct payments without % i.e. 5.5 for 5.5%, or 20 for 20%
-    vat: 5.5 #null(default)
-    #(Optional) Your Stripe Fee rate without % i.e. 1.4 for 1.4%
-    stripeFeePercentage: 1.4 #1.4(default)
-    #(Optional) Your Stripe Fee fixed part in cents
-    stripeFeeFixed: 25 #25(default)
-    #(Optional) The Timezone as per default it will be UTC
-    timezone: 'Europe/Paris' #null(default)
-    #If you want to save the email sent to the database linked to c975L/EmailBundle, see https://github.com/975L/EmailBundle
-    database: true #false(default)
-    #If you want to display an image in the Stripe form (recommended)
-    image: 'images/logo.png' #null(default)
-    #If you want to use the zip code function
-    zipCode: false #true(default)
-    #If you want to use the alipay function
-    alipay: true #false(default)
-    #User's role needed to enable access to the display of payments
-    roleNeeded: 'ROLE_ADMIN'
-```
+**Upgrading from v1.x? Check [UPGRADE.md](UPGRADE.md).**
 
 Step 4: Enable the Routes
 -------------------------
@@ -232,7 +191,7 @@ class YourPaymentService implements YourPaymentServiceInterface
          */
         $paymentData = array(
             'amount' => YOUR_AMOUNT, //Must be an integer in cents
-            'currency' => YOUR_CURRENCY, //Coded on 3 letters or use "$this->getParameter('c975_l_payment.defaultCurrency')" to get your default currency
+            'currency' => YOUR_CURRENCY, //Coded on 3 letters or use "$paymentService->getParameter('c975LPayment.defaultCurrency')" to get your default currency
             'action' => YOUR_ACTION, //Store the action to achieve after the payment. Mainly used by `returnRoute`. As a string, you can store plain text, json, etc.
             'description' => YOUR_DESCRIPTION,
             'userId' => USER_ID,
