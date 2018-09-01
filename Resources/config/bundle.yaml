@@ -64,22 +64,22 @@ c975LPayment:
         required: false
         default: 25
         info: "Your Stripe Fee fixed part in cents: i.e. 25"
-    stripe_secret_key_test:
+    stripeSecretKeyTest:
         type: string
         required: true
         default: null
         info: "The value for your Stripe secret key TEST"
-    stripe_publishable_key_test:
+    stripePublishableKeyTest:
         type: string
         required: true
         default: null
         info: "The value for your Stripe publishable key TEST"
-    stripe_secret_key_live:
+    stripeSecretKeyLive:
         type: string
         required: true
         default: null
         info: "The value for your Stripe secret key LIVE"
-    stripe_publishable_key_live:
+    stripePublishableKeyLive:
         type: string
         required: true
         default: null
