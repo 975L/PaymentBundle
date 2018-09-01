@@ -46,12 +46,12 @@ c975LPayment:
         info: "Path for the image to display in the Stripe form (recommended): i.e. images/logo.png (Default: null)"
     zipCode:
         type: bool
-        required: true
+        required: false
         default: true
         info: "If you want to use the zip code function (Default: true)"
     alipay:
         type: bool
-        required: true
+        required: false
         default: false
         info: "If you want to use the alipay function (Default false)"
     stripeFeePercentage:
