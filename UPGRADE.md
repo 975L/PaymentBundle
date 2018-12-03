@@ -11,4 +11,4 @@ When upgrading from v1.x to v2.x you should(must) do the following if they apply
     - stripe_publishable_key_test
     - stripe_secret_key_live
     - stripe_publishable_key_live
-- Before the first use of parameters, you **MUST** use the console command `php bin/console config:create-first-use c975l/payment-bundle c975LPayment` to create the config files with default data. **Using this command later will reset the config to default data**
+- Before the first use of parameters, you **MUST** use the console command `php bin/console config:create` to create the config files with default data.
