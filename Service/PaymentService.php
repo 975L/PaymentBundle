@@ -284,7 +284,7 @@ class PaymentService implements PaymentServiceInterface
         if ($payment instanceof Payment) {
             return array(
                 'key' => $this->paymentStripe->getPublishableKey($payment->getLive()),
-                'site' => $this->configService->getParameter('c975LPayment.site'),
+                'site' => $this->configService->getParameter('c975LCommon.site'),
                 'image' => $this->configService->getParameter('c975LPayment.image'),
                 'zipCode' => $this->configService->getParameter('c975LPayment.zipCode') ? 'true' : 'false',
                 'alipay' => $this->configService->getParameter('c975LPayment.alipay') ? 'true' : 'false',

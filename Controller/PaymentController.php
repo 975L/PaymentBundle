@@ -84,7 +84,7 @@ class PaymentController extends Controller
     {
         return $this->render('@c975LPayment/pages/display.html.twig', array(
             'payment' => $payment,
-            'siteName' => $configService->getParameter('c975LPayment.site'),
+            'siteName' => $configService->getParameter('c975LCommon.site'),
         ));
     }
 

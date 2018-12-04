@@ -74,7 +74,7 @@ class PaymentEmail implements PaymentEmailInterface
      */
     public function send(Payment $payment, string $amount)
     {
-        $subject = $this->configService->getParameter('c975LPayment.site') . ' - ' . $this->translator->trans('label.payment_done', array('%amount%' => $amount), 'payment');
+        $subject = $this->configService->getParameter('c975LCommon.site') . ' - ' . $this->translator->trans('label.payment_done', array('%amount%' => $amount), 'payment');
 
         $this->sendUser($payment, $subject);
         $this->sendSite($payment, $subject);
