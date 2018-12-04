@@ -4,11 +4,6 @@ c975LPayment:
         required: true
         default: ROLE_ADMIN
         info: "User's role needed to enable access to data linked to PaymentBundle: i.e. ROLE_ADMIN (Default: ROLE_ADMIN)"
-    site:
-        type: string
-        required: true
-        default: null
-        info: "Name of the web site that will appear on the payment form: i.e. Example.com"
     live:
         type: bool
         required: false
