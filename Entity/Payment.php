@@ -9,6 +9,8 @@
 
 namespace c975L\PaymentBundle\Entity;
 
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -138,7 +140,7 @@ class Payment
 
     /**
      * DateTime creation for the Payment
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="creation", type="datetime", nullable=true)
      */
@@ -158,9 +160,9 @@ class Payment
 
     public function __construct($data, $timezone)
     {
-        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        $now = DateTime::createFromFormat('U.u', microtime(true));
         if ($timezone !== null) {
-            $now->setTimeZone(new \DateTimeZone($timezone));
+            $now->setTimeZone(new DateTimeZone($timezone));
         }
         $this->setOrderId($now->format('Ymd-His-u'));
         $this->setCreation($now);
@@ -465,7 +467,7 @@ class Payment
 
     /**
      * Set creation
-     * @param \DateTime
+     * @param DateTime
      * @return Payment
      */
     public function setCreation($creation)
@@ -477,7 +479,7 @@ class Payment
 
     /**
      * Get creation
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreation()
     {

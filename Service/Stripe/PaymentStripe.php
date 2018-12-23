@@ -9,14 +9,20 @@
 
 namespace c975L\PaymentBundle\Service\Stripe;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
-use c975L\PaymentBundle\Service\PaymentServiceInterface;
-use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
+use Exception;
+use Stripe\Card;
+use Stripe\Charge;
+use Stripe\Error\ApiConnection;
+use Stripe\Error\Authentication;
+use Stripe\Error\Base;
+use Stripe\Error\InvalidRequest;
+use Stripe\Error\RateLimit;
+use Stripe\Stripe;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 
 /**
  * PaymentStripe class
@@ -33,7 +39,7 @@ class PaymentStripe implements PaymentStripeInterface
 
     /**
      * Stores current Request
-     * @var RequestStack
+     * @var Request
      */
     private $request;
 
@@ -62,8 +68,8 @@ class PaymentStripe implements PaymentStripeInterface
 
         try {
             //Do the Stripe transaction
-            \Stripe\Stripe::setApiKey($this->getSecretKey($payment->getLive()));
-            \Stripe\Charge::create($stripePaymentData);
+            Stripe::setApiKey($this->getSecretKey($payment->getLive()));
+            Charge::create($stripePaymentData);
 
             //Updates data for payment done
             $payment
@@ -75,32 +81,32 @@ class PaymentStripe implements PaymentStripeInterface
 
             return true;
         //Errors
-        } catch (\Stripe\Error\Card $e) {
+        } catch (Card $e) {
             //Since it's a decline, \Stripe\Error\Card will be caught
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe01 - Card';
             $display = true;
-        } catch (\Stripe\Error\RateLimit $e) {
+        } catch (RateLimit $e) {
             //Too many requests made to the API too quickly
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe02 - RateLimit';
             $display = true;
-        } catch (\Stripe\Error\InvalidRequest $e) {
+        } catch (InvalidRequest $e) {
             //Invalid parameters were supplied to Stripe's API
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe03 - InvalidRequest';
             $display = false;
-        } catch (\Stripe\Error\Authentication $e) {
+        } catch (Authentication $e) {
             //Authentication with Stripe's API failed (maybe you changed API keys recently)
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe04 - Authentication';
             $display = false;
-        } catch (\Stripe\Error\ApiConnection $e) {
+        } catch (ApiConnection $e) {
             //Network communication with Stripe failed
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe05 - ApiConnection';
             $display = true;
-        } catch (\Stripe\Error\Base $e) {
+        } catch (Base $e) {
             //Display a very generic error to the user, and maybe send yourself an email
             $message = $e->getJsonBody()['error']['message'];
             $code = 'ErrStripe06 - Base';

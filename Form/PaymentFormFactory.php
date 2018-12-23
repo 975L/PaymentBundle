@@ -9,12 +9,9 @@
 
 namespace c975L\PaymentBundle\Form;
 
-use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormFactoryInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
-use c975L\PaymentBundle\Form\PaymentType;
-use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * PaymentFormFactory class

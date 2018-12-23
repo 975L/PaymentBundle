@@ -9,8 +9,8 @@
 
 namespace c975L\PaymentBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
 use c975L\PaymentBundle\Entity\Payment;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * Repository for Payment Entity

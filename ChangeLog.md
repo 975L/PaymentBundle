@@ -1,5 +1,8 @@
 # Changelog
 
+- Added rector to composer dev part (23/12/2018)
+- Modified required versions in composer (23/12/2018)
+
 v2.0.2.1
 --------
 - Suppressed field `site` from `bundle.yaml` file (04/12/2018)

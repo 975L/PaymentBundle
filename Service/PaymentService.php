@@ -9,16 +9,15 @@
 
 namespace c975L\PaymentBundle\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
-use c975L\ServicesBundle\Service\ServiceToolsInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
-use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
 use c975L\PaymentBundle\Service\Stripe\PaymentStripeInterface;
-use c975L\PaymentBundle\Service\Tools\PaymentToolsInterface;
+use c975L\ServicesBundle\Service\ServiceToolsInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * PaymentService class
@@ -41,7 +40,7 @@ class PaymentService implements PaymentServiceInterface
 
     /**
      * Stores current Request
-     * @var RequestStack
+     * @var Request
      */
     private $request;
 

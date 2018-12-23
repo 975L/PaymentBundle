@@ -9,14 +9,13 @@
 
 namespace c975L\PaymentBundle\Service\Email;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Translation\TranslatorInterface;
-use Twig_Environment;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\EmailBundle\Service\EmailServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
-use c975L\PaymentBundle\Service\Email\PaymentEmailInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\TranslatorInterface;
+use Twig_Environment;
 
 /**
  * PaymentEmail class
@@ -39,7 +38,7 @@ class PaymentEmail implements PaymentEmailInterface
 
     /**
      * Stores current Request
-     * @var RequestStack
+     * @var Request
      */
     private $request;
 
@@ -48,6 +47,7 @@ class PaymentEmail implements PaymentEmailInterface
      * @var Twig_Environment
      */
     private $templating;
+
     /**
      * Stores TranslatorInterface
      * @var TranslatorInterface

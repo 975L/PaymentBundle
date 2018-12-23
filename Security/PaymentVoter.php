@@ -9,11 +9,12 @@
 
 namespace c975L\PaymentBundle\Security;
 
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
+use LogicException;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Voter for Payment access
@@ -80,7 +81,7 @@ class PaymentVoter extends Voter
     /**
      * Votes if access is granted
      * @return bool
-     * @throws \LogicException
+     * @throws LogicException
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
@@ -94,6 +95,6 @@ class PaymentVoter extends Voter
                 break;
         }
 
-        throw new \LogicException('Invalid attribute: ' . $attribute);
+        throw new LogicException('Invalid attribute: ' . $attribute);
     }
 }

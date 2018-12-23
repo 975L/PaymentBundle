@@ -9,21 +9,17 @@
 
 namespace c975L\PaymentBundle\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Main controller class
@@ -44,6 +40,7 @@ class PaymentController extends Controller
     }
 
 //DASHBOARD
+
     /**
      * Displays the dashboard
      * @return Response
@@ -71,6 +68,7 @@ class PaymentController extends Controller
     }
 
 //DISPLAY
+
     /**
      * Displays Payment using its orderId
      * @return Response
@@ -89,6 +87,7 @@ class PaymentController extends Controller
     }
 
 //CONFIG
+
     /**
      * Displays the configuration
      * @return Response
@@ -122,6 +121,7 @@ class PaymentController extends Controller
     }
 
 //FORM
+
     /**
      * Displays Stripe form to proceed to payment
      * @return Response
@@ -143,6 +143,7 @@ class PaymentController extends Controller
     }
 
 //PAYMENT FREE AMOUNT
+
     /**
      * Displays the form to proceed to a free amount payment
      * @return Response|Redirect
@@ -175,6 +176,7 @@ class PaymentController extends Controller
     }
 
 //PAYMENT DEFINED AMOUNT
+
     /**
      * Displays form for defined amount
      * @return Redirect
@@ -197,6 +199,7 @@ class PaymentController extends Controller
     }
 
 //CHARGE
+
     /**
      * Proceeds to charge Payment server
      * @return Redirect

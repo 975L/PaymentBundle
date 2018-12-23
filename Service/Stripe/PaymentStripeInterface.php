@@ -9,8 +9,8 @@
 
 namespace c975L\PaymentBundle\Service\Stripe;
 
-use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use c975L\PaymentBundle\Entity\Payment;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 
 /**
  * Interface to be called for DI for PaymentStripeInterface related services

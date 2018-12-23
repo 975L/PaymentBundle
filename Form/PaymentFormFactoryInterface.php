@@ -9,8 +9,8 @@
 
 namespace c975L\PaymentBundle\Form;
 
-use Symfony\Component\Form\Form;
 use c975L\PaymentBundle\Entity\Payment;
+use Symfony\Component\Form\Form;
 
 /**
  * Interface to be called for DI for PaymentFormFactoryInterface related services

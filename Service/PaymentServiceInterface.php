@@ -10,6 +10,8 @@
 namespace c975L\PaymentBundle\Service;
 
 use c975L\PaymentBundle\Entity\Payment;
+use LogicException;
+use Symfony\Component\Form\Form;
 
 /**
  * Interface to be called for DI for PaymentServiceInterface related services
@@ -71,7 +73,7 @@ interface PaymentServiceInterface
     /**
      * Returns the value of parameter
      * @return mixed
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function getParameter(string $parameter);
 
