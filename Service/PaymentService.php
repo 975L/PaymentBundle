@@ -154,7 +154,7 @@ class PaymentService implements PaymentServiceInterface
     public function create(array $paymentData)
     {
         //Payment or product under test
-        $live = isset($paymentData['live']) ? $paymentData['live'] : $this->configService->getParameter('c975LPayment.live');
+        $live = $paymentData['live'] ?? $this->configService->getParameter('c975LPayment.live');
         if (false === $this->configService->getParameter('c975LPayment.live') || false === $live) {
             $paymentData['description'] = '(TEST) ' . $paymentData['description'];
             $paymentData['live'] = false;
