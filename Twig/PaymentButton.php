@@ -11,6 +11,7 @@ namespace c975L\PaymentBundle\Twig;
 
 use Twig_Environment;
 use Twig_Extension;
+use Twig_SimpleFunction;
 
 /**
  * Twig extension to display the Payment button using `payment_button(['YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY', 'YOUR_OPTIONAL_STYLES'])
