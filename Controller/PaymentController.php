@@ -13,9 +13,8 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -26,7 +25,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2017 975L <contact@975l.com>
  */
-class PaymentController extends Controller
+class PaymentController extends AbstractController
 {
     /**
      * Stores PaymentService
@@ -47,8 +46,8 @@ class PaymentController extends Controller
      * @throws AccessDeniedException
      *
      * @Route("/payment/dashboard",
-     *      name="payment_dashboard")
-     * @Method({"GET", "HEAD"})
+     *    name="payment_dashboard",
+     *    methods={"HEAD", "GET"})
      */
     public function dashboard(Request $request, PaginatorInterface $paginator)
     {
@@ -74,9 +73,9 @@ class PaymentController extends Controller
      * @return Response
      *
      * @Route("/payment/{orderId}",
-     *      name="payment_display",
-     *      requirements={"orderId": "^[0-9\-]+$"})
-     * @Method({"GET", "HEAD"})
+     *    name="payment_display",
+     *    requirements={"orderId": "^[0-9\-]+$"},
+     *    methods={"HEAD", "GET"})
      */
     public function display(Request $request, Payment $payment, ConfigServiceInterface $configService)
     {
@@ -94,8 +93,8 @@ class PaymentController extends Controller
      * @throws AccessDeniedException
      *
      * @Route("/payment/config",
-     *      name="payment_config")
-     * @Method({"GET", "HEAD", "POST"})
+     *    name="payment_config",
+     *    methods={"HEAD", "GET", "POST"})
      */
     public function config(Request $request, ConfigServiceInterface $configService)
     {
@@ -127,8 +126,8 @@ class PaymentController extends Controller
      * @return Response
      *
      * @Route("/payment",
-     *      name="payment_form")
-     * @Method({"GET", "HEAD"})
+     *    name="payment_form",
+     *    methods={"HEAD", "GET"})
      */
     public function form(Request $request)
     {
@@ -149,8 +148,8 @@ class PaymentController extends Controller
      * @return Response|Redirect
      *
      * @Route("/payment/request",
-     *      name="payment_free_amount")
-     * @Method({"GET", "HEAD", "POST"})
+     *    name="payment_free_amount",
+     *    methods={"HEAD", "GET", "POST"})
      */
     public function freeAmount(Request $request, ConfigServiceInterface $configService)
     {
@@ -182,12 +181,12 @@ class PaymentController extends Controller
      * @return Redirect
      *
      * @Route("/payment/request/{text}/{amount}/{currency}",
-     *      name="payment_request",
-     *      requirements={
-     *          "amount": "^[0-9]+$",
-     *          "currency": "^[a-zA-Z]{3}$"
-     *      })
-     * @Method({"GET", "HEAD"})
+     *    name="payment_request",
+     *    requirements={
+     *        "amount": "^[0-9]+$",
+     *        "currency": "^[a-zA-Z]{3}$"
+     *    },
+     *    methods={"HEAD", "GET"})
      */
     public function request(Request $request, $text, $amount, $currency)
     {
@@ -206,8 +205,8 @@ class PaymentController extends Controller
      * @throws NotFoundHttpException
      *
      * @Route("/payment-charge",
-     *      name="payment_charge")
-     * @Method({"GET", "POST", "HEAD"})
+     *    name="payment_charge",
+     *    methods={"HEAD", "GET", "POST"})
      */
     public function charge(Request $request)
     {

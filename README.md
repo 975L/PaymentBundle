@@ -207,9 +207,8 @@ class YourPaymentService implements YourPaymentServiceInterface
 
 ```php
 //Your Controller file
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -217,7 +216,7 @@ use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use App\Service\YourPaymentServiceInterface;
 
-class PaymentController extends Controller
+class PaymentController extends AbstractController
 {
     /**
      * Route used to proceed to payment
@@ -241,8 +240,8 @@ class PaymentController extends Controller
      * @throws NotFoundHttpException
      *
      * @Route("/payment-done/{orderId}",
-     *      name="payment_done")
-     * @Method({"GET", "HEAD"})
+     *    name="payment_done",
+     *    methods={"HEAD", "GET"})
      */
     public function paymentDone(YourProductServiceInterface $yourProductService, PaymentServiceInterface $paymentService, Payment $payment)
     {
