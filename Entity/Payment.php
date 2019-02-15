@@ -46,7 +46,7 @@ class Payment
      * OrderId for the Payment
      * @var string
      *
-     * @ORM\Column(name="order_id", type="string", nullable=true)
+     * @ORM\Column(name="order_id", type="string", length=48, nullable=true)
      */
     protected $orderId;
 
@@ -70,7 +70,7 @@ class Payment
      * Description for the Payment
      * @var string
      *
-     * @ORM\Column(name="description", type="string", nullable=true)
+     * @ORM\Column(name="description", type="string", length=512, nullable=true)
      */
     protected $description;
 
@@ -78,7 +78,7 @@ class Payment
      * Currency for the Payment
      * @var string
      *
-     * @ORM\Column(name="currency", type="string", nullable=true)
+     * @ORM\Column(name="currency", type="string", length=3, nullable=true)
      */
     protected $currency;
 
@@ -86,7 +86,7 @@ class Payment
      * Action to be executed after the payment
      * @var string
      *
-     * @ORM\Column(name="action", type="string", nullable=true)
+     * @ORM\Column(name="action", type="string", length=128, nullable=true)
      */
     protected $action;
 
@@ -102,7 +102,7 @@ class Payment
      * Stripe token
      * @var string
      *
-     * @ORM\Column(name="stripe_token", type="string", nullable=true)
+     * @ORM\Column(name="stripe_token", type="string", length=128, nullable=true)
      */
     protected $stripeToken;
 
@@ -110,7 +110,7 @@ class Payment
      * Stripe token type
      * @var string
      *
-     * @ORM\Column(name="stripe_token_type", type="string", nullable=true)
+     * @ORM\Column(name="stripe_token_type", type="string", length=16, nullable=true)
      */
     protected $stripeTokenType;
 
@@ -118,7 +118,7 @@ class Payment
      * Email used for Stripe Payment
      * @var string
      *
-     * @ORM\Column(name="stripe_email", type="string", nullable=true)
+     * @ORM\Column(name="stripe_email", type="string", length=255, nullable=true)
      */
     protected $stripeEmail;
 
@@ -134,7 +134,7 @@ class Payment
      * User IP address
      * @var string
      *
-     * @ORM\Column(name="user_ip", type="string", nullable=true)
+     * @ORM\Column(name="user_ip", type="string", length=48, nullable=true)
      */
     protected $userIp;
 
@@ -187,17 +187,17 @@ class Payment
      * Get id
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
      * Set finished
-     * @param int
+     * @param bool
      * @return Payment
      */
-    public function setFinished($finished)
+    public function setFinished(?bool $finished)
     {
         $this->finished = $finished;
 
@@ -208,7 +208,7 @@ class Payment
      * Get finished
      * @return bool
      */
-    public function getFinished()
+    public function getFinished(): ?bool
     {
         return $this->finished == 1 ? true : false;
     }
@@ -218,7 +218,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setOrderId($orderId)
+    public function setOrderId(?string $orderId)
     {
         $this->orderId = $orderId;
 
@@ -229,7 +229,7 @@ class Payment
      * Get orderId
      * @return string
      */
-    public function getOrderId()
+    public function getOrderId(): ?string
     {
         return $this->orderId;
     }
@@ -239,7 +239,7 @@ class Payment
      * @param int
      * @return Payment
      */
-    public function setAmount($amount)
+    public function setAmount(?int $amount)
     {
         $this->amount = $amount;
 
@@ -250,7 +250,7 @@ class Payment
      * Get amount
      * @return int
      */
-    public function getAmount()
+    public function getAmount(): ?int
     {
         return $this->amount;
     }
@@ -260,7 +260,7 @@ class Payment
      * @param integer
      * @return Payment
      */
-    public function setVat($vat)
+    public function setVat(?int $vat)
     {
         $this->vat = $vat;
 
@@ -271,7 +271,7 @@ class Payment
      * Get vat
      * @return int
      */
-    public function getVat()
+    public function getVat(): ?int
     {
         return $this->vat;
     }
@@ -281,7 +281,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setDescription($description)
+    public function setDescription(?string $description)
     {
         $this->description = $description;
 
@@ -292,7 +292,7 @@ class Payment
      * Get description
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -302,7 +302,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setCurrency($currency)
+    public function setCurrency(?string $currency)
     {
         $this->currency = strtoupper($currency);
 
@@ -313,7 +313,7 @@ class Payment
      * Get currency
      * @return string
      */
-    public function getCurrency()
+    public function getCurrency(): ?string
     {
         return strtoupper($this->currency);
     }
@@ -323,7 +323,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setAction($action)
+    public function setAction(?string $action)
     {
         $this->action = $action;
 
@@ -334,7 +334,7 @@ class Payment
      * Get action
      * @return string
      */
-    public function getAction()
+    public function getAction(): ?string
     {
         return $this->action;
     }
@@ -344,7 +344,7 @@ class Payment
      * @param int
      * @return Payment
      */
-    public function setStripeFee($stripeFee)
+    public function setStripeFee(?int $stripeFee)
     {
         $this->stripeFee = $stripeFee;
 
@@ -355,7 +355,7 @@ class Payment
      * Get stripeFee
      * @return int
      */
-    public function getStripeFee()
+    public function getStripeFee(): int
     {
         return $this->stripeFee;
     }
@@ -365,7 +365,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setStripeToken($stripeToken)
+    public function setStripeToken(?string $stripeToken)
     {
         $this->stripeToken = $stripeToken;
 
@@ -376,7 +376,7 @@ class Payment
      * Get stripeToken
      * @return string
      */
-    public function getStripeToken()
+    public function getStripeToken(): ?string
     {
         return $this->stripeToken;
     }
@@ -386,7 +386,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setStripeTokenType($stripeTokenType)
+    public function setStripeTokenType(?string $stripeTokenType)
     {
         $this->stripeTokenType = $stripeTokenType;
 
@@ -397,7 +397,7 @@ class Payment
      * Get stripeTokenType
      * @return string
      */
-    public function getStripeTokenType()
+    public function getStripeTokenType(): ?string
     {
         return $this->stripeTokenType;
     }
@@ -407,7 +407,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setStripeEmail($stripeEmail)
+    public function setStripeEmail(?string $stripeEmail)
     {
         $this->stripeEmail = $stripeEmail;
 
@@ -418,7 +418,7 @@ class Payment
      * Get stripeEmail
      * @return string
      */
-    public function getStripeEmail()
+    public function getStripeEmail(): ?string
     {
         return $this->stripeEmail;
     }
@@ -428,7 +428,7 @@ class Payment
      * @param int
      * @return Payment
      */
-    public function setUserId($userId)
+    public function setUserId(?int $userId)
     {
         $this->userId = $userId;
 
@@ -439,7 +439,7 @@ class Payment
      * Get userId
      * @return int
      */
-    public function getUserId()
+    public function getUserId(): ?int
     {
         return $this->userId;
     }
@@ -449,7 +449,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setUserIp($userIp)
+    public function setUserIp(?string $userIp)
     {
         $this->userIp = $userIp;
 
@@ -460,7 +460,7 @@ class Payment
      * Get userIp
      * @return string
      */
-    public function getUserIp()
+    public function getUserIp(): ?string
     {
         return $this->userIp;
     }
@@ -470,7 +470,7 @@ class Payment
      * @param DateTime
      * @return Payment
      */
-    public function setCreation($creation)
+    public function setCreation(?DateTime $creation)
     {
         $this->creation = $creation;
 
@@ -481,7 +481,7 @@ class Payment
      * Get creation
      * @return DateTime
      */
-    public function getCreation()
+    public function getCreation(): ?DateTime
     {
         return $this->creation;
     }
@@ -491,7 +491,7 @@ class Payment
      * @param bool
      * @return Payment
      */
-    public function setLive($live)
+    public function setLive(?bool $live)
     {
         $this->live = $live;
 
@@ -502,7 +502,7 @@ class Payment
      * Get live
      * @return bool
      */
-    public function getLive()
+    public function getLive(): ?bool
     {
         return $this->live;
     }
@@ -512,7 +512,7 @@ class Payment
      * @param string
      * @return Payment
      */
-    public function setReturnRoute($returnRoute)
+    public function setReturnRoute(?string $returnRoute)
     {
         $this->returnRoute = $returnRoute;
 
@@ -523,7 +523,7 @@ class Payment
      * Get returnRoute
      * @return string
      */
-    public function getReturnRoute()
+    public function getReturnRoute(): ?string
     {
         return $this->returnRoute;
     }
