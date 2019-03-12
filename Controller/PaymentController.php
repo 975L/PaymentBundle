@@ -13,11 +13,11 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -39,7 +39,6 @@ class PaymentController extends AbstractController
     }
 
 //DASHBOARD
-
     /**
      * Displays the dashboard
      * @return Response
@@ -67,7 +66,6 @@ class PaymentController extends AbstractController
     }
 
 //DISPLAY
-
     /**
      * Displays Payment using its orderId
      * @return Response
@@ -86,7 +84,6 @@ class PaymentController extends AbstractController
     }
 
 //CONFIG
-
     /**
      * Displays the configuration
      * @return Response
@@ -120,7 +117,6 @@ class PaymentController extends AbstractController
     }
 
 //FORM
-
     /**
      * Displays Stripe form to proceed to payment
      * @return Response
@@ -142,7 +138,6 @@ class PaymentController extends AbstractController
     }
 
 //PAYMENT FREE AMOUNT
-
     /**
      * Displays the form to proceed to a free amount payment
      * @return Response|Redirect
@@ -175,7 +170,6 @@ class PaymentController extends AbstractController
     }
 
 //PAYMENT DEFINED AMOUNT
-
     /**
      * Displays form for defined amount
      * @return Redirect
@@ -198,7 +192,6 @@ class PaymentController extends AbstractController
     }
 
 //CHARGE
-
     /**
      * Proceeds to charge Payment server
      * @return Redirect

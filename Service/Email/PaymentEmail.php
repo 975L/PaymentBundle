@@ -15,7 +15,7 @@ use c975L\PaymentBundle\Entity\Payment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
-use Twig_Environment;
+use Twig\Environment;
 
 /**
  * PaymentEmail class
@@ -43,10 +43,10 @@ class PaymentEmail implements PaymentEmailInterface
     private $request;
 
     /**
-     * Stores Twig_Environment
-     * @var Twig_Environment
+     * Stores Environment
+     * @var Environment
      */
-    private $templating;
+    private $environment;
 
     /**
      * Stores TranslatorInterface
@@ -58,14 +58,14 @@ class PaymentEmail implements PaymentEmailInterface
         ConfigServiceInterface $configService,
         EmailServiceInterface $emailService,
         RequestStack $requestStack,
-        Twig_Environment $templating,
+        Environment $environment,
         TranslatorInterface $translator
     )
     {
         $this->configService = $configService;
         $this->emailService = $emailService;
         $this->request = $requestStack->getCurrentRequest();
-        $this->templating = $templating;
+        $this->environment = $environment;
         $this->translator = $translator;
     }
 
@@ -88,7 +88,7 @@ class PaymentEmail implements PaymentEmailInterface
         //Stripe error
         if ('stripe' === $object) {
             $errData = $data;
-            $body = $this->templating->render('@c975LPayment/emails/errorStripe.html.twig', array(
+            $body = $this->environment->render('@c975LPayment/emails/errorStripe.html.twig', array(
                 'errCode' => $errData['code'],
                 'errMessage' => 'PaymentStripe Error : ' . $errData['message'],
                  '_locale' => $this->request->getLocale(),
@@ -103,7 +103,7 @@ class PaymentEmail implements PaymentEmailInterface
         //Validation error
         } elseif ('validation' === $object) {
             $payment = $data;
-            $body = $this->templating->render('@c975LPayment/emails/errorValidation.html.twig', array(
+            $body = $this->environment->render('@c975LPayment/emails/errorValidation.html.twig', array(
                 'payment' => $payment,
                  '_locale' => $this->request->getLocale(),
                 ));
@@ -116,7 +116,9 @@ class PaymentEmail implements PaymentEmailInterface
                 );
         }
 
-        $this->emailService->send($emailData, $this->configService->getParameter('c975LPayment.database'));
+        if (isset($emailData)) {
+            $this->emailService->send($emailData, $this->configService->getParameter('c975LPayment.database'));
+        }
     }
 
     /**
@@ -124,7 +126,7 @@ class PaymentEmail implements PaymentEmailInterface
      */
     public function sendUser(Payment $payment, string $subject)
     {
-        $body = $this->templating->render('@c975LPayment/emails/paymentDone.html.twig', array(
+        $body = $this->environment->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => false,
              '_locale' => $this->request->getLocale(),
@@ -144,7 +146,7 @@ class PaymentEmail implements PaymentEmailInterface
      */
     public function sendSite(Payment $payment, string $subject)
     {
-        $body = $this->templating->render('@c975LPayment/emails/paymentDone.html.twig', array(
+        $body = $this->environment->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => true,
              '_locale' => $this->request->getLocale(),

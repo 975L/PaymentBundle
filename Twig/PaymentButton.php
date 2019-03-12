@@ -9,21 +9,21 @@
 
 namespace c975L\PaymentBundle\Twig;
 
-use Twig_Environment;
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Environment;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Twig extension to display the Payment button using `payment_button(['YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY', 'YOUR_OPTIONAL_STYLES'])
  * @author Laurent Marquet <laurent.marquet@laposte.net>
  * @copyright 2018 975L <contact@975l.com>
  */
-class PaymentButton extends Twig_Extension
+class PaymentButton extends AbstractExtension
 {
     public function getFunctions()
     {
         return array(
-            new Twig_SimpleFunction(
+            new TwigFunction(
                 'payment_button',
                 array($this, 'paymentButton'),
                 array(
@@ -38,7 +38,7 @@ class PaymentButton extends Twig_Extension
      * Returns xhtml code for Payment button
      * @return string
      */
-    public function paymentButton(Twig_Environment $environment, $text = null, $amount = null, $currency = null, $style = 'btn btn-lg btn-primary')
+    public function paymentButton(Environment $environment, $text = null, $amount = null, $currency = null, $style = 'btn btn-lg btn-primary')
     {
         return $environment->render('@c975LPayment/fragments/paymentButton.html.twig', array(
                 'text' => $text,

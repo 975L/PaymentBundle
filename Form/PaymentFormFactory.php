@@ -26,6 +26,12 @@ class PaymentFormFactory implements PaymentFormFactoryInterface
      */
     private $configService;
 
+    /**
+     * Stores FormFactoryInterface
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
     public function __construct(
         ConfigServiceInterface $configService,
         FormFactoryInterface $formFactory

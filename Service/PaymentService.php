@@ -138,7 +138,7 @@ class PaymentService implements PaymentServiceInterface
             //Flash specific error message
             if ($errData['display']) {
                 $this->serviceTools->createFlash('payment', 'text.error_payment', 'danger');
-                $this->serviceTools->createFlash(null, $errMessage, 'danger');
+                $this->serviceTools->createFlash(null, $errData['message'], 'danger');
             //Flash generic error message
             } else {
                 $this->serviceTools->createFlash('payment', 'text.error_payment_generic', 'danger');
