@@ -25,45 +25,26 @@ Bundle installation
 
 Step 1: Download the Bundle
 ---------------------------
+**v3.x works with Symfony 4.x. Use v2.x for Symfony 3.x**
 Use [Composer](https://getcomposer.org) to install the library
 ```bash
     composer require c975L/payment-bundle
 ```
 
-Step 2: Enable the Bundle
--------------------------
-Then, enable the bundles by adding them to the list of registered bundles in the `app/AppKernel.php` file of your project:
-
-```php
-<?php
-class AppKernel extends Kernel
-{
-    public function registerBundles()
-    {
-        $bundles = [
-            // ...
-            new c975L\PaymentBundle\c975LPaymentBundle(),
-        ];
-    }
-}
-```
-
-Step 3: Configure the Bundle
+Step 2: Configure the Bundle
 ----------------------------
 Check dependencies for their configuration:
-- [Swiftmailer](https://github.com/symfony/swiftmailer-bundle)
+- [Symfony Mailer](https://github.com/symfony/mailer)
 - [Doctrine](https://github.com/doctrine/DoctrineBundle)
 - [KnpPaginatorBundle](https://github.com/KnpLabs/KnpPaginatorBundle)
 - [c975LEmailBundle](https://github.com/975L/EmailBundle)
 - [Stripe PHP Library](https://github.com/stripe/stripe-php)
 
-v2.0+ of c975LPaymentBundle uses [c975L/ConfigBundle](https://github.com/975L/ConfigBundle) to manage configuration parameters. Use the Route "/payment/config" with the proper user role to modify them.
+c975LPaymentBundle uses [c975L/ConfigBundle](https://github.com/975L/ConfigBundle) to manage configuration parameters. Use the Route "/payment/config" with the proper user role to modify them.
 
-**Upgrading from v1.x? Check [UPGRADE.md](UPGRADE.md).**
-
-Step 4: Enable the Routes
+Step 3: Enable the Routes
 -------------------------
-Then, enable the routes by adding them to the `app/config/routing.yml` file of your project:
+Then, enable the routes by adding them to the `/config/routes.yaml` file of your project:
 
 ```yml
 c975_l_payment:
@@ -77,12 +58,12 @@ c975_l_payment:
     #    _locale: en|fr|es
 ```
 
-Step 5: Create MySql table
+Step 4: Create MySql table
 --------------------------
 You can use `php bin/console make:migration` to create the migration file as documented in [Symfony's Doctrine docs](https://symfony.com/doc/current/doctrine.html) OR use `/Resources/sql/payment.sql` to create the tables `stripe_payment`. The `DROP TABLE` is commented to avoid dropping by mistake.
 
 
-Step 6: copy images to web folder
+Step 5: copy images to web folder
 ---------------------------------
 Install images by running
 ```bash
@@ -264,7 +245,7 @@ Use the [testing cards](https://stripe.com/docs/testing) to test before going to
 
 Merchant's data
 ---------------
-You need to override the template `fragments/merchantData.html.twig` in your `app/Resources/c975LPaymentBundle/views/fragments/merchantData.html.twig` and indicate there all your official data, such as address, VAT number, etc.
+You need to override the template `fragments/merchantData.html.twig` in your `/templates/bundles/c975LPaymentBundle/fragments/merchantData.html.twig` and indicate there all your official data, such as address, VAT number, etc.
 
 This template will be included in the email sent to the user after its payment.
 
