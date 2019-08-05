@@ -91,7 +91,7 @@ class PaymentEmail implements PaymentEmailInterface
             $body = $this->environment->render('@c975LPayment/emails/errorStripe.html.twig', array(
                 'errCode' => $errData['code'],
                 'errMessage' => 'PaymentStripe Error : ' . $errData['message'],
-                 '_locale' => $this->request->getLocale(),
+                 'locale' => $this->request->getLocale(),
                 ));
             $emailData = array(
                 'subject' => 'StripeError : ' . $errData['code'],
@@ -105,7 +105,7 @@ class PaymentEmail implements PaymentEmailInterface
             $payment = $data;
             $body = $this->environment->render('@c975LPayment/emails/errorValidation.html.twig', array(
                 'payment' => $payment,
-                 '_locale' => $this->request->getLocale(),
+                 'locale' => $this->request->getLocale(),
                 ));
             $emailData = array(
                 'subject' => 'PaymentValidation Error',
@@ -129,7 +129,7 @@ class PaymentEmail implements PaymentEmailInterface
         $body = $this->environment->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => false,
-             '_locale' => $this->request->getLocale(),
+             'locale' => $this->request->getLocale(),
             ));
         $emailData = array(
             'subject' => $subject,
@@ -149,7 +149,7 @@ class PaymentEmail implements PaymentEmailInterface
         $body = $this->environment->render('@c975LPayment/emails/paymentDone.html.twig', array(
             'payment' => $payment,
             'stripeFee' => true,
-             '_locale' => $this->request->getLocale(),
+             'locale' => $this->request->getLocale(),
             ));
         $emailData = array(
             'subject' => $subject,

@@ -1,5 +1,10 @@
 # Changelog
 
+v3.1
+----
+- Replaced `_locale` by `locale` (15/07/2019)
+- Made use of apply spaceless (05/08/2019)
+
 v3.0.1
 ------
 - Corrected composer.json (15/07/2019)
