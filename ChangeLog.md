@@ -1,5 +1,9 @@
 # Changelog
 
+v3.1.1
+------
+- Resized images to decrease downloaded size (28/11/2019)
+
 v3.1
 ----
 - Replaced `_locale` by `locale` (15/07/2019)
