@@ -1,5 +1,9 @@
 # Changelog
 
+v3.2
+----
+- Changed doctrine-bundle version (18/12/2019)
+
 v3.1.1
 ------
 - Resized images to decrease downloaded size (28/11/2019)
