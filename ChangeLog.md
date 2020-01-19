@@ -1,5 +1,9 @@
 # Changelog
 
+v3.2.1
+------
+- Added attribut title (19/01/2020)
+
 v3.2
 ----
 - Changed doctrine-bundle version (18/12/2019)
