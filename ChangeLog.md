@@ -1,5 +1,9 @@
 # Changelog
 
+v3.3
+----
+- Removed use of symplify/easy-coding-standard as abandonned (19/02/2020)
+
 v3.2.1
 ------
 - Added attribut title (19/01/2020)
