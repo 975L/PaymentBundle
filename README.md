@@ -1,5 +1,4 @@
-PaymentBundle
-=============
+# PaymentBundle
 
 PaymentBundle does the following:
 
@@ -20,20 +19,21 @@ It is also recomended to use this with a SSL certificat to reassure the user.
 
 [PaymentBundle API documentation](https://975l.com/apidoc/c975L/PaymentBundle.html).
 
-Bundle installation
-===================
+## Bundle installation
 
-Step 1: Download the Bundle
----------------------------
+### Step 1: Download the Bundle
+
 **v3.x works with Symfony 4.x. Use v2.x for Symfony 3.x**
 Use [Composer](https://getcomposer.org) to install the library
+
 ```bash
     composer require c975L/payment-bundle
 ```
 
-Step 2: Configure the Bundle
-----------------------------
+### Step 2: Configure the Bundle
+
 Check dependencies for their configuration:
+
 - [Symfony Mailer](https://github.com/symfony/mailer)
 - [Doctrine](https://github.com/doctrine/DoctrineBundle)
 - [KnpPaginatorBundle](https://github.com/KnpLabs/KnpPaginatorBundle)
@@ -42,8 +42,8 @@ Check dependencies for their configuration:
 
 c975LPaymentBundle uses [c975L/ConfigBundle](https://github.com/975L/ConfigBundle) to manage configuration parameters. Use the Route "/payment/config" with the proper user role to modify them.
 
-Step 3: Enable the Routes
--------------------------
+### Step 3: Enable the Routes
+
 Then, enable the routes by adding them to the `/config/routes.yaml` file of your project:
 
 ```yml
@@ -58,24 +58,25 @@ c975_l_payment:
     #    _locale: en|fr|es
 ```
 
-Step 4: Create MySql table
---------------------------
+### Step 4: Create MySql table
+
 You can use `php bin/console make:migration` to create the migration file as documented in [Symfony's Doctrine docs](https://symfony.com/doc/current/doctrine.html) OR use `/Resources/sql/payment.sql` to create the tables `stripe_payment`. The `DROP TABLE` is commented to avoid dropping by mistake.
 
-
-Step 5: copy images to web folder
----------------------------------
+### Step 5: copy images to web folder
 Install images by running
+
 ```bash
 php bin/console assets:install --symlink
 ```
+
 It will copy content of folder `Resources/public/images/` to your web folder. They are used to be displayed on the payment form.
 
 You can also have a look at [official badges from Stripe](https://stripe.com/about/resources?locale=fr).
 
-How to use
-----------
+### How to use
+
 The process is the following:
+
 - User selects a product,
 - User clicks to pay,
 - Payment is created in DB,
@@ -241,31 +242,35 @@ class PaymentController extends AbstractController
     }
 }
 ```
+
 Use the [testing cards](https://stripe.com/docs/testing) to test before going to production.
 
-Merchant's data
----------------
+### Merchant's data
+
 You need to override the template `fragments/merchantData.html.twig` in your `/templates/bundles/c975LPaymentBundle/fragments/merchantData.html.twig` and indicate there all your official data, such as address, VAT number, etc.
 
 This template will be included in the email sent to the user after its payment.
 
-Mention payment system
-----------------------
+### Mention payment system
+
 You can mention the payment system used (i.e. in the footer) by simply include an html fragment with the following code `{% include '@c975LPayment/fragments/paymentSystem.html.twig' %}`. This will include Stripe logo and accepted cards.
 
-Use payment buttons/links
--------------------------
+### Use payment buttons/links
+
 You can add any payment button/link, wherever you want, by using the Twig extensions with the following code:
+
 ```twig
 {{ payment_button('YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY', 'YOUR_OPTIONAL_STYLES') }}
 {{ payment_link('YOUR_TEXT_TO_DISPLAY', AMOUNT, 'CURRENCY') }}
 ```
+
 `AMOUNT` is the real amount (i.e. 12.92), **NOT** the amount in cents.
 
 Or you can use it empty, this will lead user fo fill a form to proceed to payment
+
 ```twig
 {{ payment_button() }}
 {{ payment_link() }}
 ```
 
-**If this project help you to reduce time to develop, you can [buy me a coffee](https://www.buymeacoffee.com/LaurentMarquet) :)**
+If this project **help you to reduce time to develop**, you can sponsor me via the "Sponsor" button at the top :)

@@ -76,8 +76,7 @@ class PaymentService implements PaymentServiceInterface
         PaymentFormFactoryInterface $paymentFormFactory,
         PaymentStripeInterface $paymentStripe,
         ServiceToolsInterface $serviceTools
-    )
-    {
+    ) {
         $this->configService = $configService;
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
@@ -155,12 +154,11 @@ class PaymentService implements PaymentServiceInterface
     {
         //Payment or product under test
         $live = $paymentData['live'] ?? $this->configService->getParameter('c975LPayment.live');
+
+        $paymentData['live'] = true;
         if (false === $this->configService->getParameter('c975LPayment.live') || false === $live) {
             $paymentData['description'] = '(TEST) ' . $paymentData['description'];
             $paymentData['live'] = false;
-        //Payment live
-        } else {
-            $paymentData['live'] = true;
         }
 
         //Registers the Payment

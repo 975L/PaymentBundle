@@ -60,9 +60,11 @@ class PaymentController extends AbstractController
         );
 
         //Renders the dashboard
-        return $this->render('@c975LPayment/pages/dashboard.html.twig', array(
-            'payments' => $payments,
-        ));
+        return $this->render(
+            '@c975LPayment/pages/dashboard.html.twig',
+            array(
+                'payments' => $payments,
+            ));
     }
 
 //DISPLAY
@@ -75,12 +77,14 @@ class PaymentController extends AbstractController
      *    requirements={"orderId": "^[0-9\-]+$"},
      *    methods={"HEAD", "GET"})
      */
-    public function display(Request $request, Payment $payment, ConfigServiceInterface $configService)
+    public function display(Payment $payment, ConfigServiceInterface $configService)
     {
-        return $this->render('@c975LPayment/pages/display.html.twig', array(
-            'payment' => $payment,
-            'siteName' => $configService->getParameter('c975LCommon.site'),
-        ));
+        return $this->render(
+            '@c975LPayment/pages/display.html.twig',
+            array(
+                'payment' => $payment,
+                'siteName' => $configService->getParameter('c975LCommon.site'),
+            ));
     }
 
 //CONFIG
@@ -110,10 +114,12 @@ class PaymentController extends AbstractController
         }
 
         //Renders the config form
-        return $this->render('@c975LConfig/forms/config.html.twig', array(
-            'form' => $form->createView(),
-            'toolbar' => '@c975LPayment',
-        ));
+        return $this->render(
+            '@c975LConfig/forms/config.html.twig',
+            array(
+                'form' => $form->createView(),
+                'toolbar' => '@c975LPayment',
+            ));
     }
 
 //FORM
@@ -125,7 +131,7 @@ class PaymentController extends AbstractController
      *    name="payment_form",
      *    methods={"HEAD", "GET"})
      */
-    public function form(Request $request)
+    public function form()
     {
         //Renders form payment
         $paymentData = $this->paymentService->setDataFromSession('stripe');
@@ -163,10 +169,12 @@ class PaymentController extends AbstractController
         }
 
         //Renders form for payment
-        return $this->render('@c975LPayment/forms/paymentFreeAmount.html.twig', array(
-            'form' => $form->createView(),
-            'payment' => $payment,
-        ));
+        return $this->render(
+            '@c975LPayment/forms/paymentFreeAmount.html.twig',
+            array(
+                'form' => $form->createView(),
+                'payment' => $payment,
+            ));
     }
 
 //PAYMENT DEFINED AMOUNT
@@ -182,7 +190,7 @@ class PaymentController extends AbstractController
      *    },
      *    methods={"HEAD", "GET"})
      */
-    public function request(Request $request, $text, $amount, $currency)
+    public function request($text, $amount, $currency)
     {
         //Creates the Payment
         $this->paymentService->createDefinedAmount($this->getUser(), $text, $amount, $currency);
@@ -201,7 +209,7 @@ class PaymentController extends AbstractController
      *    name="payment_charge",
      *    methods={"HEAD", "GET", "POST"})
      */
-    public function charge(Request $request)
+    public function charge()
     {
         $payment = $this->paymentService->getFromSession('stripe');
         if ($payment instanceof Payment) {

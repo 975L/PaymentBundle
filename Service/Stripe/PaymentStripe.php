@@ -46,8 +46,7 @@ class PaymentStripe implements PaymentStripeInterface
     public function __construct(
         ConfigServiceInterface $configService,
         RequestStack $requestStack
-    )
-    {
+    ) {
         $this->configService = $configService;
         $this->request = $requestStack->getCurrentRequest();
     }
