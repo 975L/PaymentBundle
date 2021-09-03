@@ -14,7 +14,7 @@ use c975L\EmailBundle\Service\EmailServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 /**
