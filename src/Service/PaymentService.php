@@ -27,63 +27,21 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class PaymentService implements PaymentServiceInterface
 {
     /**
-     * Stores ConfigServiceInterface
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
-     * Stores EntityManagerInterface
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
      * Stores current Request
      * @var Request
      */
     private $request;
 
-    /**
-     * Stores PaymentEmailInterface
-     * @var PaymentEmailInterface
-     */
-    private $paymentEmail;
-
-    /**
-     * Stores PaymentFormFactoryInterface
-     * @var PaymentFormFactoryInterface
-     */
-    private $paymentFormFactory;
-
-    /**
-     * Stores PaymentStripeInterface
-     * @var PaymentStripeInterface
-     */
-    private $paymentStripe;
-
-    /**
-     * Stores ServiceToolsInterface
-     * @var ServiceToolsInterface
-     */
-    private $serviceTools;
-
     public function __construct(
-        ConfigServiceInterface $configService,
-        EntityManagerInterface $em,
-        RequestStack $requestStack,
-        PaymentEmailInterface $paymentEmail,
-        PaymentFormFactoryInterface $paymentFormFactory,
-        PaymentStripeInterface $paymentStripe,
-        ServiceToolsInterface $serviceTools
+        private readonly ConfigServiceInterface $configService,
+        private readonly EntityManagerInterface $em,
+        private readonly RequestStack $requestStack,
+        private readonly PaymentEmailInterface $paymentEmail,
+        private readonly PaymentFormFactoryInterface $paymentFormFactory,
+        private readonly PaymentStripeInterface $paymentStripe,
+        private readonly ServiceToolsInterface $serviceTools
     ) {
-        $this->configService = $configService;
-        $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
-        $this->paymentEmail = $paymentEmail;
-        $this->paymentFormFactory = $paymentFormFactory;
-        $this->paymentStripe = $paymentStripe;
-        $this->serviceTools = $serviceTools;
     }
 
     /**

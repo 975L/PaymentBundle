@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.5
+
+- Corrected Services (05/11/2024)
+
 ## v5.0.4
 
 - Corrected Voter (05/11/2024)

@@ -14,7 +14,7 @@ use c975L\EmailBundle\Service\EmailServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 /**
@@ -25,48 +25,20 @@ use Twig\Environment;
 class PaymentEmail implements PaymentEmailInterface
 {
     /**
-     * Stores ConfigServiceInterface
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
-     * Stores EmailServiceInterface
-     * @var EmailServiceInterface
-     */
-    private $emailService;
-
-    /**
      * Stores current Request
      * @var Request
      */
     private $request;
 
-    /**
-     * Stores Environment
-     * @var Environment
-     */
-    private $environment;
-
-    /**
-     * Stores TranslatorInterface
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
-        ConfigServiceInterface $configService,
-        EmailServiceInterface $emailService,
-        RequestStack $requestStack,
-        Environment $environment,
-        TranslatorInterface $translator
+        private readonly ConfigServiceInterface $configService,
+        private readonly EmailServiceInterface $emailService,
+        private readonly RequestStack $requestStack,
+        private readonly Environment $environment,
+        private readonly TranslatorInterface $translator
     )
     {
-        $this->configService = $configService;
-        $this->emailService = $emailService;
         $this->request = $requestStack->getCurrentRequest();
-        $this->environment = $environment;
-        $this->translator = $translator;
     }
 
     /**

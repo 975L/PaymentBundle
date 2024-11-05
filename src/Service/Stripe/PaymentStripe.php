@@ -32,22 +32,15 @@ use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 class PaymentStripe implements PaymentStripeInterface
 {
     /**
-     * Stores ConfigServiceInterface
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
      * Stores current Request
      * @var Request
      */
     private $request;
 
     public function __construct(
-        ConfigServiceInterface $configService,
-        RequestStack $requestStack
+        private readonly ConfigServiceInterface $configService,
+        private readonly RequestStack $requestStack
     ) {
-        $this->configService = $configService;
         $this->request = $requestStack->getCurrentRequest();
     }
 
