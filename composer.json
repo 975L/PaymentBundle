@@ -27,7 +27,7 @@
         "doctrine/orm": "*",
         "stripe/stripe-php": "*",
         "symfony/form": "*",
-        "symfony/security": "*",
+        "symfony/security-bundle": "*",
         "symfony/translation": "*",
         "twig/intl-extra": "*"
     },

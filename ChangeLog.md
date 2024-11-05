@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.3
+
+- Update composer.json (05/11/2024)
+
 ## v5.0.2
 
 - Update composer.json (05/11/2024)
