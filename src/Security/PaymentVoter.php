@@ -24,51 +24,40 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class PaymentVoter extends Voter
 {
     /**
-     * Stores ConfigServiceInterface
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
-     * Stores AccessDecisionManagerInterface
-     * @var AccessDecisionManagerInterface
-     */
-    private $decisionManager;
-
-    /**
      * Used for access to config
      * @var string
      */
-    public const CONFIG = 'c975LPayment-config';
+    final public const CONFIG = 'c975LPayment-config';
 
     /**
      * Used for access to dashboard
      * @var string
      */
-    public const DASHBOARD = 'c975LPayment-dashboard';
+    final public const DASHBOARD = 'c975LPayment-dashboard';
 
     /**
      * Contains all the available attributes to check with in supports()
      * @var array
      */
-    private const ATTRIBUTES = array(
-        self::CONFIG,
-        self::DASHBOARD,
-    );
+    private const ATTRIBUTES = [self::CONFIG, self::DASHBOARD];
 
     public function __construct(
-        ConfigServiceInterface $configService,
-        AccessDecisionManagerInterface $decisionManager
+        /**
+         * Stores ConfigServiceInterface
+         */
+        private readonly ConfigServiceInterface $configService,
+        /**
+         * Stores AccessDecisionManagerInterface
+         */
+        private readonly AccessDecisionManagerInterface $decisionManager
     )
     {
-        $this->configService = $configService;
-        $this->decisionManager = $decisionManager;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (null !== $subject) {
             return $subject instanceof Payment && in_array($attribute, self::ATTRIBUTES);
@@ -80,7 +69,7 @@ class PaymentVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         //Defines access rights
         switch ($attribute) {
