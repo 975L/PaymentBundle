@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.0
+
+- Changed to new recomended bundle SF 7 structure (05/11/2024)
+
+Upgrading from v4.x? **Check UPGRADE.md**
+
 ## v4.0
 
 - Changed `localizeddate` to `format_datetime` (11/10/2021)

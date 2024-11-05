@@ -5,16 +5,16 @@ services:
         public: true
 
     c975L\PaymentBundle\Controller\:
-        resource: '../../Controller/*'
+        resource: '../src/Controller/*'
 
     c975L\PaymentBundle\Form\:
-        resource: '../../Form/*'
+        resource: '../src/Form/*'
 
     c975L\PaymentBundle\Security\:
-        resource: '../../Security/*'
+        resource: '../src/Security/*'
 
     c975L\PaymentBundle\Service\:
-        resource: '../../Service/*'
+        resource: '../src/Service/*'
 
     c975L\PaymentBundle\Twig\:
-        resource: '../../Twig/*'
+        resource: '../src/Twig/*'

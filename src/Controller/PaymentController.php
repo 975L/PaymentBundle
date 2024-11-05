@@ -9,15 +9,15 @@
 
 namespace c975L\PaymentBundle\Controller;
 
-use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Payment;
-use c975L\PaymentBundle\Service\PaymentServiceInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Service\PaymentServiceInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -27,15 +27,13 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class PaymentController extends AbstractController
 {
-    /**
-     * Stores PaymentService
-     * @var PaymentServiceInterface
-     */
-    private $paymentService;
-
-    public function __construct(PaymentServiceInterface $paymentService)
-    {
-        $this->paymentService = $paymentService;
+    public function __construct(
+        /**
+         * Stores PaymentService
+         * @var PaymentServiceInterface
+         */
+        private readonly PaymentServiceInterface $paymentService
+    ) {
     }
 
 //DASHBOARD
@@ -43,11 +41,12 @@ class PaymentController extends AbstractController
      * Displays the dashboard
      * @return Response
      * @throws AccessDeniedException
-     *
-     * @Route("/payment/dashboard",
-     *    name="payment_dashboard",
-     *    methods={"HEAD", "GET"})
      */
+    #[Route(
+        '/payment/dashboard',
+        name: 'payment_dashboard',
+        methods: ['GET']
+    )]
     public function dashboard(Request $request, PaginatorInterface $paginator)
     {
         $this->denyAccessUnlessGranted('c975LPayment-dashboard', null);
@@ -71,12 +70,13 @@ class PaymentController extends AbstractController
     /**
      * Displays Payment using its orderId
      * @return Response
-     *
-     * @Route("/payment/{orderId}",
-     *    name="payment_display",
-     *    requirements={"orderId": "^[0-9\-]+$"},
-     *    methods={"HEAD", "GET"})
      */
+    #[Route(
+        '/payment/{orderId}',
+        name: 'payment_display',
+        requirements: ['orderId' => '^[0-9\-]+$'],
+        methods: ['GET']
+    )]
     public function display(Payment $payment, ConfigServiceInterface $configService)
     {
         return $this->render(
@@ -92,11 +92,12 @@ class PaymentController extends AbstractController
      * Displays the configuration
      * @return Response
      * @throws AccessDeniedException
-     *
-     * @Route("/payment/config",
-     *    name="payment_config",
-     *    methods={"HEAD", "GET", "POST"})
      */
+    #[Route(
+        '/payment/config',
+        name: 'payment_config',
+        methods: ['GET', 'POST']
+    )]
     public function config(Request $request, ConfigServiceInterface $configService)
     {
         $this->denyAccessUnlessGranted('c975LPayment-config', null);
@@ -126,11 +127,12 @@ class PaymentController extends AbstractController
     /**
      * Displays Stripe form to proceed to payment
      * @return Response
-     *
-     * @Route("/payment",
-     *    name="payment_form",
-     *    methods={"HEAD", "GET"})
      */
+    #[Route(
+        '/payment',
+        name: 'payment_form',
+        methods: ['GET']
+    )]
     public function form()
     {
         //Renders form payment
@@ -147,11 +149,12 @@ class PaymentController extends AbstractController
     /**
      * Displays the form to proceed to a free amount payment
      * @return Response|Redirect
-     *
-     * @Route("/payment/request",
-     *    name="payment_free_amount",
-     *    methods={"HEAD", "GET", "POST"})
      */
+    #[Route(
+        '/payment/request',
+        name: 'payment_free_amount',
+        methods: ['GET', 'POST']
+    )]
     public function freeAmount(Request $request, ConfigServiceInterface $configService)
     {
         //Defines form
@@ -181,15 +184,16 @@ class PaymentController extends AbstractController
     /**
      * Displays form for defined amount
      * @return Redirect
-     *
-     * @Route("/payment/request/{text}/{amount}/{currency}",
-     *    name="payment_request",
-     *    requirements={
-     *        "amount": "^[0-9]+$",
-     *        "currency": "^[a-zA-Z]{3}$"
-     *    },
-     *    methods={"HEAD", "GET"})
      */
+    #[Route(
+        '/payment/request/{text}/{amount}/{currency}',
+        name: 'payment_request',
+        requirements: [
+            'amount' => '^[0-9]+$',
+            'currency' => '^[a-zA-Z]{3}$'
+        ],
+        methods: ['GET']
+    )]
     public function request($text, $amount, $currency)
     {
         //Creates the Payment
@@ -204,11 +208,12 @@ class PaymentController extends AbstractController
      * Proceeds to charge Payment server
      * @return Redirect
      * @throws NotFoundHttpException
-     *
-     * @Route("/payment-charge",
-     *    name="payment_charge",
-     *    methods={"HEAD", "GET", "POST"})
      */
+    #[Route(
+        '/payment-charge',
+        name: 'payment_charge',
+        methods: ['GET', 'POST']
+    )]
     public function charge()
     {
         $payment = $this->paymentService->getFromSession('stripe');
