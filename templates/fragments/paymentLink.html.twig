@@ -1,6 +1,5 @@
 {% trans_default_domain 'payment' %}
 
-{% apply spaceless %}
 {# Links to form to fill #}
 {% if text == null %}
     <a href="{{ path('payment_free_amount') }}" title="{{ 'label.make_payment'|trans }}">
@@ -10,4 +9,3 @@
     <a href="{{ path('payment_request', {'amount': amount * 100, 'currency': currency, 'text': text|url_encode}) }}" title="{{ text }} ({{ amount|localizedcurrency(currency) }})">
         {{ text }} ({{ amount|localizedcurrency(currency) }})</a>
 {% endif %}
-{% endapply %}

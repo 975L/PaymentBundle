@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.1
+
+- Update composer.json (05/11/2024)
+
 ## v5.0
 
 - Changed to new recomended bundle SF 7 structure (05/11/2024)

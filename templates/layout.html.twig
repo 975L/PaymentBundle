@@ -1,5 +1,7 @@
-{% apply spaceless %}
+{% trans_default_domain 'payment' %}
+
 <!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
     <head>
         {% block head %}
             <meta charset="utf-8" />
@@ -23,20 +25,8 @@
     </head>
 {# Body #}
     <body>
-{# Flashes #}
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="flash alert alert-{{ label }} alert-dismissible text-center lead fade in" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{ message|raw|nl2br }}
-                </div>
-            {% endfor %}
-        {% endfor %}
 
         {% block payment_content %}
         {% endblock %}
     </body>
 </html>
-{% endapply %}
