@@ -1,4 +1,14 @@
 *.bak
 .php_cs.cache
+.phpunit.result.cache
+.phpunit.cache
 composer.lock
 vendor
+
+### Outillage local (IA / IDE) ###
+/.claude/
+/.idea/
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/extensions.json
+.github/instructions/codacy.instructions.md
