@@ -1,0 +1,9 @@
+{# <twig:c975LPayment:Basket:AddRemoveButtons item="{{ item }}"/> #}
+<div class="quantity-controls">
+    <twig:c975LPayment:Basket:DeleteButton type="{{ type }}" item="{{ item }}"/>
+    <div>
+        <twig:c975LPayment:Basket:RemoveOneButton type="{{ type }}" item="{{ item }}"/>
+        <span class="quantity lead" data-basket-target="itemQuantity" data-item-id="{{ type}}-{{ item.item.id }}">{{ quantity }}</span>
+        <twig:c975LPayment:Basket:AddOneButton type="{{ type }}" item="{{ item }}"/>
+    </div>
+</div>

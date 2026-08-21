@@ -1,0 +1,17 @@
+{# <twig:c975LPayment:Basket:Item item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" kind="simple|complex"  readonly="{{ readonly }}"/> #}
+<tr class="text-center">
+    <td>
+        {% set imageSrc = counterpart.item.media != null ? counterpart.item.media : "bundles/c975lpayment/images/no-product-image.webp" %}
+        {% set imageSrc = counterpart.parent.image != false ? counterpart.parent.image : imageSrc %}
+        {% set urlItem = counterpart.type ~ "_display"%}
+        <twig:c975LUi:Image:Link src="{{ asset(imageSrc) }}" url="{{ url(urlItem, {'slug': counterpart.parent.slug}) }}#{{ counterpart.item.slug }}" label="{{ counterpart.parent.title }} ({{ counterpart.item.title }})" class="img-shadow img-product" width="100"/>
+    </td>
+    <td>
+        {{ 'label.expected_delivery'|trans({}, 'payment') }}
+        <br>
+        <strong>{{ counterpart.item.expectedDelivery }}</strong>
+        <br>
+        <br>
+        {{ counterpart.item.description|raw|nl2br }}
+    </td>
+</tr>

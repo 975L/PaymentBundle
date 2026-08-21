@@ -1,0 +1,93 @@
+/*
+ * (c) 2026: 975L <contact@975l.com>
+ * (c) 2026: Laurent Marquet <laurent.marquet@laposte.net>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+/* BASKET */
+button span {
+  font-family: var(--font-family-title);
+}
+
+th {
+  padding: 0 auto 0.5em auto;
+  font-size: 1em;
+}
+
+tr.shipping td {
+  padding: 10px;
+}
+
+td {
+  padding: 0 5px;
+  width: 50%;
+  max-width: 200px;
+}
+
+tfoot th {
+  border-bottom: none;
+}
+
+.form-section-title {
+  font-size: 1.3em;
+  font-family: var(--font-family-title);
+  color: var(--primary);
+  margin: 0 auto;
+  padding: 10px;
+  text-align: center;
+}
+
+/* QUANTITY */
+.quantity-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+  padding: 0;
+  width: 100%;
+  max-width: 200px;
+}
+
+.quantity-controls button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+.quantity-controls div {
+  border: 3px solid var(--primary);
+  background-color: var(--primary);
+  border-radius: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.quantity-controls div button {
+  /* border: none; */
+  border-radius: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.quantity-controls span {
+  color: white;
+}
+
+.quantity-controls button img {
+  width: 16px;
+  height: 16px;
+}
+
+.quantity {
+  margin: 0 6px;
+}
+
+/*# sourceMappingURL=styles.css.map */

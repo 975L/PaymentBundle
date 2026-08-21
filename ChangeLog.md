@@ -1,5 +1,170 @@
 # Changelog
 
+## v6.0.0
+
+Complete rewrite: generic basket and checkout engine
+
+- Added `tests/Controller/BasketControllerTest.php`, pinning the three ways out of `validate()`: the provider's checkout, and the basket page carrying a flash on each refusal (21/08/2026)
+- Added `tests/Service/BasketShippingTest.php`, an order of two kinds only reaching "shipped" once both have gone out (21/08/2026)
+- Added `tests/Management/WhatsNewProviderTest.php`, the one the other bundles carry, which also guards the three locales of `whatsnew.json` (21/08/2026)
+- The README gained the `Usage` section the other bundles have: the twelve public routes, their urls and what each answers (21/08/2026)
+- `composer.json` suggests `c975l/shop-bundle` and `c975l/crowdfunding-bundle`, the two bundles plugging sellable items in (21/08/2026)
+- Added `config/whatsnew.json` and `Management\WhatsNewProvider`, this rewrite's five news reaching the dashboard's What's new in the three locales (21/08/2026)
+- Added `tests/SkillsTest.php`, failing as soon as a skill names a class, route, config slug or command the sources no longer hold (21/08/2026)
+- The three skills write their key source paths the way the other bundles do, and name a class of another package in full (21/08/2026)
+- The README documents the three shipped skills and where an agent reads them from (21/08/2026)
+- Removed `phpstan-baseline.neon`, as CoreBundle has none: of its 21 entries, 6 named code this rewrite deleted, 10 named errors fixed since, and 5 were live errors it was still hiding (21/08/2026)
+- `PaymentFormFactoryInterface::create()` and `BasketServiceInterface::createForm()` answer `FormInterface`, the type the form factory actually returns (21/08/2026) [BC-Break]
+- `Basket::$contentflags` and `Payment::$isFinished` drop the null their NOT NULL columns never hold (21/08/2026)
+- `itemsShipped()` looks its basket up with `findOneBy()` rather than the magic `findOneByNumber()` (21/08/2026)
+- Removed the dead `null !== $url` guard of `BasketController::validate()`, `validate()` always answering a url (21/08/2026)
+- Rector caches in `.rector.cache` inside the repository, so a run no longer empties the cache of the other repositories, and `composer rector` drops `--clear-cache` (21/08/2026)
+- Added `.stylelintrc.json` and `.markdownlint.json`, and `.codacy.yaml` and `eslint.config.mjs` are those of CoreBundle (21/08/2026)
+- The CI workflow's comments are aligned on CoreBundle's, the `Modernisation` step no longer describing a scaffold this bundle does not have (21/08/2026)
+- The README's licence badge points at `main`, the branch the repository actually has, instead of a 404 on `master` (21/08/2026)
+- Removed the README's "bundle under development" warning, this release being tagged, tested and documented (21/08/2026)
+- `.gitattributes` keeps the dev toolchain out of the Composer dist archive, as the other bundles do, `skills/` staying in (21/08/2026)
+- Removed the paragraph UPGRADE.md said twice about a re-validated basket, the two giving opposite advice (21/08/2026)
+- `paid()` refuses to deliver a basket that has something to pay and no payment recorded as finished (21/08/2026) [BC-Break]
+- Added `skills/`, shipping `c975l-payment-checkout`, `c975l-payment-gateway` and `c975l-payment-items` to the agents of the sites installing this bundle (21/08/2026)
+- Added `tests/Registry/BasketItemProviderRegistryTest.php`, `tests/Registry/BasketRecommendationRegistryTest.php`, `tests/Service/StylesheetProviderTest.php`, `tests/Scheduler/PaymentMaintenanceTaskProviderTest.php` and `tests/Form/PaymentFormFactoryTest.php` (21/08/2026)
+- The README requires `php` in `>=8.4` and names `c975l/core-bundle` instead of ConfigBundle and UiBundle (21/08/2026)
+- The README's contents list the gateway verification and the customer area downloads (21/08/2026)
+- Removed the commented-out `make:entity` boilerplate of `BasketRepository` and `PaymentRepository` (21/08/2026)
+- `applyNotification()` delivers the basket it settles instead of only flagging its payment (21/08/2026)
+- Added `Contract\ReturnAwareGatewayInterface` and `StripeGateway::readReturn()`, confirming the customer's return with the provider (21/08/2026)
+- `checkout.session.completed` no longer delivers a session Stripe reports as unpaid (21/08/2026)
+- Added `BasketRepository::claimPaid()`, moving a basket from "validated" to "paid" in one conditional statement (21/08/2026)
+- `PaymentNotification` carries the amount the provider charged (21/08/2026)
+- `applyNotification()` drops a notification whose amount does not match the basket (21/08/2026)
+- `Basket:PaidInfos` takes a `confirmed` prop, thanking only a customer whose payment is confirmed (21/08/2026)
+- A notification naming an unknown basket is logged and dropped rather than raised (21/08/2026)
+- Added `Gateway\StripeSessionReader`, deciding on the payload alone whether Stripe reports the money as arrived (21/08/2026)
+- Reading a session no longer fetches its `PaymentIntent` (21/08/2026)
+- An edited basket calls off the checkout it had already opened (21/08/2026)
+- Added `Contract\ExpirableGatewayInterface` and `Contract\CheckoutSession`, `createCheckout()` answering the url and the provider's reference (21/08/2026) [BC-Break]
+- `Payment` gained a `gateway_reference` column, held until the payment is settled or the checkout called off (21/08/2026) [BC-Break] **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- A provider hands its pre-payment data over at `onBasketValidated()` and gets it back at `onBasketPaid()`, `Basket` keeping it in a new `checkout_data` column (21/08/2026) [BC-Break] **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- `Basket::$checkoutData` is dropped as soon as the basket is delivered or its checkout called off (21/08/2026)
+- `validate()` flushes after the provider loop (21/08/2026)
+- A basket edited after it was validated goes back to "new", `addItem()` and `deleteItem()` reopening it (21/08/2026)
+- An order the session still names is no longer added to nor taken from, the visitor starting a new basket (21/08/2026)
+- `createPayment()` writes the basket's own payment row over rather than creating a second one (21/08/2026)
+- `PaymentWebhookController` answers "Webhook failed" instead of the exception's own message (21/08/2026)
+- Added `tests/Service/BasketPaymentJourneyTest.php` and `tests/Gateway/StripeSessionReaderTest.php` (21/08/2026)
+- Removed `Command\MigrateLegacyTablesCommand` and its README section (21/08/2026) [BC-Break]
+- Added the `audit-deps` Composer script, first step of `qa` and its own CI step (21/08/2026)
+- Upgraded `easycorp/easyadmin-bundle` from v5.4.1 to v5.5.1 (GHSA-g2fm-8hr4-j82h) (21/08/2026)
+- Every label of this bundle is read from its own `payment` catalog instead of ShopBundle's `shop` domain (21/08/2026) [BC-Break]
+- The `payment` catalogs carry the 62 keys that move with it, `label.info_basket` and `label.info_payment` newly written (21/08/2026)
+- Added `tests/TranslationDomainTest.php`, failing on a foreign domain and on a key missing from a locale (21/08/2026)
+- Added `Management\PaymentStatusProvider`, reporting the orders left to ship, the stalled payments, the gateway and the test mode (21/08/2026)
+- Added `Contract\VerifiableGatewayInterface` and `Management\GatewayHealthCheckProvider`, telling a revoked key from a working one (21/08/2026)
+- `StripeGateway` implements it, a gateway that does not being reported as skipped (21/08/2026)
+- `BasketService` looks its basket up with `find()` rather than the magic `findOneById()` (21/08/2026)
+- `BasketService` answers null for an empty session rather than querying on it (21/08/2026)
+- Added the customer area, `/account/orders` listing a buyer's paid orders and `/account/orders/{number}` showing one (21/08/2026)
+- Added `Contract\BasketDownloadProviderInterface` and `Registry\BasketDownloadRegistry`, offering bought files for download again (21/08/2026)
+- Added `BasketRepository::findPaidByUser()`, listing the "paid" and "shipped" baskets of a user, newest first (21/08/2026)
+- The order page answers a basket that is not the asking user's own as missing rather than as forbidden (21/08/2026)
+- `Basket:Delivery`, `Basket:DigitalItems` and `Basket:TrackOrder` read their content flags off `PaymentBundle\Entity\Basket` (21/08/2026)
+- Added `Management\LinkableRouteProvider`, offering the basket page and the order history as SiteBundle Menu targets (21/08/2026)
+- Added the linkable routes' labels to the three `payment` catalogs (21/08/2026)
+- `ManagementTargetsTest` scans `src/Controller` too (21/08/2026)
+- Removed the 33 orphan keys of the three `payment` catalogs, 80 units down to 47 in each locale (21/08/2026) [BC-Break]
+- Added `tests/ConfigsJsonTest.php`, guarding slugs, ConfigBundle's keys, `choice` values and the label translations (21/08/2026)
+- The four transactional emails are sent through UiBundle's `EmailService` with `wrapLayout: true` (21/08/2026)
+- Removed `Service\EmailService` and `Service\EmailServiceInterface` (21/08/2026) [BC-Break]
+- Removed `templates/emails/layout.html.twig`, made redundant by `wrapLayout: true` (21/08/2026)
+- Added `Email\BasketEmailFactory`, building the `EmailSendRequest` the basket emails share (21/08/2026)
+- `ConfirmOrderMessageHandler` and `ItemsShippedMessageHandler` throw on a failed send, so Messenger retries (21/08/2026)
+- The two message handlers look their basket up with `find()` rather than the magic `findOneById()` (21/08/2026)
+- Added `tests/MessageHandler/EmailRetryTest.php` (21/08/2026)
+- Added `tests/Email/BasketEmailFactoryTest.php` (21/08/2026)
+- Removed `templates/fragments/merchantData.html.twig` (21/08/2026) [BC-Break]
+- Added `templates/emails/layout.html.twig`, the four transactional emails extending a template that did not exist (21/08/2026)
+- Removed `templates/emails/paymentDone.html.twig` and `templates/emails/errorValidation.html.twig`, which nothing dispatched (21/08/2026) [BC-Break]
+- Every provider is asked whether its entries can still be ordered at the top of `validate()` (20/08/2026)
+- Added `BasketItemProviderInterface::validateCheckout()`, which every provider must implement (20/08/2026) [BC-Break]
+- Added `BasketNotOrderableException`, caught by `BasketController::validate()` and shown as the provider's own message (20/08/2026)
+- `label.test_mode` speaks of the charge, not of the shop (20/08/2026)
+- `Basket:Validation` repeats `Basket:TestMode` above the pay button, reading `payment-test-mode` alone (20/08/2026)
+- Added `Basket:SecurePayments`, the payment badge shown when `payment-gateway` names Stripe (20/08/2026)
+- Added `label.secure_payments_stripe` to the three `payment` catalogs (20/08/2026)
+- Added `Management\PaymentAlertProvider`, the dashboard alert for an active gateway holding no usable key (20/08/2026)
+- `BasketService::validate()` throws `PaymentUnavailableException` on it, the basket page saying so instead of the provider's 500 (20/08/2026)
+- Added `PaymentGatewayRegistry::getActiveOrNull()` (20/08/2026)
+- Added `flash.payment_unavailable` and the alert's labels to the `payment` translations (20/08/2026)
+- Removed `Item:Quantity`, the basket count each item of a listing carried (20/08/2026) [BC-Break]
+- `assets/controllers.js` imports the basket controller on demand, for a document carrying `data-controller="basket"` (20/08/2026)
+- `assets/js/handlers.js` borrows `getLanguage()` and `translate()` from UiBundle instead of copying them (20/08/2026) [BC-Break]
+- The three `translations.*.js` are one `translations.js` keyed by locale (20/08/2026) [BC-Break]
+- `getCurrencySymbol()` returns the currency code for a currency it does not list, instead of `" undefined"` (20/08/2026)
+- The basket controller removes its `basket:update` listener on disconnect, a Turbo navigation having left one copy behind per visit (20/08/2026)
+- The basket controller dispatches through Stimulus, so the instance that already updated itself no longer replays its own event (20/08/2026)
+- The three basket calls share one `send()`, and a failed response no longer draws its message twice (20/08/2026)
+- The timezone is sent once per browsing session, however many basket controllers the pages visited carry (20/08/2026)
+- Removed `updateBasketButtonDisplay()`, which nothing called, and the `message` target nothing read (20/08/2026) [BC-Break]
+- `assets/controllers.js` starts its own Stimulus app instead of exporting `register()` (20/08/2026) [BC-Break]
+- Added `Service\ScriptProvider` and `Management\ImportmapProvider`, the basket controller being loaded on its own (20/08/2026)
+- `BasketService::paid()` stamps `modification` with a `DateTime`, the column being mutable (20/08/2026)
+- Removed the eight templates no controller rendered, which called routes this bundle no longer declares (20/08/2026) [BC-Break]
+- Removed `StripeErrorMessage`, its handler, `EmailService::stripeErrorMessage()` and the two error templates, which nothing dispatched (20/08/2026) [BC-Break]
+- Stripe sits behind `Contract\PaymentGatewayInterface`, `Gateway\StripeGateway` being the only class importing `Stripe\*` (20/08/2026)
+- Added `Registry\PaymentGatewayRegistry` and the `payment-gateway` config naming the provider the site charges with (20/08/2026)
+- Added `payment-test-mode`, `stripe-secret-test` and `stripe-webhook-secret-test` to `config/configs.json` (20/08/2026)
+- Added the test payments tile to the dashboard, toggling `payment-test-mode` (20/08/2026)
+- Added `Basket:TestMode`, the banner the basket pages carry while the payments are in test (20/08/2026)
+- The basket page draws this bundle's own banner instead of ShopBundle's component (20/08/2026)
+- The order number's `TEST-` prefix follows `payment-test-mode` instead of the word "test" in the secret key (20/08/2026)
+- `BasketService::createStripeSession()` is now `createCheckout()`, returning the redirect url alone (20/08/2026) [BC-Break]
+- `BasketService::processStripePayment()` is now `applyNotification()`, taking a `PaymentNotification` (20/08/2026) [BC-Break]
+- `StripeWebhookController` is now `PaymentWebhookController`, serving `/payment/webhook/{gateway}` and still answering on `/shop/stripe/webhook` (20/08/2026) [BC-Break]
+- `Payment::$stripeToken` and `Payment::$stripeMethod` are now `$transactionId` and `$paymentMethod`, next to a new `$gateway` (20/08/2026) [BC-Break] **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- The payment CRUD links a transaction to the provider's live dashboard unless the site is in test mode (20/08/2026)
+- The payment CRUD labels its provider columns from the `payment` catalog instead of `shop` (20/08/2026)
+- Added `label.gateway`, `label.transaction_id`, `label.payment_method`, `label.test_mode`, the two `label.payment_test_mode_*` and the two `flash.payment_test_mode_*` to the three `payment` catalogs (20/08/2026)
+- Added `tests/Gateway`, `tests/Registry`, `tests/Management` and `tests/Service/PaymentTestModeTest.php` (20/08/2026)
+- The baskets and the payments export as SQL/CSV/JSON from their CRUD index, the basket's security token excluded (20/08/2026)
+- The README lists the exports (20/08/2026)
+- `BasketCrudController` takes `AdminUrlGeneratorInterface` rather than the final `AdminUrlGenerator` (20/08/2026)
+- The basket's icons and its `no-product-image.webp` are served from this bundle instead of `bundles/c975lshop/images/` (19/08/2026)
+- Added `sass/`, its compiled `public/css/styles.min.css` and `Service\StylesheetProvider`, carrying the basket rules that lived in ShopBundle (19/08/2026)
+- The README documents the assets to install and the stylesheet it now ships (19/08/2026)
+- Composer's archive cache is carried from one CI run to the next (17/08/2026)
+- The CI workflow runs on a push to main and on pull requests only, under a `concurrency` group cancelling superseded runs (17/08/2026)
+- Removed `COMPOSER_TOKEN` from the setup-php step, which never reached the archive downloads (17/08/2026)
+- The workflow's `GITHUB_TOKEN` is pinned to `contents: read` (17/08/2026)
+- The Codacy token is declared on the job rather than on its own step, whose `if` could not read it (17/08/2026)
+- The templates state their page summary as `summarySocialNetwork`, the name both layouts read (13/08/2026)
+- The `Standard Symfony` step, absent from the workflow, now runs in the CI (03/08/2026)
+- Added the `qa` Composer script and its steps, which the CI workflow now calls (03/08/2026)
+- Added `bin/ci.sh`, replaying the CI checks on dependencies freshly resolved from Packagist (03/08/2026)
+- Removed `templates/layout.html.twig`, a standalone Bootstrap 3 shell loading its assets through `inc_lib()` (02/08/2026) [BC-Break]
+- The five templates that extended it now extend the app's `layout.html.twig`, and declare `content` instead of `payment_content` (02/08/2026) [BC-Break]
+- The `localizedcurrency` filter is replaced by `format_currency` in the seven templates still calling it (02/08/2026)
+- Removed every `c975L/ToolbarBundle` call, along with `templates/tools.html.twig`, which only existed for them (02/08/2026) [BC-Break]
+- The dashboard's per-row link is a `<twig:c975LUi:Button:Button>` instead of `toolbar_button_text()` (02/08/2026)
+- Added `label.cancel`, `label.dashboard` and `label.validate` to the three `payment` catalogs (02/08/2026)
+- Added `PaymentMaintenanceTaskProvider`, declaring `c975l:shop:baskets:delete` so a site no longer lists it in its own schedule (01/08/2026)
+- Raised the `c975l/config-bundle` requirement to `^5.16`, for `MaintenanceTaskProviderInterface` (01/08/2026)
+- `php` is now required in `>=8.4` instead of `>=8.0` (30/07/2026) [BC-Break]
+- The `symfony/*` requirements are now constrained to `^8.0` instead of `*` (30/07/2026) [BC-Break]
+- The third-party requirements left in `*` are now bounded on their installed version (30/07/2026)
+- The `c975l/*` requirements are now bounded on their major (30/07/2026)
+- `Basket::$user` and `Payment::$user` are now typed `c975L\ConfigBundle\Contract\UserInterface` instead of `App\Entity\User` (30/07/2026) [BC-Break]
+- Added `.codacy.yaml`, `phpcs.xml.dist` and `eslint.config.mjs` (30/07/2026)
+- Applied PSR-12 to the codebase (30/07/2026)
+- Added `.php-cs-fixer.dist.php`, applying the Symfony coding standards (30/07/2026)
+- Added `phpstan.dist.neon`, running the static analysis at level 5 (30/07/2026)
+- Added `phpstan-baseline.neon`, freezing the errors that predate the analysis (30/07/2026)
+- Added the `CI` GitHub Actions workflow, running PSR-12, the static analysis, the tests and the coverage upload (30/07/2026)
+- Removed the `site-url` config entry and its translations, now declared by ConfigBundle (29/07/2026) [BC-Break]
+- Added the Codacy grade badge to the README (30/07/2026)
+- Rewritten as the generic Basket/checkout engine, replacing the action-based Payment form, voter and Stripe services (22/07/2026)
+- `Basket`, `Payment` and the Stripe checkout/webhook flow moved in from ShopBundle, same table names, no data migration (22/07/2026)
+- Added `BasketItemProviderInterface`, through which a satellite bundle plugs its own sellable items into the basket (22/07/2026)
+
 ## v5.0.5
 
 - Corrected Services (05/11/2024)
@@ -14,11 +179,9 @@
 
 ## v5.0.2
 
-- Update composer.json (05/11/2024)
 
 ## v5.0.1
 
-- Update composer.json (05/11/2024)
 
 ## v5.0
 
@@ -137,7 +300,6 @@ Upgrading from v2.x? **Check UPGRADE.md**
 
 - Created branch 1.x (31/08/2018)
 - Updated composer.json (01/09/2018)
-- Updated `README.md` (01/09/2018)
 - Added `UPGRADE.md` (01/09/2018)
 - Added `bundle.yaml` (01/09/2018)
 - Removed declaration of parameters in Configuration class as they are end-user parameters and defined in c975L/ConfigBundle (01/09/2018)

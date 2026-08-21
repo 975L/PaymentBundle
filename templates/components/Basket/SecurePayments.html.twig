@@ -1,0 +1,7 @@
+{# <twig:c975LPayment:Basket:SecurePayments/> #}
+{% trans_default_domain 'payment' %}
+{# Stripe #}
+{% if 'stripe' == config('payment-gateway') %}
+    <twig:c975LUi:Image:Image src="bundles/c975lpayment/images/powered_by_stripe.png" width="149" height="41"/>
+    <p class="text-center">{{ 'label.secure_payments_stripe'|trans }}</p>
+{% endif %}

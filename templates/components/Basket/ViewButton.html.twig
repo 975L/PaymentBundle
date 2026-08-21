@@ -1,0 +1,17 @@
+{# <twig:c975LPayment:Basket:ViewButton [type="primary"] [icon="path-to-icon.ext"] [inline="false"]/> #}
+{% set type = type | default('primary') %}
+{% set inline = inline | default(false) %}
+{% set icon = icon | default('') %}
+{% set class = class | default('white') %}
+{% if inline == false %}
+    <p class="text-center" id="basket-button">
+{% endif %}
+    <a href="{{ path('basket_display') }}" role="button" class="btn btn-{{ type }}">
+        {% if icon == "true" %}
+            <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/eye.svg" width="24" height="24" class="{{ class }}"/>
+        {% endif %}
+        {{ 'label.basket'|trans({}, 'payment') }} : <span data-basket-target="total"></span> (<twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span data-basket-target="quantity"></span>)
+    </a>
+{% if inline == false %}
+    </p>
+{% endif %}

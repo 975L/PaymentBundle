@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="site_config.en.xlf">
+        <body>
+            <trans-unit id=".WVUEkd">
+                <source>description.payment_gateway</source>
+                <target>The provider the shop charges with, eg. stripe</target>
+            </trans-unit>
+            <trans-unit id="i415WZO">
+                <source>description.payment_test_mode</source>
+                <target>Set to true to charge with the provider test keys: nobody is charged and a banner tells the customer</target>
+            </trans-unit>
+            <trans-unit id="OkQCTnA">
+                <source>description.shop_currency</source>
+                <target>ISO on 3 letters for currency, i.e. EUR</target>
+            </trans-unit>
+            <trans-unit id="XiiF70c">
+                <source>description.shop_email_bcc</source>
+                <target>BCC email address for the shop</target>
+            </trans-unit>
+            <trans-unit id="WDXIVjK">
+                <source>description.shop_email_bcc_name</source>
+                <target>Name for the Email address for BCC, used to send a blind copy to your site</target>
+            </trans-unit>
+            <trans-unit id="wf5xcq5">
+                <source>description.shop_email_from</source>
+                <target>Email address from which the emails are sent</target>
+            </trans-unit>
+            <trans-unit id="3EbsHJJ">
+                <source>description.shop_email_from_name</source>
+                <target>Name for the Email address From</target>
+            </trans-unit>
+            <trans-unit id="S2UaTZl">
+                <source>description.shop_email_reply_to</source>
+                <target>Email address for replies</target>
+            </trans-unit>
+            <trans-unit id="a7Ru.8w">
+                <source>description.shop_email_reply_to_name</source>
+                <target>Name for the Email address for replies</target>
+            </trans-unit>
+            <trans-unit id="On_lHpH">
+                <source>description.shop_name</source>
+                <target>Name of the shop: i.e. Example Shop</target>
+            </trans-unit>
+            <trans-unit id="9K.7BM7">
+                <source>description.shop_shipping</source>
+                <target>Shipping amount in cents for the shop</target>
+            </trans-unit>
+            <trans-unit id="I.C46rC">
+                <source>description.shop_shipping_free</source>
+                <target>Amount in cents at which shipping is offered</target>
+            </trans-unit>
+            <trans-unit id=".Ukoz6J">
+                <source>description.stripe_secret</source>
+                <target>Your Stripe Secret Key (test|live)</target>
+            </trans-unit>
+            <trans-unit id="lWcP6s0">
+                <source>description.stripe_secret_test</source>
+                <target>Stripe secret key used when test payments are enabled (sk_test_...)</target>
+            </trans-unit>
+            <trans-unit id="acHpLDg">
+                <source>description.stripe_webhook_secret</source>
+                <target>Your Stripe Webhook Secret Key (test|live)</target>
+            </trans-unit>
+            <trans-unit id="feVi4UN">
+                <source>description.stripe_webhook_secret_test</source>
+                <target>Stripe webhook secret key used when test payments are enabled (whsec_...)</target>
+            </trans-unit>
+            <trans-unit id="TLysCGR">
+                <source>description.url_terms_of_sales</source>
+                <target>Terms of sales page URL, e.g. https://example.com/terms-of-sales</target>
+            </trans-unit>
+            <trans-unit id="UfelsWV">
+                <source>description.url_terms_of_use</source>
+                <target>Terms of use page URL, e.g. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="JAhMYFJ">
+                <source>label.payment_gateway</source>
+                <target>Payment provider</target>
+            </trans-unit>
+            <trans-unit id="KlPswTP">
+                <source>label.payment_test_mode</source>
+                <target>Test payments</target>
+            </trans-unit>
+            <trans-unit id="QXc9sdb">
+                <source>label.shop_currency</source>
+                <target>Shop currency</target>
+            </trans-unit>
+            <trans-unit id="5DgmSGb">
+                <source>label.shop_email_bcc</source>
+                <target>Shop email (bcc)</target>
+            </trans-unit>
+            <trans-unit id="De__v8.">
+                <source>label.shop_email_bcc_name</source>
+                <target>Shop email (bcc) Name</target>
+            </trans-unit>
+            <trans-unit id="SCodZrM">
+                <source>label.shop_email_from</source>
+                <target>Shop email (from)</target>
+            </trans-unit>
+            <trans-unit id="b7cl0TF">
+                <source>label.shop_email_from_name</source>
+                <target>Shop email (from) Name</target>
+            </trans-unit>
+            <trans-unit id="TajW88g">
+                <source>label.shop_email_reply_to</source>
+                <target>Shop email (replyTo)</target>
+            </trans-unit>
+            <trans-unit id="weeDbSy">
+                <source>label.shop_email_reply_to_name</source>
+                <target>Shop email (replyTo) Name</target>
+            </trans-unit>
+            <trans-unit id="0sQJX9Z">
+                <source>label.shop_name</source>
+                <target>Shop Name</target>
+            </trans-unit>
+            <trans-unit id="k12fYP7">
+                <source>label.shop_shipping</source>
+                <target>Shop Shipping</target>
+            </trans-unit>
+            <trans-unit id="Pe3xc4W">
+                <source>label.shop_shipping_free</source>
+                <target>Shop shipping free</target>
+            </trans-unit>
+            <trans-unit id="z65mQvI">
+                <source>label.stripe_secret</source>
+                <target>Stripe secret</target>
+            </trans-unit>
+            <trans-unit id="plG0EcM">
+                <source>label.stripe_secret_test</source>
+                <target>Stripe test secret key</target>
+            </trans-unit>
+            <trans-unit id="q8qywJw">
+                <source>label.stripe_webhook_secret</source>
+                <target>Stripe Webhook Secret</target>
+            </trans-unit>
+            <trans-unit id="MVMRdk3">
+                <source>label.stripe_webhook_secret_test</source>
+                <target>Stripe test webhook secret key</target>
+            </trans-unit>
+            <trans-unit id="qqPabjg">
+                <source>label.url_terms_of_sales</source>
+                <target>URL Terms of sales</target>
+            </trans-unit>
+            <trans-unit id="jkiAkco">
+                <source>label.url_terms_of_use</source>
+                <target>URL Terms of use</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

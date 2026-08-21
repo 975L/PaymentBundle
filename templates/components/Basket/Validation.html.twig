@@ -1,0 +1,21 @@
+{# <twig:c975LPayment:Basket:Validation basket="{{ basket }}" form="{{ form }}"/> #}
+{% trans_default_domain 'payment' %}
+{% if basket.quantity > 0 %}
+    <section>
+        <h2 id="coordinates">{{ 'label.validate_basket'|trans }}</h2>
+        {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+            {{ form_widget(form) }}
+            {# Test mode, repeated here: the banner opening the page is far above once the form is filled, and the warning belongs where the money is committed #}
+            <twig:c975LPayment:Basket:TestMode/>
+            <div>
+                <input type="submit" name="submit" class="btn btn-primary" data-basket-target="submitButton" value="{{ 'label.pay'|trans }} {{ ((basket.total + basket.shipping) / 100)|format_currency(basket.currency) }}">
+            </div>
+            {# Mandatory field #}
+            <p class="text-muted">
+                {{ 'label.mandatory_field'|trans({}, 'site') }}
+            </p>
+        {{ form_end(form) }}
+        {# Secure payment #}
+        <twig:c975LPayment:Basket:SecurePayments/>
+    </section>
+{% endif %}

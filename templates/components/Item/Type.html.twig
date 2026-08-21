@@ -1,0 +1,18 @@
+{% set label = "" %}
+{% if (item.service is defined and item.service == true) or (item.item.service is defined and item.item.service == true) %}
+    {% set label = "label.service" %}
+{% elseif (item.file is defined and item.file.name == null) or (item.item.file is defined and item.item.file == null) %}
+    {% set label = "label.physical_item" %}
+{% elseif (item.file is defined and item.file.name != null) or (item.item.file is defined and item.item.file != null) %}
+    {% set label = "label.digital_item" %}
+{% elseif (item.type is defined and item.type == "crowdfunding" and item.item.requiresShipping is defined and item.item.requiresShipping == true) or (item.requiresShipping is defined and item.requiresShipping == true) %}
+    {% set label = "label.counterpart_with_shipping" %}
+{% elseif (item.type is defined and item.type == "crowdfunding" and item.item.requiresShipping is defined and item.item.requiresShipping == false) or (item.requiresShipping is defined and item.requiresShipping == false) %}
+    {% set label = "label.counterpart_without_shipping" %}
+{% endif %}
+
+{% if label != "" %}
+    <p class="text text-muted">
+        {{ label|trans({}, 'payment') }}
+    </p>
+{% endif %}

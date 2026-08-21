@@ -1,0 +1,192 @@
+[
+    {
+        "label": "label.payment_gateway",
+        "slug": "payment-gateway",
+        "sensitive": false,
+        "restricted": false,
+        "value": "stripe",
+        "kind": "choice",
+        "group": "payment",
+        "severity": "danger",
+        "description": "description.payment_gateway",
+        "choices": [
+            "stripe"
+        ]
+    },
+    {
+        "label": "label.payment_test_mode",
+        "slug": "payment-test-mode",
+        "sensitive": false,
+        "restricted": false,
+        "value": "false",
+        "kind": "bool",
+        "group": "payment",
+        "severity": "warning",
+        "description": "description.payment_test_mode"
+    },
+    {
+        "label": "label.stripe_secret",
+        "slug": "stripe-secret",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": "danger",
+        "description": "description.stripe_secret"
+    },
+    {
+        "label": "label.stripe_secret_test",
+        "slug": "stripe-secret-test",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.stripe_secret_test"
+    },
+    {
+        "label": "label.stripe_webhook_secret",
+        "slug": "stripe-webhook-secret",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": "danger",
+        "description": "description.stripe_webhook_secret"
+    },
+    {
+        "label": "label.stripe_webhook_secret_test",
+        "slug": "stripe-webhook-secret-test",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.stripe_webhook_secret_test"
+    },
+    {
+        "label": "label.shop_name",
+        "slug": "shop-name",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "shop",
+        "severity": "warning",
+        "description": "description.shop_name"
+    },
+    {
+        "label": "label.url_terms_of_sales",
+        "slug": "url-terms-of-sales",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "legal",
+        "severity": "warning",
+        "description": "description.url_terms_of_sales"
+    },
+    {
+        "label": "label.shop_email_from",
+        "slug": "shop-email-from",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": "danger",
+        "description": "description.shop_email_from"
+    },
+    {
+        "label": "label.shop_email_from_name",
+        "slug": "shop-email-from-name",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": null,
+        "description": "description.shop_email_from_name"
+    },
+    {
+        "label": "label.shop_email_reply_to",
+        "slug": "shop-email-reply-to",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": null,
+        "description": "description.shop_email_reply_to"
+    },
+    {
+        "label": "label.shop_email_reply_to_name",
+        "slug": "shop-email-reply-to-name",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": null,
+        "description": "description.shop_email_reply_to_name"
+    },
+    {
+        "label": "label.shop_email_bcc",
+        "slug": "shop-email-bcc",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": null,
+        "description": "description.shop_email_bcc"
+    },
+    {
+        "label": "label.shop_email_bcc_name",
+        "slug": "shop-email-bcc-name",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "email",
+        "severity": null,
+        "description": "description.shop_email_bcc_name"
+    },
+    {
+        "label": "label.shop_currency",
+        "slug": "shop-currency",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "shop",
+        "severity": "danger",
+        "description": "description.shop_currency"
+    },
+    {
+        "label": "label.shop_shipping",
+        "slug": "shop-shipping",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "int",
+        "group": "shop",
+        "severity": "warning",
+        "description": "description.shop_shipping"
+    },
+    {
+        "label": "label.shop_shipping_free",
+        "slug": "shop-shipping-free",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "int",
+        "group": "shop",
+        "severity": null,
+        "description": "description.shop_shipping_free"
+    }
+]

@@ -1,0 +1,38 @@
+{# <twig:c975LPayment:Basket:Items basket="{{ basket }}" [kind="simple|complex"]" readonly="true"/> #}
+{% trans_default_domain 'payment' %}
+{% if basket.quantity > 0 %}
+    {# Items (Product and Crowdfunding) #}
+    {% for type, items in basket.items %}
+        <table>
+            {% for item in items %}
+                <twig:c975LPayment:Basket:Item kind="{{ kind }}" item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" totalVat="{{ item.totalVat }}" type="{{ type }}" readonly="{{ readonly }}"/>
+            {% endfor %}
+        </table>
+    {% endfor %}
+    <table>
+        {# Shipping #}
+        <tr class="shipping">
+            <td>
+                {{ 'label.shipping'|trans }}
+            </td>
+            <td>
+                <span data-basket-target="shipping">{{ basket.shipping > 0 ? (basket.shipping / 100)|format_currency(basket.currency) : 'label.offered'|trans }}</span>
+            </td>
+        </tr>
+        {# Total #}
+        <tfoot>
+            <tr>
+                <th><strong>{{ 'label.total'|trans }}</strong></th>
+                <th class="big">
+                    <strong>
+                        <span data-basket-target="total">{{ ((basket.total + basket.shipping) / 100)|format_currency(basket.currency) }}</span>
+                        <br>
+                        <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span data-basket-target="quantity" class="lead">{{ basket.quantity }}</span>
+                    </strong>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+{% else %}
+    <p class="text text-center lead">{{ 'label.basket_empty'|trans }}</p>
+{% endif %}

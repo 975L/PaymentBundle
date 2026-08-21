@@ -1,0 +1,32 @@
+[
+    {
+        "date": "2026-08-21",
+        "description": [
+            {
+                "en": "An order now reaches you even when the customer closes the tab before coming back to the site. The payment provider tells your shop directly, and the customer's own return is checked with the provider rather than taken at face value: either one is enough to confirm the order, send its email and take the items out of stock",
+                "fr": "Une commande vous parvient désormais même si le client ferme l'onglet avant de revenir sur le site. Le prestataire de paiement prévient votre boutique directement, et le retour du client est vérifié auprès du prestataire plutôt que pris pour argent comptant : l'un ou l'autre suffit à confirmer la commande, envoyer son email et sortir les articles du stock",
+                "es": "Un pedido le llega ahora aunque el cliente cierre la pestaña antes de volver al sitio. El proveedor de pago avisa a su tienda directamente, y el regreso del propio cliente se verifica con el proveedor en lugar de darlo por bueno: cualquiera de los dos basta para confirmar el pedido, enviar su correo y descontar los artículos del stock"
+            },
+            {
+                "en": "A payment that settles later — SEPA direct debit, bank transfer — no longer ships before the money has arrived. The order waits for the funds and is confirmed when they land, instead of going out against a payment that may never complete",
+                "fr": "Un paiement à encaissement différé — prélèvement SEPA, virement — n'expédie plus avant l'arrivée de l'argent. La commande attend les fonds et se confirme à leur réception, au lieu de partir sur un paiement qui pourrait ne jamais aboutir",
+                "es": "Un pago de liquidación diferida — domiciliación SEPA, transferencia — ya no se envía antes de que llegue el dinero. El pedido espera los fondos y se confirma cuando llegan, en vez de salir contra un pago que podría no completarse nunca"
+            },
+            {
+                "en": "A customer who changes their basket after starting to pay no longer risks being charged for the old one: the payment left open at the provider is called off, and the amount charged is checked against what the basket actually holds before anything is delivered",
+                "fr": "Un client qui modifie son panier après avoir commencé à payer ne risque plus d'être débité de l'ancien : le paiement resté ouvert chez le prestataire est annulé, et le montant débité est comparé à ce que le panier contient réellement avant toute livraison",
+                "es": "Un cliente que modifica su cesta después de empezar a pagar ya no corre el riesgo de que le cobren la anterior: el pago que quedó abierto en el proveedor se anula, y el importe cobrado se compara con lo que la cesta contiene realmente antes de entregar nada"
+            },
+            {
+                "en": "Your customers now have their own space: signed in, they read their past orders at /account/orders — each one with its tracking, its lines, and the files they bought, downloadable again as often as they need",
+                "fr": "Vos clients disposent désormais de leur propre espace : connectés, ils retrouvent leurs commandes passées sur /account/orders — chacune avec son suivi, ses lignes, et les fichiers achetés, téléchargeables à nouveau autant de fois qu'ils le souhaitent",
+                "es": "Sus clientes disponen ahora de su propio espacio: conectados, encuentran sus pedidos anteriores en /account/orders — cada uno con su seguimiento, sus líneas y los archivos comprados, descargables de nuevo tantas veces como necesiten"
+            },
+            {
+                "en": "The dashboard now says where your shop stands: how many orders are waiting to be shipped and since when, which payments were started and never confirmed, which provider is active and whether it is in test mode. The health check also tells a working payment key from one that has been revoked, before a customer runs into it",
+                "fr": "Le tableau de bord dit désormais où en est votre boutique : combien de commandes attendent d'être expédiées et depuis quand, quels paiements ont été lancés sans jamais être confirmés, quel prestataire est actif et s'il est en mode test. Le contrôle de santé distingue aussi une clé de paiement qui fonctionne d'une clé révoquée, avant qu'un client ne tombe dessus",
+                "es": "El tablero indica ahora en qué punto está su tienda: cuántos pedidos esperan envío y desde cuándo, qué pagos se iniciaron sin confirmarse nunca, qué proveedor está activo y si está en modo de prueba. La comprobación de estado también distingue una clave de pago que funciona de una revocada, antes de que un cliente se tope con ella"
+            }
+        ]
+    }
+]

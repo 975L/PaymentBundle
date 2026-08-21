@@ -1,0 +1,28 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Defines specific variables #}
+{% set title = 'label.order'|trans ~ ' ' ~ basket.number %}
+{% set summarySocialNetwork = title %}
+
+{% block content %}
+    <h1>{{ 'label.order'|trans }} {{ basket.number }}</h1>
+    <p><a href="{{ path('customer_orders') }}">{{ 'label.back_to_orders'|trans }}</a></p>
+
+    <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
+    <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/>
+    <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+    <twig:c975LPayment:Basket:MessageUser message="{{ basket.message }}"/>
+
+    {# The section is left out entirely when no bundle sells files, rather than drawn empty #}
+    {% if downloads is not empty %}
+        <h2>{{ 'label.my_downloads'|trans }}</h2>
+        <p>{{ 'text.downloads_stay_available'|trans }}</p>
+        {% for download in downloads %}
+            <p>
+                <a href="{{ download.url }}">{{ download.title }}</a>
+                {% if download.size %}({{ (download.size / (1024 * 1024))|number_format(2) }} MB){% endif %}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,4 @@
+{# <twig:c975LPayment:Basket:ValidateButton quantity="{{ basket.quantity }}"/> #}
+{% if quantity > 0 %}
+    <twig:c975LUi:Button:Button label="{{ 'label.validate_basket'|trans({}, 'payment') }}" url="{{ path('basket_validate') }}#coordinates"/>
+{% endif %}

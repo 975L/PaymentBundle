@@ -1,0 +1,37 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Defines specific variables #}
+{% set title = 'label.my_orders'|trans %}
+{% set summarySocialNetwork = 'label.my_orders'|trans %}
+
+{% block content %}
+    <h1>{{ 'label.my_orders'|trans }}</h1>
+
+    {% if baskets is empty %}
+        <p class="text text-center lead">{{ 'text.no_order_yet'|trans }}</p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'label.order_number'|trans }}</th>
+                        <th scope="col">{{ 'label.date'|trans }}</th>
+                        <th scope="col">{{ 'label.total'|trans }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for basket in baskets %}
+                        <tr>
+                            <td>{{ basket.number }}</td>
+                            <td>{{ basket.creation|date('d/m/Y') }}</td>
+                            <td>{{ (basket.total / 100)|format_currency(basket.currency) }}</td>
+                            <td><a href="{{ path('customer_order', {'number': basket.number}) }}">{{ 'label.view_order'|trans }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{# <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/> #}
+{% trans_default_domain 'payment' %}
+{% if (basket.contentflags b-and constant('c975L\\PaymentBundle\\Entity\\Basket::FLAG_NEEDS_SHIPPING')) > 0 %}
+    <h2 class="text-center">{{ 'label.delivery'|trans }}</h2>
+    <div>
+        {% if basket.status == "paid" %}
+            <p class="text text-center">{{ 'label.basket_delivery'|trans }}</p>
+        {% elseif basket.status == "shipped" %}
+            <p class="text text-center">{{ 'label.basket_delivered'|trans }}</p>
+        {% endif %}
+        <p class="text text-center">{{ basket.name }}</p>
+        <p class="text text-center">{{ basket.address }}</p>
+        <p class="text text-center">{{ basket.zip }} {{ basket.city }}</p>
+        <p class="text text-center">{{ basket.country }}</p>
+    </div>
+{% endif %}

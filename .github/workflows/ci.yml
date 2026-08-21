@@ -1,0 +1,80 @@
+name: CI
+
+# main only, as the whole Symfony ecosystem does: dev carries the same commit, so watching both branches meant two twin jobs downloading the same dependencies from the same runner IP pool
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+# A run the next push has superseded is cancelled rather than left to finish
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+# Without this block, the workflow's GITHUB_TOKEN inherits the repository's default permissions, which are write. Only the checkout needs it, and only to read: the coverage upload goes through the Codacy secret, not through the GitHub token
+permissions:
+    contents: read
+
+jobs:
+    quality:
+        runs-on: ubuntu-latest
+
+        # At job level rather than step level: a step's `env` context does not hold its own `env:` block
+        env:
+            CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+        steps:
+            - uses: actions/checkout@v5
+
+            # pcov measures the coverage, which the development machine does not have; the quality tools are installed here rather than in require-dev, so as not to weigh the bundle down with 17 transitive packages
+            - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+              with:
+                  php-version: '8.4'
+                  coverage: pcov
+                  tools: phpcs, phpstan, php-cs-fixer, rector
+
+            # Composer decides where it keeps the downloaded archives; asking it beats hard-coding a path that depends on the runner image
+            - name: Répertoire de cache de Composer
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            # The archives are indexed on their own content, not on a lock file, so caching them costs nothing to the practice of not versioning composer.lock. Without it every package was downloaded again on every run, and codeload.github.com throttles per IP
+            - name: Cache des dépendances
+              uses: actions/cache@v6
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: composer-${{ runner.os }}-php84-${{ hashFiles('composer.json') }}
+                  restore-keys: composer-${{ runner.os }}-php84-
+
+            # update rather than install: composer.lock is not versioned
+            - name: Dépendances
+              run: composer update --no-interaction --no-progress
+
+            # The steps below call composer.json's scripts rather than the commands themselves: the list of checks lives in one place, replayed identically by `composer qa` and bin/ci.sh locally. They stay separate so the interface shows which one failed
+            # First, being the cheapest check and the one bearing on the dependencies the previous step has just resolved
+            - name: Avis de sécurité des dépendances
+              run: composer audit-deps
+
+            - name: PSR-12
+              run: composer cs
+
+            - name: Standard Symfony
+              run: composer fixer
+
+            - name: Analyse statique
+              run: composer stan
+
+            # Reports rather than rewrites: what it finds is read here and applied by hand, never committed by the CI
+            - name: Modernisation
+              run: composer rector
+
+            - name: Tests
+              run: composer test -- --coverage-clover clover.xml
+
+            # Without the secret, the upload is skipped rather than failing the CI
+            - name: Couverture vers Codacy
+              if: env.CODACY_PROJECT_TOKEN != ''
+              uses: codacy/codacy-coverage-reporter-action@89d6c85cfafaec52c72b6c5e8b2878d33104c699 # v1.3.0
+              with:
+                  project-token: ${{ env.CODACY_PROJECT_TOKEN }}
+                  coverage-reports: clover.xml

@@ -1,0 +1,7 @@
+{% if message != "" and message != "null" %}
+    <p class="text-center">
+        <strong>{{ 'label.message_user'|trans({}, 'payment') }}</strong>
+        <br>
+        {{ message }}
+    </p>
+{% endif %}

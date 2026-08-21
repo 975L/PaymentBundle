@@ -1,7 +1,8 @@
 <?php
+
 /*
- * (c) 2018: 975L <contact@975l.com>
- * (c) 2018: Laurent Marquet <laurent.marquet@laposte.net>
+ * (c) 2026: 975L <contact@975l.com>
+ * (c) 2026: Laurent Marquet <laurent.marquet@laposte.net>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -9,19 +10,15 @@
 
 namespace c975L\PaymentBundle\Form;
 
-use c975L\PaymentBundle\Entity\Payment;
-use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormInterface;
 
-/**
- * Interface to be called for DI for PaymentFormFactoryInterface related services
- * @author Laurent Marquet <laurent.marquet@laposte.net>
- * @copyright 2018 975L <contact@975l.com>
- */
 interface PaymentFormFactoryInterface
 {
     /**
-     * Returns the defined form
-     * @return Form
+     * Builds one of the bundle's own forms by name, bound to the given entity.
+     *
+     * @param string $name   the form's short name (e.g. "basket")
+     * @param mixed  $object the entity the form is bound to
      */
-    public function create(string $name, Payment $payment);
+    public function create(string $name, $object): FormInterface;
 }

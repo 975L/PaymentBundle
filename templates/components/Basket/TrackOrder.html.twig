@@ -1,0 +1,48 @@
+{# <twig:c975LPayment:Basket:PaidInfos/> #}
+{% trans_default_domain 'payment' %}
+
+<h2>{{ 'label.track_order'|trans }}</h2>
+<p class="text text-center lead">{{ 'label.track_order_information'|trans }}</p>
+<div>
+    <ol class="circle-numbers">
+        <li>{{ 'text.order_registered'|trans }} {{ basket.creation|date('d/m/Y - H:i', app.session.get('user_timezone', 'Europe/Paris')) }}</li>
+        <li>{{ 'label.confirmation_email_sent'|trans }}</li>
+    {# ITEMS #}
+        {# Digital items information #}
+        {% if basket.contentflags b-and (constant('c975L\\PaymentBundle\\Entity\\Basket::CONTENT_FLAG_DIGITAL')) > 0 %}
+            <li>{{ 'label.basket_download'|trans }}</li>
+            {# Not downloaded #}
+            {% if basket.downloaded is null %}
+                <li class="disabled text-muted">{{ 'text.items_not_downloaded'|trans }}</li>
+            {# Downloaded #}
+            {% elseif basket.downloaded.timestamp > 0 %}
+                <li>{{ 'text.items_downloaded'|trans }} {{ basket.downloaded|date('d/m/Y - H:i', app.session.get('user_timezone', 'Europe/Paris')) }}</li>
+            {% endif %}
+        {% endif %}
+        {# Shipping information #}
+        {% if (basket.contentflags b-and constant('c975L\\PaymentBundle\\Entity\\Basket::CONTENT_FLAG_PHYSICAL')) > 0 %}
+            {# Not shipped #}
+            {% if basket.itemsShipped is null %}
+                <li class="disabled text-muted">{{ 'text.items_not_shipped'|trans }}</li>
+            {# Shipped #}
+            {% elseif basket.itemsShipped.timestamp > 0 %}
+                <li>{{ 'text.items_shipped'|trans }} {{ basket.itemsShipped|date('d/m/Y') }}</li>
+            {% endif %}
+        {% endif %}
+    {# COUNTERPARTS #}
+        {# Crowdfunding #}
+        {% if (basket.contentflags b-and (constant('c975L\\PaymentBundle\\Entity\\Basket::CONTENT_FLAG_CF_SHIPPING') b-or constant('c975L\\PaymentBundle\\Entity\\Basket::CONTENT_FLAG_CF_DIGITAL'))) > 0 %}
+            <li>{{ 'label.crowdfunding_information'|trans }}</li>
+        {% endif %}
+        {# Shipping information #}
+        {% if (basket.contentflags b-and constant('c975L\\PaymentBundle\\Entity\\Basket::CONTENT_FLAG_CF_SHIPPING')) > 0 %}
+            {# Not shipped #}
+            {% if basket.counterpartsShipped is null %}
+                <li class="disabled text-muted">{{ 'text.counterparts_not_shipped'|trans }}</li>
+            {# Shipped #}
+            {% elseif basket.counterpartsShipped.timestamp > 0 %}
+                <li>{{ 'text.counterparts_shipped'|trans }} {{ basket.counterpartsShipped|date('d/m/Y') }}</li>
+            {% endif %}
+        {% endif %}
+    </ol>
+</div>

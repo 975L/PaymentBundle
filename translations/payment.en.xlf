@@ -2,150 +2,493 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="en" datatype="plaintext" original="payment.en.xlf">
         <body>
-            <trans-unit id="1">
-                <source>label.no_payment</source>
-                <target>No payment</target>
+            <trans-unit id="e1kS3nW">
+                <source>description.baskets</source>
+                <target>The baskets visitors created, validated or not, with their amount, content and order status.</target>
             </trans-unit>
-            <trans-unit id="2">
-                <source>text.no_payment</source>
-                <target>There is currently no payment</target>
+            <trans-unit id="wpVNuWZ">
+                <source>description.guided_project_payment_test_mode</source>
+                <target>Walk the whole checkout tunnel without charging a real customer</target>
             </trans-unit>
-            <trans-unit id="3">
-                <source>label.payment</source>
-                <target>Payment</target>
+            <trans-unit id="20v9CiO">
+                <source>description.guided_project_payment_transaction_review</source>
+                <target>Reconcile a payment recorded here against its real entry at Stripe or another provider</target>
             </trans-unit>
-            <trans-unit id="4">
-                <source>label.description</source>
-                <target>Description</target>
+            <trans-unit id="LQKFQtI">
+                <source>description.guided_step_payment_test_mode_check</source>
+                <target>The basket shows its test-payment banner; run a full payment to check the order does turn into paid.</target>
             </trans-unit>
-            <trans-unit id="5">
-                <source>label.payment_by_card</source>
-                <target>Payment by card</target>
+            <trans-unit id="5fp.gYP">
+                <source>description.guided_step_payment_test_mode_disable</source>
+                <target>The same shortcut, its label now changed, switches the shop back to the real keys.</target>
             </trans-unit>
-            <trans-unit id="6">
-                <source>text.not_store_banking</source>
-                <target>We do NOT store data Banking</target>
+            <trans-unit id="D03l6hW">
+                <source>description.guided_step_payment_test_mode_done</source>
+                <target>The test payment created stays visible among the payments, told apart by its provider and the absence of a real invoice.</target>
             </trans-unit>
-            <trans-unit id="7">
-                <source>text.secured_page</source>
-                <target>This page uses a secure SSL connection. I can confirm this by checking that the URL is https, and that a padlock is present in my Address bar.</target>
+            <trans-unit id="b.OhtKa">
+                <source>description.guided_step_payment_test_mode_enable</source>
+                <target>The shop switches to the active provider's test keys; nobody is charged while it stays on.</target>
             </trans-unit>
-            <trans-unit id="8">
-                <source>label.payment_system</source>
-                <target>Payment system (PCI/DSS 1)</target>
+            <trans-unit id="VGy3T5j">
+                <source>description.guided_step_payment_test_mode_open</source>
+                <target>The test-payments shortcut sits there, next to the maintenance one.</target>
             </trans-unit>
-            <trans-unit id="9">
-                <source>label.payment_done</source>
-                <target>Payment done (%amount%)</target>
+            <trans-unit id="phQo4Nv">
+                <source>description.guided_step_payment_transaction_review_basket</source>
+                <target>The Basket column leads back to the baskets screen, carrying the address, the content and the order's status.</target>
             </trans-unit>
-            <trans-unit id="10">
-                <source>text.error_stripe</source>
-                <target>There was an error with a Stripe payment! The money has NOT been withdrawn from the account.</target>
+            <trans-unit id="jAHoQn_">
+                <source>description.guided_step_payment_transaction_review_detail</source>
+                <target>The originating basket, the currency and the transaction id are gathered there.</target>
             </trans-unit>
-            <trans-unit id="11">
-                <source>text.product_no_delivered</source>
-                <target>ERROR! The payment has been done but the product/service was not delivered! We have been informed and will contact you as soon as possible. Keep track of this payment!</target>
+            <trans-unit id="dCEEEkE">
+                <source>description.guided_step_payment_transaction_review_open</source>
+                <target>Every payment is listed there with its provider, amount and status.</target>
             </trans-unit>
-            <trans-unit id="12">
-                <source>label.code</source>
-                <target>Code</target>
+            <trans-unit id="BkNaLjq">
+                <source>description.guided_step_payment_transaction_review_provider</source>
+                <target>The invoice icon opens the transaction on the provider's own dashboard, once an id has been recorded.</target>
             </trans-unit>
-            <trans-unit id="13">
-                <source>label.message</source>
-                <target>Message</target>
+            <trans-unit id="bedYlU5">
+                <source>description.payment_gateway_unavailable</source>
+                <target>The "Payment system" setting is empty or names a provider no bundle registers: no basket can be paid.</target>
             </trans-unit>
-            <trans-unit id="14">
-                <source>text.error_validation</source>
-                <target>There was an error after a payment! Money HAS BEEN been debited from the account but the product/service has not been delivered!</target>
+            <trans-unit id="YiSizEr">
+                <source>description.payment_keys_missing</source>
+                <target>The live %gateway% keys are not filled in, or cannot be read: validating a basket fails.</target>
             </trans-unit>
-            <trans-unit id="15">
-                <source>label.order_id</source>
-                <target>Transaction identifier</target>
+            <trans-unit id="w24YblQ">
+                <source>description.payment_keys_missing_test</source>
+                <target>Test payments are enabled and the %gateway% test keys are not filled in, or cannot be read: validating a basket fails.</target>
             </trans-unit>
-            <trans-unit id="16">
-                <source>label.date</source>
-                <target>Date and Time</target>
+            <trans-unit id="cFI9LaV">
+                <source>description.payments</source>
+                <target>The transactions attempted for each basket, with their provider, status and amount.</target>
             </trans-unit>
-            <trans-unit id="17">
+            <trans-unit id="tKqVN0W">
+                <source>flash.payment_test_mode_disabled</source>
+                <target>Test payments are disabled: the shop charges for real again.</target>
+            </trans-unit>
+            <trans-unit id="j7S84W9">
+                <source>flash.payment_test_mode_enabled</source>
+                <target>Test payments are enabled: the test keys are used and nobody is charged.</target>
+            </trans-unit>
+            <trans-unit id="g9gMGrm">
+                <source>flash.payment_unavailable</source>
+                <target>Payment is unavailable at the moment, your basket is kept. Please try again later or contact us.</target>
+            </trans-unit>
+            <trans-unit id="4jca4DY">
+                <source>label.added</source>
+                <target>added!</target>
+            </trans-unit>
+            <trans-unit id="CEVgeJ7">
+                <source>label.address</source>
+                <target>Address</target>
+            </trans-unit>
+            <trans-unit id="tz_0QiL">
                 <source>label.amount</source>
                 <target>Amount</target>
             </trans-unit>
-            <trans-unit id="18">
-                <source>text.explanation</source>
-                <target><![CDATA[The following payment has been well executed on <strong>%site%</strong>.]]></target>
+            <trans-unit id="ILp1c_1">
+                <source>label.back_to_orders</source>
+                <target>Back to my orders</target>
             </trans-unit>
-            <trans-unit id="19">
-                <source>text.error_payment</source>
-                <target>The following error has occured during the process. The money has NOT been withdrawn from the account. Please correct and re-submit or contact us.</target>
+            <trans-unit id="56tqkOW">
+                <source>label.basket</source>
+                <target>Basket</target>
             </trans-unit>
-            <trans-unit id="20">
-                <source>text.error_payment_generic</source>
-                <target>An error has occured during the process. The money has NOT been withdrawn from the account.</target>
+            <trans-unit id="sYCgnMW">
+                <source>label.basket_counterparts_reminder</source>
+                <target>Reminder of the ordered counterparts:</target>
             </trans-unit>
-            <trans-unit id="21">
-                <source>label.stripe_fee</source>
-                <target>Estimated Stripe fee</target>
+            <trans-unit id="0PeYSNW">
+                <source>label.basket_delivered</source>
+                <target>Your order has been shipped to the address:</target>
             </trans-unit>
-            <trans-unit id="22">
-                <source>label.income</source>
-                <target>Estimated net income</target>
+            <trans-unit id="mkcfkL6">
+                <source>label.basket_delivery</source>
+                <target>Your order will be shipped to the address:</target>
             </trans-unit>
-            <trans-unit id="23">
-                <source>text.explanation_not_executed</source>
-                <target>The following payment has been initiated but not paid on our website.</target>
+            <trans-unit id="kWNz7g9">
+                <source>label.basket_download</source>
+                <target>You have purchased digital products, an email with instructions to download has been sent.</target>
             </trans-unit>
-            <trans-unit id="24">
-                <source>label.process_payment</source>
-                <target>Process to payment</target>
+            <trans-unit id="HVTPZS0">
+                <source>label.basket_empty</source>
+                <target>Your basket is empty</target>
             </trans-unit>
-            <trans-unit id="25">
-                <source>label.action</source>
-                <target>Action</target>
+            <trans-unit id="KqxCJzy">
+                <source>label.basket_products_reminder</source>
+                <target>Recall of ordered products:</target>
             </trans-unit>
-            <trans-unit id="26">
-                <source>text.list_payments</source>
-                <target>List of payments</target>
+            <trans-unit id="XC.lbLS">
+                <source>label.basket_thanks</source>
+                <target>Thank you for your order and your trust!</target>
             </trans-unit>
-            <trans-unit id="27">
+            <trans-unit id="WpVvGrq">
+                <source>label.baskets</source>
+                <target>Baskets</target>
+            </trans-unit>
+            <trans-unit id="MXpeMi7">
+                <source>label.city</source>
+                <target>City</target>
+            </trans-unit>
+            <trans-unit id="soKgtX1">
+                <source>label.confirm_order</source>
+                <target>Confirmation of your order</target>
+            </trans-unit>
+            <trans-unit id="LtIzslW">
+                <source>label.confirmation_email_sent</source>
+                <target>A confirmation email has been sent to you.</target>
+            </trans-unit>
+            <trans-unit id="f7w7ZE0">
+                <source>label.content</source>
+                <target>Content</target>
+            </trans-unit>
+            <trans-unit id="O1_33s2">
+                <source>label.continue_shopping</source>
+                <target>Continue shopping</target>
+            </trans-unit>
+            <trans-unit id="fEZoz_Y">
+                <source>label.contributor_help</source>
+                <target>Please leave a message of support if you wish; it will appear on the website. Your signature will be used if published.</target>
+            </trans-unit>
+            <trans-unit id="FpV5TI4">
+                <source>label.contributor_message</source>
+                <target>Contributor's message</target>
+            </trans-unit>
+            <trans-unit id="UID7nSb">
+                <source>label.counterparts_shipped</source>
+                <target>Shipping of ordered counterparts</target>
+            </trans-unit>
+            <trans-unit id="dVpp9GV">
+                <source>label.country</source>
+                <target>Country</target>
+            </trans-unit>
+            <trans-unit id="emPIlPf">
+                <source>label.creation</source>
+                <target>Creation</target>
+            </trans-unit>
+            <trans-unit id="5rtvyyn">
+                <source>label.crowdfunding_information</source>
+                <target>You have contributed to a crowdfunding campaign, an email containing the information has been sent to you.</target>
+            </trans-unit>
+            <trans-unit id="AdZ6CDL">
+                <source>label.currency</source>
+                <target>Currency</target>
+            </trans-unit>
+            <trans-unit id="QkYrM9J">
+                <source>label.date</source>
+                <target>Date</target>
+            </trans-unit>
+            <trans-unit id="VAiO2A1">
+                <source>label.days</source>
+                <target>days</target>
+            </trans-unit>
+            <trans-unit id="uoyeLTR">
+                <source>label.delivery</source>
+                <target>Delivery</target>
+            </trans-unit>
+            <trans-unit id="zmXwlJ5">
+                <source>label.digital_items</source>
+                <target>Digital items</target>
+            </trans-unit>
+            <trans-unit id="tLGn0en">
+                <source>label.download</source>
+                <target>Download</target>
+            </trans-unit>
+            <trans-unit id="_Z0psnt">
+                <source>label.download_information</source>
+                <target>Download information</target>
+            </trans-unit>
+            <trans-unit id="0sJ4CoA">
+                <source>label.download_instructions</source>
+                <target>Use the links below to download your files. These links expire in:</target>
+            </trans-unit>
+            <trans-unit id="vg1gH_I">
+                <source>label.downloads_available</source>
+                <target>Your digital purchases are available.</target>
+            </trans-unit>
+            <trans-unit id="ykW6lkh">
                 <source>label.email</source>
                 <target>Email</target>
             </trans-unit>
-            <trans-unit id="28">
-                <source>text.test_keys</source>
-                <target><![CDATA[!!! Warning, you are currently using the TEST keys, payment will not be debited !!!
-                        The payment data in test are as follows
-                        Card: 4242 4242 4242 4242
-                        Month/Year: any month/year in the future
-                        CVV: 3 random numbers
-                        ]]></target>
+            <trans-unit id="Vp2aRbL">
+                <source>label.empty_basket</source>
+                <target>Empty the basket</target>
             </trans-unit>
-            <trans-unit id="29">
-                <source>text.info_payment</source>
-                <target>By clicking on the following button you will proceed to the payment of the service described below.</target>
+            <trans-unit id="7YIlu03">
+                <source>label.expected_delivery</source>
+                <target>Expected delivery</target>
             </trans-unit>
-            <trans-unit id="30">
-                <source>text.test_payment</source>
-                <target>This payment is a test, it has not been debited.</target>
+            <trans-unit id="J2sBc_e">
+                <source>label.export</source>
+                <target>Export</target>
             </trans-unit>
-            <trans-unit id="31">
-                <source>text.wait_page_loading</source>
-                <target>After the validation, thank you to wait for the complete loading of the page.</target>
+            <trans-unit id="DCH0Xrv">
+                <source>label.follow_up</source>
+                <target>We will follow up on this very quickly.</target>
             </trans-unit>
-            <trans-unit id="32">
-                <source>label.make_payment</source>
-                <target>Make a payment</target>
+            <trans-unit id="LZ7Ha2O">
+                <source>label.free</source>
+                <target>Free</target>
             </trans-unit>
-            <trans-unit id="34">
-                <source>text.make_payment</source>
-                <target>Fill out the form below to access the payment</target>
+            <trans-unit id="gQa2T9R">
+                <source>label.gateway</source>
+                <target>Payment provider</target>
             </trans-unit>
-            <trans-unit id="35">
-                <source>label.amount_excluding_vat</source>
-                <target>Amount excluding VAT</target>
+            <trans-unit id="j0f9aZ6">
+                <source>label.guided_project_payment_test_mode</source>
+                <target>Enable test payments</target>
             </trans-unit>
-            <trans-unit id="36">
-                <source>label.vat</source>
-                <target>VAT</target>
+            <trans-unit id="FZYAus7">
+                <source>label.guided_project_payment_transaction_review</source>
+                <target>Trace a transaction back to its provider</target>
+            </trans-unit>
+            <trans-unit id="CxOYCi2">
+                <source>label.guided_step_payment_test_mode_check</source>
+                <target>Check the customer side</target>
+            </trans-unit>
+            <trans-unit id="EihjDK5">
+                <source>label.guided_step_payment_test_mode_disable</source>
+                <target>Disable test mode</target>
+            </trans-unit>
+            <trans-unit id="8NbSp7o">
+                <source>label.guided_step_payment_test_mode_done</source>
+                <target>Real payments resume</target>
+            </trans-unit>
+            <trans-unit id="OMVnO0q">
+                <source>label.guided_step_payment_test_mode_enable</source>
+                <target>Enable test mode</target>
+            </trans-unit>
+            <trans-unit id="4HfWh43">
+                <source>label.guided_step_payment_test_mode_open</source>
+                <target>Open the dashboard</target>
+            </trans-unit>
+            <trans-unit id="7_lnp86">
+                <source>label.guided_step_payment_transaction_review_basket</source>
+                <target>Trace the full order</target>
+            </trans-unit>
+            <trans-unit id="Igcyc2l">
+                <source>label.guided_step_payment_transaction_review_detail</source>
+                <target>Open a payment's detail</target>
+            </trans-unit>
+            <trans-unit id="aIyR0Sb">
+                <source>label.guided_step_payment_transaction_review_open</source>
+                <target>Open the payments</target>
+            </trans-unit>
+            <trans-unit id="wCMXSgW">
+                <source>label.guided_step_payment_transaction_review_provider</source>
+                <target>Check the transaction at the provider</target>
+            </trans-unit>
+            <trans-unit id="pP.iGmX">
+                <source>label.info_basket</source>
+                <target>Every basket a customer validated, whether the payment went through or not.</target>
+            </trans-unit>
+            <trans-unit id="V9kI0CJ">
+                <source>label.info_payment</source>
+                <target>Every payment taken, with the transaction reference held by the provider.</target>
+            </trans-unit>
+            <trans-unit id="UuHdw7y">
+                <source>label.is_finished</source>
+                <target>Finished?</target>
+            </trans-unit>
+            <trans-unit id="6PGWM7c">
+                <source>label.items_shipped</source>
+                <target>Shipping of ordered items</target>
+            </trans-unit>
+            <trans-unit id="d9tKXhO">
+                <source>label.limited_quantity</source>
+                <target>Limited quantity</target>
+            </trans-unit>
+            <trans-unit id="Qogqhpo">
+                <source>label.message</source>
+                <target>Message</target>
+            </trans-unit>
+            <trans-unit id="rEc5p7e">
+                <source>label.message_user</source>
+                <target>User's message</target>
+            </trans-unit>
+            <trans-unit id="baXk6pr">
+                <source>label.modification</source>
+                <target>Modification</target>
+            </trans-unit>
+            <trans-unit id="pFQB72.">
+                <source>label.my_downloads</source>
+                <target>My downloads</target>
+            </trans-unit>
+            <trans-unit id="unxSlSL">
+                <source>label.my_orders</source>
+                <target>My orders</target>
+            </trans-unit>
+            <trans-unit id="aSiMEIt">
+                <source>label.name</source>
+                <target>Name</target>
+            </trans-unit>
+            <trans-unit id="JPMryxf">
+                <source>label.offered</source>
+                <target>Offered</target>
+            </trans-unit>
+            <trans-unit id="MJmeESi">
+                <source>label.order</source>
+                <target>Order</target>
+            </trans-unit>
+            <trans-unit id="csQwlhc">
+                <source>label.order_number</source>
+                <target>Order number</target>
+            </trans-unit>
+            <trans-unit id="ZF1Zu4q">
+                <source>label.ordered_items</source>
+                <target>Ordered items</target>
+            </trans-unit>
+            <trans-unit id="CtBIYWp">
+                <source>label.pay</source>
+                <target>Pay</target>
+            </trans-unit>
+            <trans-unit id="rqgdhN4">
+                <source>label.payment</source>
+                <target>Payment</target>
+            </trans-unit>
+            <trans-unit id="oBMb_V0">
+                <source>label.payment_confirming</source>
+                <target>Confirming your payment</target>
+            </trans-unit>
+            <trans-unit id="QqBUjYP">
+                <source>label.payment_confirming_info</source>
+                <target>Your payment is being checked with our provider. As soon as it is confirmed, your order is recorded and you receive a confirmation e-mail. Nothing else is asked of you.</target>
+            </trans-unit>
+            <trans-unit id="ma8Bmbh">
+                <source>label.payment_gateway_unavailable</source>
+                <target>No active payment system</target>
+            </trans-unit>
+            <trans-unit id="w..v0cE">
+                <source>label.payment_keys_missing</source>
+                <target>Payment keys missing</target>
+            </trans-unit>
+            <trans-unit id="VEkPA.t">
+                <source>label.payment_method</source>
+                <target>Method</target>
+            </trans-unit>
+            <trans-unit id="huCp9xV">
+                <source>label.payment_test_mode_disable</source>
+                <target>Disable test payments</target>
+            </trans-unit>
+            <trans-unit id="bBeQB6T">
+                <source>label.payment_test_mode_enable</source>
+                <target>Enable test payments</target>
+            </trans-unit>
+            <trans-unit id="qLtY6uL">
+                <source>label.payments</source>
+                <target>Payments</target>
+            </trans-unit>
+            <trans-unit id="SxGGYuv">
+                <source>label.quantity</source>
+                <target>Quantity</target>
+            </trans-unit>
+            <trans-unit id="5oDnRpD">
+                <source>label.removed</source>
+                <target>removed!</target>
+            </trans-unit>
+            <trans-unit id="j5BWOdj">
+                <source>label.secure_payments_stripe</source>
+                <target>Secure payments by Stripe</target>
+            </trans-unit>
+            <trans-unit id="UrYhtmD">
+                <source>label.shipping</source>
+                <target>Shipping costs</target>
+            </trans-unit>
+            <trans-unit id="VB8ZpHn">
+                <source>label.shop</source>
+                <target>Shop</target>
+            </trans-unit>
+            <trans-unit id="iRN1Pg4">
+                <source>label.signature</source>
+                <target>Signature</target>
+            </trans-unit>
+            <trans-unit id="8nXIScQ">
+                <source>label.status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="4gqsO4y">
+                <source>label.support_message</source>
+                <target>Message of support</target>
+            </trans-unit>
+            <trans-unit id="2nMDj1i">
+                <source>label.test_mode</source>
+                <target>Payments are in test mode, no real charge will be made.</target>
+            </trans-unit>
+            <trans-unit id="3B2nxZf">
+                <source>label.thanks_shopping</source>
+                <target>Thank you for your shopping!</target>
+            </trans-unit>
+            <trans-unit id="wPJiQJ5">
+                <source>label.total</source>
+                <target>Total</target>
+            </trans-unit>
+            <trans-unit id="Bsu6ghK">
+                <source>label.track_order</source>
+                <target>Track order</target>
+            </trans-unit>
+            <trans-unit id="NY6LtFI">
+                <source>label.track_order_information</source>
+                <target>Return to this page to track your order.</target>
+            </trans-unit>
+            <trans-unit id="hOpDGnW">
+                <source>label.transaction_id</source>
+                <target>Transaction</target>
+            </trans-unit>
+            <trans-unit id="M2GHic6">
+                <source>label.validate</source>
+                <target>Validate</target>
+            </trans-unit>
+            <trans-unit id="2h_NOJ_">
+                <source>label.validate_basket</source>
+                <target>Validate the basket</target>
+            </trans-unit>
+            <trans-unit id="KZSx1Gj">
+                <source>label.view_order</source>
+                <target>View</target>
+            </trans-unit>
+            <trans-unit id="8Inlz5r">
+                <source>label.zip</source>
+                <target>Zip code</target>
+            </trans-unit>
+            <trans-unit id="_vo3.81">
+                <source>text.counterparts_not_shipped</source>
+                <target>Counterparts have not been shipped yet.</target>
+            </trans-unit>
+            <trans-unit id="ImaAV0Y">
+                <source>text.counterparts_shipped</source>
+                <target>Counterparts were shipped on </target>
+            </trans-unit>
+            <trans-unit id="HTS7_1v">
+                <source>text.downloads_stay_available</source>
+                <target>These files stay available from this page, whatever the emailed link says.</target>
+            </trans-unit>
+            <trans-unit id="Ynv7N3b">
+                <source>text.items_downloaded</source>
+                <target>Files have been downloaded on </target>
+            </trans-unit>
+            <trans-unit id="_74iTp6">
+                <source>text.items_not_downloaded</source>
+                <target>The items have not been uploaded yet.</target>
+            </trans-unit>
+            <trans-unit id="j4u70Wh">
+                <source>text.items_not_shipped</source>
+                <target>The items have not been shipped yet.</target>
+            </trans-unit>
+            <trans-unit id="uN4m0QB">
+                <source>text.items_shipped</source>
+                <target>Items were shipped on </target>
+            </trans-unit>
+            <trans-unit id="V0KGz2a">
+                <source>text.no_order_yet</source>
+                <target>You have not placed any order yet.</target>
+            </trans-unit>
+            <trans-unit id="HbJiMe3">
+                <source>text.order_registered</source>
+                <target>Order registered on </target>
             </trans-unit>
         </body>
     </file>

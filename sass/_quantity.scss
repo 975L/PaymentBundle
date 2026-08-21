@@ -1,0 +1,51 @@
+/* QUANTITY */
+.quantity-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    max-width: 200px;
+}
+
+.quantity-controls button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+.quantity-controls div {
+    border: 3px solid var(--primary);
+    background-color: var(--primary);
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.quantity-controls div button {
+    /* border: none; */
+    border-radius: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.quantity-controls span {
+    color: white;
+}
+
+.quantity-controls button img {
+    width: 16px;
+    height: 16px;
+}
+
+.quantity {
+    margin: 0 6px;
+}

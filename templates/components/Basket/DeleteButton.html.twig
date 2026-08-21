@@ -1,0 +1,12 @@
+{# <twig:c975LPayment:Basket:DeleteButton item="{{ item }}" [type="disabled"]/> #}
+{% set type = type | default('disabled') %}
+<button
+    data-action="click->basket#deleteItem"
+    data-type="{{ type }}"
+    data-item-id="{{ item.item.id }}"
+    data-title="{{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
+    data-alert="warning"
+    data-text="{{ 'label.removed'|trans({}, 'payment') }}"
+    class="btn btn-{{ type }} btn-small btn-grey">
+    <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/trash-can.svg" width="16" height="16" class="disabled"/>
+</button>

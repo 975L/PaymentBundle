@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="site_config.fr.xlf">
+        <body>
+            <trans-unit id=".WVUEkd">
+                <source>description.payment_gateway</source>
+                <target>Prestataire avec lequel la boutique encaisse, ex. stripe</target>
+            </trans-unit>
+            <trans-unit id="i415WZO">
+                <source>description.payment_test_mode</source>
+                <target>Mettre à true pour encaisser avec les clés de test du prestataire : personne n'est débité et un bandeau prévient le client</target>
+            </trans-unit>
+            <trans-unit id="OkQCTnA">
+                <source>description.shop_currency</source>
+                <target>Code ISO à 3 lettres de la devise, ex. EUR</target>
+            </trans-unit>
+            <trans-unit id="XiiF70c">
+                <source>description.shop_email_bcc</source>
+                <target>Adresse email en copie cachée (BCC) de la boutique</target>
+            </trans-unit>
+            <trans-unit id="WDXIVjK">
+                <source>description.shop_email_bcc_name</source>
+                <target>Nom associé à l'adresse email en copie cachée (BCC)</target>
+            </trans-unit>
+            <trans-unit id="wf5xcq5">
+                <source>description.shop_email_from</source>
+                <target>Adresse email depuis laquelle les emails sont envoyés</target>
+            </trans-unit>
+            <trans-unit id="3EbsHJJ">
+                <source>description.shop_email_from_name</source>
+                <target>Nom associé à l'adresse email d'envoi</target>
+            </trans-unit>
+            <trans-unit id="S2UaTZl">
+                <source>description.shop_email_reply_to</source>
+                <target>Adresse email pour les réponses</target>
+            </trans-unit>
+            <trans-unit id="a7Ru.8w">
+                <source>description.shop_email_reply_to_name</source>
+                <target>Nom associé à l'adresse email de réponse</target>
+            </trans-unit>
+            <trans-unit id="On_lHpH">
+                <source>description.shop_name</source>
+                <target>Nom de la boutique, ex. Example Shop</target>
+            </trans-unit>
+            <trans-unit id="9K.7BM7">
+                <source>description.shop_shipping</source>
+                <target>Montant des frais de livraison en centimes pour la boutique</target>
+            </trans-unit>
+            <trans-unit id="I.C46rC">
+                <source>description.shop_shipping_free</source>
+                <target>Montant en centimes à partir duquel la livraison est offerte</target>
+            </trans-unit>
+            <trans-unit id=".Ukoz6J">
+                <source>description.stripe_secret</source>
+                <target>Votre clé secrète Stripe (test|live)</target>
+            </trans-unit>
+            <trans-unit id="lWcP6s0">
+                <source>description.stripe_secret_test</source>
+                <target>Clé secrète Stripe utilisée quand les paiements de test sont activés (sk_test_...)</target>
+            </trans-unit>
+            <trans-unit id="acHpLDg">
+                <source>description.stripe_webhook_secret</source>
+                <target>Votre clé secrète de webhook Stripe (test|live)</target>
+            </trans-unit>
+            <trans-unit id="feVi4UN">
+                <source>description.stripe_webhook_secret_test</source>
+                <target>Clé secrète du webhook Stripe utilisée quand les paiements de test sont activés (whsec_...)</target>
+            </trans-unit>
+            <trans-unit id="TLysCGR">
+                <source>description.url_terms_of_sales</source>
+                <target>URL des CGV, ex. https://example.com/terms-of-sales</target>
+            </trans-unit>
+            <trans-unit id="UfelsWV">
+                <source>description.url_terms_of_use</source>
+                <target>URL des CGU, ex. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="JAhMYFJ">
+                <source>label.payment_gateway</source>
+                <target>Prestataire de paiement</target>
+            </trans-unit>
+            <trans-unit id="KlPswTP">
+                <source>label.payment_test_mode</source>
+                <target>Paiements de test</target>
+            </trans-unit>
+            <trans-unit id="QXc9sdb">
+                <source>label.shop_currency</source>
+                <target>Devise de la boutique</target>
+            </trans-unit>
+            <trans-unit id="5DgmSGb">
+                <source>label.shop_email_bcc</source>
+                <target>Email de la boutique (copie cachée)</target>
+            </trans-unit>
+            <trans-unit id="De__v8.">
+                <source>label.shop_email_bcc_name</source>
+                <target>Nom de l'email de la boutique (copie cachée)</target>
+            </trans-unit>
+            <trans-unit id="SCodZrM">
+                <source>label.shop_email_from</source>
+                <target>Email de la boutique (expéditeur)</target>
+            </trans-unit>
+            <trans-unit id="b7cl0TF">
+                <source>label.shop_email_from_name</source>
+                <target>Nom de l'email de la boutique (expéditeur)</target>
+            </trans-unit>
+            <trans-unit id="TajW88g">
+                <source>label.shop_email_reply_to</source>
+                <target>Email de la boutique (réponse à)</target>
+            </trans-unit>
+            <trans-unit id="weeDbSy">
+                <source>label.shop_email_reply_to_name</source>
+                <target>Nom de l'email de la boutique (réponse à)</target>
+            </trans-unit>
+            <trans-unit id="0sQJX9Z">
+                <source>label.shop_name</source>
+                <target>Nom de la boutique</target>
+            </trans-unit>
+            <trans-unit id="k12fYP7">
+                <source>label.shop_shipping</source>
+                <target>Frais de livraison de la boutique</target>
+            </trans-unit>
+            <trans-unit id="Pe3xc4W">
+                <source>label.shop_shipping_free</source>
+                <target>Livraison gratuite de la boutique</target>
+            </trans-unit>
+            <trans-unit id="z65mQvI">
+                <source>label.stripe_secret</source>
+                <target>Clé secrète Stripe</target>
+            </trans-unit>
+            <trans-unit id="plG0EcM">
+                <source>label.stripe_secret_test</source>
+                <target>Clé secrète Stripe de test</target>
+            </trans-unit>
+            <trans-unit id="q8qywJw">
+                <source>label.stripe_webhook_secret</source>
+                <target>Clé secrète du webhook Stripe</target>
+            </trans-unit>
+            <trans-unit id="MVMRdk3">
+                <source>label.stripe_webhook_secret_test</source>
+                <target>Clé secrète du webhook Stripe de test</target>
+            </trans-unit>
+            <trans-unit id="qqPabjg">
+                <source>label.url_terms_of_sales</source>
+                <target>URL des conditions de vente</target>
+            </trans-unit>
+            <trans-unit id="jkiAkco">
+                <source>label.url_terms_of_use</source>
+                <target>URL des conditions d'utilisation</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

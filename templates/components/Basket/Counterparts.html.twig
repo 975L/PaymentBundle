@@ -1,0 +1,7 @@
+{# <twig:c975LPayment:Basket:Counterparts counterparts="{{ counterparts }}"/> #}
+{% trans_default_domain 'payment' %}
+<table>
+    {% for counterpart in counterparts %}
+        <twig:c975LPayment:Basket:Counterpart counterpart="{{ counterpart }}"/>
+    {% endfor %}
+</table>

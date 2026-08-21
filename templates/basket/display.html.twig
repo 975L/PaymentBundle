@@ -1,0 +1,49 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Defines specific variables #}
+{% set title = 'label.basket'|trans %}
+{% set summarySocialNetwork = 'label.basket'|trans %}
+
+{% block content %}
+    <twig:c975LPayment:Basket:TestMode/>
+    {% if null != basket %}
+        {% if "display" == action %}
+            <div data-controller="basket" id="basket-page">
+                <twig:c975LShop:Shop:Shipping/>
+                <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="false"/>
+                <twig:c975LPayment:Basket:Message/>
+                <twig:c975LPayment:Basket:Buttons basket="{{ basket }}"/>
+                <twig:c975LShop:Product:Recommendations recommendations="{{ recommendations }}"/>
+            </div>
+        {% elseif "validate" == action %}
+            <div data-controller="basket" id="basket-page">
+                <twig:c975LShop:Shop:Shipping/>
+                <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+                <twig:c975LPayment:Basket:Validation basket="{{ basket }}" form="{{ form }}"/>
+            </div>
+        {% elseif "paid" == action %}
+            {% set confirmed = basket.status in ['paid', 'shipped'] %}
+            <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ confirmed }}"/>
+            {% if confirmed %}
+                <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
+                <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/>
+            {% endif %}
+            <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+            <twig:c975LPayment:Basket:MessageUser message="{{ basket.message }}"/>
+            <twig:c975LShop:Shop:ViewButton/>
+        {% endif %}
+    {# Empty basket #}
+    {% else %}
+        <p class="text text-center lead">{{ 'label.basket_empty'|trans({}, 'payment') }}</p>
+        <twig:c975LShop:Shop:ViewButton/>
+    {% endif %}
+    {# Empty basket for javascript use #}
+    <template id="empty-basket-template">
+        <p class="text text-center lead">{{ 'label.basket_empty'|trans({}, 'payment') }}</p>
+        <twig:c975LShop:Shop:ViewButton/>
+    </template>
+{% endblock %}
+
+{% block share %}
+{% endblock %}

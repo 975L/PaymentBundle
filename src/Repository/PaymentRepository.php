@@ -1,7 +1,8 @@
 <?php
+
 /*
- * (c) 2018: 975L <contact@975l.com>
- * (c) 2018: Laurent Marquet <laurent.marquet@laposte.net>
+ * (c) 2025: 975L <contact@975l.com>
+ * (c) 2025: Laurent Marquet <laurent.marquet@laposte.net>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -10,28 +11,16 @@
 namespace c975L\PaymentBundle\Repository;
 
 use c975L\PaymentBundle\Entity\Payment;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * Repository for Payment Entity
- * @author Laurent Marquet <laurent.marquet@laposte.net>
- * @copyright 2018 975L <contact@975l.com>
+ * @extends ServiceEntityRepository<Payment>
  */
-class PaymentRepository extends EntityRepository
+class PaymentRepository extends ServiceEntityRepository
 {
-    /**
-     * Finds Payment not finished with its orderId
-     * @return Payment|null
-     */
-    public function findOneByOrderIdNotFinished($orderId)
+    public function __construct(ManagerRegistry $registry)
     {
-        $qb = $this->createQueryBuilder('p');
-        $qb->select('p')
-            ->where('p.orderId = :orderId')
-            ->andWhere('p.finished is NULL')
-            ->setParameter('orderId', strtoupper($orderId))
-            ;
-
-        return $qb->getQuery()->getOneOrNullResult();
+        parent::__construct($registry, Payment::class);
     }
 }

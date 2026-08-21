@@ -1,0 +1,32 @@
+/* BASKET */
+button span {
+    font-family: var(--font-family-title);
+}
+
+th {
+    padding: 0 auto 0.5em auto;
+    font-size: 1em;
+}
+
+tr.shipping td {
+    padding: 10px;
+}
+
+td {
+    padding: 0 5px;
+    width: 50%;
+    max-width: 200px;
+}
+
+tfoot th {
+    border-bottom: none;
+}
+
+.form-section-title {
+    font-size: 1.3em;
+    font-family: var(--font-family-title);
+    color: var(--primary);
+    margin: 0 auto;
+    padding: 10px;
+    text-align: center;
+}

@@ -1,7 +1,8 @@
 <?php
+
 /*
- * (c) 2018: 975L <contact@975l.com>
- * (c) 2018: Laurent Marquet <laurent.marquet@laposte.net>
+ * (c) 2026: 975L <contact@975l.com>
+ * (c) 2026: Laurent Marquet <laurent.marquet@laposte.net>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -10,51 +11,36 @@
 namespace c975L\PaymentBundle\Form;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
-use c975L\PaymentBundle\Entity\Payment;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 
-/**
- * PaymentFormFactory class
- * @author Laurent Marquet <laurent.marquet@laposte.net>
- * @copyright 2018 975L <contact@975l.com>
- */
 class PaymentFormFactory implements PaymentFormFactoryInterface
 {
-    /**
-     * Stores ConfigServiceInterface
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
-     * Stores FormFactoryInterface
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
-
     public function __construct(
-        ConfigServiceInterface $configService,
-        FormFactoryInterface $formFactory
-    )
-    {
-        $this->configService = $configService;
-        $this->formFactory = $formFactory;
+        private readonly FormFactoryInterface $formFactory,
+        private readonly ConfigServiceInterface $configService,
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function create(string $name, Payment $payment)
+    public function create(string $name, $object): FormInterface
     {
-        switch ($name) {
-            case 'free_amount':
-                $config = array('gdpr' => $this->configService->getParameter('c975LPayment.gdpr'));
-                break;
-            default:
-                $config = array();
-                break;
-        }
+        $config = match ($name) {
+            'coordinates' => [
+                'touUrl' => new TranslatableMessage(
+                    'label.accept_tou',
+                    ['%touUrl%' => $this->configService->get('url-terms-of-use')],
+                    'site',
+                ),
+                'tosUrl' => new TranslatableMessage(
+                    'label.accept_tos',
+                    ['%tosUrl%' => $this->configService->get('url-terms-of-sales')],
+                    'site',
+                ),
+            ],
+            default => throw new \InvalidArgumentException(sprintf('Unknown form "%s"', $name)),
+        };
 
-        return $this->formFactory->create(PaymentType::class, $payment, array('config' => $config));
+        return $this->formFactory->create(CoordinatesType::class, $object, ['config' => $config]);
     }
 }

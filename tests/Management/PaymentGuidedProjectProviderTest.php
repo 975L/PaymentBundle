@@ -1,0 +1,216 @@
+<?php
+
+/*
+ * (c) 2026: 975L <contact@975l.com>
+ * (c) 2026: Laurent Marquet <laurent.marquet@laposte.net>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+namespace c975L\PaymentBundle\Tests\Management;
+
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Management\PaymentGuidedProjectProvider;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+class PaymentGuidedProjectProviderTest extends TestCase
+{
+    private function createAdminUrlGenerator(array &$controllers = []): AdminUrlGeneratorInterface
+    {
+        $generator = $this->createStub(AdminUrlGeneratorInterface::class);
+        $generator->method('unsetAll')->willReturnSelf();
+        $generator->method('setController')->willReturnCallback(function (string $controller) use ($generator, &$controllers) {
+            $controllers[] = $controller;
+
+            return $generator;
+        });
+        $generator->method('setAction')->willReturnSelf();
+        $generator->method('generateUrl')->willReturn('/management/payment');
+
+        return $generator;
+    }
+
+    private function createUrlGenerator(array &$routes = []): UrlGeneratorInterface
+    {
+        $generator = $this->createStub(UrlGeneratorInterface::class);
+        $generator->method('generate')->willReturnCallback(
+            static function (string $route) use (&$routes): string {
+                $routes[] = $route;
+
+                return '/management/' . $route;
+            }
+        );
+
+        return $generator;
+    }
+
+    private function createProvider(array &$controllers = [], array &$routes = []): PaymentGuidedProjectProvider
+    {
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $configService->method('get')->willReturn('ROLE_ADMIN');
+
+        return new PaymentGuidedProjectProvider(
+            $this->createAdminUrlGenerator($controllers),
+            $this->createUrlGenerator($routes),
+            $configService,
+        );
+    }
+
+    // Continues the sequence after ConfigBundle (10-40), SiteBundle (50-80), UiBundle (90-110), SocialBundle (120-137), GalleryBundle (140-160) and BookBundle (170-190)
+    public function testGetGuidedProjectsContinuesTheOrderSequence(): void
+    {
+        $projects = $this->createProvider()->getGuidedProjects();
+
+        $this->assertSame(['payment-test-mode', 'payment-transaction-review'], array_column($projects, 'slug'));
+        $this->assertSame([200, 210], array_column($projects, 'order'));
+    }
+
+    public function testEverySlugIsPrefixedWithTheBundleName(): void
+    {
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            $this->assertStringStartsWith('payment-', $project['slug'], 'A slug is unique across every bundle contributing projects');
+        }
+    }
+
+    public function testEveryProjectCarriesThePaymentTranslationDomainAndSteps(): void
+    {
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            $this->assertSame('payment', $project['translation_domain']);
+            $this->assertNotEmpty($project['steps']);
+        }
+    }
+
+    // Every payment management screen sits behind the site's admin role, so a parcours walking them is dropped for anybody else
+    public function testEveryProjectCarriesTheAdminRole(): void
+    {
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            $this->assertSame('ROLE_ADMIN', $project['role']);
+        }
+    }
+
+    public function testNoStepSetsBothUrlAndHighlight(): void
+    {
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            foreach ($project['steps'] as $index => $step) {
+                $this->assertFalse(
+                    isset($step['url']) && isset($step['highlight']),
+                    sprintf('Step %d of "%s" sets both url and highlight', $index, $project['slug'])
+                );
+            }
+        }
+    }
+
+    // Only the opening step leaves the screen, everything after it walking the one the user has been sent to
+    public function testOnlyTheFirstStepOfEachProjectCarriesAnUrl(): void
+    {
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            $steps = $project['steps'];
+
+            $this->assertArrayHasKey('url', $steps[0], sprintf('Project "%s" does not open on a screen', $project['slug']));
+
+            foreach (array_slice($steps, 1) as $index => $step) {
+                $this->assertArrayNotHasKey('url', $step, sprintf('Step %d of "%s" leaves the screen again', $index + 1, $project['slug']));
+            }
+        }
+    }
+
+    // The test-mode toggle lives on the dashboard, not on a CRUD screen
+    public function testTheTestModeProjectOpensOnTheDashboard(): void
+    {
+        $controllers = [];
+        $routes = [];
+        $this->createProvider($controllers, $routes)->getGuidedProjects();
+
+        $this->assertSame(['management'], $routes);
+    }
+
+    // Reviewing a transaction starts from the payments listing
+    public function testTheTransactionReviewProjectOpensOnThePaymentCrudIndex(): void
+    {
+        $controllers = [];
+        $routes = [];
+        $this->createProvider($controllers, $routes)->getGuidedProjects();
+
+        $this->assertSame(['PaymentCrudController'], array_map(
+            static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
+            $controllers,
+        ));
+    }
+
+    // EasyAdmin renders a button as `action-<actionName>`, so a highlight guessing at the name points at nothing
+    public function testEveryHighlightedActionIsAnEasyAdminOne(): void
+    {
+        $actions = $this->easyAdminActionNames();
+
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            foreach ($project['steps'] as $index => $step) {
+                if (!isset($step['highlight']) || !preg_match('/^\.action-(\w+)$/', $step['highlight'], $matches)) {
+                    continue;
+                }
+
+                $this->assertContains(
+                    $matches[1],
+                    $actions,
+                    sprintf('Step %d of "%s" highlights an action EasyAdmin does not render', $index, $project['slug'])
+                );
+            }
+        }
+    }
+
+    private function easyAdminActionNames(): array
+    {
+        $constants = new \ReflectionClass(Action::class)->getConstants();
+
+        return array_values(array_filter(
+            $constants,
+            static fn (string $name): bool => !str_starts_with($name, 'TYPE_'),
+            ARRAY_FILTER_USE_KEY
+        ));
+    }
+
+    // Both toggle steps highlight the same shortcut button PaymentShortcutController's route renders on the dashboard
+    public function testTheTestModeToggleStepsHighlightTheShortcutButton(): void
+    {
+        $project = $this->createProvider()->getGuidedProjects()[0];
+        $highlights = array_column($project['steps'], 'highlight');
+
+        $this->assertSame(
+            ['form[action$="/payment/test-mode-toggle"] button', 'form[action$="/payment/test-mode-toggle"] button'],
+            array_values(array_filter($highlights)),
+        );
+    }
+
+    // A label or description with no translation reads as its own key in the panel, in whichever locale it is missing from
+    public function testEveryLabelAndDescriptionIsTranslatedInEveryLocale(): void
+    {
+        foreach (['en', 'fr', 'es'] as $locale) {
+            $translated = $this->translatedKeys($locale);
+
+            foreach ($this->createProvider()->getGuidedProjects() as $project) {
+                foreach ([$project, ...$project['steps']] as $item) {
+                    $this->assertContains($item['label'], $translated, sprintf('"%s" is missing from the %s catalogue', $item['label'], $locale));
+                    if (isset($item['description'])) {
+                        $this->assertContains($item['description'], $translated, sprintf('"%s" is missing from the %s catalogue', $item['description'], $locale));
+                    }
+                }
+            }
+        }
+    }
+
+    private function translatedKeys(string $locale): array
+    {
+        $xliff = new \DOMDocument();
+        $xliff->load(\dirname(__DIR__, 2) . '/translations/payment.' . $locale . '.xlf');
+
+        $keys = [];
+        foreach ($xliff->getElementsByTagName('source') as $source) {
+            $keys[] = $source->textContent;
+        }
+
+        return $keys;
+    }
+}

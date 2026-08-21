@@ -1,0 +1,36 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    c975L\PaymentBundle\:
+        resource: '../src/'
+        # Contract and Exception hold the gateway's value objects (CheckoutRequest, PaymentNotification) and its exception, built by hand from their scalars - registering them would ask the container to autowire a currency and an amount
+        exclude: '../src/{Contract,DependencyInjection,Entity,Exception,Message}'
+
+    # Before ShopBundle's own sheet (priority 10), which builds on the table and quantity rules declared here
+    c975L\PaymentBundle\Service\StylesheetProvider:
+        tags:
+            - { name: 'ui.stylesheet', priority: 20 }
+
+    # The basket controller is mounted by templates of this bundle and of the ones plugging into it, so the front layout loads it on every page
+    c975L\PaymentBundle\Service\ScriptProvider:
+        tags:
+            - { name: 'ui.script', priority: 100 }
+
+    c975L\PaymentBundle\Registry\PaymentGatewayRegistry:
+        arguments:
+            $gateways: !tagged_iterator payment.gateway
+
+    c975L\PaymentBundle\Registry\BasketItemProviderRegistry:
+        arguments:
+            $providers: !tagged_iterator payment.basket_item_provider
+
+    c975L\PaymentBundle\Registry\BasketRecommendationRegistry:
+        arguments:
+            $providers: !tagged_iterator payment.basket_recommendation_provider
+
+    c975L\PaymentBundle\Registry\BasketDownloadRegistry:
+        arguments:
+            $providers: !tagged_iterator payment.basket_download_provider

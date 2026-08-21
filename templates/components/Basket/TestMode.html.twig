@@ -1,0 +1,6 @@
+{# <twig:c975LPayment:Basket:TestMode/> #}
+{% if config('payment-test-mode') %}
+    <twig:c975LUi:Alert:Alert type="warning">
+        {{ 'label.test_mode'|trans({}, 'payment') }}
+    </twig:c975LUi:Alert:Alert>
+{% endif %}

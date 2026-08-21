@@ -1,7 +1,8 @@
 <?php
+
 /*
- * (c) 2017: 975L <contact@975l.com>
- * (c) 2017: Laurent Marquet <laurent.marquet@laposte.net>
+ * (c) 2025: 975L <contact@975l.com>
+ * (c) 2025: Laurent Marquet <laurent.marquet@laposte.net>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -9,236 +10,77 @@
 
 namespace c975L\PaymentBundle\Entity;
 
-use DateTime;
-use DateTimeZone;
+use c975L\ConfigBundle\Contract\UserInterface;
+use c975L\PaymentBundle\Repository\PaymentRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Entity Event (linked to DB table `stripe_payment`)
- * @author Laurent Marquet <laurent.marquet@laposte.net>
- * @copyright 2017 975L <contact@975l.com>
- *
- * @ORM\Table(name="stripe_payment")
- * @ORM\HasLifecycleCallbacks()
- * @ORM\Entity(repositoryClass="c975L\PaymentBundle\Repository\PaymentRepository")
- */
-class Payment
+#[ORM\Entity(repositoryClass: PaymentRepository::class)]
+#[ORM\Table(name: 'payment_payment')]
+class Payment implements \Stringable
 {
-    /**
-     * Payment unique id
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * If the Payment is finished
-     * @var bool
-     *
-     * @ORM\Column(name="finished", type="integer", nullable=true)
-     */
-    protected $finished;
+    #[ORM\Column]
+    private bool $isFinished = false;
 
-    /**
-     * OrderId for the Payment
-     * @var string
-     *
-     * @ORM\Column(name="order_id", type="string", length=48, nullable=true)
-     */
-    protected $orderId;
+    #[ORM\Column]
+    private ?int $amount = null;
 
-    /**
-     * Amount in cents for the Payment
-     * @var int
-     *
-     * @ORM\Column(name="amount", type="integer", nullable=true)
-     */
-    protected $amount;
+    #[ORM\Column(length: 3)]
+    private ?string $currency = null;
 
-    /**
-     * VAT rate without decimal (x 100) for the Payment
-     * @var int
-     *
-     * @ORM\Column(name="vat", type="integer", nullable=true)
-     */
-    protected $vat;
+    // Which provider charged this payment (see PaymentGatewayInterface::getSlug()), the two columns below holding whatever that one calls its transaction and its method
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $gateway = null;
 
-    /**
-     * Description for the Payment
-     * @var string
-     *
-     * @ORM\Column(name="description", type="string", length=512, nullable=true)
-     */
-    protected $description;
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $transactionId = null;
 
-    /**
-     * Currency for the Payment
-     * @var string
-     *
-     * @ORM\Column(name="currency", type="string", length=3, nullable=true)
-     */
-    protected $currency;
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $paymentMethod = null;
 
-    /**
-     * Action to be executed after the payment
-     * @var string
-     *
-     * @ORM\Column(name="action", type="string", length=128, nullable=true)
-     */
-    protected $action;
+    // What the provider calls the checkout opened for this payment, kept only until it is paid or called off: it is what lets an edited basket expire the checkout it had already opened
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $gatewayReference = null;
 
-    /**
-     * Estimated Stripe fee in cents
-     * @var int
-     *
-     * @ORM\Column(name="stripe_fee", type="integer", nullable=true)
-     */
-    protected $stripeFee;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $creation = null;
 
-    /**
-     * Stripe token
-     * @var string
-     *
-     * @ORM\Column(name="stripe_token", type="string", length=128, nullable=true)
-     */
-    protected $stripeToken;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $modification = null;
 
-    /**
-     * Stripe token type
-     * @var string
-     *
-     * @ORM\Column(name="stripe_token_type", type="string", length=16, nullable=true)
-     */
-    protected $stripeTokenType;
+    #[ORM\OneToOne(mappedBy: 'payment')]
+    private ?Basket $basket = null;
 
-    /**
-     * Email used for Stripe Payment
-     * @var string
-     *
-     * @ORM\Column(name="stripe_email", type="string", length=255, nullable=true)
-     */
-    protected $stripeEmail;
+    #[ORM\ManyToOne]
+    private ?UserInterface $user = null;
 
-    /**
-     * User unique id (if logged in)
-     * @var int
-     *
-     * @ORM\Column(name="user_id", type="integer", nullable=true)
-     */
-    protected $userId;
-
-    /**
-     * User IP address
-     * @var string
-     *
-     * @ORM\Column(name="user_ip", type="string", length=48, nullable=true)
-     */
-    protected $userIp;
-
-    /**
-     * DateTime creation for the Payment
-     * @var DateTime
-     *
-     * @ORM\Column(name="creation", type="datetime", nullable=true)
-     */
-    protected $creation;
-
-    /**
-     * Wether or not the payments are live (not mapped)
-     * @var bool
-     */
-    protected $live;
-
-    /**
-     * Return Route to be used after payment (not mapped)
-     * @var string
-     */
-    protected $returnRoute;
-
-    public function __construct($data, $timezone)
+    public function __toString(): string
     {
-        $now = DateTime::createFromFormat('U.u', microtime(true));
-        if ($timezone !== null) {
-            $now->setTimeZone(new DateTimeZone($timezone));
-        }
-        $this->setOrderId($now->format('Ymd-His-u'));
-        $this->setCreation($now);
-        $this->setDataFromArray($data);
+        return (string) $this->id;
     }
 
-    /**
-     * Hydrates entity from associative array
-     * @param array $data
-     */
-    public function setDataFromArray($data)
-    {
-        foreach ($data as $key => $value) {
-            $method = 'set' . ucfirst($key);
-            if (method_exists($this, $method)) {
-                $this->$method($value);
-            }
-        }
-    }
-
-    /**
-     * Get id
-     * @return int
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Set finished
-     * @param bool
-     * @return Payment
-     */
-    public function setFinished(?bool $finished)
+    public function isFinished(): ?bool
     {
-        $this->finished = $finished;
+        return $this->isFinished;
+    }
+
+    public function setFinished(bool $isFinished): static
+    {
+        $this->isFinished = $isFinished;
 
         return $this;
     }
 
-    /**
-     * Get finished
-     * @return bool
-     */
-    public function getFinished(): ?bool
-    {
-        return $this->finished == 1 ? true : false;
-    }
-
-    /**
-     * Set orderId
-     * @param string
-     * @return Payment
-     */
-    public function setOrderId(?string $orderId)
-    {
-        $this->orderId = $orderId;
-
-        return $this;
-    }
-
-    /**
-     * Get orderId
-     * @return string
-     */
-    public function getOrderId(): ?string
-    {
-        return $this->orderId;
-    }
-
-    /**
-     * Set amount
-     * @param int
-     * @return Payment
-     */
     public function setAmount(?int $amount)
     {
         $this->amount = $amount;
@@ -246,62 +88,11 @@ class Payment
         return $this;
     }
 
-    /**
-     * Get amount
-     * @return int
-     */
     public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    /**
-     * Set vat
-     * @param integer
-     * @return Payment
-     */
-    public function setVat(?int $vat)
-    {
-        $this->vat = $vat;
-
-        return $this;
-    }
-
-    /**
-     * Get vat
-     * @return int
-     */
-    public function getVat(): ?int
-    {
-        return $this->vat;
-    }
-
-    /**
-     * Set description
-     * @param string
-     * @return Payment
-     */
-    public function setDescription(?string $description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get description
-     * @return string
-     */
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    /**
-     * Set currency
-     * @param string
-     * @return Payment
-     */
     public function setCurrency(?string $currency)
     {
         $this->currency = strtoupper($currency);
@@ -309,222 +100,114 @@ class Payment
         return $this;
     }
 
-    /**
-     * Get currency
-     * @return string
-     */
     public function getCurrency(): ?string
     {
         return strtoupper($this->currency);
     }
 
-    /**
-     * Set action
-     * @param string
-     * @return Payment
-     */
-    public function setAction(?string $action)
+    public function setGateway(?string $gateway)
     {
-        $this->action = $action;
+        $this->gateway = $gateway;
 
         return $this;
     }
 
-    /**
-     * Get action
-     * @return string
-     */
-    public function getAction(): ?string
+    public function getGateway(): ?string
     {
-        return $this->action;
+        return $this->gateway;
     }
 
-    /**
-     * Set stripeFee
-     * @param int
-     * @return Payment
-     */
-    public function setStripeFee(?int $stripeFee)
+    public function setTransactionId(?string $transactionId)
     {
-        $this->stripeFee = $stripeFee;
+        $this->transactionId = $transactionId;
 
         return $this;
     }
 
-    /**
-     * Get stripeFee
-     * @return int
-     */
-    public function getStripeFee(): int
+    public function getTransactionId(): ?string
     {
-        return $this->stripeFee;
+        return $this->transactionId;
     }
 
-    /**
-     * Set stripeToken
-     * @param string
-     * @return Payment
-     */
-    public function setStripeToken(?string $stripeToken)
+    public function setPaymentMethod(?string $paymentMethod)
     {
-        $this->stripeToken = $stripeToken;
+        $this->paymentMethod = $paymentMethod;
 
         return $this;
     }
 
-    /**
-     * Get stripeToken
-     * @return string
-     */
-    public function getStripeToken(): ?string
+    public function getPaymentMethod(): ?string
     {
-        return $this->stripeToken;
+        return $this->paymentMethod;
     }
 
-    /**
-     * Set stripeTokenType
-     * @param string
-     * @return Payment
-     */
-    public function setStripeTokenType(?string $stripeTokenType)
+    public function getCreation(): ?\DateTimeInterface
     {
-        $this->stripeTokenType = $stripeTokenType;
-
-        return $this;
+        return $this->creation;
     }
 
-    /**
-     * Get stripeTokenType
-     * @return string
-     */
-    public function getStripeTokenType(): ?string
-    {
-        return $this->stripeTokenType;
-    }
-
-    /**
-     * Set stripeEmail
-     * @param string
-     * @return Payment
-     */
-    public function setStripeEmail(?string $stripeEmail)
-    {
-        $this->stripeEmail = $stripeEmail;
-
-        return $this;
-    }
-
-    /**
-     * Get stripeEmail
-     * @return string
-     */
-    public function getStripeEmail(): ?string
-    {
-        return $this->stripeEmail;
-    }
-
-    /**
-     * Set userId
-     * @param int
-     * @return Payment
-     */
-    public function setUserId(?int $userId)
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
-    /**
-     * Get userId
-     * @return int
-     */
-    public function getUserId(): ?int
-    {
-        return $this->userId;
-    }
-
-    /**
-     * Set userIp
-     * @param string
-     * @return Payment
-     */
-    public function setUserIp(?string $userIp)
-    {
-        $this->userIp = $userIp;
-
-        return $this;
-    }
-
-    /**
-     * Get userIp
-     * @return string
-     */
-    public function getUserIp(): ?string
-    {
-        return $this->userIp;
-    }
-
-    /**
-     * Set creation
-     * @param DateTime
-     * @return Payment
-     */
-    public function setCreation(?DateTime $creation)
+    public function setCreation(\DateTimeInterface $creation): static
     {
         $this->creation = $creation;
 
         return $this;
     }
 
-    /**
-     * Get creation
-     * @return DateTime
-     */
-    public function getCreation(): ?DateTime
+    public function getModification(): ?\DateTimeInterface
     {
-        return $this->creation;
+        return $this->modification;
     }
 
-    /**
-     * Set live
-     * @param bool
-     * @return Payment
-     */
-    public function setLive(?bool $live)
+    public function setModification(\DateTimeInterface $modification): static
     {
-        $this->live = $live;
+        $this->modification = $modification;
 
         return $this;
     }
 
-    /**
-     * Get live
-     * @return bool
-     */
-    public function getLive(): ?bool
+    public function getBasket(): ?Basket
     {
-        return $this->live;
+        return $this->basket;
     }
 
-    /**
-     * Set returnRoute
-     * @param string
-     * @return Payment
-     */
-    public function setReturnRoute(?string $returnRoute)
+    public function setBasket(?Basket $basket): static
     {
-        $this->returnRoute = $returnRoute;
+        // unset the owning side of the relation if necessary
+        if (null === $basket && null !== $this->basket) {
+            $this->basket->setPayment(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if (null !== $basket && $basket->getPayment() !== $this) {
+            $basket->setPayment($this);
+        }
+
+        $this->basket = $basket;
 
         return $this;
     }
 
-    /**
-     * Get returnRoute
-     * @return string
-     */
-    public function getReturnRoute(): ?string
+    public function getGatewayReference(): ?string
     {
-        return $this->returnRoute;
+        return $this->gatewayReference;
+    }
+
+    public function setGatewayReference(?string $gatewayReference): static
+    {
+        $this->gatewayReference = $gatewayReference;
+
+        return $this;
+    }
+
+    public function getUser(): ?UserInterface
+    {
+        return $this->user;
+    }
+
+    public function setUser(?UserInterface $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

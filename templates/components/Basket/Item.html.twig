@@ -1,0 +1,26 @@
+{# <twig:c975LPayment:Basket:Item item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" kind="simple|complex"  readonly="{{ readonly }}"/> #}
+<tr class="text-center" id="item-{{ type }}-{{ item.item.id }}" data-type="{{ type }}" data-item-id="{{ item.item.id }}">
+    {# Image and Title #}
+    <td>
+        {% set imageSrc = item.item.media != null ? item.item.media : "bundles/c975lpayment/images/no-product-image.webp" %}
+        {% set imageSrc = item.parent.image != false ? item.parent.image : imageSrc %}
+        {% set urlItem = item.type ~ "_display"%}
+        <twig:c975LUi:Image:Link src="{{ asset(imageSrc) }}" url="{{ url(urlItem, {'slug': item.parent.slug}) }}#{{ item.item.slug }}" label="{{ item.parent.title }} ({{ item.item.title }})" class="img-shadow img-product" width="100"/>
+    </td>
+    {# Price and Quantity #}
+    <td>
+        <p>{{ (item.item.description|striptags|slice(0, 50)) ~ (item.item.description|striptags|length > 50 ? '...' : '') }}</p>
+        <twig:c975LPayment:Basket:Price item="{{ item.item }}" type="{{ type }}"/>
+        <twig:c975LPayment:Item:Type item="{{ item }}"/>
+        <twig:c975LPayment:Item:LimitedQuantity limitedQuantity="{{ item.item.limitedQuantity }}"/>
+        {% if readonly == "false" %}
+            <br>
+            <twig:c975LPayment:Basket:AddRemoveButtons type="{{ type }}" item="{{ item }}" quantity="{{ quantity }}"/>
+        {% else %}
+            <br>
+            <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span class="quantity lead" data-basket-target="itemQuantity" data-item-id="{{ type }}-{{ item.item.id }}">{{ quantity }}</span>
+        {% endif %}
+        <br>
+        <twig:c975LPayment:Basket:Total kind="{{ kind }}" item="{{ item.item }}" total="{{ total }}" totalVat="{{ totalVat }}" type="{{ type }}"/>
+    </td>
+</tr>

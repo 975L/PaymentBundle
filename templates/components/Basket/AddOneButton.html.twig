@@ -1,0 +1,20 @@
+{# <twig:c975LPayment:Basket:AddOneButton item="{{ item }}" [type="primary"]/> #}
+{% set type = type | default('primary') %}
+{% set disabled = "" %}
+{% if item.item.limitedQuantity > 0 and item.item.orderedQuantity + item.quantity >= item.item.limitedQuantity or item.type == "product" and null != item.item.file %}
+    {% set disabled = "disabled" %}
+{% endif %}
+<button
+    data-action="click->basket#addItem"
+    data-type="{{ type }}"
+    data-quantity="1"
+    data-limited="{{ item.item.limitedQuantity|default(0) }}"
+    data-ordered="{{ item.item.orderedQuantity|default(0) }}"
+    data-item-id="{{ item.item.id }}"
+    data-title="{{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
+    data-alert="success"
+    data-text="{{ 'label.added'|trans({}, 'payment') }}"
+    class="btn btn-{{ type }} btn-small lead"
+    {{ disabled }}>
+    <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/plus.svg" width="16" height="16" class="white"/>
+</button>

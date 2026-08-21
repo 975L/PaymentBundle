@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160">
+  
+  <rect width="640" height="160" rx="20" fill="#EFE8DA"></rect>
+  <g transform="translate(40,34) scale(1.05)"><rect x="22" y="4" width="56" height="40" rx="7" fill="#3A7D44"></rect><g transform="translate(30,4)" fill="none" stroke="#F4E7CE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" color="#F4E7CE"><rect x="8" y="12" width="24" height="16" rx="3"></rect><line x1="8" y1="18" x2="32" y2="18"></line><line x1="12" y1="24" x2="19" y2="24"></line></g><rect x="6" y="52" width="40" height="26" rx="6" fill="#26333F"></rect><rect x="54" y="52" width="40" height="26" rx="6" fill="#26333F"></rect><text x="26" y="70" font-family="&#39;IBM Plex Mono&#39;,monospace" font-size="12" font-weight="600" fill="#F4E7CE" text-anchor="middle">UI</text><text x="74" y="70" font-family="&#39;IBM Plex Mono&#39;,monospace" font-size="12" font-weight="600" fill="#F4E7CE" text-anchor="middle">CFG</text></g>
+  <text x="180" y="66" font-family="&#39;Space Grotesk&#39;,sans-serif" font-size="34" font-weight="700" letter-spacing="-1"><tspan fill="#3A7D44">Payment</tspan><tspan fill="#22303C">Bundle</tspan></text>
+  <text x="180" y="94" font-family="&#39;Space Grotesk&#39;,sans-serif" font-size="15" fill="#6B7480">Payments and transactions, ready to plug in.</text>
+  <text x="180" y="122" font-family="&#39;IBM Plex Mono&#39;,monospace" font-size="13" fill="#8A8272">composer require c975l/payment-bundle</text>
+</svg>

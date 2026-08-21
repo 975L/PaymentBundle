@@ -1,8 +1,13 @@
 {
     "name": "c975l/payment-bundle",
     "type": "symfony-bundle",
-    "description": "Defines form, transactions, database store, etc. for payments using Stripe",
-    "keywords": ["symfony", "bundle", "stripe", "payment"],
+    "description": "Symfony bundle providing the generic basket and checkout engine plus Stripe payments for the c975L ecosystem — any bundle plugs its own sellable items in through BasketItemProviderInterface.",
+    "keywords": [
+        "symfony",
+        "bundle",
+        "stripe",
+        "payment"
+    ],
     "homepage": "https://github.com/975L/PaymentBundle",
     "license": "MIT",
     "authors": [
@@ -18,23 +23,21 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
-        "c975l/config-bundle": "*",
-        "c975l/email-bundle": "*",
-        "c975l/services-bundle": "*",
-        "c975l/toolbar-bundle": "*",
-        "doctrine/doctrine-bundle": "*",
-        "doctrine/orm": "*",
-        "stripe/stripe-php": "*",
-        "symfony/form": "*",
-        "symfony/security-bundle": "*",
-        "symfony/translation": "*",
-        "twig/intl-extra": "*"
+        "php": ">=8.4",
+        "c975l/core-bundle": "^1.13",
+        "doctrine/orm": "^3.6",
+        "easycorp/easyadmin-bundle": "^5.1",
+        "stripe/stripe-php": "^21.0",
+        "symfony/routing": "^8.0",
+        "symfony/security-bundle": "^8.0",
+        "symfony/translation": "^8.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "*",
-        "phpunit/phpunit": "*",
-        "rector/rector": "*"
+        "phpunit/phpunit": "^13.2"
+    },
+    "suggest": {
+        "c975l/shop-bundle": "Plugs a product catalog into the basket - products, their items, their stock and their downloadable files become buyable through BasketItemProviderInterface",
+        "c975l/crowdfunding-bundle": "Plugs crowdfunding counterparts into the same basket, a campaign being paid for through this bundle rather than through a checkout of its own"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -43,8 +46,37 @@
             "c975L\\PaymentBundle\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "c975L\\PaymentBundle\\Tests\\": "tests/"
+        }
+    },
     "config": {
         "sort-packages": true
+    },
+    "scripts": {
+        "audit-deps": "composer audit --abandoned=report",
+        "cs": "phpcs -q",
+        "fixer": "php-cs-fixer check --diff",
+        "stan": "phpstan analyse --no-progress",
+        "rector": "rector process --dry-run",
+        "test": "phpunit",
+        "qa": [
+            "@audit-deps",
+            "@cs",
+            "@fixer",
+            "@stan",
+            "@rector",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "audit-deps": "Avis de sécurité Packagist sur les dépendances résolues (OWASP A06) - les paquets abandonnés sont signalés, sans faire échouer",
+        "cs": "PSR-12 (phpcs)",
+        "fixer": "Standard Symfony (php-cs-fixer)",
+        "stan": "Analyse statique du bundle, level 5",
+        "test": "Suite PHPUnit",
+        "qa": "Tous les contrôles de la CI, dans l'ordre - voir bin/ci.sh pour les rejouer sur des dépendances fraîches"
     },
     "support": {
         "email": "contact@975l.com",
