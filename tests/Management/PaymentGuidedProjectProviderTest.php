@@ -60,7 +60,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
-    // Continues the sequence after ConfigBundle (10-40), SiteBundle (50-80), UiBundle (90-110), SocialBundle (120-137), GalleryBundle (140-190) and BookBundle (170-190)
+    // The 7000 block GuidedProjectProviderInterface reserves this bundle, at the step of 10 it states - an order shared with another provider's leaves their sequence to the order the providers happen to be registered in, which is what a block per bundle exists to prevent
     public function testGetGuidedProjectsContinuesTheOrderSequence(): void
     {
         $projects = $this->createProvider()->getGuidedProjects();
@@ -69,7 +69,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
             ['payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping'],
             array_column($projects, 'slug'),
         );
-        $this->assertSame([200, 210, 220, 230, 240, 250], array_column($projects, 'order'));
+        $this->assertSame([7010, 7020, 7030, 7040, 7050, 7060], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void

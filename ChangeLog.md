@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.1.1
+
+Guided projects moved into the 7000 block
+
+- The six guided projects run at 7010 to 7060, the block `GuidedProjectProviderInterface` reserves this bundle (23/08/2026)
+- The provider and its test read that range off the interface docblock rather than recopying every bundle's own (23/08/2026)
+
 ## v6.1.0
 
 Revolut, discount codes, gift cards and shared payment

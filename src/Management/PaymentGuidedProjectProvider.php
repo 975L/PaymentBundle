@@ -20,7 +20,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-// This bundle's guided projects, continuing the order sequence after ConfigBundle (10-40), SiteBundle (50-80), UiBundle (90-110), SocialBundle (120-137), GalleryBundle (140-190) and BookBundle (170-190). Only the opening step of each carries an url: from there the parcours walks the screen the user has been sent to, highlighting the button or the field they are meant to use next - one they click themselves, which brings the panel back on that very step (see ConfigBundle's assets/js/guided-project.js)
+// This bundle's guided projects, running the 7000 block GuidedProjectProviderInterface reserves them - the same docblock stating every other bundle's, so a range is read there rather than recopied here. Only the opening step of each carries an url: from there the parcours walks the screen the user has been sent to, highlighting the button or the field they are meant to use next - one they click themselves, which brings the panel back on that very step (see ConfigBundle's assets/js/guided-project.js)
 class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
 {
     public function __construct(
@@ -50,7 +50,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_test_mode',
             'description' => 'description.guided_project_payment_test_mode',
             'translation_domain' => 'payment',
-            'order' => 200,
+            'order' => 7010,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
@@ -88,7 +88,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_transaction_review',
             'description' => 'description.guided_project_payment_transaction_review',
             'translation_domain' => 'payment',
-            'order' => 210,
+            'order' => 7020,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
@@ -125,7 +125,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_payment_link',
             'description' => 'description.guided_project_payment_payment_link',
             'translation_domain' => 'payment',
-            'order' => 220,
+            'order' => 7030,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
@@ -174,7 +174,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_gift_card_issue',
             'description' => 'description.guided_project_payment_gift_card_issue',
             'translation_domain' => 'payment',
-            'order' => 230,
+            'order' => 7040,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
@@ -222,7 +222,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_discount_code',
             'description' => 'description.guided_project_payment_discount_code',
             'translation_domain' => 'payment',
-            'order' => 240,
+            'order' => 7050,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
@@ -275,7 +275,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             'label' => 'label.guided_project_payment_shipping',
             'description' => 'description.guided_project_payment_shipping',
             'translation_domain' => 'payment',
-            'order' => 250,
+            'order' => 7060,
             'role' => $this->roleNeeded(),
             'steps' => [
                 [
