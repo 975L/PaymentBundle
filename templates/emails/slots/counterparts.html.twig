@@ -1,0 +1,3 @@
+{# The crowdfunding counterparts, which ship on their own and say so in their own email #}
+{% set counterparts = basket.items.crowdfunding ?? [] %}
+{% if counterparts is not empty %}<twig:c975LPayment:Basket:Counterparts counterparts="{{ counterparts }}"/>{% endif %}

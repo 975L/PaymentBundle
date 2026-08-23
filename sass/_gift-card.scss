@@ -1,0 +1,192 @@
+/* GIFT CARD */
+// The tokens this bundle owns, declared here rather than read with a fallback at each use: half of them are read from more than one rule, and a fallback written twice is a value that drifts.
+// Layered for the reason UiBundle's own defaults are: a layered rule always loses to an unlayered one, so a site retuning any of these from its theme.css wins without having to raise its specificity. Nothing else in this bundle is layered
+@layer payment-defaults {
+    :root, [data-theme] {
+        // Roughly what the 85.6 mm of an ID-1 card come to on a screen, the shape itself being UiBundle's ".flip-card-ratio-credit-card"
+        --gift-card-width: 340px;
+        --gift-card-text-size: 1.1rem;
+        --gift-card-amount-size: 1.6rem;
+        --gift-card-legend-size: 0.75rem;
+        --gift-card-code-size: 1.1rem;
+        // The veil the printing stands on, top and bottom: a photograph says nothing about the contrast under the line that has to be read
+        --gift-card-veil-top: rgb(0 0 0 / 45%);
+        --gift-card-veil-bottom: rgb(0 0 0 / 70%);
+        --gift-card-back-visual-opacity: 0.25;
+        // The silver of a panel to be rubbed off, which is what says at a glance that something is under it
+        --gift-card-scratch-background: linear-gradient(135deg, #c9ccd1 0%, #eceff3 45%, #b9bdc4 100%);
+        --gift-card-scratch-color: #333;
+        --gift-card-scratch-radius: 6px;
+        // The ground of a card sold with no picture at all
+        --gift-card-plain-background: linear-gradient(135deg, var(--primary) 0%, #111 100%);
+        --gift-card-test-mode-background: rgb(200 60 30 / 85%);
+    }
+}
+
+// A card held in the hand, and not a panel to read: its whole face is the picture it was bought for, everything printed on it sits over that picture, and the shape is the ID-1 format of a bank card (see UiBundle's ".flip-card-ratio-credit-card").
+// Built on UiBundle's flip card rather than beside it: the fold, the toggles, the "inert" face and the keyboard are all already solved there, and what is added here is the printing - a full-bleed visual, the logo, the amount, and the panel the code hides under.
+.gift-card {
+    // Narrower than the ".card" measure the flip card takes by default: a card is an object of a known size, roughly what 85.6 mm come to on a screen, and one stretched to a third of the page stops reading as one
+    width: min(var(--gift-card-width), 90vw);
+}
+
+// The picture has to be clipped to the corner, which the flip card deliberately never does to a face of its own: there a face holding more than its ratio grows past it, where a card is exactly its own size
+.gift-card .flip-card-face {
+    overflow: hidden;
+    padding: 0;
+}
+
+// The visual fills the face, under everything printed on it. "cover", so a picture of any shape is cropped to the card rather than letterboxed inside it, and the height is settled here for the same reason every other rule shaping an image is (see UiBundle's ImageAspectRatioHeightTest)
+.gift-card-visual {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    // Below the toggle filling the face and below the printing, both of which are laid over it
+    z-index: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+// The verso is the recto seen from behind: the same picture, turned over and faded back, so the two faces read as one object rather than as two pictures. Mirrored in CSS and not uploaded twice - an admin asked for a second file would sooner or later attach an unrelated one
+.gift-card-visual-back {
+    transform: scaleX(-1);
+    opacity: var(--gift-card-back-visual-opacity);
+    filter: grayscale(1);
+}
+
+// What is printed stands on a veil and not on the picture itself: a photograph says nothing about the contrast under the one line that has to be read, and an amount lost in a white sky is a card that cannot be used
+.gift-card-print {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0.9em 1em;
+    background: linear-gradient(180deg, var(--gift-card-veil-top) 0%, transparent 45%, var(--gift-card-veil-bottom) 100%);
+    // A stated white, never var(--white): dark mode swaps that token with black, which is right for a surface that turns dark and wrong for text written over a ground that stays dark in both modes (same rule as UiBundle's dark flats)
+    color: #fff;
+    text-align: left;
+    // The face is what turns the card, so the printing lets the pointer through to it - the very layering UiBundle's ".flip-card-body" uses, restated here because this is a box of its own
+    pointer-events: none;
+}
+
+// ...except for the panel, which is a control of its own and takes its click back rather than turning the card over
+.gift-card-print button {
+    pointer-events: auto;
+}
+
+.gift-card-logo {
+    width: auto;
+    max-width: 40%;
+    max-height: 2.2em;
+    margin: 0;
+    object-fit: contain;
+    // The site's logo is drawn for the site's own ground, so it is lifted off the picture rather than left to fight it
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 60%));
+}
+
+.gift-card-text {
+    font-family: var(--font-family-title);
+    font-size: var(--gift-card-text-size);
+    font-weight: var(--font-title-weight);
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+// The amount and what is left of it sit on one line, the figure bought on the left and the balance on the right: a card half spent has to say both, and a card never spent says only the first
+.gift-card-amounts {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5em;
+    margin: 0;
+}
+
+.gift-card-amount {
+    font-family: var(--font-family-title);
+    font-size: var(--gift-card-amount-size);
+    font-weight: var(--font-title-weight);
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+.gift-card-balance {
+    font-size: var(--gift-card-legend-size);
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+// Everything the verso says under the code: the validity, and the line saying the card is not money at all when it was minted by a rehearsal
+.gift-card-legend {
+    font-size: var(--gift-card-legend-size);
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+// The code itself, spelled out the way it is printed on a card: wide, spaced, and in the one family where an O and a 0 are told apart - which the alphabet it is drawn from already avoids, this being the second guard rather than the first
+.gift-card-code {
+    display: block;
+    width: 100%;
+    font-family: var(--font-family-monospace, monospace);
+    font-size: var(--gift-card-code-size);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-align: center;
+    word-break: break-all;
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+// The panel the code hides under, which is a real button and not a decoration painted over one: it is what asks the server for the code, and until it is pressed the page holds none
+.gift-card-scratch {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0.5em 0.8em;
+    border: 0;
+    border-radius: var(--gift-card-scratch-radius);
+    background: var(--gift-card-scratch-background);
+    color: var(--gift-card-scratch-color);
+    font-family: inherit;
+    font-size: var(--gift-card-legend-size);
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%), 0 1px 3px rgb(0 0 0 / 40%);
+}
+
+.gift-card-scratch:hover {
+    filter: brightness(1.08);
+}
+
+// Rubbed off: the panel is gone and the code it was hiding is in its place. A class and not a style attribute, the sites running this bundle serving a CSP with no unsafe-inline
+.gift-card-scratched .gift-card-scratch {
+    display: none;
+}
+
+// Nothing to read until the panel has been pressed, so the line holds no room either - a card whose code has not been asked for must not print an empty gap where it will land
+.gift-card-code[hidden] {
+    display: none;
+}
+
+// A card minted while the shop was charging with the provider's test keys is not money, and has to say so on the object itself rather than only on the page around it
+.gift-card-test-mode {
+    font-size: var(--gift-card-legend-size);
+    font-weight: 700;
+    color: #fff;
+    background: var(--gift-card-test-mode-background);
+    border-radius: var(--gift-card-scratch-radius);
+    padding: 0.1em 0.5em;
+    align-self: flex-start;
+}
+
+// The ground a card with no picture at all is printed on - a shop selling one without uploading a visual gets a plain card and not a hole where the picture was
+.gift-card-visual-none {
+    background: var(--gift-card-plain-background);
+}

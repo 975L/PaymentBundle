@@ -1,4 +1,4 @@
 {# <twig:c975LPayment:Basket:DeleteLink quantity="{{ basket.quantity }}"/> #}
 {% if quantity > 0 %}
-    <p class="text-center delete-link" data-action="click->basket#delete">{{ 'label.empty_basket'|trans({}, 'payment') }}</p>
+    <button type="button" class="delete-link" data-action="click->basket#delete">{{ 'label.empty_basket'|trans({}, 'payment') }}</button>
 {% endif %}

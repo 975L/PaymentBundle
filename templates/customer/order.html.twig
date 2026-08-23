@@ -9,20 +9,16 @@
     <h1>{{ 'label.order'|trans }} {{ basket.number }}</h1>
     <p><a href="{{ path('customer_orders') }}">{{ 'label.back_to_orders'|trans }}</a></p>
 
+    {# A number is drawn when the order is paid, so an order still being settled has no invoice to offer #}
+    {% if basket.invoiceNumber %}
+        <p><a href="{{ path('basket_invoice_pdf', {'number': basket.number, 'securityToken': basket.securityToken}) }}">{{ 'label.download_invoice'|trans }} {{ basket.invoiceNumber }}</a></p>
+    {% endif %}
+
     <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
     <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/>
     <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
     <twig:c975LPayment:Basket:MessageUser message="{{ basket.message }}"/>
 
-    {# The section is left out entirely when no bundle sells files, rather than drawn empty #}
-    {% if downloads is not empty %}
-        <h2>{{ 'label.my_downloads'|trans }}</h2>
-        <p>{{ 'text.downloads_stay_available'|trans }}</p>
-        {% for download in downloads %}
-            <p>
-                <a href="{{ download.url }}">{{ download.title }}</a>
-                {% if download.size %}({{ (download.size / (1024 * 1024))|number_format(2) }} MB){% endif %}
-            </p>
-        {% endfor %}
-    {% endif %}
+    <twig:c975LPayment:Basket:Downloads downloads="{{ downloads }}"/>
+    <twig:c975LPayment:GiftCard:Cards basket="{{ basket }}"/>
 {% endblock %}

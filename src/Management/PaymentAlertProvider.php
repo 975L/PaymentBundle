@@ -34,13 +34,14 @@ class PaymentAlertProvider implements AlertProviderInterface
 
     public function getAlerts(): array
     {
+        // Said whatever else the shop can charge with: "payment-gateway" naming a provider no bundle registers is a typo, and the provider the basket pre-selects is then not the one the shopkeeper meant
         $gateway = $this->gatewayRegistry->getActiveOrNull();
-
         if (null === $gateway) {
             return [$this->alert('label.payment_gateway_unavailable', 'description.payment_gateway_unavailable', [])];
         }
 
-        if ($gateway->isConfigured()) {
+        // A shop charges as long as one provider holds its keys, the customer picking between those that do - the default alone holding none is no longer a shop that cannot sell
+        if ([] !== $this->gatewayRegistry->getOffered()) {
             return [];
         }
 

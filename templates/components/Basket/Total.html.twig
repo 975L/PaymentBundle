@@ -1,11 +1,2 @@
-{# <twig:c975LPayment:Basket:Total item="{{ item }}" kind="simple|complex"/> #}
-<div class="text-center big">
-    {% if kind == "complex" %}
-        Prix HT : {{ (total / 100 - totalVat)|format_currency(item.currency) }}<br>
-        Taux TVA : {{ item.vat|format_currency(item.currency) }} %<br>
-        TVA : {{ totalVat|format_currency(item.currency) }}<br>
-        <strong>Prix TTC : {{ (total / 100)|format_currency(item.currency) }}</strong>
-    {% else %}
-        <strong><span data-basket-target="itemTotal" data-item-id="{{ type }}-{{ item.id }}">{{ total == 0 ? 'label.free'|trans({}, 'payment') : (total / 100)|format_currency(item.currency) }}</span></strong>
-    {% endif %}
-</div>
+{# <twig:c975LPayment:Basket:Total item="{{ item }}" total="{{ total }}" type="{{ type }}"/> #}
+<strong><span data-basket-target="itemTotal" data-item-id="{{ type }}-{{ item.id }}">{{ total == 0 ? 'label.free'|trans({}, 'payment') : (total / 100)|format_currency(item.currency) }}</span></strong>

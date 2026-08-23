@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 class GatewayHealthCheckProviderTest extends TestCase
 {
     // A site that sells nothing is not a broken site - PaymentAlertProvider is the one that speaks up about a gateway named without its keys
-    public function testNothingIsReportedWithoutAnActiveGateway(): void
+    public function testNothingIsReportedWhenNoProviderIsOffered(): void
     {
         $this->assertSame([], $this->provider(null)->runChecks());
     }
@@ -76,7 +76,7 @@ class GatewayHealthCheckProviderTest extends TestCase
     private function provider(?PaymentGatewayInterface $gateway, bool $testMode = false): GatewayHealthCheckProvider
     {
         $registry = $this->createStub(PaymentGatewayRegistry::class);
-        $registry->method('getActiveOrNull')->willReturn($gateway);
+        $registry->method('getOffered')->willReturn(null === $gateway ? [] : [$gateway->getSlug() => $gateway]);
 
         $paymentTestMode = $this->createStub(PaymentTestModeInterface::class);
         $paymentTestMode->method('isEnabled')->willReturn($testMode);

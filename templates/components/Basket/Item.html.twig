@@ -1,26 +1,40 @@
-{# <twig:c975LPayment:Basket:Item item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" kind="simple|complex"  readonly="{{ readonly }}"/> #}
-<tr class="text-center" id="item-{{ type }}-{{ item.item.id }}" data-type="{{ type }}" data-item-id="{{ item.item.id }}">
-    {# Image and Title #}
-    <td>
+{# <twig:c975LPayment:Basket:Item item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" type="{{ type }}" readonly="{{ readonly }}"/> #}
+{# "false" comes down as the string it was written as, which Twig reads as true - the same coercion Items.html.twig applies to the very same prop #}
+{% set editable = not (readonly|default(false)|to_bool) %}
+{# Defaulted, not read as a guaranteed key: a line of an order is a snapshot frozen the day it was placed, and one taken before the description was kept simply has none - an old order still has to be displayed and re-sent #}
+{% set description = (item.item.description ?? '')|striptags %}
+<tr id="item-{{ type }}-{{ item.item.id }}" data-type="{{ type }}" data-item-id="{{ item.item.id }}">
+    {# The article names its own row: the picture on one side, what was picked on the other, as the shops line them up #}
+    <th scope="row" class="basket-item">
         {% set imageSrc = item.item.media != null ? item.item.media : "bundles/c975lpayment/images/no-product-image.webp" %}
         {% set imageSrc = item.parent.image != false ? item.parent.image : imageSrc %}
-        {% set urlItem = item.type ~ "_display"%}
-        <twig:c975LUi:Image:Link src="{{ asset(imageSrc) }}" url="{{ url(urlItem, {'slug': item.parent.slug}) }}#{{ item.item.slug }}" label="{{ item.parent.title }} ({{ item.item.title }})" class="img-shadow img-product" width="100"/>
-    </td>
-    {# Price and Quantity #}
-    <td>
-        <p>{{ (item.item.description|striptags|slice(0, 50)) ~ (item.item.description|striptags|length > 50 ? '...' : '') }}</p>
-        <twig:c975LPayment:Basket:Price item="{{ item.item }}" type="{{ type }}"/>
-        <twig:c975LPayment:Item:Type item="{{ item }}"/>
-        <twig:c975LPayment:Item:LimitedQuantity limitedQuantity="{{ item.item.limitedQuantity }}"/>
-        {% if readonly == "false" %}
-            <br>
+        {# A line hanging under a catalogue entry, which is what names a page to link to and a picture to draw. A kind having none - a payment link, typed by the shop - is drawn as its label alone rather than sent to a route that was never declared #}
+        {% set linked = item.parent.slug is defined and item.parent.slug is not empty %}
+        {% set itemUrl = linked ? url(item.type ~ "_display", {'slug': item.parent.slug}) ~ "#" ~ item.item.slug : null %}
+        {% set title = linked ? item.parent.title ~ " (" ~ item.item.title ~ ")" : item.item.title %}
+        {# Absolute url and eager loading, the same rows being sent in the order emails, and the picture named after the article; the pair sits in a container of its own, a cell laid out as a flex box stopping being a cell #}
+        <div class="basket-item-inner">
+            {% if linked %}
+                <twig:c975LUi:Image:Link src="{{ asset(imageSrc) }}" url="{{ itemUrl }}" ariaLabel="{{ title }}" class="img-shadow img-product" width="80" priority="true"/>
+            {% endif %}
+            <div class="basket-item-text">
+                {% if linked %}<a href="{{ itemUrl }}">{{ title }}</a>{% else %}<span>{{ title }}</span>{% endif %}
+                <p class="basket-item-description">{{ description|slice(0, 80) ~ (description|length > 80 ? '…' : '') }}</p>
+                <twig:c975LPayment:Item:Type item="{{ item }}"/>
+                {# The rate this very line is taxed at, read through the calculator rather than off the snapshot: a gift card is taxed the day it is spent and states none, and a line carrying no rate says nothing rather than "0 %" - what the shop charges no VAT on is its mentions to explain #}
+                {% set vatRate = payment_vat_rate(item, type) %}
+                {% if vatRate is not null %}<span class="basket-item-vat">{{ 'label.vat_rate'|trans({'%rate%': vatRate|format_number}) }}</span>{% endif %}
+                <twig:c975LPayment:Item:LimitedQuantity limitedQuantity="{{ item.item.limitedQuantity }}"/>
+            </div>
+        </div>
+    </th>
+    <td class="basket-item-price"><twig:c975LPayment:Basket:Price item="{{ item.item }}"/></td>
+    <td class="basket-item-quantity">
+        {% if editable %}
             <twig:c975LPayment:Basket:AddRemoveButtons type="{{ type }}" item="{{ item }}" quantity="{{ quantity }}"/>
         {% else %}
-            <br>
             <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span class="quantity lead" data-basket-target="itemQuantity" data-item-id="{{ type }}-{{ item.item.id }}">{{ quantity }}</span>
         {% endif %}
-        <br>
-        <twig:c975LPayment:Basket:Total kind="{{ kind }}" item="{{ item.item }}" total="{{ total }}" totalVat="{{ totalVat }}" type="{{ type }}"/>
     </td>
+    <td class="basket-item-total"><twig:c975LPayment:Basket:Total item="{{ item.item }}" total="{{ total }}" type="{{ type }}"/></td>
 </tr>

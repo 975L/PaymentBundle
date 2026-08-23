@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Management;
 use c975L\ConfigBundle\Management\StatusProviderInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -28,6 +29,7 @@ class PaymentStatusProvider implements StatusProviderInterface
     public function __construct(
         private readonly BasketRepository $basketRepository,
         private readonly ConfigServiceInterface $configService,
+        private readonly PaymentGatewayRegistry $gatewayRegistry,
         private readonly PaymentTestModeInterface $paymentTestMode,
     ) {
     }
@@ -42,6 +44,8 @@ class PaymentStatusProvider implements StatusProviderInterface
         return [
             'testMode' => $this->paymentTestMode->isEnabled(),
             'gateway' => (string) $this->configService->get('payment-gateway'),
+            // What the customer is actually given the choice between, which the default alone no longer says
+            'gateways' => array_keys($this->gatewayRegistry->getOffered()),
             'ordersToShip' => $this->ordersToShip(),
             'oldestOrderToShip' => $this->oldestOrderToShip(),
             'stalledPayments' => $this->stalledPayments(),

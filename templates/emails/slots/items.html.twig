@@ -1,0 +1,2 @@
+{# The order's lines. Empty for an order carrying none, so the block naming this slot disappears rather than printing a heading over nothing #}
+{% if basket.items is not empty %}<twig:c975LPayment:Basket:Items basket="{{ basket }}" readonly="true"/>{% endif %}

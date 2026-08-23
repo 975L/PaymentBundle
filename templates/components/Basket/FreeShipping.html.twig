@@ -1,0 +1,16 @@
+{# <twig:c975LPayment:Basket:FreeShipping basket="{{ basket }}"/> - what is left to reach the free shipping, which is what raises an order. The threshold on its own, for a page where nothing has been bought yet, is Basket:Shipping #}
+{% trans_default_domain 'payment' %}
+{# Nothing to say about a basket that was not handed over - the threshold on its own is what Basket:Shipping states #}
+{% if basket is defined and basket is not null %}
+{% set free = config('shop-shipping-free') %}
+{% set flag = constant('c975L\\PaymentBundle\\Entity\\Basket::FLAG_NEEDS_SHIPPING') %}
+{% set missing = free - basket.total %}
+{# The bit is published beside the line so the controller re-reads the sentence on every change of the basket, an article added or removed moving the amount and sometimes taking the shipping away altogether #}
+<p class="lead text-center" data-basket-target="freeShipping" data-shipping-free="{{ free }}" data-shipping-flag="{{ flag }}"{% if free <= 0 or (basket.contentflags b-and flag) == 0 %} hidden{% endif %}>
+    {%- if missing > 0 -%}
+        {{ 'label.shipping_free_missing'|trans({'%amount%': (missing / 100)|format_currency(config('shop-currency'))}) }}
+    {%- else -%}
+        {{ 'label.shipping_free_reached'|trans }}
+    {%- endif -%}
+</p>
+{% endif %}

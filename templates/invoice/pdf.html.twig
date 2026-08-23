@@ -1,0 +1,108 @@
+{# The invoice of a paid order, drawn on demand by InvoiceService::pdf() - a print document and not a page: no link, no picture, no script, nothing that means anything on paper #}
+{% trans_default_domain 'payment' %}
+<meta charset="utf-8">
+<title>{{ 'label.invoice'|trans }} {{ basket.invoiceNumber }}</title>
+<style>
+    @page { size: A4; margin: 18mm 16mm; }
+    body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #000; }
+    h1 { font-size: 16pt; margin: 0 0 2mm; }
+    .parties { width: 100%; margin: 8mm 0; }
+    .parties td { vertical-align: top; width: 50%; }
+    .parties h2 { font-size: 10pt; margin: 0 0 1mm; text-transform: uppercase; letter-spacing: .5pt; }
+    table.lines { width: 100%; border-collapse: collapse; margin-top: 4mm; }
+    table.lines th, table.lines td { border-bottom: .2mm solid #999; padding: 2mm 1mm; text-align: left; }
+    table.lines .amount { text-align: right; white-space: nowrap; }
+    table.lines tfoot th { text-align: right; border: 0; }
+    table.lines tfoot td { border: 0; }
+    tr.grand-total th, tr.grand-total td { font-size: 12pt; font-weight: bold; border-top: .4mm solid #000; }
+    .mentions { margin-top: 10mm; font-size: 8pt; white-space: pre-line; }
+</style>
+
+<h1>{{ 'label.invoice'|trans }} {{ basket.invoiceNumber }}</h1>
+<p>
+    {{ 'label.order_number'|trans }} {{ basket.number }}<br>
+    {# The invoice's own date and not the order's last change, which moves the day the parcel goes out #}
+    {{ 'label.date'|trans }} {{ basket.invoiceDate|format_date('long') }}
+</p>
+
+<table class="parties">
+    <tr>
+        <td>
+            <h2>{{ 'label.seller'|trans }}</h2>
+            {{ legal_var('site-owner')|raw }}<br>
+            {{ legal_var('site-address')|raw }}<br>
+            {{ legal_var('site-contact-email') }}
+        </td>
+        <td>
+            <h2>{{ 'label.billed_to'|trans }}</h2>
+            {# An order paid for entirely online carries no postal address at all, and the email is then the whole of what is known about the buyer #}
+            {% if basket.name %}{{ basket.name }}<br>{% endif %}
+            {% if basket.address %}{{ basket.address }}<br>{% endif %}
+            {% if basket.zip or basket.city %}{{ basket.zip }} {{ basket.city }}<br>{% endif %}
+            {% if basket.country %}{{ basket.country }}<br>{% endif %}
+            {{ basket.email }}
+        </td>
+    </tr>
+</table>
+
+<table class="lines">
+    <thead>
+        <tr>
+            <th>{{ 'label.article'|trans }}</th>
+            <th class="amount">{{ 'label.unit_price'|trans }}</th>
+            <th class="amount">{{ 'label.vat'|trans }}</th>
+            <th class="amount">{{ 'label.quantity'|trans }}</th>
+            <th class="amount">{{ 'label.total'|trans }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for type, items in basket.items %}
+            {% for item in items %}
+                {# "Parent (item)" is how a catalogue entry names its line; one hanging under no catalogue entry - a payment link - is named by its own label, and not by an empty pair of brackets on an accounting document #}
+                {% set line = item.parent.title|default('') is empty ? item.item.title : item.parent.title ~ ' (' ~ item.item.title ~ ')' %}
+                {# The rate applying to this line, which is what an invoice states article by article. Empty rather than "0 %" on a line taxed at none - a gift card, an exempt article, or an order placed before the rate was kept: the amounts per rate are stated in the recap below, and what the shop charges no VAT on is its own mentions to explain #}
+                {% set vatRate = payment_vat_rate(item, type) %}
+                <tr>
+                    <td>{{ line }}</td>
+                    <td class="amount">{{ (item.item.price / 100)|format_currency(basket.currency) }}</td>
+                    <td class="amount">{% if vatRate is not null %}{{ vatRate|format_number }} %{% endif %}</td>
+                    <td class="amount">{{ item.quantity }}</td>
+                    <td class="amount">{{ (item.total / 100)|format_currency(basket.currency) }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4">{{ 'label.subtotal'|trans }}</th>
+            <td class="amount">{{ (basket.total / 100)|format_currency(basket.currency) }}</td>
+        </tr>
+        {% if basket.shipping > 0 %}
+            <tr>
+                <th colspan="4">{{ 'label.shipping'|trans }}</th>
+                <td class="amount">{{ (basket.shipping / 100)|format_currency(basket.currency) }}</td>
+            </tr>
+        {% endif %}
+        {# A code or a card taken off, named as the customer knows it #}
+        {% if basket.discountAmount > 0 %}
+            <tr>
+                <th colspan="4">{{ (basket.discountKind == 'gift_card' ? 'label.gift_card' : 'label.discount')|trans }} {{ basket.discountCode }}</th>
+                <td class="amount">-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}</td>
+            </tr>
+        {% endif %}
+        <tr class="grand-total">
+            <th colspan="4">{{ 'label.total_incl_vat'|trans }}</th>
+            <td class="amount">{{ (basket.payable / 100)|format_currency(basket.currency) }}</td>
+        </tr>
+        {# One line per rate, which is what an invoice states - a shop charging no VAT states none and says why in its own mentions below #}
+        {% for rate in vat.rates %}
+            <tr>
+                <th colspan="4">{{ 'label.including_vat_rate'|trans({'%rate%': rate.rate|format_number}) }}</th>
+                <td class="amount">{{ (rate.amount / 100)|format_currency(basket.currency) }}</td>
+            </tr>
+        {% endfor %}
+    </tfoot>
+</table>
+
+{# Whatever the shop is required to state - its registration numbers, its VAT number, or the article exempting it from charging any. Written by the shopkeeper, who is the only one who knows their own situation #}
+{% if mentions %}<div class="mentions">{{ mentions }}</div>{% endif %}

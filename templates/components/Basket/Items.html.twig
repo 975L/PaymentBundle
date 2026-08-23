@@ -1,38 +1,87 @@
-{# <twig:c975LPayment:Basket:Items basket="{{ basket }}" [kind="simple|complex"]" readonly="true"/> #}
+{# <twig:c975LPayment:Basket:Items basket="{{ basket }}" readonly="true"/> #}
 {% trans_default_domain 'payment' %}
+{# "false" comes down as the string it was written as, which Twig reads as true - the same coercion every other component of the ecosystem applies to a boolean prop #}
+{% set editable = not (readonly|default(false)|to_bool) %}
 {% if basket.quantity > 0 %}
-    {# Items (Product and Crowdfunding) #}
-    {% for type, items in basket.items %}
-        <table>
-            {% for item in items %}
-                <twig:c975LPayment:Basket:Item kind="{{ kind }}" item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" totalVat="{{ item.totalVat }}" type="{{ type }}" readonly="{{ readonly }}"/>
-            {% endfor %}
-        </table>
-    {% endfor %}
-    <table>
-        {# Shipping #}
-        <tr class="shipping">
-            <td>
-                {{ 'label.shipping'|trans }}
-            </td>
-            <td>
-                <span data-basket-target="shipping">{{ basket.shipping > 0 ? (basket.shipping / 100)|format_currency(basket.currency) : 'label.offered'|trans }}</span>
-            </td>
-        </tr>
-        {# Total #}
-        <tfoot>
+    {% set vat = payment_vat(basket) %}
+    {# One table for the articles and their totals: two of them would have their columns land in two different places #}
+    <table class="basket-table">
+        <caption class="sr-only">{{ 'label.ordered_items'|trans }}</caption>
+        <thead>
             <tr>
-                <th><strong>{{ 'label.total'|trans }}</strong></th>
-                <th class="big">
-                    <strong>
-                        <span data-basket-target="total">{{ ((basket.total + basket.shipping) / 100)|format_currency(basket.currency) }}</span>
-                        <br>
-                        <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span data-basket-target="quantity" class="lead">{{ basket.quantity }}</span>
-                    </strong>
-                </th>
+                <th scope="col">{{ 'label.article'|trans }}</th>
+                <th scope="col">{{ 'label.unit_price'|trans }}</th>
+                <th scope="col">{{ 'label.quantity'|trans }}</th>
+                <th scope="col">{{ 'label.total'|trans }}</th>
             </tr>
+        </thead>
+        {# One body per kind of item (products, crowdfunding counterparts...), which is what a provider plugs in #}
+        {% for type, items in basket.items %}
+            <tbody>
+                {% for item in items %}
+                    <twig:c975LPayment:Basket:Item item="{{ item }}" quantity="{{ item.quantity }}" total="{{ item.total }}" type="{{ type }}" readonly="{{ readonly }}"/>
+                {% endfor %}
+            </tbody>
+        {% endfor %}
+        {# The amounts the controller rewrites on every change, announced as they are #}
+        <tfoot aria-live="polite">
+            {% if editable %}
+                {# Right under the articles and above the totals, where an order is still being made up - never in the emails, which also render this component, nor on the coordinates step, where nothing can be added any more #}
+                <tr class="basket-free-shipping">
+                    <td colspan="4"><twig:c975LPayment:Basket:FreeShipping basket="{{ basket }}"/></td>
+                </tr>
+            {% endif %}
+            <tr class="subtotal">
+                <th scope="row" colspan="3">{{ 'label.subtotal'|trans }}</th>
+                <td><span data-basket-target="subtotal">{{ (basket.total / 100)|format_currency(basket.currency) }}</span></td>
+            </tr>
+            <tr class="shipping">
+                <th scope="row" colspan="3">{{ 'label.shipping'|trans }}</th>
+                <td><span data-basket-target="shipping">{{ basket.shipping > 0 ? (basket.shipping / 100)|format_currency(basket.currency) : 'label.offered'|trans }}</span></td>
+            </tr>
+            {# What a code took off - one line whichever of the two it is, the customer holding a code and not a category #}
+            <tr class="basket-code" data-basket-target="codeRow"{% if basket.discountAmount <= 0 %} hidden{% endif %}>
+                <th scope="row" colspan="3">
+                    {# The code itself only where the basket is the reader's own: this table is rendered read-only on the pages a shared order is settled from, and a gift card is a bearer instrument whose leftover balance whoever reads the code can spend #}
+                    <span data-basket-target="codeLabel">
+                        {%- if basket.discountAmount > 0 -%}
+                            {{ (basket.discountKind == 'gift_card' ? 'label.gift_card' : 'label.discount')|trans }}{% if editable %} {{ basket.discountCode }}{% endif %}
+                        {%- endif -%}
+                    </span>
+                    {% if editable %}
+                        <button type="button" class="btn btn-secondary btn-small" data-action="basket#removeCode">{{ 'label.remove'|trans }}</button>
+                    {% endif %}
+                </th>
+                <td><span data-basket-target="codeAmount">{% if basket.discountAmount > 0 %}-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}{% endif %}</span></td>
+            </tr>
+            <tr class="total">
+                <th scope="row" colspan="3">{{ 'label.total_incl_vat'|trans }}</th>
+                <td class="big"><strong><span data-basket-target="total">{{ (basket.payable / 100)|format_currency(basket.currency) }}</span></strong></td>
+            </tr>
+            {# One line per rate once the basket is settled, which is what an invoice states; while it can still change, a single line the controller keeps up to date, the rates present being whatever the next click makes them #}
+            {% if editable %}
+                <tr class="vat" data-basket-target="vatRow"{% if vat.amount <= 0 %} hidden{% endif %}>
+                    <th scope="row" colspan="3">{{ 'label.including_vat'|trans }}</th>
+                    <td><span data-basket-target="vat">{{ (vat.amount / 100)|format_currency(basket.currency) }}</span></td>
+                </tr>
+            {% else %}
+                {% for rate in vat.rates %}
+                    <tr class="vat">
+                        <th scope="row" colspan="3">{{ 'label.including_vat_rate'|trans({'%rate%': rate.rate|format_number}) }}</th>
+                        <td>{{ (rate.amount / 100)|format_currency(basket.currency) }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
         </tfoot>
     </table>
+    {# One input for the two kinds: the server tells a promotional code from a gift card, and asking the customer which of the two they hold is asking them to know how the shop is built #}
+    {% if editable %}
+        <div class="basket-code-form">
+            <label for="basket-code">{{ 'label.code'|trans }}</label>
+            <input type="text" id="basket-code" name="code" autocomplete="off" spellcheck="false" data-basket-target="code" placeholder="{{ 'label.code_placeholder'|trans }}">
+            <button type="button" class="btn btn-secondary" data-action="basket#applyCode">{{ 'label.code_apply'|trans }}</button>
+        </div>
+    {% endif %}
 {% else %}
-    <p class="text text-center lead">{{ 'label.basket_empty'|trans }}</p>
+    <twig:c975LPayment:Basket:Empty/>
 {% endif %}

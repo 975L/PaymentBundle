@@ -60,13 +60,16 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
-    // Continues the sequence after ConfigBundle (10-40), SiteBundle (50-80), UiBundle (90-110), SocialBundle (120-137), GalleryBundle (140-160) and BookBundle (170-190)
+    // Continues the sequence after ConfigBundle (10-40), SiteBundle (50-80), UiBundle (90-110), SocialBundle (120-137), GalleryBundle (140-190) and BookBundle (170-190)
     public function testGetGuidedProjectsContinuesTheOrderSequence(): void
     {
         $projects = $this->createProvider()->getGuidedProjects();
 
-        $this->assertSame(['payment-test-mode', 'payment-transaction-review'], array_column($projects, 'slug'));
-        $this->assertSame([200, 210], array_column($projects, 'order'));
+        $this->assertSame(
+            ['payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping'],
+            array_column($projects, 'slug'),
+        );
+        $this->assertSame([200, 210, 220, 230, 240, 250], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -128,14 +131,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $this->assertSame(['management'], $routes);
     }
 
-    // Reviewing a transaction starts from the payments listing
-    public function testTheTransactionReviewProjectOpensOnThePaymentCrudIndex(): void
+    // Each parcours opens on the listing the task starts from, the two written from the baskets one included
+    public function testEachCrudProjectOpensOnItsOwnListing(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['PaymentCrudController'], array_map(
+        $this->assertSame(['PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -165,11 +168,23 @@ class PaymentGuidedProjectProviderTest extends TestCase
     {
         $constants = new \ReflectionClass(Action::class)->getConstants();
 
-        return array_values(array_filter(
+        return [...array_values(array_filter(
             $constants,
             static fn (string $name): bool => !str_starts_with($name, 'TYPE_'),
             ARRAY_FILTER_USE_KEY
-        ));
+        )), ...$this->customActionNames()];
+    }
+
+    // The names this bundle's CRUD controllers declare themselves, read off their source: EasyAdmin renders `action-<name>` for them just the same, and a highlight pointing at one would fail the check above otherwise
+    private function customActionNames(): array
+    {
+        $names = [];
+        foreach (glob(\dirname(__DIR__, 2) . '/src/Controller/Management/*CrudController.php') ?: [] as $file) {
+            preg_match_all("/Action::new\\('(\\w+)'/", (string) file_get_contents($file), $matches);
+            $names = [...$names, ...$matches[1]];
+        }
+
+        return array_values(array_unique($names));
     }
 
     // Both toggle steps highlight the same shortcut button PaymentShortcutController's route renders on the dashboard

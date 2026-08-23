@@ -1,0 +1,26 @@
+{# <twig:c975LPayment:GiftCard:Cards basket="{{ basket }}"/> - the cards this order bought, as the objects they are #}
+{# Not in the confirmation email, which is where Basket:GiftCards prints the same cards as a plain table: no mail client turns a card over, and none runs the script the panel is rubbed off with #}
+{% trans_default_domain 'payment' %}
+{% set giftCards = payment_gift_cards(basket) %}
+{% if giftCards is not empty %}
+    <h2>{{ 'label.gift_cards_bought'|trans }}</h2>
+    <div class="cards">
+        {% for giftCard in giftCards %}
+            {# The buyer's own page prints the code rather than hiding it under a panel: they paid for it, and the confirmation email of that very order carries it in clear too. The panel is for the page whoever it was given to opens #}
+            <twig:c975LPayment:GiftCard:Card
+                image="{{ giftCard.designImage }}"
+                text="{{ giftCard.designText }}"
+                amount="{{ giftCard.initialAmount }}"
+                balance="{{ giftCard.balance }}"
+                currency="{{ giftCard.currency }}"
+                code="{{ giftCard.code }}"
+                scratch="false"
+                validUntil="{{ giftCard.validUntil }}"
+                testMode="{{ giftCard.testMode }}"
+            />
+            {% if giftCard.shareToken and giftCard.active %}
+                <p class="text-center"><a href="{{ path('gift_card_pdf', {'shareToken': giftCard.shareToken}) }}">{{ 'label.gift_card_download'|trans }}</a></p>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}

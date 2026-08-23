@@ -10,10 +10,9 @@
 
 namespace c975L\PaymentBundle\MessageHandler;
 
-use c975L\PaymentBundle\Email\BasketEmailFactory;
+use c975L\PaymentBundle\Email\BasketEmailSender;
 use c975L\PaymentBundle\Message\ItemsShippedMessage;
 use c975L\PaymentBundle\Repository\BasketRepository;
-use c975L\UiBundle\Service\EmailService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -21,8 +20,7 @@ class ItemsShippedMessageHandler
 {
     public function __construct(
         private readonly BasketRepository $basketRepository,
-        private readonly BasketEmailFactory $basketEmailFactory,
-        private readonly EmailService $emailService,
+        private readonly BasketEmailSender $basketEmailSender,
     ) {
     }
 
@@ -39,9 +37,8 @@ class ItemsShippedMessageHandler
         $template = $isProduct ? 'items_shipped' : 'counterparts_shipped';
 
         // Throws on failure so Messenger retries it, a shipping notice lost silently being one the buyer never gets
-        $request = $this->basketEmailFactory->create($basket, $subjectKey, $template);
-        if (!$this->emailService->send($request)) {
-            throw new \RuntimeException(sprintf('Could not send the shipping notice of basket "%s": %s', $basket->getNumber(), $this->emailService->getLastError() ?? 'unknown error'));
+        if (!$this->basketEmailSender->send($basket, $subjectKey, $template)) {
+            throw new \RuntimeException(sprintf('Could not send the shipping notice of basket "%s": %s', $basket->getNumber(), $this->basketEmailSender->getLastError() ?? 'unknown error'));
         }
     }
 }

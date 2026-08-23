@@ -1,0 +1,29 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# The payer's own page. It shows what is being bought and what it costs, and nothing of who it is for: this url travels by message, and the name and address of whoever the order is going to must not travel with it #}
+{% set title = (fromReminder ? 'label.basket_reminder_pay' : 'label.pay_for_someone')|trans %}
+{# No indexing: an order page is nobody's search result, and this one is reachable by its link alone #}
+{% set robots = 'noindex, nofollow' %}
+
+{% block content %}
+    <twig:c975LPayment:Basket:TestMode/>
+    {% if settled %}
+        <p class="text text-center lead">{{ 'label.share_already_paid'|trans }}</p>
+    {% elseif not payable %}
+        <p class="text text-center lead">{{ 'label.share_unavailable'|trans }}</p>
+    {% else %}
+        <p class="text text-center lead">{{ (fromReminder ? 'label.reminder_pay_explanation' : 'label.share_pay_explanation')|trans({'%number%': basket.number}) }}</p>
+        {# The items and the total, and none of the components that carry the delivery details - no Delivery, no TrackOrder, and not the customer's own message either #}
+        <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+        <form method="post" data-turbo="false">
+            <p class="text-center">
+                <button type="submit" class="btn btn-large btn-primary">{{ 'label.pay'|trans }} {{ (basket.payable / 100)|format_currency(basket.currency) }}</button>
+            </p>
+        </form>
+        <twig:c975LPayment:Basket:SecurePayments/>
+    {% endif %}
+{% endblock %}
+
+{% block share %}
+{% endblock %}

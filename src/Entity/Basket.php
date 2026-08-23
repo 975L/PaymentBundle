@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Entity;
 
 use c975L\ConfigBundle\Contract\UserInterface;
+use c975L\PaymentBundle\Contract\BasketLine;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
 #[ORM\Table(name: 'payment_basket')]
+#[ORM\UniqueConstraint(name: 'uniq_basket_invoice_number', columns: ['invoice_number'])]
 #[UniqueEntity('number')]
 class Basket implements \Stringable
 {
@@ -27,6 +29,8 @@ class Basket implements \Stringable
     public const CONTENT_FLAG_CF_SHIPPING = 4;
     public const CONTENT_FLAG_CF_DIGITAL = 8;
     public const CONTENT_FLAG_SERVICE = 16;
+    // What a gift card is sold as: money bought in advance, and so the one line a promotional code must not be taken off - a percentage off a card, or a card bought with a card, is a loop the shop pays for (see BasketCodeService::discountBase())
+    public const CONTENT_FLAG_GIFT_CARD = 32;
 
     // Pre-defined flags
     public const FLAG_PRODUCT_MIXED = self::CONTENT_FLAG_DIGITAL | self::CONTENT_FLAG_PHYSICAL; // 3
@@ -36,6 +40,10 @@ class Basket implements \Stringable
     public const FLAG_SERVICE_ONLY = self::CONTENT_FLAG_SERVICE; // 16
     public const FLAG_NO_SHIPPING = self::FLAG_DIGITAL_ONLY | self::FLAG_SERVICE_ONLY; // 25
     public const FLAG_MIXED = self::FLAG_DIGITAL_ONLY | self::FLAG_NEEDS_SHIPPING | self::FLAG_SERVICE_ONLY; // 31
+
+    // The two kinds of code the one input of the basket page accepts, told apart by the service rather than by the customer (see BasketCodeService)
+    public const CODE_KIND_DISCOUNT = 'discount';
+    public const CODE_KIND_GIFT_CARD = 'gift_card';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,6 +55,14 @@ class Basket implements \Stringable
 
     #[ORM\Column(length: 16, nullable: true)]
     private ?string $securityToken = null;
+
+    // The second secret of an order, handed to whoever is asked to pay: it opens what is being bought and nothing of who it is for, where the token above would disclose the recipient's address
+    #[ORM\Column(length: 16, nullable: true, unique: true)]
+    private ?string $shareToken = null;
+
+    // The third secret, and the only one a basket carries before it becomes an order: it is what a visitor's browser keeps, so a basket filled anonymously is still theirs once their session has been recycled - which PHP does after 24 minutes of inactivity by default, while the basket sits in the database for days (see BasketRecoverySubscriber)
+    #[ORM\Column(length: 16, nullable: true, unique: true)]
+    private ?string $recoveryToken = null;
 
     #[ORM\Column]
     private array $items = [];
@@ -85,6 +101,19 @@ class Basket implements \Stringable
     #[Assert\PositiveOrZero]
     private ?int $shipping = null;
 
+    // The code the customer typed, kept as it was resolved rather than re-read at display time: a code deleted or expired after the order was paid must not change what that order says it was charged
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $discountCode = null;
+
+    // Which of the two the code turned out to be, one of the CODE_KIND_* above
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $discountKind = null;
+
+    // What it actually took off, in cents - recomputed on every change of the basket (see BasketService::updateTotals()) and frozen once the order is validated
+    #[ORM\Column]
+    #[Assert\PositiveOrZero]
+    private int $discountAmount = 0;
+
     #[ORM\Column]
     #[Assert\PositiveOrZero]
     private ?int $quantity = null;
@@ -115,15 +144,58 @@ class Basket implements \Stringable
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $downloaded = null;
 
+    // When the order left the back-office active list: it is still kept for the ten years the accounting obligation asks for, but it has stopped being current business once the legal warranty has run out, and setting it apart is what the CNIL asks for rather than leaving it among the orders being handled
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $archived = null;
+
+    // How many reminders an abandoned basket has already been sent, so the second one is not the first one over again. Counted here rather than read from "modification": the retention pass reads that date to know when the visitor last touched their basket, and a reminder writing to it would push the purge back every time it fires
+    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    private int $remindersSent = 0;
+
+    // Whether the visitor asked to be reminded of the basket they are about to leave unpaid: an abandoned basket is not a concluded sale, so the exception article L34-5 of the CPCE makes for analogous products does not cover it and the reminder needs their consent
+    #[ORM\Column(options: ['default' => false])]
+    private bool $reminderConsent = false;
+
+    // The language the order was placed in, remembered because the e-mails that follow it are not all sent from the customer's own request: a reminder goes out from a nightly command and a shipping notice from the shopkeeper's click, and neither would know what language to write in. Null on the orders taken before this was kept, which the site's own language answers for
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $locale = null;
+
+    // The day the invoice was issued, kept beside its number and never read off "modification": that date moves every time the order is touched - a parcel posted two days later would redate an invoice already in the customer's mailbox, and the same number would then name two documents
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $invoiceDate = null;
+
+    // Whether the checkout was opened while the shop was charging with the provider's test keys. Stamped when the order is frozen and never afterwards - the toggle can be flipped back between the moment an order is validated and the moment it is paid, and what a rehearsal is, is an order charged against test keys. Read by InvoiceService, which numbers no such order: an invoice sequence an accountant reads holds no document for a sale that never happened
+    #[ORM\Column]
+    private bool $testMode = false;
+
+    // The invoice this order was billed under, drawn once when it is paid and never again: an invoice number is a sequence an accountant reads, not a value recomputed from the order (see InvoiceService::assign()). Null on the orders taken before the shop issued any, and on everything not yet paid
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $invoiceNumber = null;
+
+    // Whoever the gift cards of this order were bought for, and what the buyer wanted said to them. One address per order, not one per card: a shopper buying two cards for the same person is the ordinary case, and asking twice for two lines that go to the same mailbox helps nobody
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Email]
+    private ?string $giftCardRecipientEmail = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $giftCardRecipientMessage = null;
+
     #[ORM\ManyToOne]
     private ?UserInterface $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
+    // What the basket page's JavaScript is answered with, so the three secrets are taken out of it: they guard the order-tracking page, the shared payment page and the basket itself, and none of them is anything the browser has to be told
     public function toArray(): array
     {
-        return get_object_vars($this);
+        $vars = get_object_vars($this);
+        unset($vars['securityToken'], $vars['shareToken'], $vars['recoveryToken']);
+        // Read through the getter rather than off the property, so the page is handed the same shape the templates are
+        $vars['items'] = $this->getItems();
+
+        return $vars;
     }
 
     public function __toString(): string
@@ -148,6 +220,18 @@ class Basket implements \Stringable
         return $this;
     }
 
+    public function getRecoveryToken(): ?string
+    {
+        return $this->recoveryToken;
+    }
+
+    public function setRecoveryToken(?string $recoveryToken): static
+    {
+        $this->recoveryToken = $recoveryToken;
+
+        return $this;
+    }
+
     public function getSecurityToken(): ?string
     {
         return $this->securityToken;
@@ -160,9 +244,13 @@ class Basket implements \Stringable
         return $this;
     }
 
+    // Every line brought up to the shape the code reads, which is the one place an order written years ago is caught up with (see BasketLine::normalize())
     public function getItems(): array
     {
-        return $this->items;
+        return array_map(
+            static fn (array $itemsOfThisKind): array => array_map(BasketLine::normalize(...), $itemsOfThisKind),
+            $this->items
+        );
     }
 
     public function setItems(array $items): static
@@ -170,6 +258,12 @@ class Basket implements \Stringable
         $this->items = $items;
 
         return $this;
+    }
+
+    // Whether this basket holds that one item - what a paywall asks of a paid order, the items being stored as items[kind][id]
+    public function holdsItem(string $kind, int | string $itemId): bool
+    {
+        return isset($this->items[$kind][$itemId]);
     }
 
     /**
@@ -394,6 +488,54 @@ class Basket implements \Stringable
         return $this;
     }
 
+    public function getArchived(): ?\DateTimeInterface
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(?\DateTimeInterface $archived): static
+    {
+        $this->archived = $archived;
+
+        return $this;
+    }
+
+    public function getRemindersSent(): int
+    {
+        return $this->remindersSent;
+    }
+
+    public function setRemindersSent(int $remindersSent): static
+    {
+        $this->remindersSent = $remindersSent;
+
+        return $this;
+    }
+
+    public function isReminderConsent(): bool
+    {
+        return $this->reminderConsent;
+    }
+
+    public function setReminderConsent(bool $reminderConsent): static
+    {
+        $this->reminderConsent = $reminderConsent;
+
+        return $this;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): static
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
     public function getPayment(): ?Payment
     {
         return $this->payment;
@@ -426,6 +568,133 @@ class Basket implements \Stringable
     public function setMessage(?string $message): static
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    public function getDiscountCode(): ?string
+    {
+        return $this->discountCode;
+    }
+
+    public function setDiscountCode(?string $discountCode): static
+    {
+        $this->discountCode = $discountCode;
+
+        return $this;
+    }
+
+    public function getDiscountKind(): ?string
+    {
+        return $this->discountKind;
+    }
+
+    public function setDiscountKind(?string $discountKind): static
+    {
+        $this->discountKind = $discountKind;
+
+        return $this;
+    }
+
+    public function getDiscountAmount(): int
+    {
+        return $this->discountAmount;
+    }
+
+    public function setDiscountAmount(int $discountAmount): static
+    {
+        $this->discountAmount = max(0, $discountAmount);
+
+        return $this;
+    }
+
+    // What is actually charged: the items, the shipping, less whatever the code took off. Never below zero - a card worth more than the order pays it in full and keeps the rest for the next one
+    public function getPayable(): int
+    {
+        return max(0, (int) $this->total + (int) $this->shipping - $this->discountAmount);
+    }
+
+    public function getShareToken(): ?string
+    {
+        return $this->shareToken;
+    }
+
+    public function setShareToken(?string $shareToken): static
+    {
+        $this->shareToken = $shareToken;
+
+        return $this;
+    }
+
+    // An order somebody else is being asked to settle, which is the only case a payment page is opened by anyone but its customer
+    public function isShared(): bool
+    {
+        return null !== $this->shareToken;
+    }
+
+    public function getGiftCardRecipientEmail(): ?string
+    {
+        return $this->giftCardRecipientEmail;
+    }
+
+    public function setGiftCardRecipientEmail(?string $giftCardRecipientEmail): static
+    {
+        $this->giftCardRecipientEmail = $giftCardRecipientEmail;
+
+        return $this;
+    }
+
+    public function getGiftCardRecipientMessage(): ?string
+    {
+        return $this->giftCardRecipientMessage;
+    }
+
+    public function setGiftCardRecipientMessage(?string $giftCardRecipientMessage): static
+    {
+        $this->giftCardRecipientMessage = $giftCardRecipientMessage;
+
+        return $this;
+    }
+
+    // Whether this order has somebody other than the buyer to write to: a card was bought, and an address was given for it
+    public function hasGiftCardRecipient(): bool
+    {
+        return null !== $this->giftCardRecipientEmail && '' !== $this->giftCardRecipientEmail
+            && 0 !== ($this->contentflags & self::CONTENT_FLAG_GIFT_CARD);
+    }
+
+    public function isTestMode(): bool
+    {
+        return $this->testMode;
+    }
+
+    public function setTestMode(bool $testMode): static
+    {
+        $this->testMode = $testMode;
+
+        return $this;
+    }
+
+    public function getInvoiceNumber(): ?string
+    {
+        return $this->invoiceNumber;
+    }
+
+    public function setInvoiceNumber(?string $invoiceNumber): static
+    {
+        $this->invoiceNumber = $invoiceNumber;
+
+        return $this;
+    }
+
+    public function getInvoiceDate(): ?\DateTimeInterface
+    {
+        return $this->invoiceDate;
+    }
+
+    public function setInvoiceDate(?\DateTimeInterface $invoiceDate): static
+    {
+        $this->invoiceDate = $invoiceDate;
 
         return $this;
     }

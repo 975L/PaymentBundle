@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -10,7 +10,7 @@ description: "Use this skill when plugging a new kind of sellable item into the 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Exception/BasketNotOrderableException.php`
+`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`
 
 **Related skills:** `c975l-payment-checkout` and `c975l-payment-gateway` in this same bundle.
 
@@ -67,7 +67,19 @@ They decide whether the order needs shipping, whether it appears in the "orders 
 ## The two optional registries
 
 - **`BasketRecommendationProviderInterface`** — the cross-sell strip under the basket. **Only one provider is asked**: the first registered wins, the others are never called. `[]` with none installed.
-- **`BasketDownloadProviderInterface`** — `getDownloads(Basket $basket): array` of `{title, url, size}`, letting a buyer download again what they bought however long ago the emailed link expired. Unlike recommendations, **every** provider is asked and their answers concatenated — a basket can hold files of several kinds. Return `[]` for a basket holding nothing of yours. With nothing installed the section is left out of the page rather than drawn empty. It is called for a basket already checked as paid and as belonging to the user asking.
+- **`BasketDownloadProviderInterface`** — `getDownloads(Basket $basket): array` of `{title, url, size, expiresAt}`, letting a buyer download again what they bought from their customer area. Unlike recommendations, **every** provider is asked and their answers concatenated — a basket can hold files of several kinds. Return `[]` for a basket holding nothing of yours. With nothing installed the section is left out of the page rather than drawn empty. It is called for a basket already checked as paid and as belonging to the user asking.
+
+  **Hand over the links the delivery already made; never mint one here.** The page is read again long after the order, and a link minted on the visit would outlive what the buyer was promised — `expiresAt` is that promise, and it is what the page tells them.
+
+## Gating a media on a purchase
+
+**Not the same thing as `BasketDownloadProviderInterface` above, however much they look alike.** That one hands a bought **file** over to be downloaded, for as long as its emailed link lives. This one answers whether a **media** may be shown in the page at all — a paywalled photo, video or chapter.
+
+`BasketRepository::hasPaidFor()` takes the buyer (a `UserInterface` matched on the account, a string matched on the address), your `getKind()` and the id the item was added under, and says whether one of their paid or shipped orders holds it. It says the purchase happened; it says nothing about a delay and never expires on its own. No entity to add, no right to keep beside the orders.
+
+The paywall itself is yours, never this bundle's. Serve the file from outside `public/` with UiBundle's `PrivateFileResponseFactory::createInlineResponse()` — inline disposition, private response, and `Range` requests left to `BinaryFileResponse`, without which a video plays from its start and cannot be moved through. Never write the real path in the HTML, `src` attributes included. The teaser is yours too: the blurred thumbnail, the first seconds, and the button putting the media in the basket.
+
+A page gating a whole gallery asks once per media, so keep the answer for the request rather than calling it in a loop over a hundred thumbnails.
 
 ## Do not
 
@@ -76,5 +88,7 @@ They decide whether the order needs shipping, whether it appears in the "orders 
 - **Do not store pre-payment data anywhere but the return value of `onBasketValidated()`.**
 - **Do not keep a customer's details in `Basket::$checkoutData` as a record** — it is dropped on delivery, by design.
 - **Do not write anything in `validateCheckout()`** — it runs before the order exists.
+- **Do not mint a download link in `getDownloads()`** — hand over what the delivery made, with its `expiresAt`.
+- **Do not keep a right of your own beside the orders for a paywall** — `hasPaidFor()` reads them, and two records of the same purchase end up disagreeing.
 - **Do not make this bundle aware of your entity.** It hands you a basket and renders what comes back.
 - **Do not expect `onBasketPaid()` more than once** — nor fewer than once.

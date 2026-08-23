@@ -22,8 +22,13 @@ interface ReturnAwareGatewayInterface
      * The url the customer comes back on proves nothing - it is handed to them before they pay - so what it
      * carries is only ever used to look the payment up at the provider, never as the confirmation itself.
      *
+     * @param string|null $reference what the provider called the checkout when it was opened, kept on the
+     *                               payment since. A provider writing nothing of its own into the return url
+     *                               has this and nothing else to look the payment up by; null when the
+     *                               checkout was already settled or called off
+     *
      * @return PaymentNotification|null null when the return carries nothing to look up, or when the provider
      *                                  answers that the payment is not settled
      */
-    public function readReturn(Request $request): ?PaymentNotification;
+    public function readReturn(Request $request, ?string $reference): ?PaymentNotification;
 }

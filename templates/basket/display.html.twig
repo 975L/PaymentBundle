@@ -10,7 +10,6 @@
     {% if null != basket %}
         {% if "display" == action %}
             <div data-controller="basket" id="basket-page">
-                <twig:c975LShop:Shop:Shipping/>
                 <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="false"/>
                 <twig:c975LPayment:Basket:Message/>
                 <twig:c975LPayment:Basket:Buttons basket="{{ basket }}"/>
@@ -18,7 +17,6 @@
             </div>
         {% elseif "validate" == action %}
             <div data-controller="basket" id="basket-page">
-                <twig:c975LShop:Shop:Shipping/>
                 <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
                 <twig:c975LPayment:Basket:Validation basket="{{ basket }}" form="{{ form }}"/>
             </div>
@@ -28,19 +26,28 @@
             {% if confirmed %}
                 <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
                 <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/>
+                {# The files are handed over here too, so a buyer whose email never arrived is not left without them #}
+                <twig:c975LPayment:Basket:Downloads downloads="{{ downloads }}"/>
             {% endif %}
             <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+            {% if confirmed %}
+                <twig:c975LPayment:Basket:GiftCards basket="{{ basket }}"/>
+            {% endif %}
             <twig:c975LPayment:Basket:MessageUser message="{{ basket.message }}"/>
+            {# Offered once the payment went through and never before it: nothing competes with the checkout itself. "app.user" is read here and not in the component, which is also rendered into an email, where there is no visitor to ask about #}
+            {% if confirmed and app.user is null %}
+                <twig:c975LPayment:Basket:AccountInvitation basket="{{ basket }}"/>
+            {% endif %}
             <twig:c975LShop:Shop:ViewButton/>
         {% endif %}
     {# Empty basket #}
     {% else %}
-        <p class="text text-center lead">{{ 'label.basket_empty'|trans({}, 'payment') }}</p>
+        <twig:c975LPayment:Basket:Empty/>
         <twig:c975LShop:Shop:ViewButton/>
     {% endif %}
     {# Empty basket for javascript use #}
     <template id="empty-basket-template">
-        <p class="text text-center lead">{{ 'label.basket_empty'|trans({}, 'payment') }}</p>
+        <twig:c975LPayment:Basket:Empty/>
         <twig:c975LShop:Shop:ViewButton/>
     </template>
 {% endblock %}

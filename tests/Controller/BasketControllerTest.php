@@ -15,8 +15,11 @@ use c975L\PaymentBundle\Controller\BasketController;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
+use c975L\PaymentBundle\Registry\BasketDownloadRegistry;
 use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
+use c975L\PaymentBundle\Service\InvoiceService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Form\FormInterface;
@@ -26,8 +29,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 /**
  * Where the visitor is sent when they validate their basket.
@@ -39,6 +44,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BasketControllerTest extends TestCase
 {
     private Session $session;
+
+    /** @var array<string, mixed> */
+    private array $criteria = [];
 
     protected function setUp(): void
     {
@@ -95,6 +103,51 @@ class BasketControllerTest extends TestCase
         $this->assertSame(['Only 2 left of "Mug"'], $this->session->getFlashBag()->get('danger'));
     }
 
+    // The buyer lands here with their files, so a download email that never arrived leaves nobody without what they paid for
+    public function testAPaidBasketIsHandedItsDownloadsOnThePage(): void
+    {
+        $downloads = [['title' => 'A book', 'url' => '/shop/download/abcd', 'size' => 1024]];
+        $basket = new Basket()->setStatus('paid');
+
+        $parameters = $this->renderedParameters($basket, $downloads);
+
+        $this->assertSame($downloads, $parameters['downloads']);
+    }
+
+    // A basket still being paid is never told about its files, whatever a provider would answer
+    public function testABasketNotYetPaidIsHandedNoDownload(): void
+    {
+        $basket = new Basket()->setStatus('waiting');
+
+        $parameters = $this->renderedParameters($basket, [['title' => 'A book', 'url' => '/shop/download/abcd', 'size' => 1024]]);
+
+        $this->assertSame([], $parameters['downloads']);
+    }
+
+    /**
+     * @param list<array{title: string, url: string, size: ?int}> $downloads what every provider would answer for that basket
+     *
+     * @return array<string, mixed> what the paid page is rendered with
+     */
+    private function renderedParameters(Basket $basket, array $downloads): array
+    {
+        $downloadRegistry = $this->createStub(BasketDownloadRegistry::class);
+        $downloadRegistry->method('getDownloads')->willReturn($downloads);
+
+        $parameters = [];
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturnCallback(function (string $view, array $context) use (&$parameters): string {
+            $parameters = $context;
+
+            return '';
+        });
+
+        $controller = $this->controller($this->createStub(BasketServiceInterface::class), $downloadRegistry, $twig);
+        $controller->paid($basket, new Request());
+
+        return $parameters;
+    }
+
     // A basket, its coordinates form filled in and submitted
     private function basketService(): BasketServiceInterface
     {
@@ -109,7 +162,64 @@ class BasketControllerTest extends TestCase
         return $basketService;
     }
 
-    private function controller(BasketServiceInterface $basketService): BasketController
+    // The address a payment link travels by, short enough to leave room for a sentence in a text message
+    public function testTheShortAddressRedirectsToThePayersOwnPage(): void
+    {
+        $basket = new Basket()
+            ->setNumber('202608-AB-12345')
+            ->setShareToken('aaaabbbbccccdddd')
+        ;
+
+        $response = $this->controller($this->createStub(BasketServiceInterface::class))
+            ->shortPay('aaaabbbbccccdddd', $this->basketRepository($basket))
+        ;
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/basket_shared_pay', $response->getTargetUrl());
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    // An address dictated over the telephone and retyped comes back capitalised, and must open the order it names all the same - the token is stored in lower case, and looked up in lower case whatever the site's collation says
+    public function testAnAddressRetypedInCapitalsOpensTheSameOrder(): void
+    {
+        $basket = new Basket()
+            ->setNumber('202608-AB-12345')
+            ->setShareToken('aaaabbbbccccdddd')
+        ;
+        $repository = $this->basketRepository($basket);
+
+        $response = $this->controller($this->createStub(BasketServiceInterface::class))
+            ->shortPay('AAAABBBBCCCCDDDD', $repository)
+        ;
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame(['shareToken' => 'aaaabbbbccccdddd'], $this->criteria);
+    }
+
+    // An order nobody was asked to settle has no payer's page to send anybody to, and a token guessed at opens nothing
+    public function testAnOrderThatWasNeverSharedIsNotFoundAtTheShortAddress(): void
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->controller($this->createStub(BasketServiceInterface::class))
+            ->shortPay('aaaabbbbccccdddd', $this->basketRepository(new Basket()))
+        ;
+    }
+
+    // The order the short address names, and what it was looked up with
+    private function basketRepository(?Basket $basket): BasketRepository
+    {
+        $repository = $this->createStub(BasketRepository::class);
+        $repository->method('findOneBy')->willReturnCallback(function (array $criteria) use ($basket): ?Basket {
+            $this->criteria = $criteria;
+
+            return $basket;
+        });
+
+        return $repository;
+    }
+
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null): BasketController
     {
         // The translator answers the key itself, so a flash is asserted on the key rather than on a wording
         $translator = $this->createStub(TranslatorInterface::class);
@@ -119,16 +229,18 @@ class BasketControllerTest extends TestCase
             $this->createStub(ConfigServiceInterface::class),
             $basketService,
             $this->createStub(BasketRecommendationRegistry::class),
+            $downloadRegistry ?? $this->createStub(BasketDownloadRegistry::class),
             $translator,
+            $this->createStub(InvoiceService::class),
         );
 
-        $controller->setContainer($this->container());
+        $controller->setContainer($this->container($twig));
 
         return $controller;
     }
 
-    // What AbstractController reaches for on these paths: the router for redirectToRoute(), the request stack for addFlash()
-    private function container(): ContainerInterface
+    // What AbstractController reaches for on these paths: the router for redirectToRoute(), the request stack for addFlash(), and twig for render()
+    private function container(?Environment $twig = null): ContainerInterface
     {
         $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
@@ -139,7 +251,7 @@ class BasketControllerTest extends TestCase
         $request->setSession($this->session);
         $requestStack = new RequestStack([$request]);
 
-        $services = ['router' => $router, 'request_stack' => $requestStack];
+        $services = ['router' => $router, 'request_stack' => $requestStack, 'twig' => $twig];
 
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => isset($services[$id]));

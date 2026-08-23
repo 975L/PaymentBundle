@@ -77,6 +77,28 @@ class CoordinatesType extends AbstractType
             ;
         }
 
+        // Who the gift cards are for. A card is bought for somebody else by definition, and the address asked for here is what lets them open it without an account of their own - left blank, the buyer forwards the link themselves
+        if (0 !== ($options['data']->getContentFlags() & Basket::CONTENT_FLAG_GIFT_CARD)) {
+            $builder
+                ->add('giftCardRecipientEmail', EmailType::class, [
+                    'label' => 'label.gift_card_recipient_email',
+                    'required' => false,
+                    'help' => 'description.gift_card_recipient_email',
+                    'attr' => [
+                        'placeholder' => 'placeholder.email',
+                    ],
+                ])
+                ->add('giftCardRecipientMessage', TextareaType::class, [
+                    'label' => 'label.gift_card_recipient_message',
+                    'required' => false,
+                    'attr' => [
+                        'placeholder' => 'placeholder.gift_card_recipient_message',
+                        'rows' => 3,
+                    ],
+                ])
+            ;
+        }
+
         // Message if crowdfunding
         $items = $options['data']->getItems();
         if (isset($items['crowdfunding'])) {
@@ -140,6 +162,11 @@ class CoordinatesType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'mapped' => false,
+            ])
+            // Reminder of an order left unpaid, the only box here that is asked for and not required: an abandoned basket is no concluded sale, so the exception article L34-5 of the CPCE makes for analogous products does not cover it and nothing but consent allows the e-mail. Mapped, unlike the three above: it is the basket that carries the answer, the reminder going out days later with nobody around to be asked again
+            ->add('reminderConsent', CheckboxType::class, [
+                'label' => 'label.reminder_consent',
+                'required' => false,
             ])
         ;
     }

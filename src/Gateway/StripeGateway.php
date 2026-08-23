@@ -108,10 +108,15 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
     }
 
     // The customer coming back from Stripe, which is only ever a session id to look up: the session is re-read from Stripe itself, so a url typed by hand confirms nothing
-    public function readReturn(Request $request): ?PaymentNotification
+    public function readReturn(Request $request, ?string $reference): ?PaymentNotification
     {
+        // Stripe writes the session id into the url it sends the customer back on, and the reference kept on the payment names the same session: the second answers when the first has been dropped along the way
         $sessionId = $request->query->get('session_id');
         if (!is_string($sessionId) || '' === $sessionId) {
+            $sessionId = $reference;
+        }
+
+        if (null === $sessionId || '' === $sessionId) {
             return null;
         }
 
@@ -124,6 +129,12 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
     public function getTransactionUrl(string $transactionId): ?string
     {
         return 'https://dashboard.stripe.com/' . ($this->testMode->isEnabled() ? 'test/' : '') . 'payments/' . $transactionId;
+    }
+
+    // Where Checkout hosts its payment page, the same host in test mode as live: the redirection leaving the basket form lands there, and the site's form-action has to name it
+    public function getCheckoutDomains(): array
+    {
+        return ['checkout.stripe.com'];
     }
 
     // Asks Stripe for the account the key belongs to: the cheapest authenticated call there is, and the only one that tells a revoked or mistyped key from a well-formed one

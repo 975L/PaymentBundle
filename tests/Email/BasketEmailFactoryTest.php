@@ -13,8 +13,11 @@ namespace c975L\PaymentBundle\Tests\Email;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Email\BasketEmailFactory;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\UiBundle\Model\EmailAttachment;
+use c975L\UiBundle\Service\EmailTemplateRenderer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 // The envelope every basket email shares, now that no class of this bundle addresses a message by hand
 class BasketEmailFactoryTest extends TestCase
@@ -30,14 +33,30 @@ class BasketEmailFactoryTest extends TestCase
         $this->assertSame('archive@shop.test', $request->bcc);
     }
 
-    // The body is rendered alone and wrapped by the registry, so the template must never be given a layout of its own
-    public function testItAsksForTheLayoutToBeWrappedAroundTheBody(): void
+    // The composed body is a whole document, EmailTemplateRenderer having wrapped it in the site's layout already - asking UiBundle to wrap it a second time would nest one layout inside the other
+    public function testItHandsOverTheComposedBodyAndNoTwigPath(): void
     {
         $request = $this->factory()->create($this->basket(), 'label.confirm_order', 'confirm_order');
 
-        $this->assertTrue($request->wrapLayout);
-        $this->assertSame('@c975LPayment/emails/confirm_order.html.twig', $request->template);
-        $this->assertNull($request->html);
+        $this->assertSame('<html>composed</html>', $request->html);
+        $this->assertNull($request->template);
+        $this->assertFalse($request->wrapLayout);
+        $this->assertSame([], $request->context);
+    }
+
+    // This bundle ships no Twig body any more, so a name neither stored nor declared has nothing to fall back on - and an order confirmed by a blank email is worse than one that fails loudly
+    public function testAnEmailWithNoBodyAtAllIsRefusedRatherThanSentEmpty(): void
+    {
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);
+        $emailTemplateRenderer->method('renderNamed')->willReturn(null);
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturn('');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('confirm_order');
+
+        new BasketEmailFactory($configService, $emailTemplateRenderer, $this->translator(), $twig)->create($this->basket(), 'label.confirm_order', 'confirm_order');
     }
 
     public function testItStatesTheShopTheSubjectAndTheOrderNumber(): void
@@ -47,18 +66,16 @@ class BasketEmailFactoryTest extends TestCase
         $this->assertSame('Shop My shop - label.items_shipped - ORDER-1', $request->subject);
     }
 
-    // The basket is always there, whatever else the body asks for
-    public function testTheContextCarriesTheBasketAlongsideWhatTheBodyNeeds(): void
+    // What the body needs reaches it through the renderer's variables, not through a Twig context: the request carries a finished document
+    public function testTheContextIsEmptyTheBodyBeingAlreadyRendered(): void
     {
-        $basket = $this->basket();
-        $request = $this->factory()->create($basket, 'label.download_information', 'download_information', [
+        $request = $this->factory()->create($this->basket(), 'label.download_information', 'download_information', [
             'downloadLinks' => ['a-link'],
             'expirationDays' => 7,
         ]);
 
-        $this->assertSame($basket, $request->context['basket']);
-        $this->assertSame(['a-link'], $request->context['downloadLinks']);
-        $this->assertSame(7, $request->context['expirationDays']);
+        $this->assertSame([], $request->context);
+        $this->assertNotNull($request->html);
     }
 
     // A blank key must come back as null, so UiBundle falls back on the site-wide address instead of building a broken one
@@ -74,14 +91,48 @@ class BasketEmailFactoryTest extends TestCase
             ['shop-email-bcc', ''],
         ]);
 
-        $request = new BasketEmailFactory($configService, $this->translator())->create($this->basket(), 'label.confirm_order', 'confirm_order');
+        $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);
+        $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturn('');
+
+        $request = new BasketEmailFactory($configService, $emailTemplateRenderer, $this->translator(), $twig)->create($this->basket(), 'label.confirm_order', 'confirm_order');
 
         $this->assertNull($request->from);
         $this->assertNull($request->replyTo);
         $this->assertNull($request->bcc);
     }
 
-    private function factory(): BasketEmailFactory
+    // The documents that email's row says it travels with - the terms of sale a shop attaches to its confirmations, ticked in the builder and never decided here
+    public function testItCarriesWhatItsTemplateSaysItTravelsWith(): void
+    {
+        $attachment = new EmailAttachment('conditions-generales-de-vente.pdf', '%PDF-1.7');
+
+        $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);
+        $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
+        $emailTemplateRenderer->method('attachmentsFor')->willReturn([$attachment]);
+
+        $request = $this->factory($emailTemplateRenderer)->create($this->basket(), 'label.confirm_order', 'confirm_order');
+
+        $this->assertSame([$attachment], $request->attachments);
+    }
+
+    // The order and the language it was placed in, so a document is drawn about that sale and written to that customer
+    public function testTheOrderAndItsLanguageReachWhoeverDrawsTheDocuments(): void
+    {
+        $basket = $this->basket()->setLocale('de');
+
+        $emailTemplateRenderer = $this->createMock(EmailTemplateRenderer::class);
+        $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
+        $emailTemplateRenderer->expects($this->once())
+            ->method('attachmentsFor')
+            ->with('confirm_order', ['basket' => $basket, 'downloadLinks' => ['a-link']], 'de')
+            ->willReturn([]);
+
+        $this->factory($emailTemplateRenderer)->create($basket, 'label.confirm_order', 'confirm_order', ['downloadLinks' => ['a-link']]);
+    }
+
+    private function factory(?EmailTemplateRenderer $emailTemplateRenderer = null): BasketEmailFactory
     {
         $configService = $this->createStub(ConfigServiceInterface::class);
         $configService->method('get')->willReturnMap([
@@ -93,7 +144,17 @@ class BasketEmailFactoryTest extends TestCase
             ['shop-email-bcc', 'archive@shop.test'],
         ]);
 
-        return new BasketEmailFactory($configService, $this->translator());
+        // Where the body comes from - the site's own row or the wording this bundle declares - is EmailTemplateRenderer's affair; these tests are about the envelope around it
+        if (null === $emailTemplateRenderer) {
+            $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);
+            $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
+        }
+
+        // Renders each slot wrapper to an empty string: what a slot holds is UiBundle's business, not this factory's envelope
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturn('');
+
+        return new BasketEmailFactory($configService, $emailTemplateRenderer, $this->translator(), $twig);
     }
 
     // Returns the key itself, so a subject assertion reads which key was asked for

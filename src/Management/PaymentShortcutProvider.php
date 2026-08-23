@@ -41,7 +41,7 @@ class PaymentShortcutProvider implements ShortcutProviderInterface
                 'route' => PaymentShortcutController::TOGGLE_ROUTE_TEST_MODE,
                 'active' => $enabled,
                 'role' => $this->configService->get('site-role-admin'),
-                'category' => ShortcutProviderInterface::CATEGORY_MAINTENANCE,
+                'category' => ShortcutProviderInterface::CATEGORY_TOGGLE,
             ],
         ];
     }

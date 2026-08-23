@@ -1,25 +1,145 @@
 /* BASKET */
-button span {
-    font-family: var(--font-family-title);
+// Everything here is scoped to the table the basket draws: this stylesheet is concatenated with the others, and the bare "td" and "th" rules it carried until 22/08/2026 sized every cell of the site
+.basket-table {
+    width: 100%;
+    margin: 0 auto 1em auto;
+    border-collapse: collapse;
 }
 
-th {
-    padding: 0 auto 0.5em auto;
+.basket-table th,
+.basket-table td {
+    padding: 0.5em;
+    max-width: none;
+    text-align: center;
+    vertical-align: middle;
+}
+
+// The site's own "th" is a heading of its own size, which a column title of a table read at a glance is not
+.basket-table thead th {
+    border-bottom: 2px solid var(--border-color);
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+// The article names its row: the picture on the left, what was picked beside it, which halves the height of the row and closes the gap that separated an article from its price
+.basket-table .basket-item {
+    width: 40%;
+    border-bottom: none;
+    font-size: 1em;
+    text-align: left;
+}
+
+.basket-item-inner {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.basket-item-inner > p {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.basket-item-text {
+    flex: 1;
+}
+
+.basket-table .basket-item img {
+    width: 80px;
+    aspect-ratio: 1;
+    object-fit: contain;
+}
+
+// The paragraphs of the cell are aligned one by one: the alignment of the cell is inherited, and any rule of the site's own on a "p" - the reading measure ".text" carries, for one - takes it back
+.basket-table .basket-item p {
+    margin: 0.25em 0;
+    text-align: left;
+}
+
+.basket-item-description {
+    font-size: 0.9em;
+}
+
+// The rate the line is taxed at, stated beside the article rather than in a column of its own: a fifth column would push the totals of a basket table read on a telephone off the screen
+.basket-item-vat {
+    display: block;
+    font-size: 0.8em;
+}
+
+.basket-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.basket-table tfoot th {
+    border-bottom: none;
+    font-size: 1em;
+    text-align: right;
+}
+
+// The site draws a thick rule over a foot holding one row; here there are five, and five bars read as a fence. Only the total keeps a strong one, the lines leading to it are parted by the hairline the articles use
+.basket-table tfoot tr {
+    border-top: 1px solid var(--border-color);
+}
+
+.basket-table tfoot .basket-free-shipping {
+    border-top: none;
+}
+
+.basket-table tfoot .total {
+    border-top: 3px solid var(--primary);
+}
+
+// Same reason: the site sizes every foot cell as a total. What is being added up is read at the size of the table, and only what is due stands out
+.basket-table tfoot td {
     font-size: 1em;
 }
 
-tr.shipping td {
-    padding: 10px;
+.basket-table tfoot .total td {
+    font-size: 1.4em;
 }
 
-td {
-    padding: 0 5px;
-    width: 50%;
-    max-width: 200px;
-}
 
-tfoot th {
-    border-bottom: none;
+// Four columns do not hold on a phone: the article takes the width and the three figures line up under it
+@media (max-width: 700px) {
+    .basket-table thead {
+        display: none;
+    }
+
+    .basket-table tbody tr {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        align-items: center;
+    }
+
+    .basket-table tfoot tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+    }
+
+    // The width the article column takes on a wide screen would leave the cell on half a row here, its content centred in that half and reading as pushed to the left
+    .basket-table .basket-item,
+    .basket-table .basket-free-shipping td {
+        grid-column: 1 / -1;
+        width: auto;
+    }
+
+    // Side by side, the picture would leave the name three words a line: the article stacks and centres again, the row having the width to itself
+    .basket-table .basket-item {
+        text-align: center;
+    }
+
+    .basket-item-inner {
+        display: block;
+    }
+
+    .basket-table .basket-item p {
+        text-align: center;
+    }
+
+    .basket-table tfoot th {
+        text-align: left;
+    }
 }
 
 .form-section-title {
@@ -29,4 +149,77 @@ tfoot th {
     margin: 0 auto;
     padding: 10px;
     text-align: center;
+}
+
+// The one input the basket page takes a code in - a promotional code or a gift card, the server telling them apart
+.basket-code-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    margin: 1em 0;
+}
+
+.basket-code-form input {
+    // Wide enough for the sixteen characters of a gift card, and no wider: this sits under a table, not in a form of its own
+    width: min(100%, 22ch);
+    margin: 0;
+}
+
+// A button carries "margin: 1em auto" from the buttons of the library, and an auto margin in a flex row eats the free space justify-content would have shared: the row ended up with its label at one end and its button at the other
+.basket-code-form .btn {
+    margin: 0;
+}
+
+// Emptying the basket reads as a link and is a button, so what a button brings with it is taken back off: the colour is the page's own, the one this used to state by hand being unreadable on a dark theme
+.delete-link {
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+// The line a code adds between the shipping and the total, hidden by the markup itself until there is one (see components/Basket/Items.html.twig)
+.basket-code[hidden] {
+    display: none;
+}
+
+// The link a customer copies to hand their order over to whoever is paying (see basket/shared.html.twig)
+.share-link {
+    width: min(100%, 46ch);
+    margin: 0.5em auto;
+    text-align: center;
+}
+
+// The button opening the basket, lined up on what the shops put in their sticky bar: icon, count, action, amount, on one row (see components/Basket/ViewButton.html.twig)
+.basket-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+// Kept round and wide enough for a two-digit count, its colours coming from the pair the component picks (see components/Basket/ViewButton.html.twig)
+.basket-button .badge {
+    min-width: 2.2em;
+    padding: 0.2em 0.5em;
+}
+
+// Set apart from the action by a rule rather than by the parenthesis the button used to carry
+.basket-button-total {
+    padding-left: 0.6em;
+    border-left: 1px solid currentcolor;
+    font-weight: bold;
+}
+
+// Written after the layout rules and with a heavier selector than they carry: a row hidden until it has something to say (a code, a tax) is otherwise given back its display by the grid above
+.basket-table tr[hidden] {
+    display: none;
 }

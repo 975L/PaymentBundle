@@ -1,0 +1,23 @@
+{# <twig:c975LPayment:Basket:GiftCards basket="{{ basket }}"/> - the cards this order bought, printed on the order's own page and in its confirmation email #}
+{# Read back from the rows the delivery wrote rather than carried across the checkout: a card is money, and money is not kept in a session #}
+{% trans_default_domain 'payment' %}
+{% set giftCards = payment_gift_cards(basket) %}
+{% if giftCards is not empty %}
+    <h2 class="text-center">{{ 'label.gift_cards_bought'|trans }}</h2>
+    <table>
+        {% for giftCard in giftCards %}
+            <tr>
+                <td><strong>{{ giftCard.code }}</strong></td>
+                <td>{{ (giftCard.initialAmount / 100)|format_currency(giftCard.currency) }}</td>
+            </tr>
+            {# The address the card is seen at, which is what is forwarded when it was bought for somebody else - absolute, this table being read in an email as often as on the page. The cards issued before the address existed carry none and are used by their code alone #}
+            {% if giftCard.shareToken %}
+                <tr>
+                    <td colspan="2">
+                        {{ 'label.gift_card_share'|trans }} <a href="{{ url('gift_card_display', {'shareToken': giftCard.shareToken}) }}">{{ url('gift_card_display', {'shareToken': giftCard.shareToken}) }}</a>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+{% endif %}

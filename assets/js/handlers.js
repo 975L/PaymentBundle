@@ -45,20 +45,14 @@ export default {
         return timezone;
     },
 
-    // Gets the currency symbol from the currency code, the code itself standing in for a currency not listed
-    getCurrencySymbol(currencyCode) {
+    // Formats an amount held in cents the way the page's language writes it - Intl carries the separator, the place of the symbol and the decimals of the currency, so a total rewritten here reads exactly as the one the server rendered with |format_currency
+    formatAmount(amount, currencyCode) {
+        const value = amount / 100;
+
         if (!currencyCode) {
-            return "";
+            return value.toFixed(2);
         }
 
-        const symbols = {
-            "eur": "€",
-            "usd": "$",
-            "gbp": "£",
-            "jpy": "¥",
-            "chf": "CHF",
-        };
-
-        return " " + (symbols[currencyCode.toLowerCase()] ?? currencyCode.toUpperCase());
+        return new Intl.NumberFormat(this.getLanguage(), { style: "currency", currency: currencyCode.toUpperCase() }).format(value);
     }
 };

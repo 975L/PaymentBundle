@@ -1,0 +1,13 @@
+{# <twig:c975LPayment:Basket:Shipping/> - what the shop charges for delivery, read from "shop-shipping" and "shop-shipping-free" rather than typed in. On a basket, Basket:FreeShipping says what is left to reach it instead #}
+{% trans_default_domain 'payment' %}
+{% set shipping = config('shop-shipping') %}
+{% set free = config('shop-shipping-free') %}
+{% set currency = config('shop-currency') %}
+{% if free > 0 %}
+    <p class="lead text-center">{{ 'label.shipping_free_from'|trans({'%amount%': (free / 100)|format_currency(currency, {fraction_digit: 0})}) }}</p>
+{% elseif shipping > 0 %}
+    <p class="lead text-center">{{ 'label.shipping_flat_rate'|trans({'%amount%': (shipping / 100)|format_currency(currency)}) }}</p>
+{# Nothing said when the shop has not set a rate yet: an unset configuration is not the same promise as a rate set to zero #}
+{% elseif shipping is not null %}
+    <p class="lead text-center">{{ 'label.shipping_free'|trans }}</p>
+{% endif %}

@@ -1,0 +1,27 @@
+{# Mints one card by hand through GiftCardService::issue(), laid out like EasyAdmin's own "new" page: a form rendered without that theme comes out unstyled inside the dashboard #}
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% form_theme form with ea() is not null and ea().crud is not null ? ea().crud.formThemes : ['@EasyAdmin/crud/form_theme.html.twig'] only %}
+
+{% block body_id 'ea-new-gift-card' %}
+{% block body_class 'ea-new' %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    {# EasyAdmin's own widgets are what this script drives, so it is only asked for where the dashboard's context exists at all #}
+    {% if ea() is not null %}
+        {# The nonce guard EasyAdmin itself applies: the sites running this bundle serve a CSP with no unsafe-inline #}
+        {% guard function csp_nonce %}
+            <script src="{{ asset('form.js', ea().assets.defaultAssetPackageName) }}" nonce="{{ csp_nonce('script') }}"></script>
+        {% else %}
+            <script src="{{ asset('form.js', ea().assets.defaultAssetPackageName) }}"></script>
+        {% endguard %}
+    {% endif %}
+{% endblock %}
+
+{% block content_title %}{{ 'label.gift_card_issue'|trans({}, 'payment') }}{% endblock %}
+
+{% block main %}
+    <p class="content-help">{{ 'description.gift_card_issue'|trans({}, 'payment') }}</p>
+
+    {{ form(form) }}
+{% endblock %}

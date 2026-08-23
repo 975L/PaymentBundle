@@ -1,0 +1,21 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Where the payer lands once the provider is done with them - never the customer's own order page, which spells out the delivery address #}
+{% set title = 'label.pay_for_someone'|trans %}
+{% set robots = 'noindex, nofollow' %}
+
+{% block content %}
+    {% if confirmed %}
+        <twig:c975LPayment:Basket:Thanks/>
+        <p class="text text-center lead">{{ 'label.share_paid_explanation'|trans({'%number%': basket.number}) }}</p>
+        <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+    {% else %}
+        {# The provider confirms on a request of its own, which may land after this one: the payer is told the payment is being recorded rather than that it failed #}
+        <p class="text text-center lead">{{ 'label.share_pending'|trans }}</p>
+    {% endif %}
+    <twig:c975LShop:Shop:ViewButton/>
+{% endblock %}
+
+{% block share %}
+{% endblock %}

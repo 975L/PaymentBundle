@@ -10,10 +10,9 @@
 
 namespace c975L\PaymentBundle\MessageHandler;
 
-use c975L\PaymentBundle\Email\BasketEmailFactory;
+use c975L\PaymentBundle\Email\BasketEmailSender;
 use c975L\PaymentBundle\Message\ConfirmOrderMessage;
 use c975L\PaymentBundle\Repository\BasketRepository;
-use c975L\UiBundle\Service\EmailService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -21,8 +20,7 @@ class ConfirmOrderMessageHandler
 {
     public function __construct(
         private readonly BasketRepository $basketRepository,
-        private readonly BasketEmailFactory $basketEmailFactory,
-        private readonly EmailService $emailService,
+        private readonly BasketEmailSender $basketEmailSender,
     ) {
     }
 
@@ -34,9 +32,8 @@ class ConfirmOrderMessageHandler
         }
 
         // Sends the email, throwing on failure so Messenger retries it: EmailService reports a failed send as false, and an order confirmation lost silently is one the buyer never gets
-        $request = $this->basketEmailFactory->create($basket, 'label.confirm_order', 'confirm_order');
-        if (!$this->emailService->send($request)) {
-            throw new \RuntimeException(sprintf('Could not send the order confirmation of basket "%s": %s', $basket->getNumber(), $this->emailService->getLastError() ?? 'unknown error'));
+        if (!$this->basketEmailSender->send($basket, 'label.confirm_order', 'confirm_order')) {
+            throw new \RuntimeException(sprintf('Could not send the order confirmation of basket "%s": %s', $basket->getNumber(), $this->basketEmailSender->getLastError() ?? 'unknown error'));
         }
     }
 }

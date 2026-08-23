@@ -1,11 +1,2 @@
-{# <twig:c975LPayment:Basket:Price item="{{ item }}" type="simple|complex"/> #}
-<div class="text-center">
-    {% if type == "complex" %}
-        Prix HT : {{ ((item.price /100) - item.vatAmount)|format_currency(item.currency) }}<br>
-        Taux TVA : {{ item.vat|format_currency(item.currency) }} %<br>
-        TVA : {{ item.vatAmount|format_currency(item.currency) }}<br>
-        Prix TTC : {{ (item.price / 100)|format_currency(item.currency) }}
-    {% else %}
-        {{ item.price == 0 ? 'label.free'|trans({}, 'payment') : (item.price / 100)|format_currency(item.currency) }}
-    {% endif %}
-</div>
+{# <twig:c975LPayment:Basket:Price item="{{ item }}"/> #}
+{{ item.price == 0 ? 'label.free'|trans({}, 'payment') : (item.price / 100)|format_currency(item.currency) }}

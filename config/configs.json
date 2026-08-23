@@ -10,8 +10,31 @@
         "severity": "danger",
         "description": "description.payment_gateway",
         "choices": [
-            "stripe"
+            "stripe",
+            "revolut"
         ]
+    },
+    {
+        "label": "label.payment_gift_card_validity",
+        "slug": "payment-gift-card-validity",
+        "sensitive": false,
+        "restricted": false,
+        "value": "12",
+        "kind": "int",
+        "group": "payment",
+        "severity": null,
+        "description": "description.payment_gift_card_validity"
+    },
+    {
+        "label": "label.payment_link_vat_rate",
+        "slug": "payment-link-vat-rate",
+        "sensitive": false,
+        "restricted": false,
+        "value": "0",
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.payment_link_vat_rate"
     },
     {
         "label": "label.payment_test_mode",
@@ -67,6 +90,50 @@
         "group": "payment",
         "severity": null,
         "description": "description.stripe_webhook_secret_test"
+    },
+    {
+        "label": "label.revolut_secret",
+        "slug": "revolut-secret",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": "danger",
+        "description": "description.revolut_secret"
+    },
+    {
+        "label": "label.revolut_secret_test",
+        "slug": "revolut-secret-test",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.revolut_secret_test"
+    },
+    {
+        "label": "label.revolut_webhook_secret",
+        "slug": "revolut-webhook-secret",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": "danger",
+        "description": "description.revolut_webhook_secret"
+    },
+    {
+        "label": "label.revolut_webhook_secret_test",
+        "slug": "revolut-webhook-secret-test",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.revolut_webhook_secret_test"
     },
     {
         "label": "label.shop_name",
@@ -188,5 +255,27 @@
         "group": "shop",
         "severity": null,
         "description": "description.shop_shipping_free"
+    },
+    {
+        "label": "label.shop_invoice_prefix",
+        "slug": "shop-invoice-prefix",
+        "sensitive": false,
+        "restricted": false,
+        "value": "FA",
+        "kind": "text",
+        "group": "shop",
+        "severity": "warning",
+        "description": "description.shop_invoice_prefix"
+    },
+    {
+        "label": "label.shop_invoice_mentions",
+        "slug": "shop-invoice-mentions",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "textarea",
+        "group": "shop",
+        "severity": "warning",
+        "description": "description.shop_invoice_mentions"
     }
 ]

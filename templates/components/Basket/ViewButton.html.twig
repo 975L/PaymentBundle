@@ -1,16 +1,18 @@
-{# <twig:c975LPayment:Basket:ViewButton [type="primary"] [icon="path-to-icon.ext"] [inline="false"]/> #}
+{# <twig:c975LPayment:Basket:ViewButton [type="primary"] [inline="false"] [class="white"]/> #}
 {% set type = type | default('primary') %}
 {% set inline = inline | default(false) %}
-{% set icon = icon | default('') %}
-{% set class = class | default('white') %}
+{# The icon and the count take the pair the button does not: a white icon and a secondary pill on a primary button, their opposites on a secondary one, whose label is black #}
+{% set class = class | default('secondary' == type ? '' : 'white') %}
+{% set badge = 'secondary' == type ? 'badge-primary' : 'badge-secondary' %}
 {% if inline == false %}
     <p class="text-center" id="basket-button">
 {% endif %}
-    <a href="{{ path('basket_display') }}" role="button" class="btn btn-{{ type }}">
-        {% if icon == "true" %}
-            <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/eye.svg" width="24" height="24" class="{{ class }}"/>
-        {% endif %}
-        {{ 'label.basket'|trans({}, 'payment') }} : <span data-basket-target="total"></span> (<twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24"/> <span data-basket-target="quantity"></span>)
+    {# What the shops line up in their sticky bar: the basket icon, the count, the action, then the amount - one icon only, and the count as a pill rather than in parenthesis #}
+    <a href="{{ path('basket_display') }}" role="button" class="btn btn-{{ type }} basket-button">
+        <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24" class="{{ class }}"/>
+        <span class="badge {{ badge }} badge-pill" data-basket-target="quantity"></span>
+        <span class="basket-button-label">{{ 'label.see_basket'|trans({}, 'payment') }}</span>
+        <span class="basket-button-total" data-basket-target="total"></span>
     </a>
 {% if inline == false %}
     </p>

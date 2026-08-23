@@ -13,6 +13,9 @@ namespace c975L\PaymentBundle\Tests\Controller\Management;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ConfigBundle\Service\Export\TableExporter;
 use c975L\PaymentBundle\Controller\Management\BasketCrudController;
+use c975L\PaymentBundle\Repository\BasketRepository;
+use c975L\PaymentBundle\Service\BasketServiceInterface;
+use c975L\UiBundle\Contract\PdfGeneratorInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -44,6 +47,9 @@ class BasketCrudControllerTest extends TestCase
             $entityManager,
             $this->createStub(TableExporter::class),
             $this->createStub(TranslatorInterface::class),
+            $this->createStub(BasketRepository::class),
+            $this->createStub(PdfGeneratorInterface::class),
+            $this->createStub(BasketServiceInterface::class),
         );
 
         $rows = new \ReflectionMethod($controller, 'fetchExportRows')->invoke($controller);

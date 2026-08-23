@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-checkout
-description: "Use this skill when working on the basket or the checkout of a c975L site — adding to and emptying the basket, validating it, sending the customer to the payment provider, confirming the payment, delivering the order, the customer area and the transactional emails. Covers the rule that decides when an order is real, the two paths that confirm a payment, and what must never be trusted. Triggers on: BasketService, Basket entity, Payment entity, basket_display, basket_validate, basket_paid, payment_webhook, PaymentWebhookController, applyNotification, confirmReturn, claimPaid, checkout_data, gateway_reference, payment-test-mode, customer_orders, BasketDownloadProviderInterface, ConfirmOrderMessage, ItemsShippedMessage."
+description: "Use this skill when working on the basket or the checkout of a c975L site — adding to and emptying the basket, validating it, sending the customer to the payment provider, confirming the payment, delivering the order, the customer area and the transactional emails. Covers the rule that decides when an order is real, the two paths that confirm a payment, and what must never be trusted. Triggers on: BasketService, Basket entity, Payment entity, basket_display, basket_validate, basket_paid, payment_webhook, PaymentWebhookController, applyNotification, confirmReturn, claimPaid, checkout_data, gateway_reference, payment-test-mode, customer_orders, BasketDownloadProviderInterface, ConfirmOrderMessage, ItemsShippedMessage, BasketCodeService, Discount, GiftCard, GiftCardService, GiftCardDesign, GiftCardController, gift_card_display, gift_card_reveal, gift_card_pdf, gift_card_recipient, GiftCardRecipientMessage, giftCardRecipientEmail, designImage, designText, scratch, basket_code_apply, VatCalculator, payment_vat, payment_vat_rate, lineRate, InvoiceService, InvoiceSequence, invoiceNumber, basket_invoice_pdf, shop-invoice-prefix, shop-invoice-mentions, shippingLabels, findAwaitingShipping, payment_gift_cards, basket_shared, basket_shared_pay, basket_shared_paid, payShared, shareToken, recoveryToken, BasketRecoverySubscriber, BasketRetentionService, BasketReminderService, c975l:payment:baskets:retention, c975l:payment:baskets:remind."
 ---
 
 # c975L PaymentBundle — the basket and the checkout
@@ -10,7 +10,7 @@ description: "Use this skill when working on the basket or the checkout of a c97
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Service/BasketService.php`, `src/Entity/Basket.php`, `src/Entity/Payment.php`, `src/Controller/BasketController.php`, `src/Controller/PaymentWebhookController.php`, `src/Controller/CustomerAreaController.php`, `src/Repository/BasketRepository.php`, `src/Email/BasketEmailFactory.php`, `src/MessageHandler/`, `templates/basket/`, `templates/customer/`
+`src/Service/BasketService.php`, `src/Entity/Basket.php`, `src/Entity/Payment.php`, `src/Controller/BasketController.php`, `src/Controller/PaymentWebhookController.php`, `src/Controller/CustomerAreaController.php`, `src/Repository/BasketRepository.php`, `src/Email/BasketEmailFactory.php`, `src/MessageHandler/`, `src/Service/BasketCodeService.php`, `src/Service/GiftCardService.php`, `src/Service/VatCalculator.php`, `src/Service/BasketRetentionService.php`, `src/Service/BasketReminderService.php`, `src/Entity/Discount.php`, `src/Entity/GiftCard.php`, `src/Contract/GiftCardDesign.php`, `src/Controller/GiftCardController.php`, `templates/components/GiftCard/`, `src/EventSubscriber/BasketRecoverySubscriber.php`, `src/Command/`, `templates/basket/`, `templates/customer/`
 
 **Related skills:** `c975l-payment-gateway` and `c975l-payment-items` in this same bundle; `c975l-config` and `c975l-management` in `c975l/core-bundle`.
 
@@ -22,6 +22,11 @@ description: "Use this skill when working on the basket or the checkout of a c97
 
 Delivering means: decrementing stock, issuing downloads, running every provider's `onBasketPaid()` and sending the confirmation email. It happens **once**, whichever path gets there first.
 
+**A basket validated but never paid, with nothing in the logs, is a CSP symptom.** `validate()` answers a redirection
+to the provider, and `form-action` is checked on the whole redirection chain of a form navigation: the order is created,
+the checkout opened, and the browser blocks the customer on the way to it. `EventSubscriber\CheckoutCspSubscriber`
+completes that directive with the active gateway's own hosts, so a site serving a CSP needs nothing in its yaml.
+
 ## The two confirmation paths
 
 Both end up in the same `paid()`, and each covers the other's blind spot:
@@ -31,7 +36,7 @@ Both end up in the same `paid()`, and each covers the other's blind spot:
 | Webhook | `POST /payment/webhook/{gateway}` → `applyNotification()` | the customer who pays and never comes back — closed tab, mobile, 3-D Secure |
 | Return | `/shop/basket/paid/...` → `confirmReturn()` | the site whose webhook endpoint is misconfigured |
 
-The return path re-reads the checkout **from the provider** (`ReturnAwareGatewayInterface::readReturn()`); it never believes the url. A gateway that does not implement it simply waits on the webhook.
+The return path re-reads the checkout **from the provider** (`ReturnAwareGatewayInterface::readReturn()`, handed the `Payment::getGatewayReference()` of the basket); it never believes the url. A gateway that does not implement it simply waits on the webhook.
 
 **`BasketRepository::claimPaid()` is what makes this safe.** It moves a basket from `validated` to `paid` in one conditional UPDATE. Both paths confirm the same payment within the same second, both would read `validated`, and both would deliver — double stock decrement, two confirmation emails. Whoever loses the claim does nothing.
 
@@ -59,6 +64,110 @@ A notification naming an unknown basket is **logged and dropped**, never raised 
 
 It decides whether an order needs shipping, whether it is delivered by its message handler alone, and what the order page shows. Read it off `c975L\PaymentBundle\Entity\Basket` — the class lives here, not in ShopBundle.
 
+## Codes: one field, two things
+
+The basket page has **one** code field, and `Service\BasketCodeService` is what tells a promotional `Discount` from a `GiftCard` — the customer holds a code, not a category, and asking them which of the two they have is asking them to know how the shop is built. `resolve()` reads it, `apply()` writes it onto the basket, `redeem()` spends it. A code typed with spaces or dashes is accepted.
+
+**One code per basket, and no stacking.** A card and a promotion applied together is a rule nobody wrote.
+
+`Discount` comes in two kinds — `KIND_PERCENTAGE` and `KIND_AMOUNT`; a `GiftCard` is a balance, spent down over as many orders as it takes, and `GiftCardService::issue()` mints one either from a purchase or by hand from the CRUD.
+
+**A code is spent in `paid()` and nowhere else.** A basket abandoned at the payment page must burn neither a quota nor a balance, and `claimPaid()` is what makes it happen once. `redeem()` answering false means it ran out between the last check and the payment: the order is paid for, so nothing is undone — it is logged.
+
+The free-shipping threshold is weighed against **what the basket holds**, not what is paid: a ten-euro code must not cost the customer the shipping they had earned.
+
+## A gift card is an object, not a code
+
+`GiftCard:Card` draws one on UiBundle's flip card in the `credit-card` ratio: the visual full-bleed on the recto under the site's logo, a line of text and the amount; the same visual mirrored and faded on the verso, with the code.
+
+**Everything printed on a card is copied onto it at issuance** — `designImage`, `designText`, `scratch`, handed over as a `Contract\GiftCardDesign` by whichever bundle sold it (`ShopBundle`'s `ProductBasketItemProvider` reads it off the basket, never off the catalogue). A design withdrawn from sale must not blank a card somebody still holds. This bundle knows nothing of where a visual came from.
+
+**`GiftCard::$shareToken` is the address, never the code.** A card is bought for somebody else, who has no account: `gift_card_display` (`/gift-card/{shareToken}`) is their page, `noindex` / `no-referrer` / `no-store`, and the confirmation email prints that url beside the code. 128 bits against the basket's own 64: that link opens an afternoon, this one opens money that stands for a year.
+
+**With the panel on, the code is not in the markup.** `gift_card_reveal` serves it once the panel is rubbed off (`assets/js/gift-card.js`), because a link pasted into a chat is fetched by a robot that reads the markup and runs no script. A card switched off is refused that request and still shows its visual and its balance. Panel off, the code is printed as it stands — robots included, which is what the back-office help text says.
+
+**`gift_card_pdf` is the same card as a file**, its two faces drawn on an A4 to cut out at the ID-1 size (`templates/gift_card/pdf.html.twig`, `PdfGeneratorInterface`). A file holds no panel to rub off, so the code is printed on it — and it is refused on a card switched off, exactly like `gift_card_reveal`.
+
+**The card can be sent to its recipient directly.** On a basket carrying a card, the checkout asks for an optional
+`Basket::$giftCardRecipientEmail` and `$giftCardRecipientMessage`. Filled in, a `gift_card_recipient` e-mail goes
+out beside the buyer's confirmation, through `GiftCardRecipientMessage` and its own handler — dispatched apart so a
+bounced recipient address never costs the buyer their own confirmation, and re-read there rather than trusted from
+the dispatch. It carries the amount, the buyer's word and the card's address, and **no code**: that message travels
+through a mailbox that is not the buyer's, which is the panel's reasoning one step earlier. Left blank, nothing
+changes — the buyer forwards the links from their own confirmation. Slots `gift_cards_shared` and
+`gift_card_message`; run `c975l:ui:email-templates:ensure` or that e-mail has no body.
+
+## VAT
+
+`Service\VatCalculator::breakdown()` reads the tax back from the rates the lines were added with. A line's `totalVat` is the tax **held in its price**, never a rate multiplied by a quantity — the two disagree as soon as a price is rounded or a discount applied. `payment_vat(basket)` renders the breakdown and `payment_vat_rate(itemData, kind)` the rate of **one** line — `VatCalculator::lineRate()`, which answers `null` on a line taxed at no rate, printed as a blank cell and never as `0 %`. `payment_gift_cards(basket)` lists the cards an order bought.
+
+## Invoices and address labels
+
+**A paid order is numbered, once.** `Service\InvoiceService::assign()` is called from `paid()` — the one path
+`claimPaid()` has already made exactly-once — so the sequence follows settled orders and holds **no gap**. Format
+`{prefix}{year}-{0000}`, prefix from `shop-invoice-prefix`. The counter is `payment_invoice_sequence`, one row per
+year, **bumped by the database** (a DQL UPDATE, then a read inside the same transaction) rather than read,
+incremented in PHP and written back — that read-modify-write is exactly how two orders settled in the same second
+get the same number. Nothing there touches the unit of work, so drawing a number flushes nothing else.
+
+The PDF is drawn on demand and stored nowhere — the order is the record. `shop-invoice-mentions` prints at its
+foot: registration numbers, VAT number, or the exemption. Served by `basket_invoice_pdf`
+(`/shop/basket/invoice/{number}/{securityToken}`), by an **Invoice** back-office action, and by
+`Email\InvoiceAttachmentProvider` under the kind `payment:invoice`.
+
+**B2C only.** A business invoice is Factur-X — PDF/A-3 with its XML inside, through an approved platform — and
+nothing here is that.
+
+**Address labels**: a global action on the orders index, `BasketRepository::findAwaitingShipping()`, ten to an A4
+at 105 × 57 mm. The sheet is a **table**, and a cell is 45 mm of content plus its padding rather than 57 mm with
+the padding inside: floats and `box-sizing` are where dompdf and WeasyPrint disagree, and either mistake prints
+every label off the paper. `ShippingLabelsSheetTest` guards the arithmetic. Address labels, not carrier labels —
+a tracking barcode comes from the carrier's own API.
+
+## Paying for somebody else
+
+`validate()` with `$forSharing` numbers the order and freezes it *without* opening a checkout, answering a link to hand to whoever is going to settle it. Three routes carry it, and the token tells them apart:
+
+| Route | Token | Shows |
+| --- | --- | --- |
+| `basket_shared` | `securityToken` | the customer's own page — everything, plus the link to hand over |
+| `basket_shared_pay` | `shareToken` | the payer's page — what is bought, and **nothing of who it is for** |
+| `basket_shared_paid` | `shareToken` | where the payer lands, which is never the customer's order page |
+| `basket_short_pay` | `shareToken` | `/pay/{shareToken}` — a **302** to `basket_shared_pay`, and what both `basket_shared` and `createPaymentLink()` hand out |
+
+**`shareToken` is deliberately not `securityToken`.** Sharing the latter would hand the payer the delivery page — the recipient's name and address, which is the one thing a gift must not disclose. `GiftCard` carries a `shareToken` of its own, named the same thing for the same reason and belonging to another entity: do not confuse the two.
+
+An order already settled, or taken back to a basket by its customer, says so and offers nothing to pay rather than opening a second checkout.
+
+## Payment links
+
+`BasketService::createPaymentLink($label, $amount, $email, $description = null)` writes the same frozen order for something the catalogue does not sell — a deposit, a repair, an invoice — and answers the short address to send (see below). Written from **Payment link** on the orders index (`BasketCrudController::paymentLink()`), and from nowhere else on the front.
+
+- The line is built by `Provider\PaymentLinkItemProvider`, this bundle's own `BasketItemProviderInterface`. Its `toBasketData()` is the one place the shape is written — **never hand-build that array**.
+- `findItem()` answers null and `validateAddition()` refuses: the front must never be able to post itself a line worth what it chooses.
+- The amount is typed **VAT included**, like every basket amount; `payment-link-vat-rate` is the rate it is taken out of.
+- The line carries `CONTENT_FLAG_SERVICE`, so a settled link never joins the orders left to ship.
+- **The e-mail is required.** `sendEmails()` dispatches no confirmation for an order naming nobody, and `EmailService` would otherwise fall back on the site's own address.
+- The address it answers is `basket_short_pay` (`/pay/{shareToken}`), the one route of the bundle whose token is read **whatever its case** — lower-cased before the query, never left to the collation. A **302** to `basket_shared_pay` — a text message has 160 characters and the long address spends half of them. The share token is unique on its own; the number beside it guards nothing. **Do not render the payer's page there**: "already settled", "no longer available" and the `noindex` headers stay written once.
+- The order is deleted after `ABANDONED_DAYS` like any unpaid one, and no reminder is ever sent for it — `findToRemind()` reads a consent only `CoordinatesType` asks for.
+
+## A basket that outlives its session
+
+`EventSubscriber\BasketRecoverySubscriber` writes a `basket_recovery` cookie carrying `Basket::$recoveryToken`, so a visitor who loses their session is handed their basket back; a logged-in user is matched on their last open basket too. The cookie lives as long as `BasketRetentionService::UNVALIDATED_DAYS`, the purge and the cookie sharing one window.
+
+`Basket::toArray()` carries **none** of the three tokens, and `BasketCrudController` exports none of them — the same way a hashed password is never exported. A dump carrying them hands over every customer's order page and every open basket.
+
+## Retention and reminders
+
+Two commands, scheduled by `Scheduler\PaymentMaintenanceTaskProvider` rather than listed by every site in its own `MaintenanceSchedule`:
+
+| Command | Does |
+| --- | --- |
+| `c975l:payment:baskets:retention` | deletes unvalidated (14 d) and abandoned (30 d) baskets, archives delivered orders (2 y), drops what is past retention (10 y) |
+| `c975l:payment:baskets:remind` | reminds a customer who validated and never paid, on the first and the seventh day |
+
+The windows are constants on `BasketRetentionService` and `BasketReminderService` — read them, never re-type the number.
+
 ## Test mode
 
 `payment-test-mode` is switched from the dashboard tile, never edited by hand. While on: the provider's test keys are used, the order number carries a `TEST-` prefix, the basket pages carry `Basket:TestMode`, and the payment CRUD stops linking to the provider's live dashboard. The prefix follows the setting, **not** the word "test" in the secret key.
@@ -75,6 +184,8 @@ The handlers **throw** when a send fails, so Messenger retries rather than dropp
 
 Downloads come from `BasketDownloadProviderInterface`; with nothing implementing it the section is left out rather than drawn empty.
 
+The same `Basket:Downloads` component is rendered on the paid page, gated on the basket being paid, so a buyer whose email is late or filtered still takes their files — the emailed link is never the only way to them.
+
 ## Do not
 
 - **Do not deliver anything from the return url** without a payment recorded as finished.
@@ -86,3 +197,9 @@ Downloads come from `BasketDownloadProviderInterface`; with nothing implementing
 - **Do not answer 403** for another user's order; 404 is the answer.
 - **Do not read `payment-test-mode` from the secret key's contents.**
 - **Do not send a basket email outside `BasketEmailFactory`**, nor swallow a send failure.
+- **Do not stack a discount and a gift card** on one basket, nor spend a code before the payment is confirmed.
+- **Do not compute VAT as a rate times a quantity** — read it back off the line.
+- **Do not hand the `securityToken` to whoever is asked to pay**; `shareToken` is the payer's, and shows nothing of the address.
+- **Do not add a `payment_link` line from anywhere but `createPaymentLink()`**, nor build its basket entry by hand instead of through the provider.
+- **Do not export, serialize or log the three tokens.**
+- **Do not weigh the free-shipping threshold against what is paid** rather than what the basket holds.

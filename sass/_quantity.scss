@@ -37,8 +37,9 @@
     padding: 0;
 }
 
+// The count sits on --primary, so it takes the ink read from it rather than a white of its own - which a pale brand colour left unreadable
 .quantity-controls span {
-    color: white;
+    color: var(--button-color);
 }
 
 .quantity-controls button img {

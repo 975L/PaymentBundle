@@ -1,6 +1,0 @@
-{% trans_default_domain 'payment' %}
-
-<twig:c975LPayment:Basket:Number number="{{ basket.number }}" securityToken="{{ basket.securityToken }}"/>
-<p>{{ 'label.downloads_available'|trans }}</p>
-<p>{{ 'label.download_instructions'|trans }} <strong>{{ expirationDays ~ ' ' ~ 'label.days'|trans }}</strong></p>
-<twig:c975LPayment:Basket:DownloadLinks downloadLinks="{{ downloadLinks }}"/>

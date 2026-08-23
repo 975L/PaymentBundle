@@ -1,0 +1,56 @@
+{# The card as a file the holder keeps, and not as the page they open: no fold, no panel to scratch off - a printed card is read on both sides at once, and its code is on it #}
+{# Written against what DompdfGenerator reads and not against the site's stylesheet: no flexbox, no grid, no custom properties, and lengths in millimetres. The two faces are laid on an A4 rather than on a page of their own, a home printer having no 85.6 mm tray #}
+{% trans_default_domain 'payment' %}
+<html lang="{{ app.request.locale|default('fr') }}">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page { margin: 18mm 20mm; }
+        body { font-family: "DejaVu Sans", sans-serif; font-size: 9pt; color: #222; }
+        h1 { font-size: 13pt; margin: 0 0 2mm 0; }
+        p { margin: 0 0 2mm 0; }
+        .hint { font-size: 8pt; color: #666; }
+        /* The card itself, at the size it is cut to */
+        .card { position: relative; width: 85.6mm; height: 54mm; margin: 0 0 8mm 0; border: 0.3mm dashed #999; }
+        .visual { position: absolute; top: 0; left: 0; width: 85.6mm; height: 54mm; }
+        /* A flat veil and not a gradient: what carries the printing has to be legible over any photograph, and a gradient is the first thing an engine of this kind draws differently */
+        .veil { position: absolute; top: 0; left: 0; width: 85.6mm; height: 54mm; background-color: #000; opacity: 0.45; }
+        .plain { position: absolute; top: 0; left: 0; width: 85.6mm; height: 54mm; background-color: #333; }
+        .logo { position: absolute; top: 4mm; left: 5mm; max-height: 8mm; max-width: 30mm; }
+        .text { position: absolute; top: 20mm; left: 5mm; width: 75mm; color: #fff; font-size: 12pt; font-weight: bold; }
+        .amount { position: absolute; bottom: 5mm; left: 5mm; color: #fff; font-size: 16pt; font-weight: bold; }
+        .balance { position: absolute; bottom: 6mm; right: 5mm; color: #fff; font-size: 8pt; }
+        .code { position: absolute; top: 22mm; left: 5mm; width: 75mm; color: #fff; font-size: 13pt; font-weight: bold; letter-spacing: 1.2pt; text-align: center; }
+        .legend { position: absolute; bottom: 5mm; left: 5mm; width: 75mm; color: #fff; font-size: 7pt; }
+        .face { position: absolute; top: 3mm; right: 5mm; color: #fff; font-size: 7pt; }
+    </style>
+</head>
+<body>
+    <h1>{{ 'label.gift_card'|trans }}</h1>
+    <p class="hint">{{ 'description.gift_card_pdf'|trans }}</p>
+
+    {# Recto #}
+    <div class="card">
+        {% if giftCard.designImage %}<img src="{{ giftCard.designImage }}" class="visual" alt=""><div class="veil"></div>{% else %}<div class="plain"></div>{% endif %}
+        {% if site_media('logo') is not null %}<img src="{{ site_media('logo').filename }}" class="logo" alt="">{% endif %}
+        {% if giftCard.designText %}<div class="text">{{ giftCard.designText }}</div>{% endif %}
+        <div class="amount">{{ (giftCard.initialAmount / 100)|format_currency(giftCard.currency) }}</div>
+        {% if giftCard.balance != giftCard.initialAmount %}
+            <div class="balance">{{ 'label.gift_card_balance'|trans }} {{ (giftCard.balance / 100)|format_currency(giftCard.currency) }}</div>
+        {% endif %}
+    </div>
+
+    {# Verso - the code is printed, a file having no panel to rub off #}
+    <div class="card">
+        {% if giftCard.designImage %}<img src="{{ giftCard.designImage }}" class="visual" alt=""><div class="veil"></div>{% else %}<div class="plain"></div>{% endif %}
+        <div class="face">{{ 'label.gift_card_back'|trans }}</div>
+        <div class="code">{{ giftCard.code }}</div>
+        <div class="legend">
+            {% if giftCard.validUntil %}{{ 'label.gift_card_valid_until'|trans }} {{ giftCard.validUntil|date('d/m/Y') }}{% else %}{{ 'label.gift_card_no_expiry'|trans }}{% endif %}
+            {% if giftCard.testMode %} — {{ 'label.test_mode'|trans }}{% endif %}
+        </div>
+    </div>
+
+    <p class="hint">{{ 'description.gift_card_how_to_use'|trans }}</p>
+</body>
+</html>

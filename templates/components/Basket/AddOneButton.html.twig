@@ -14,6 +14,7 @@
     data-title="{{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     data-alert="success"
     data-text="{{ 'label.added'|trans({}, 'payment') }}"
+    aria-label="{{ 'label.increase_quantity'|trans({}, 'payment') }} : {{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     class="btn btn-{{ type }} btn-small lead"
     {{ disabled }}>
     <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/plus.svg" width="16" height="16" class="white"/>

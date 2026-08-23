@@ -4,11 +4,35 @@
         <body>
             <trans-unit id=".WVUEkd">
                 <source>description.payment_gateway</source>
-                <target>Proveedor con el que cobra la tienda, p. ej. stripe</target>
+                <target>Proveedor con el que cobra la tienda, p. ej. stripe o revolut</target>
+            </trans-unit>
+            <trans-unit id="URSfS7x">
+                <source>description.payment_gift_card_validity</source>
+                <target>Duración de validez de una tarjeta regalo, en meses desde su compra (12 para un año). 0 para una tarjeta sin fecha límite. La fecha debe figurar en la tarjeta entregada al cliente.</target>
+            </trans-unit>
+            <trans-unit id="R2..YBF">
+                <source>description.payment_link_vat_rate</source>
+                <target>Tipo aplicado a los enlaces de pago creados desde el back-office, p. ej. 20 para 20 %. 0 si no factura IVA.</target>
             </trans-unit>
             <trans-unit id="i415WZO">
                 <source>description.payment_test_mode</source>
                 <target>Poner en true para cobrar con las claves de prueba del proveedor: no se cobra a nadie y un aviso lo indica al cliente</target>
+            </trans-unit>
+            <trans-unit id="IMPOxrd">
+                <source>description.revolut_secret</source>
+                <target>Su clave secreta de producción de la Merchant API de Revolut (sk_...)</target>
+            </trans-unit>
+            <trans-unit id="quFPKra">
+                <source>description.revolut_secret_test</source>
+                <target>Clave secreta de la Merchant API de Revolut en el entorno de pruebas, usada cuando los pagos de prueba están activados</target>
+            </trans-unit>
+            <trans-unit id="uJ9hn3Q">
+                <source>description.revolut_webhook_secret</source>
+                <target>Secreto de firma del webhook de Revolut en producción, entregado una sola vez, al crear el webhook</target>
+            </trans-unit>
+            <trans-unit id="NKfeKKm">
+                <source>description.revolut_webhook_secret_test</source>
+                <target>Secreto de firma del webhook de Revolut en el entorno de pruebas, usado cuando los pagos de prueba están activados</target>
             </trans-unit>
             <trans-unit id="OkQCTnA">
                 <source>description.shop_currency</source>
@@ -37,6 +61,14 @@
             <trans-unit id="a7Ru.8w">
                 <source>description.shop_email_reply_to_name</source>
                 <target>Nombre asociado a la dirección de correo de respuesta</target>
+            </trans-unit>
+            <trans-unit id="80nApHW">
+                <source>description.shop_invoice_mentions</source>
+                <target>Impreso al pie de cada factura: números de registro, número de IVA, o la exención que le corresponda. Solo usted conoce su situación.</target>
+            </trans-unit>
+            <trans-unit id="u.REqA6">
+                <source>description.shop_invoice_prefix</source>
+                <target>Las letras delante del año y del número, por ejemplo FA para FA2026-0001. El número se asigna al pagarse el pedido y nunca se reutiliza.</target>
             </trans-unit>
             <trans-unit id="On_lHpH">
                 <source>description.shop_name</source>
@@ -78,9 +110,33 @@
                 <source>label.payment_gateway</source>
                 <target>Proveedor de pago</target>
             </trans-unit>
+            <trans-unit id="vWzjucH">
+                <source>label.payment_gift_card_validity</source>
+                <target>Validez de las tarjetas regalo (meses)</target>
+            </trans-unit>
+            <trans-unit id="r08WXeQ">
+                <source>label.payment_link_vat_rate</source>
+                <target>Tipo de IVA de los enlaces de pago (%)</target>
+            </trans-unit>
             <trans-unit id="KlPswTP">
                 <source>label.payment_test_mode</source>
                 <target>Pagos de prueba</target>
+            </trans-unit>
+            <trans-unit id="hU9V4tn">
+                <source>label.revolut_secret</source>
+                <target>Clave secreta de Revolut</target>
+            </trans-unit>
+            <trans-unit id="oakR7Ia">
+                <source>label.revolut_secret_test</source>
+                <target>Clave secreta de prueba de Revolut</target>
+            </trans-unit>
+            <trans-unit id="hZZ7qFS">
+                <source>label.revolut_webhook_secret</source>
+                <target>Secreto del webhook de Revolut</target>
+            </trans-unit>
+            <trans-unit id="jIPZSfz">
+                <source>label.revolut_webhook_secret_test</source>
+                <target>Secreto del webhook de prueba de Revolut</target>
             </trans-unit>
             <trans-unit id="QXc9sdb">
                 <source>label.shop_currency</source>
@@ -109,6 +165,14 @@
             <trans-unit id="weeDbSy">
                 <source>label.shop_email_reply_to_name</source>
                 <target>Nombre del correo de la tienda (responder a)</target>
+            </trans-unit>
+            <trans-unit id="92aRyER">
+                <source>label.shop_invoice_mentions</source>
+                <target>Menciones legales de las facturas</target>
+            </trans-unit>
+            <trans-unit id="P_dYhzv">
+                <source>label.shop_invoice_prefix</source>
+                <target>Prefijo de las facturas</target>
             </trans-unit>
             <trans-unit id="0sQJX9Z">
                 <source>label.shop_name</source>

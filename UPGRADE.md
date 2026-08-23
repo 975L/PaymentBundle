@@ -1,6 +1,178 @@
 # UPGRADE
 
+## v6.0 > v6.1
+
+**The customer picks who they pay through, and a provider is offered as soon as its keys are filled in.**
+[Behaviour change] A shop that stored keys for a provider it no longer charges with **starts offering it again**
+at the basket: clear those keys to close it. Nothing changes on a shop holding one pair of keys, which goes on
+charging through that provider without ever showing a chooser. `payment-gateway` keeps its entry and changes
+meaning: it names the provider the basket **pre-selects**, and the one an order nobody stands in front of is
+charged with (a payment link, an order somebody else settles). `PaymentGatewayRegistry::getOffered()` is what
+answers the list; `getActive()` still answers that default. Two consequences worth knowing: the dashboard no
+longer alerts when the *default* holds no key while another provider does — the shop can charge, so it says
+nothing — and `c975l:health-check:run` now reports one row per offered provider instead of one for the default.
+
+**If you override a template of the basket**, `SecurePayments` and `TestMode` no longer test
+`config('payment-gateway')`; they read the new `payment_gateways()` Twig function, which answers the offered
+slugs. A copy of your own still testing the config value will hide its logo the day a second provider is stored.
+
+**`c975l:payment:revolut:webhook` declares the Revolut webhook** for the account the test mode names, prints the
+signing secret and stores it through `c975l:config:set`. Nothing else declares it — Revolut offers no screen for
+a webhook, and answers its secret once. Run it once per account (the sandbox and the live space are two separate
+accounts there): it reads what is already declared for the endpoint and refuses to stack a second webhook on it,
+`--replace` taking the old one down first.
+
+**A rehearsal is billed no invoice number.** `payment_basket` gains a `test_mode` column - run
+`doctrine:migrations:diff` then `doctrine:migrations:migrate`, the default `0` being right for every order already
+taken. An order is stamped with the mode the shop was charging in when its checkout was frozen, and
+`InvoiceService::assign()` draws no number for one carrying `1`: the sequence an accountant reads holds no document
+for a sale that never happened, and none of the gaps that deleting such an order afterwards would leave. The
+**Invoice** action and the customer's own download hide themselves for it, as they already do for any order with no
+number. Orders taken in test mode *before* this upgrade keep the numbers they drew - the column cannot say what the
+shop was charging in months ago.
+
+**A payment link charges for what the catalogue does not sell.** Nothing to install and no migration: the order
+it writes is an ordinary `payment_basket` row, frozen like a shared one. **Payment link**, on the orders index,
+asks for a label, an amount and the customer's address. Set `payment-link-vat-rate` if you charge VAT — it is the
+rate taken out of what you type, prices being held VAT included here, and it stays at `0` for a shop that charges
+none.
+
+**A new public route, `/pay/{shareToken}`** — the payer's page at an address short enough to travel in a text
+message, answering a 302 to `basket_shared_pay`, and what the page a customer shares their own order from now
+hands out too. Its token is read whatever its case — the only route of the bundle that is. Nothing to declare:
+the bundle's routes are loaded from its controllers. Check it collides with nothing your own application already
+serves under `/pay/`.
+
+**`BasketServiceInterface` gains `createPaymentLink()`** [BC-Break]. **If you have written your own
+implementation of that interface**, add the method; the one shipped here writes the frozen order and returns the
+payer's address. Nothing changes for the applications that autowire `BasketService` itself, which is every one of
+them.
+
+**The order confirmation is no longer dispatched for an order naming no e-mail address.** Every order taken from
+the front carries one, `CoordinatesType` asking for it, so this changes nothing for a shop selling as it did. It
+exists because `EmailService` falls back on the site's own address when a message names no recipient: a basket
+written without one would have sent the customer's confirmation to the shop, or failed outright on a site having
+no fallback address either and left Messenger retrying for ever.
+
+**Revolut charges alongside Stripe.** Nothing changes on a shop already running: `payment-gateway` still holds
+`stripe`, and the new provider is simply offered in the picker. To switch, store the Merchant API keys
+(`revolut-secret`, `revolut-secret-test`) and declare the webhook — **Revolut has no screen for that**, it is one
+API call per space, and the `signing_secret` it answers goes to `revolut-webhook-secret` /
+`revolut-webhook-secret-test`. The README and the back-office procedure both write the steps out. Two habits from
+Stripe do not carry over: an order links to nothing in the back-office, Revolut publishing no stable address for
+one in its portal, and the customer who gives up on the checkout page is not sent back to their basket.
+
+**`ReturnAwareGatewayInterface::readReturn()` takes a second argument** [BC-Break], the reference the provider
+gave the checkout when it was opened — `readReturn(Request $request, ?string $reference)`. **If you have written
+a gateway of your own**, add the parameter; you are free to ignore it, as Stripe very nearly does. It exists for
+a provider that writes nothing of its own into the return url, which then has the reference kept on the payment
+and nothing else to look the payment up by. `BasketService` hands over `Payment::getGatewayReference()`.
+
+**Orders are invoiced.** `payment_basket` gains `invoice_number` (unique, nullable) and `invoice_date`, and a new
+`payment_invoice_sequence` table holds the counter — generate the migration as usual. The orders already paid
+carry no number and get none: numbering is done when an order is paid, and back-filling the old ones would build
+a sequence out of order. Set `shop-invoice-prefix` (default `FA`) and, above all, `shop-invoice-mentions`: what
+is printed at the foot of every invoice is your own registration and VAT situation, which no bundle can guess.
+
+**A back-office action prints address labels.** Nothing to install: **Address labels** on the orders index draws
+ten 105 × 57 mm labels to an A4. A PDF engine is needed, and there is always one — dompdf ships with
+`c975l/core-bundle`.
+
+**A gift card can be e-mailed to whoever it was bought for.** `payment_basket` gains
+`gift_card_recipient_email` and `gift_card_recipient_message`, both nullable - generate the migration as usual.
+Nothing changes on an existing shop until a buyer fills the two new checkout fields in, which only appear on a
+basket carrying a card. Run `c975l:ui:email-templates:ensure` after the migration: it seeds the new
+`gift_card_recipient` template, without which that e-mail has no body to send.
+
+**The order e-mails are composed in the back office, and their Twig bodies are gone.** [BC-Break]
+`templates/emails/confirm_order.html.twig`, `items_shipped.html.twig`, `counterparts_shipped.html.twig` and
+`download_information.html.twig` are removed, along with the `Basket:ItemsReminder` component they shared. The
+seven e-mails this bundle sends — those four, plus `gift_card_recipient` and the two reminders — are now
+`EmailTemplate` rows an admin composes, declared by `Email\PaymentEmailTemplateProvider` and seeded by
+`c975l:ui:email-templates:ensure`, which you should run once after upgrading. A site that never overrode anything
+has nothing to do beyond that command: the rows are seeded with the same wording, read from this bundle's
+`payment` catalogue in French, English and Spanish.
+
+**If you overrode one of those four templates under `templates/bundles/c975LPaymentBundle/`**, your copy is now
+dead markup: nothing loads it any more, and no error says so — the e-mail simply goes out saying what this bundle
+declares. Delete it, then rewrite the same change on the `EmailTemplate` row, in the back office, under the
+e-mail's own name. What you can rewrite there is every **sentence**, plus the order of the blocks; what you
+cannot is the computed part — the order's lines, the delivery address, the download links, the gift cards. Those
+appear as `slot` blocks that carry a name and no content, filled at send time by `Email\BasketEmailFactory`, and
+a slot with nothing to show renders nothing rather than an empty table. **If your override changed one of those
+fragments** rather than the prose around it, override the matching template of `templates/emails/slots/` instead:
+those are still ordinary Twig files, and they are where that markup now lives.
+
+**If you translated this bundle's e-mail wording** in your app's `payment` catalogue, keep it: the declaration
+reads the catalogue, so the rows are seeded with your strings. An admin's own rewriting on the row outranks both
+afterwards, and running the command again never overwrites it — on a row that already exists, the sentences are
+left strictly alone. What it still does is **append a slot the bundle has since declared and this row has never
+held**, at the end of the blocks, so an e-mail gaining a fragment in a later version shows it rather than
+silently dropping it; move it where it belongs and it stays there. A slot you deliberately deleted is not put
+back.
+
+**A gift card is now an object with a face, and a page of its own.** `payment_gift_card` gains four columns —
+`share_token` (unique), `design_image`, `design_text` and `scratch` — so run `php bin/console
+doctrine:migrations:diff` then `doctrine:migrations:migrate`. Nothing else is required: the cards already issued
+carry no address and no visual, are printed as they were, and go on being spent by their code alone. The new
+`/gift-card/{shareToken}` page is what a buyer forwards to whoever the card is for, and its code is served by
+`/gift-card/{shareToken}/code` rather than written into the markup.
+
+**`GiftCardService::issue()` takes a fifth argument**, a `Contract\GiftCardDesign` saying what the card is
+printed with. Optional and last, so a caller of your own goes on compiling; a card issued without one keeps the
+scratch panel and carries no visual. **If you sell cards through a `BasketItemProviderInterface` of your own**,
+hand that design over from what the basket copied rather than from your catalogue — a design withdrawn from sale
+must not blank a card somebody still holds.
+
+**The VAT is computed, and `totalVat` changed meaning.** [BC-Break] A basket line used to carry
+`quantity × rate`, which is neither an amount nor a rate; it now carries the tax held in what the line is sold
+for, in cents, taken out of a price held VAT included (`VatCalculator::included()`). **A provider of your own
+writing that key must do the same** - the baskets already open answer the old value until their next change.
+`VatCalculator` reads the whole basket from there: one entry per rate, the shipping shared between the rates in
+proportion of what each one weighs, a promotional code lowering the base and a gift card leaving it untouched, a
+card sold left out of it altogether. Nothing is stored, so an order answers the same amounts the day a rate is
+changed in the back-office.
+
+**The basket draws one table.** [BC-Break] The articles and the totals used to be two tables whose columns landed
+in two different places; there is now a single `.basket-table` with a `<thead>`, one `<tbody>` per kind of item and
+a `<tfoot>` carrying the subtotal, the shipping, the code, the total including VAT and the tax it holds. The
+`kind="simple|complex"` prop of `Basket:Display`, `Basket:Items`, `Basket:Item` and `Basket:Total` is gone with the
+detail it drew, which named no translation key and read a `vatAmount` no entity has. **If you have overridden one
+of those templates**, take the new markup as your starting point: the stylesheet's `td` and `th` rules are now
+scoped to that table, where they used to size every cell of the site.
+
+**`Handlers.getCurrencySymbol()` is gone.** [BC-Break] `Handlers.formatAmount(cents, currency)` replaces it and
+answers what the server's `|format_currency` renders, `Intl.NumberFormat` carrying the separator and the place of
+the symbol - the amounts the basket rewrote after a click read `12.00 €` on a French page.
+
+**A basket now survives the loss of its session, and that needs one new column.** `Basket` gained a
+`recoveryToken`, posed when the basket is created and kept in a cookie of the visitor's browser: a basket filled
+without an account used to be named by the session and by nothing else, so PHP recycling that session - after 24
+minutes of inactivity, by default - left the visitor with an empty basket and the row in the database. Run
+`php bin/console make:migration` then `doctrine:migrations:migrate` in your application. **The baskets already
+open when you migrate carry no token** and stay as they are: they are recovered from the customer's account if
+they have one, and the nightly purge takes the others away as before.
+
+**The cookie is functional, not analytical**: it carries a random token naming one basket, is `HttpOnly`, and
+lives exactly as long as an untouched basket does (14 days). Nothing to declare to your visitors beyond what a
+session cookie already is.
+
+**`BasketRepository::findUnvalidated()` now reads the last change instead of the creation.** A basket the visitor
+came back to yesterday is a shopper still shopping, whatever day it was opened, and the nightly purge no longer
+takes it away on the strength of its age alone.
+
+**`Basket::toArray()` no longer carries `securityToken`, `shareToken` nor `recoveryToken`.** It answers the
+basket page's JavaScript, which never used them - **if you have overridden a template or a controller reading one
+of the three from that payload**, read it from the entity instead.
+
 ## v5.x > v6.0
+
+**`PaymentGatewayInterface` gained `getCheckoutDomains()`.** [BC-Break] It answers the hosts the customer's browser
+is sent to when paying, as a CSP source list writes them - `['checkout.stripe.com']` for the gateway shipped here.
+Nothing to do in an application: `CheckoutCspSubscriber` reads it to complete the site's own `form-action`, which
+is checked on the whole redirection chain of a form navigation and would otherwise block the customer between the
+order and the payment page. A gateway of your own has one method to add, and may answer `[]` if it charges without
+ever navigating away.
 
 **Nothing is delivered on the strength of the url the customer comes back on.** `BasketService::paid()` used to
 deliver any basket it found in the `validated` state - decrementing stock, issuing downloads, sending the

@@ -5,11 +5,22 @@
         <h2 id="coordinates">{{ 'label.validate_basket'|trans }}</h2>
         {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
             {{ form_widget(form) }}
+            {# Who the customer wants to pay through, when the shop is paid through more than one. Read straight off the request by BasketService::validate(), exactly as the "share" button below is, and checked there against what is really offered #}
+            {% if basket.payable > 0 %}
+                <twig:c975LPayment:Basket:GatewayChoice/>
+            {% endif %}
             {# Test mode, repeated here: the banner opening the page is far above once the form is filled, and the warning belongs where the money is committed #}
             <twig:c975LPayment:Basket:TestMode/>
             <div>
-                <input type="submit" name="submit" class="btn btn-primary" data-basket-target="submitButton" value="{{ 'label.pay'|trans }} {{ ((basket.total + basket.shipping) / 100)|format_currency(basket.currency) }}">
+                <input type="submit" name="submit" class="btn btn-primary" data-basket-target="submitButton" value="{{ 'label.pay'|trans }} {{ (basket.payable / 100)|format_currency(basket.currency) }}">
             </div>
+            {# The same form and the same coordinates - only who is asked for the money changes. Nothing to offer on an order with nothing left to pay #}
+            {% if basket.payable > 0 %}
+                <div>
+                    <button type="submit" name="share" value="1" class="btn btn-secondary">{{ 'label.share_order'|trans }}</button>
+                    <p class="text-muted">{{ 'label.share_order_help'|trans }}</p>
+                </div>
+            {% endif %}
             {# Mandatory field #}
             <p class="text-muted">
                 {{ 'label.mandatory_field'|trans({}, 'site') }}

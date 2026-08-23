@@ -1,0 +1,44 @@
+{# The address labels of the orders still to post, ten to an A4 sheet - drawn by BasketCrudController::shippingLabels() and meant for a sheet of 105 x 57 mm labels, the size the stationers sell #}
+{# Laid out as a table and not as floated boxes: a float is where the two engines disagree, and dompdf packs a sheet of them onto one page instead of breaking it. A table row is what both of them paginate correctly #}
+{% trans_default_domain 'payment' %}
+<meta charset="utf-8">
+<title>{{ 'label.shipping_labels'|trans }}</title>
+<style>
+    {# Two columns of 105 mm across 210, five rows of 57 mm down the middle 285 of 297: the page carries no side margin, each label holding its own padding so the text sits away from the cut #}
+    @page { size: A4; margin: 6mm 0; }
+    body { font-family: "DejaVu Sans", sans-serif; margin: 0; }
+    table { width: 210mm; border-collapse: collapse; table-layout: fixed; }
+    {# 45 mm of content plus 8 above and 4 below makes the 57 the sheet is cut at: the padding is added to the height rather than taken out of it, "box-sizing" being one of the things the two engines read differently #}
+    td {
+        width: 105mm;
+        height: 45mm;
+        padding: 8mm 8mm 4mm;
+        vertical-align: top;
+        font-size: 11pt;
+        line-height: 1.35;
+        overflow: hidden;
+    }
+    .name { font-weight: bold; }
+    .order { margin-top: 3mm; font-size: 7pt; color: #555; }
+    .sender { font-size: 7pt; color: #555; margin-bottom: 3mm; }
+</style>
+
+<table>
+    {# Two to a row, and a last row short of one leaves its label blank rather than stretching the other across the sheet #}
+    {% for pair in baskets|batch(2) %}
+        <tr>
+            {% for basket in pair %}
+                <td>
+                    {# Who it comes from, small and above: a parcel refused at the door has to find its way back #}
+                    <div class="sender">{{ sender }}</div>
+                    <div class="name">{{ basket.name }}</div>
+                    {{ basket.address }}<br>
+                    {{ basket.zip }} {{ basket.city }}<br>
+                    {{ basket.country }}
+                    <div class="order">{{ basket.number }}</div>
+                </td>
+            {% endfor %}
+            {% if pair|length == 1 %}<td></td>{% endif %}
+        </tr>
+    {% endfor %}
+</table>

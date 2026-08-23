@@ -1,0 +1,5 @@
+{# What the buyer wrote to whoever the cards are for, if they wrote anything #}
+{% trans_default_domain 'payment' %}
+{% if basket.giftCardRecipientMessage %}
+    <p><em>{{ basket.giftCardRecipientMessage }}</em></p>
+{% endif %}

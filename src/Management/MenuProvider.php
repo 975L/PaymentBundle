@@ -12,6 +12,8 @@ namespace c975L\PaymentBundle\Management;
 
 use c975L\ConfigBundle\Management\MenuProviderInterface;
 use c975L\PaymentBundle\Controller\Management\BasketCrudController;
+use c975L\PaymentBundle\Controller\Management\DiscountCrudController;
+use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
 
 class MenuProvider implements MenuProviderInterface
@@ -32,14 +34,28 @@ class MenuProvider implements MenuProviderInterface
                 'label' => 'label.baskets',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-basket-shopping',
-                'description' => 'description.baskets',
+                'description' => 'label.info_basket',
             ],
             'payment' => [
                 'controller' => PaymentCrudController::class,
                 'label' => 'label.payments',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-money-bill-wave',
-                'description' => 'description.payments',
+                'description' => 'label.info_payment',
+            ],
+            'discount' => [
+                'controller' => DiscountCrudController::class,
+                'label' => 'label.discounts',
+                'translation_domain' => 'payment',
+                'icon' => 'fas fa-tags',
+                'description' => 'label.info_discount',
+            ],
+            'gift_card' => [
+                'controller' => GiftCardCrudController::class,
+                'label' => 'label.gift_cards',
+                'translation_domain' => 'payment',
+                'icon' => 'fas fa-gift',
+                'description' => 'label.info_gift_card',
             ],
         ];
     }

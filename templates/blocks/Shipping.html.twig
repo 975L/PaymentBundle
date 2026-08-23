@@ -1,0 +1,8 @@
+{# The delivery costs said on a composed page, the amounts being the component's own - a block placed here never goes stale against the configuration #}
+{% if title|default('') is not empty %}
+    <h2>{{ title }}</h2>
+{% endif %}
+<twig:c975LPayment:Basket:Shipping/>
+{% if note|default('') is not empty %}
+    <p class="text-center">{{ note }}</p>
+{% endif %}

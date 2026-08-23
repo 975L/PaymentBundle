@@ -1,4 +1,7 @@
 {# <twig:c975LPayment:Basket:ValidateButton quantity="{{ basket.quantity }}"/> #}
 {% if quantity > 0 %}
-    <twig:c975LUi:Button:Button label="{{ 'label.validate_basket'|trans({}, 'payment') }}" url="{{ path('basket_validate') }}#coordinates"/>
+    {# The action sits on the wrapper rather than on the button, which takes no attribute of its own: the controller reads the code left in the field before letting the click through #}
+    <div data-action="click->basket#validateWithCode">
+        <twig:c975LUi:Button:Button label="{{ 'label.validate_basket'|trans({}, 'payment') }}" url="{{ path('basket_validate') }}#coordinates"/>
+    </div>
 {% endif %}

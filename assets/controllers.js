@@ -7,6 +7,7 @@ const app = startStimulusApp();
 // Keys are the Stimulus identifiers as registered, matching what the templates write in data-controller
 const LAZY_CONTROLLERS = {
     basket: () => import('./js/basket.js'),
+    giftCard: () => import('./js/gift-card.js'),
 };
 
 const registered = new Set();

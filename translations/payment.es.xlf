@@ -2,9 +2,37 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="es" datatype="plaintext" original="payment.en.xlf">
         <body>
-            <trans-unit id="e1kS3nW">
-                <source>description.baskets</source>
-                <target>Las cestas creadas por los visitantes, validadas o no, con su importe, su contenido y su estado de pedido.</target>
+            <trans-unit id="6XZS.VB">
+                <source>description.gift_card_how_to_use</source>
+                <target>Introduzca el código de esta tarjeta en su cesta al validar el pedido. El saldo restante sigue disponible para un pedido posterior.</target>
+            </trans-unit>
+            <trans-unit id="v3WXbYt">
+                <source>description.gift_card_issue</source>
+                <target>Para los casos en que ninguna venta crea la tarjeta: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes. El código se sortea y se muestra una vez, al validar.</target>
+            </trans-unit>
+            <trans-unit id="K8fkUSx">
+                <source>description.gift_card_pdf</source>
+                <target>Imprima esta página y recorte la tarjeta por la línea de puntos: primero el anverso, después el reverso.</target>
+            </trans-unit>
+            <trans-unit id="GznHAbM">
+                <source>description.gift_card_recipient_email</source>
+                <target>Opcional. La tarjeta se le envía directamente; déjelo vacío para recibirla usted y entregarla.</target>
+            </trans-unit>
+            <trans-unit id="XBBuu0j">
+                <source>description.guided_project_payment_discount_code</source>
+                <target>Descontar un porcentaje o una suma fija de un pedido, dentro de los límites que el propio código lleva</target>
+            </trans-unit>
+            <trans-unit id="3KSFe5s">
+                <source>description.guided_project_payment_gift_card_issue</source>
+                <target>Crear una tarjeta que ninguna venta ha generado: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes</target>
+            </trans-unit>
+            <trans-unit id="u3MnZZK">
+                <source>description.guided_project_payment_payment_link</source>
+                <target>Escribir un pedido para un anticipo, una reparación o una factura, y dar su dirección a quien lo pague</target>
+            </trans-unit>
+            <trans-unit id="bDkghSo">
+                <source>description.guided_project_payment_shipping</source>
+                <target>Ir de los pedidos que deben un paquete al correo que anuncia a cada cliente que el suyo ha salido</target>
             </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
@@ -13,6 +41,102 @@
             <trans-unit id="20v9CiO">
                 <source>description.guided_project_payment_transaction_review</source>
                 <target>Conciliar un pago registrado aquí con su asiento real en Stripe u otro proveedor</target>
+            </trans-unit>
+            <trans-unit id="849UuDC">
+                <source>description.guided_step_payment_discount_code_code</source>
+                <target>Lo que el cliente escribe en su cesta. Se dicta y se vuelve a teclear: manténgalo corto y sin caracteres que se lean de dos maneras.</target>
+            </trans-unit>
+            <trans-unit id="3DEfG44">
+                <source>description.guided_step_payment_discount_code_kind</source>
+                <target>Porcentaje o importe fijo. Es esta elección la que da sentido al campo siguiente, ya que ambos comparten una sola columna.</target>
+            </trans-unit>
+            <trans-unit id="DpPVuQw">
+                <source>description.guided_step_payment_discount_code_limits</source>
+                <target>Cuántos pedidos pueden usarlo como máximo, junto al mínimo que un pedido debe alcanzar y las dos fechas que lo enmarcan: cada uno rechaza el código por su cuenta, en el momento en que el pedido se congela.</target>
+            </trans-unit>
+            <trans-unit id="JGtcCMX">
+                <source>description.guided_step_payment_discount_code_live</source>
+                <target>Su contador solo lo aumentan los pedidos pagados, y su columna Modo de prueba dice en qué modo cobraba la tienda el día en que se escribió: un código nacido de un ensayo nunca podrá gastarse de verdad.</target>
+            </trans-unit>
+            <trans-unit id="Dr3uDcp">
+                <source>description.guided_step_payment_discount_code_new</source>
+                <target>El botón Nuevo de siempre: a diferencia de una tarjeta regalo, un código no guarda dinero y se escribe directamente en el formulario.</target>
+            </trans-unit>
+            <trans-unit id="paLRBJR">
+                <source>description.guided_step_payment_discount_code_open</source>
+                <target>Todos los códigos escritos por la tienda aparecen ahí, con lo que descuentan y las veces que se han usado.</target>
+            </trans-unit>
+            <trans-unit id="kvKGuT6">
+                <source>description.guided_step_payment_discount_code_value</source>
+                <target>Se lee como un porcentaje para el primer tipo y en céntimos para el segundo: 10 es o bien una décima parte del pedido, o bien diez céntimos menos.</target>
+            </trans-unit>
+            <trans-unit id="pMNxMMT">
+                <source>description.guided_step_payment_gift_card_issue_amount</source>
+                <target>Se escribe en la divisa de la tienda y se convierte en todo el saldo de la tarjeta, que su portador gasta en tantos pedidos como haga falta.</target>
+            </trans-unit>
+            <trans-unit id="MV_WBZ1">
+                <source>description.guided_step_payment_gift_card_issue_code</source>
+                <target>Se muestra una sola vez, en el mensaje encima de la lista a la que vuelve. Ninguna pantalla lo reimprime: entréguelo antes de salir de esa página.</target>
+            </trans-unit>
+            <trans-unit id=".kCwiia">
+                <source>description.guided_step_payment_gift_card_issue_confirm</source>
+                <target>El código se sortea al validar, igual que lo hace una compra: nada en él se escribe.</target>
+            </trans-unit>
+            <trans-unit id="bR0j8lt">
+                <source>description.guided_step_payment_gift_card_issue_open</source>
+                <target>Todas las tarjetas aparecen ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
+            </trans-unit>
+            <trans-unit id="3Uhjrrk">
+                <source>description.guided_step_payment_gift_card_issue_start</source>
+                <target>El botón Emitir, encima de la lista, y ningún botón Nuevo: el saldo nace del importe en lugar de escribirse, y no se retoca después.</target>
+            </trans-unit>
+            <trans-unit id="tOpIhxB">
+                <source>description.guided_step_payment_gift_card_issue_validity</source>
+                <target>En blanco, la tarjeta nunca caduca. Rellenada, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
+            </trans-unit>
+            <trans-unit id="AN5Mf_f">
+                <source>description.guided_step_payment_payment_link_amount</source>
+                <target>Se escribe en la divisa de la tienda e IVA incluido, como todos los precios aquí; el impuesto se extrae al tipo que guarda el ajuste payment-link-vat-rate.</target>
+            </trans-unit>
+            <trans-unit id="U5x.XNY">
+                <source>description.guided_step_payment_payment_link_create</source>
+                <target>El pedido queda congelado en el acto, y su dirección corta aparece encima del formulario: envíela por SMS o por correo, se paga en línea como cualquier otro.</target>
+            </trans-unit>
+            <trans-unit id="xIPcgv8">
+                <source>description.guided_step_payment_payment_link_email</source>
+                <target>A ella se envía la confirmación una vez pagado el pedido, y es la que vincula el pedido a su cuenta si abre una.</target>
+            </trans-unit>
+            <trans-unit id="GryGAL7">
+                <source>description.guided_step_payment_payment_link_label</source>
+                <target>Lo que el cliente lee en su pedido, en su factura y en su correo de confirmación: «Anticipo del parqué», «Reparación de bicicleta».</target>
+            </trans-unit>
+            <trans-unit id="MTKQxdm">
+                <source>description.guided_step_payment_payment_link_open</source>
+                <target>Un enlace de pago se escribe desde la lista de pedidos, que es donde se coloca el que crea.</target>
+            </trans-unit>
+            <trans-unit id="DSDBs8F">
+                <source>description.guided_step_payment_payment_link_start</source>
+                <target>El botón Enlace de pago, encima de la lista: no hay ninguna fila de la que partir, el pedido lo escribe el formulario que abre.</target>
+            </trans-unit>
+            <trans-unit id="SR8LZlo">
+                <source>description.guided_step_payment_shipping_done</source>
+                <target>Un pedido marcado sale de los pendientes de envío: la hoja de mañana solo llevará lo que siga debiéndose. Una contrapartida se envía con el botón contiguo, por su cuenta.</target>
+            </trans-unit>
+            <trans-unit id="DdgTkfk">
+                <source>description.guided_step_payment_shipping_filter</source>
+                <target>Pagado es el único estado en el que sale un paquete: un pedido solo validado no se ha abonado, y nada se envía por él.</target>
+            </trans-unit>
+            <trans-unit id="m6GSizM">
+                <source>description.guided_step_payment_shipping_labels</source>
+                <target>Una hoja para toda la ronda, abierta en otra pestaña: reúne los pedidos pendientes de envío que llevan una dirección, y lo dice cuando no hay ninguno.</target>
+            </trans-unit>
+            <trans-unit id="XNcRLfX">
+                <source>description.guided_step_payment_shipping_open</source>
+                <target>Todos los pedidos aparecen ahí, sea cual sea su estado, que es más de lo que necesita una ronda de envíos.</target>
+            </trans-unit>
+            <trans-unit id="yH9irXB">
+                <source>description.guided_step_payment_shipping_send</source>
+                <target>En la fila del pedido que acaba de embalar. Solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado, y el clic registra el envío y avisa al cliente por correo.</target>
             </trans-unit>
             <trans-unit id="LQKFQtI">
                 <source>description.guided_step_payment_test_mode_check</source>
@@ -24,7 +148,7 @@
             </trans-unit>
             <trans-unit id="D03l6hW">
                 <source>description.guided_step_payment_test_mode_done</source>
-                <target>El pago de prueba creado sigue visible entre los pagos, reconocible por su proveedor y la ausencia de una factura real.</target>
+                <target>El pago de prueba permanece entre los pagos, reconocible porque su pedido no lleva ninguna factura: un ensayo nunca entra en la secuencia de facturas.</target>
             </trans-unit>
             <trans-unit id="b.OhtKa">
                 <source>description.guided_step_payment_test_mode_enable</source>
@@ -48,7 +172,7 @@
             </trans-unit>
             <trans-unit id="BkNaLjq">
                 <source>description.guided_step_payment_transaction_review_provider</source>
-                <target>El icono de factura abre la transacción en el panel del proveedor, cuando se ha registrado un identificador.</target>
+                <target>El icono Transacción la abre en el panel de Stripe, cuando se ha registrado un identificador. Revolut no publica ninguna dirección estable para un pedido, así que ahí el icono no aparece y solo se muestra el identificador.</target>
             </trans-unit>
             <trans-unit id="bedYlU5">
                 <source>description.payment_gateway_unavailable</source>
@@ -62,9 +186,61 @@
                 <source>description.payment_keys_missing_test</source>
                 <target>Los pagos de prueba están activados y las claves de prueba de %gateway% no están rellenadas, o son ilegibles: la validación de la cesta falla.</target>
             </trans-unit>
-            <trans-unit id="cFI9LaV">
-                <source>description.payments</source>
-                <target>Las transacciones intentadas para cada cesta, con su proveedor, su estado y su importe.</target>
+            <trans-unit id="pxD19ev">
+                <source>description.payment_link</source>
+                <target>Cobre lo que el catálogo no vende: un anticipo, una reparación, una factura. El pedido se escribe congelado y su enlace se paga en línea como cualquier otro.</target>
+            </trans-unit>
+            <trans-unit id="3CzEeUY">
+                <source>error.code_changed</source>
+                <target>Este código ya no se aplica a este pedido como antes: se ha actualizado el precio</target>
+            </trans-unit>
+            <trans-unit id="h4gxgNh">
+                <source>error.code_exhausted</source>
+                <target>Este código ya se ha usado tantas veces como estaba previsto</target>
+            </trans-unit>
+            <trans-unit id="Zw68nMH">
+                <source>error.code_expired</source>
+                <target>Este código ya no es válido</target>
+            </trans-unit>
+            <trans-unit id="vZgknjQ">
+                <source>error.code_live_in_test_mode</source>
+                <target>Este es un código de producción: la tienda está en modo prueba y solo acepta códigos creados en modo prueba</target>
+            </trans-unit>
+            <trans-unit id="SKCoANx">
+                <source>error.code_minimum</source>
+                <target>Este código requiere un carrito de al menos %amount% €</target>
+            </trans-unit>
+            <trans-unit id="RsoK3pS">
+                <source>error.code_no_balance</source>
+                <target>Esta tarjeta regalo está agotada</target>
+            </trans-unit>
+            <trans-unit id="j49DYb3">
+                <source>error.code_nothing_to_discount</source>
+                <target>No hay nada que deducir en este carrito</target>
+            </trans-unit>
+            <trans-unit id="lkpD2cn">
+                <source>error.code_unknown</source>
+                <target>Este código no existe</target>
+            </trans-unit>
+            <trans-unit id="b1C5KYM">
+                <source>error.code_wrong_currency</source>
+                <target>Esta tarjeta regalo está en otra moneda que este carrito</target>
+            </trans-unit>
+            <trans-unit id="3gxyS_O">
+                <source>error.payment_link_not_addable</source>
+                <target>Un enlace de pago no se añade a la cesta.</target>
+            </trans-unit>
+            <trans-unit id="KVIUnzj">
+                <source>flash.gift_card_issued</source>
+                <target>Tarjeta regalo emitida. Su código es %code%: anótalo, no se vuelve a mostrar.</target>
+            </trans-unit>
+            <trans-unit id="FoMAdAa">
+                <source>flash.no_shipping_labels</source>
+                <target>Ningún pedido pendiente de envío tiene una dirección que imprimir.</target>
+            </trans-unit>
+            <trans-unit id="dvhXWqe">
+                <source>flash.payment_link_created</source>
+                <target>El enlace de pago ha sido creado.</target>
             </trans-unit>
             <trans-unit id="tKqVN0W">
                 <source>flash.payment_test_mode_disabled</source>
@@ -78,6 +254,62 @@
                 <source>flash.payment_unavailable</source>
                 <target>El pago no está disponible por el momento, su cesta se conserva. Vuelva a intentarlo más tarde o póngase en contacto con nosotros.</target>
             </trans-unit>
+            <trans-unit id="PoSrlv.">
+                <source>help.code_test_mode</source>
+                <target>Creado mientras la tienda estaba en modo prueba: utilizable solo en modo prueba, nunca en un pedido real</target>
+            </trans-unit>
+            <trans-unit id="wsMISUb">
+                <source>help.discount_code</source>
+                <target>Lo que el cliente escribe en el carrito, en mayúsculas</target>
+            </trans-unit>
+            <trans-unit id="rxM3zqG">
+                <source>help.discount_currency</source>
+                <target>Dejar vacío para que el código se aplique sea cual sea la moneda</target>
+            </trans-unit>
+            <trans-unit id="it3aDu8">
+                <source>help.discount_max_uses</source>
+                <target>0 para un número ilimitado de usos</target>
+            </trans-unit>
+            <trans-unit id="bRAdeUt">
+                <source>help.discount_minimum</source>
+                <target>Comparado con los artículos antes del descuento, sin gastos de envío</target>
+            </trans-unit>
+            <trans-unit id="buDuG.H">
+                <source>help.discount_value</source>
+                <target>Según el tipo elegido: un porcentaje (10 para 10 %) o un importe en céntimos (500 para 5 €) — una sola columna para ambos, así que se introduce como entero</target>
+            </trans-unit>
+            <trans-unit id="lz.QKvF">
+                <source>help.gift_card_amount</source>
+                <target>Lo que valdrá la tarjeta para quien la tenga</target>
+            </trans-unit>
+            <trans-unit id="WekZCcz">
+                <source>help.gift_card_valid_until</source>
+                <target>Dejar vacío para la duración configurada en los ajustes (un año desde hoy por defecto)</target>
+            </trans-unit>
+            <trans-unit id="sBgTOyN">
+                <source>help.payment_link_amount</source>
+                <target>IVA incluido. El impuesto se deduce al tipo configurado.</target>
+            </trans-unit>
+            <trans-unit id="zQgRYkD">
+                <source>help.payment_link_email</source>
+                <target>La dirección a la que se enviará la confirmación del pago.</target>
+            </trans-unit>
+            <trans-unit id="qP_w3U6">
+                <source>help.payment_link_label</source>
+                <target>Lo que el cliente leerá en su página de pago y en su recibo.</target>
+            </trans-unit>
+            <trans-unit id="iMFHcrw">
+                <source>label.account_invitation</source>
+                <target>Cree una cuenta para volver a encontrar sus pedidos y sus descargas en cualquier momento.</target>
+            </trans-unit>
+            <trans-unit id="bjeFftJ">
+                <source>label.account_invitation_link</source>
+                <target>Crear mi cuenta desde la página de este pedido</target>
+            </trans-unit>
+            <trans-unit id="6xRnWtC">
+                <source>label.active</source>
+                <target>Activo</target>
+            </trans-unit>
             <trans-unit id="4jca4DY">
                 <source>label.added</source>
                 <target>¡añadido!</target>
@@ -90,9 +322,21 @@
                 <source>label.amount</source>
                 <target>Cantidad</target>
             </trans-unit>
+            <trans-unit id="NMKPjze">
+                <source>label.archived</source>
+                <target>Archivado</target>
+            </trans-unit>
+            <trans-unit id="TUImAIH">
+                <source>label.article</source>
+                <target>Artículo</target>
+            </trans-unit>
             <trans-unit id="ILp1c_1">
                 <source>label.back_to_orders</source>
                 <target>Volver a mis pedidos</target>
+            </trans-unit>
+            <trans-unit id="T8.rAB6">
+                <source>label.balance</source>
+                <target>Saldo</target>
             </trans-unit>
             <trans-unit id="56tqkOW">
                 <source>label.basket</source>
@@ -122,6 +366,26 @@
                 <source>label.basket_products_reminder</source>
                 <target>Recordatorio de los productos pedidos:</target>
             </trans-unit>
+            <trans-unit id="ASotSRN">
+                <source>label.basket_reminder</source>
+                <target>Su pedido le espera</target>
+            </trans-unit>
+            <trans-unit id="H34EUHn">
+                <source>label.basket_reminder_first</source>
+                <target>Validó este pedido sin pagarlo. Puede abonarlo en un clic, sin volver a escribir nada.</target>
+            </trans-unit>
+            <trans-unit id="VQXo.tb">
+                <source>label.basket_reminder_ignore</source>
+                <target>Si ha cambiado de opinión, no tiene que hacer nada: este pedido se elimina automáticamente al cabo de %days% días, junto con los datos que introdujo.</target>
+            </trans-unit>
+            <trans-unit id=".jDW_P9">
+                <source>label.basket_reminder_pay</source>
+                <target>Pagar mi pedido</target>
+            </trans-unit>
+            <trans-unit id="CHw4Ao0">
+                <source>label.basket_reminder_second</source>
+                <target>Su pedido sigue sin pagarse. Este es el último mensaje que le enviamos al respecto.</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>¡Le agradecemos su pedido y su confianza!</target>
@@ -130,9 +394,53 @@
                 <source>label.baskets</source>
                 <target>Cestas</target>
             </trans-unit>
+            <trans-unit id="4wcJtt6">
+                <source>label.billed_to</source>
+                <target>Facturado a</target>
+            </trans-unit>
+            <trans-unit id="ZfMfjHp">
+                <source>label.block_shipping</source>
+                <target>Gastos de envío</target>
+            </trans-unit>
+            <trans-unit id="9A7z8zX">
+                <source>label.block_shipping_description</source>
+                <target>Indica lo que cuesta el envío; el importe y el umbral de gratuidad se leen de la configuración de la tienda</target>
+            </trans-unit>
+            <trans-unit id="0pV09w2">
+                <source>label.block_shipping_note</source>
+                <target>Precisión (opcional)</target>
+            </trans-unit>
+            <trans-unit id="t9d9.Qz">
+                <source>label.block_title</source>
+                <target>Título (opcional)</target>
+            </trans-unit>
+            <trans-unit id="pVZ2WV6">
+                <source>label.category_shop</source>
+                <target>Tienda</target>
+            </trans-unit>
+            <trans-unit id="rMc4Pre">
+                <source>label.choose_gateway</source>
+                <target>¿Cómo desea pagar?</target>
+            </trans-unit>
             <trans-unit id="MXpeMi7">
                 <source>label.city</source>
                 <target>Ciudad</target>
+            </trans-unit>
+            <trans-unit id="iNYYeH9">
+                <source>label.code</source>
+                <target>Código promocional o tarjeta regalo</target>
+            </trans-unit>
+            <trans-unit id="ZFGlPbC">
+                <source>label.code_apply</source>
+                <target>Aplicar</target>
+            </trans-unit>
+            <trans-unit id="TTURsI7">
+                <source>label.code_placeholder</source>
+                <target>Introduce tu código</target>
+            </trans-unit>
+            <trans-unit id="QwIPz_y">
+                <source>label.code_promotional</source>
+                <target>Código</target>
             </trans-unit>
             <trans-unit id="soKgtX1">
                 <source>label.confirm_order</source>
@@ -157,6 +465,14 @@
             <trans-unit id="FpV5TI4">
                 <source>label.contributor_message</source>
                 <target>Mensaje del contribuidor</target>
+            </trans-unit>
+            <trans-unit id="0oDXXjE">
+                <source>label.counterpart_with_shipping</source>
+                <target>Contrapartida a enviar</target>
+            </trans-unit>
+            <trans-unit id="ntZF4vd">
+                <source>label.counterpart_without_shipping</source>
+                <target>Contrapartida sin envío</target>
             </trans-unit>
             <trans-unit id="UID7nSb">
                 <source>label.counterparts_shipped</source>
@@ -186,13 +502,49 @@
                 <source>label.days</source>
                 <target>días</target>
             </trans-unit>
+            <trans-unit id="FgT.mx7">
+                <source>label.decrease_quantity</source>
+                <target>Reducir la cantidad</target>
+            </trans-unit>
             <trans-unit id="uoyeLTR">
                 <source>label.delivery</source>
                 <target>Entrega</target>
             </trans-unit>
+            <trans-unit id="Zb4xuOb">
+                <source>label.description</source>
+                <target>Descripción</target>
+            </trans-unit>
+            <trans-unit id="BzQ0sE9">
+                <source>label.digital_item</source>
+                <target>Artículo digital</target>
+            </trans-unit>
             <trans-unit id="zmXwlJ5">
                 <source>label.digital_items</source>
                 <target>Productos digitales</target>
+            </trans-unit>
+            <trans-unit id="SEjSKCY">
+                <source>label.discount</source>
+                <target>Descuento</target>
+            </trans-unit>
+            <trans-unit id="VMB8nVD">
+                <source>label.discount_amount</source>
+                <target>Importe fijo</target>
+            </trans-unit>
+            <trans-unit id="K4.slkF">
+                <source>label.discount_kind</source>
+                <target>Tipo</target>
+            </trans-unit>
+            <trans-unit id="JKqmM3E">
+                <source>label.discount_percentage</source>
+                <target>Porcentaje</target>
+            </trans-unit>
+            <trans-unit id="Ot56xRJ">
+                <source>label.discount_value</source>
+                <target>Valor</target>
+            </trans-unit>
+            <trans-unit id=".QEn94j">
+                <source>label.discounts</source>
+                <target>Códigos promocionales</target>
             </trans-unit>
             <trans-unit id="tLGn0en">
                 <source>label.download</source>
@@ -204,7 +556,11 @@
             </trans-unit>
             <trans-unit id="0sJ4CoA">
                 <source>label.download_instructions</source>
-                <target>Utilice los siguientes enlaces para descargar sus archivos. Estos enlaces expiran en:</target>
+                <target>Utilice los siguientes enlaces para descargar sus archivos. Estos enlaces expiran en %days% días.</target>
+            </trans-unit>
+            <trans-unit id="cgEq.1G">
+                <source>label.download_invoice</source>
+                <target>Descargar la factura</target>
             </trans-unit>
             <trans-unit id="vg1gH_I">
                 <source>label.downloads_available</source>
@@ -226,6 +582,22 @@
                 <source>label.export</source>
                 <target>Exportar</target>
             </trans-unit>
+            <trans-unit id="07UesxF">
+                <source>label.filter_archived</source>
+                <target>Archivados</target>
+            </trans-unit>
+            <trans-unit id="bVJj2UV">
+                <source>label.filter_new</source>
+                <target>Nuevos</target>
+            </trans-unit>
+            <trans-unit id="r.Ka0OJ">
+                <source>label.filter_paid</source>
+                <target>Pagados</target>
+            </trans-unit>
+            <trans-unit id="G_hENuH">
+                <source>label.filter_validated</source>
+                <target>Validados</target>
+            </trans-unit>
             <trans-unit id="DCH0Xrv">
                 <source>label.follow_up</source>
                 <target>Nos ocuparemos de ello muy rápidamente.</target>
@@ -238,6 +610,130 @@
                 <source>label.gateway</source>
                 <target>Proveedor de pago</target>
             </trans-unit>
+            <trans-unit id="bHNHwZ9">
+                <source>label.gateway_revolut</source>
+                <target>Revolut</target>
+            </trans-unit>
+            <trans-unit id="ZPvwBwo">
+                <source>label.gateway_stripe</source>
+                <target>Tarjeta bancaria (Stripe)</target>
+            </trans-unit>
+            <trans-unit id="o4Orjtc">
+                <source>label.gift_card</source>
+                <target>Tarjeta regalo</target>
+            </trans-unit>
+            <trans-unit id="6wmo4jc">
+                <source>label.gift_card_back</source>
+                <target>Reverso</target>
+            </trans-unit>
+            <trans-unit id="FCszOOZ">
+                <source>label.gift_card_balance</source>
+                <target>Saldo</target>
+            </trans-unit>
+            <trans-unit id="NOdGSCy">
+                <source>label.gift_card_code_after_payment</source>
+                <target>Su código aparecerá aquí tras el pago</target>
+            </trans-unit>
+            <trans-unit id="oLJlmHU">
+                <source>label.gift_card_download</source>
+                <target>Imprimir la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="LI3ltsC">
+                <source>label.gift_card_expired</source>
+                <target>Esta tarjeta ha superado su fecha de validez.</target>
+            </trans-unit>
+            <trans-unit id="ue9XrCZ">
+                <source>label.gift_card_inactive</source>
+                <target>Esta tarjeta ha sido desactivada. Contáctenos si cree que es un error.</target>
+            </trans-unit>
+            <trans-unit id="kXlvk3Z">
+                <source>label.gift_card_issue</source>
+                <target>Emitir una tarjeta</target>
+            </trans-unit>
+            <trans-unit id="p6WpIqm">
+                <source>label.gift_card_no_expiry</source>
+                <target>Sin fecha límite</target>
+            </trans-unit>
+            <trans-unit id="rCzuwhA">
+                <source>label.gift_card_open</source>
+                <target>Abrir la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="Iyk3yrn">
+                <source>label.gift_card_recipient</source>
+                <target>Le espera una tarjeta regalo</target>
+            </trans-unit>
+            <trans-unit id="EVCb5Rm">
+                <source>label.gift_card_recipient_email</source>
+                <target>Correo del destinatario</target>
+            </trans-unit>
+            <trans-unit id="y4sX4oD">
+                <source>label.gift_card_recipient_how</source>
+                <target>&lt;p&gt;Abra la tarjeta para verla y revelar el código que usará en su pedido. Guarde este enlace: le devuelve a su tarjeta y le muestra el saldo restante.&lt;br&gt;&lt;/p&gt;</target>
+            </trans-unit>
+            <trans-unit id="bKWkMY8">
+                <source>label.gift_card_recipient_intro</source>
+                <target>&lt;p&gt;Buenas noticias: alguien le ha regalado una tarjeta regalo.&lt;br&gt;&lt;/p&gt;</target>
+            </trans-unit>
+            <trans-unit id="nwgaGkr">
+                <source>label.gift_card_recipient_message</source>
+                <target>Unas palabras para el destinatario</target>
+            </trans-unit>
+            <trans-unit id="QCYOQab">
+                <source>label.gift_card_scratch_it</source>
+                <target>Rascar para ver el código</target>
+            </trans-unit>
+            <trans-unit id="wCTbnoG">
+                <source>label.gift_card_share</source>
+                <target>Dirección para transmitir al destinatario:</target>
+            </trans-unit>
+            <trans-unit id="7KhNN1q">
+                <source>label.gift_card_share_url</source>
+                <target>Dirección de la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="wtztRwz">
+                <source>label.gift_card_show_back</source>
+                <target>Ver el reverso de la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="LiBkJyY">
+                <source>label.gift_card_show_front</source>
+                <target>Ver el anverso de la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="beBngi3">
+                <source>label.gift_card_spent</source>
+                <target>Esta tarjeta se ha utilizado por completo.</target>
+            </trans-unit>
+            <trans-unit id="0jGo8cU">
+                <source>label.gift_card_test_mode</source>
+                <target>Esta tarjeta se creó durante una prueba de la tienda: no vale ninguna suma real.</target>
+            </trans-unit>
+            <trans-unit id="GQfA1k1">
+                <source>label.gift_card_valid_until</source>
+                <target>Válida hasta el</target>
+            </trans-unit>
+            <trans-unit id="njyVaZp">
+                <source>label.gift_cards</source>
+                <target>Tarjetas regalo</target>
+            </trans-unit>
+            <trans-unit id="2tIhBz8">
+                <source>label.gift_cards_bought</source>
+                <target>Tus tarjetas regalo</target>
+            </trans-unit>
+            <trans-unit id="oO8CncP">
+                <source>label.guided_project_payment_discount_code</source>
+                <target>Escribir un código promocional</target>
+            </trans-unit>
+            <trans-unit id="mXJ10rx">
+                <source>label.guided_project_payment_gift_card_issue</source>
+                <target>Emitir una tarjeta regalo a mano</target>
+            </trans-unit>
+            <trans-unit id="svPZPHX">
+                <source>label.guided_project_payment_payment_link</source>
+                <target>Cobrar fuera del catálogo</target>
+            </trans-unit>
+            <trans-unit id="eVqjepW">
+                <source>label.guided_project_payment_shipping</source>
+                <target>Enviar los paquetes del día</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Activar los pagos de prueba</target>
@@ -245,6 +741,102 @@
             <trans-unit id="FZYAus7">
                 <source>label.guided_project_payment_transaction_review</source>
                 <target>Localizar una transacción en su proveedor</target>
+            </trans-unit>
+            <trans-unit id="UfV9AOP">
+                <source>label.guided_step_payment_discount_code_code</source>
+                <target>Elegir el código en sí</target>
+            </trans-unit>
+            <trans-unit id="_OowT0t">
+                <source>label.guided_step_payment_discount_code_kind</source>
+                <target>Elegir el tipo</target>
+            </trans-unit>
+            <trans-unit id="AQB3XTL">
+                <source>label.guided_step_payment_discount_code_limits</source>
+                <target>Limitar su alcance</target>
+            </trans-unit>
+            <trans-unit id="G1LJ7Ko">
+                <source>label.guided_step_payment_discount_code_live</source>
+                <target>El código está en servicio</target>
+            </trans-unit>
+            <trans-unit id="1.0YuXf">
+                <source>label.guided_step_payment_discount_code_new</source>
+                <target>Añadir un código</target>
+            </trans-unit>
+            <trans-unit id="bNC5f.Z">
+                <source>label.guided_step_payment_discount_code_open</source>
+                <target>Abrir los códigos promocionales</target>
+            </trans-unit>
+            <trans-unit id="QUv74i3">
+                <source>label.guided_step_payment_discount_code_value</source>
+                <target>Fijar lo que se descuenta</target>
+            </trans-unit>
+            <trans-unit id="RTgQnIQ">
+                <source>label.guided_step_payment_gift_card_issue_amount</source>
+                <target>Fijar el importe</target>
+            </trans-unit>
+            <trans-unit id="R2NKjvo">
+                <source>label.guided_step_payment_gift_card_issue_code</source>
+                <target>Copiar el código</target>
+            </trans-unit>
+            <trans-unit id="B88BVbS">
+                <source>label.guided_step_payment_gift_card_issue_confirm</source>
+                <target>Emitir la tarjeta</target>
+            </trans-unit>
+            <trans-unit id="yKwKXwN">
+                <source>label.guided_step_payment_gift_card_issue_open</source>
+                <target>Abrir las tarjetas regalo</target>
+            </trans-unit>
+            <trans-unit id="P1ibJDX">
+                <source>label.guided_step_payment_gift_card_issue_start</source>
+                <target>Abrir el formulario de emisión</target>
+            </trans-unit>
+            <trans-unit id="_bNlvel">
+                <source>label.guided_step_payment_gift_card_issue_validity</source>
+                <target>Fijar una fecha de fin, o ninguna</target>
+            </trans-unit>
+            <trans-unit id="_7abQeC">
+                <source>label.guided_step_payment_payment_link_amount</source>
+                <target>Fijar el importe</target>
+            </trans-unit>
+            <trans-unit id="Cb1Sl7_">
+                <source>label.guided_step_payment_payment_link_create</source>
+                <target>Escribir el pedido</target>
+            </trans-unit>
+            <trans-unit id="Ba3GYYX">
+                <source>label.guided_step_payment_payment_link_email</source>
+                <target>Indicar la dirección del cliente</target>
+            </trans-unit>
+            <trans-unit id="iGosKEr">
+                <source>label.guided_step_payment_payment_link_label</source>
+                <target>Nombrar lo que se cobra</target>
+            </trans-unit>
+            <trans-unit id="V1e73rr">
+                <source>label.guided_step_payment_payment_link_open</source>
+                <target>Abrir las cestas</target>
+            </trans-unit>
+            <trans-unit id="DLUGUip">
+                <source>label.guided_step_payment_payment_link_start</source>
+                <target>Abrir el formulario</target>
+            </trans-unit>
+            <trans-unit id="01Ctvcm">
+                <source>label.guided_step_payment_shipping_done</source>
+                <target>La ronda está cerrada</target>
+            </trans-unit>
+            <trans-unit id="BqrDqDa">
+                <source>label.guided_step_payment_shipping_filter</source>
+                <target>Limitarse a los pedidos pagados</target>
+            </trans-unit>
+            <trans-unit id="R6wrbyF">
+                <source>label.guided_step_payment_shipping_labels</source>
+                <target>Imprimir las etiquetas</target>
+            </trans-unit>
+            <trans-unit id="wXO0d7J">
+                <source>label.guided_step_payment_shipping_open</source>
+                <target>Abrir las cestas</target>
+            </trans-unit>
+            <trans-unit id="LAsA5aU">
+                <source>label.guided_step_payment_shipping_send</source>
+                <target>Marcar un pedido como enviado</target>
             </trans-unit>
             <trans-unit id="CxOYCi2">
                 <source>label.guided_step_payment_test_mode_check</source>
@@ -282,13 +874,41 @@
                 <source>label.guided_step_payment_transaction_review_provider</source>
                 <target>Consultar la transacción en el proveedor</target>
             </trans-unit>
+            <trans-unit id="x86UrIw">
+                <source>label.including_vat</source>
+                <target>IVA incluido</target>
+            </trans-unit>
+            <trans-unit id="C2O5zPE">
+                <source>label.including_vat_rate</source>
+                <target>IVA incluido al %rate% %</target>
+            </trans-unit>
+            <trans-unit id="MG2va5T">
+                <source>label.increase_quantity</source>
+                <target>Aumentar la cantidad</target>
+            </trans-unit>
             <trans-unit id="pP.iGmX">
                 <source>label.info_basket</source>
                 <target>Todos los carritos validados por un cliente, se haya completado o no el pago.</target>
             </trans-unit>
+            <trans-unit id="Lt_mG9O">
+                <source>label.info_discount</source>
+                <target>Los códigos promocionales que la tienda escribe y reparte, con lo que descuenta cada uno y las veces que aún puede usarse.</target>
+            </trans-unit>
+            <trans-unit id="JS_tnVE">
+                <source>label.info_gift_card</source>
+                <target>Las tarjetas regalo vendidas, su saldo restante y el pedido que las emitió.</target>
+            </trans-unit>
             <trans-unit id="V9kI0CJ">
                 <source>label.info_payment</source>
                 <target>Todos los pagos cobrados, con la referencia de la transacción del proveedor.</target>
+            </trans-unit>
+            <trans-unit id="xsfKfLg">
+                <source>label.initial_amount</source>
+                <target>Importe inicial</target>
+            </trans-unit>
+            <trans-unit id="pEhmg5z">
+                <source>label.invoice</source>
+                <target>Factura</target>
             </trans-unit>
             <trans-unit id="UuHdw7y">
                 <source>label.is_finished</source>
@@ -302,6 +922,10 @@
                 <source>label.limited_quantity</source>
                 <target>Cantidad limitada</target>
             </trans-unit>
+            <trans-unit id="NEGWKgh">
+                <source>label.max_uses</source>
+                <target>Usos máximos</target>
+            </trans-unit>
             <trans-unit id="Qogqhpo">
                 <source>label.message</source>
                 <target>Mensaje</target>
@@ -309,6 +933,10 @@
             <trans-unit id="rEc5p7e">
                 <source>label.message_user</source>
                 <target>Mensaje del usuario</target>
+            </trans-unit>
+            <trans-unit id="C5gGlKy">
+                <source>label.minimum_total</source>
+                <target>Carrito mínimo</target>
             </trans-unit>
             <trans-unit id="baXk6pr">
                 <source>label.modification</source>
@@ -346,6 +974,10 @@
                 <source>label.pay</source>
                 <target>Pagar</target>
             </trans-unit>
+            <trans-unit id="miwkZr5">
+                <source>label.pay_for_someone</source>
+                <target>Pagar un pedido</target>
+            </trans-unit>
             <trans-unit id="rqgdhN4">
                 <source>label.payment</source>
                 <target>Pago</target>
@@ -366,6 +998,26 @@
                 <source>label.payment_keys_missing</source>
                 <target>Claves de pago ausentes</target>
             </trans-unit>
+            <trans-unit id="wk9vvea">
+                <source>label.payment_link</source>
+                <target>Enlace de pago</target>
+            </trans-unit>
+            <trans-unit id="8ezv3M_">
+                <source>label.payment_link_amount</source>
+                <target>Importe con IVA</target>
+            </trans-unit>
+            <trans-unit id="8KQNOvt">
+                <source>label.payment_link_create</source>
+                <target>Crear el enlace</target>
+            </trans-unit>
+            <trans-unit id="HDY6aUt">
+                <source>label.payment_link_label</source>
+                <target>Etiqueta</target>
+            </trans-unit>
+            <trans-unit id="LDnlUox">
+                <source>label.payment_link_url</source>
+                <target>Enlace para enviar al cliente:</target>
+            </trans-unit>
             <trans-unit id="VEkPA.t">
                 <source>label.payment_method</source>
                 <target>Método</target>
@@ -382,9 +1034,29 @@
                 <source>label.payments</source>
                 <target>Pagos</target>
             </trans-unit>
+            <trans-unit id="rnEujBk">
+                <source>label.physical_item</source>
+                <target>Artículo físico</target>
+            </trans-unit>
             <trans-unit id="SxGGYuv">
                 <source>label.quantity</source>
                 <target>Cantidad</target>
+            </trans-unit>
+            <trans-unit id="8Pr.1JV">
+                <source>label.reminder_consent</source>
+                <target>Recordarme mi pedido por correo electrónico si no lo pago</target>
+            </trans-unit>
+            <trans-unit id="nS4remy">
+                <source>label.reminder_pay_explanation</source>
+                <target>Su pedido %number% aún no se ha pagado. Esto es lo que contiene.</target>
+            </trans-unit>
+            <trans-unit id="MggZq2i">
+                <source>label.remove</source>
+                <target>Quitar</target>
+            </trans-unit>
+            <trans-unit id="GSgbn5M">
+                <source>label.remove_item</source>
+                <target>Quitar de la cesta</target>
             </trans-unit>
             <trans-unit id="5oDnRpD">
                 <source>label.removed</source>
@@ -394,9 +1066,89 @@
                 <source>label.secure_payments_stripe</source>
                 <target>Pagos seguros con Stripe</target>
             </trans-unit>
+            <trans-unit id="I1PqyPP">
+                <source>label.see_basket</source>
+                <target>Ver el carrito</target>
+            </trans-unit>
+            <trans-unit id="Mjc72S3">
+                <source>label.seller</source>
+                <target>Vendedor</target>
+            </trans-unit>
+            <trans-unit id="uHUsYOm">
+                <source>label.send_counterparts</source>
+                <target>Enviar las contrapartidas</target>
+            </trans-unit>
+            <trans-unit id="yTT6m4W">
+                <source>label.send_items</source>
+                <target>Enviar los artículos</target>
+            </trans-unit>
+            <trans-unit id="H9wi_u.">
+                <source>label.service</source>
+                <target>Servicio</target>
+            </trans-unit>
+            <trans-unit id="Wn.V2pl">
+                <source>label.share_already_paid</source>
+                <target>Este pedido ya se ha pagado. ¡Gracias!</target>
+            </trans-unit>
+            <trans-unit id="WPw2fwX">
+                <source>label.share_explanation</source>
+                <target>Tu pedido queda reservado. Envía el enlace de abajo a quien te lo regala: verá los artículos y el importe, nunca tu dirección. La entrega se hará en tu domicilio.</target>
+            </trans-unit>
+            <trans-unit id="HCyYbuW">
+                <source>label.share_link</source>
+                <target>Enlace para enviar</target>
+            </trans-unit>
+            <trans-unit id="8vv41QL">
+                <source>label.share_order</source>
+                <target>Que te lo regalen</target>
+            </trans-unit>
+            <trans-unit id="o_BITv_">
+                <source>label.share_order_help</source>
+                <target>Tu pedido queda reservado y recibes un enlace para enviar a quien quiera regalártelo</target>
+            </trans-unit>
+            <trans-unit id="iEGmGsX">
+                <source>label.share_paid_explanation</source>
+                <target>El pago del pedido %number% está registrado. Quien lo pidió ha sido avisado y recibirá la entrega.</target>
+            </trans-unit>
+            <trans-unit id="KgdfGFq">
+                <source>label.share_pay_explanation</source>
+                <target>Se te pide pagar el pedido %number%. Esto es lo que contiene.</target>
+            </trans-unit>
+            <trans-unit id="AS4poMM">
+                <source>label.share_pending</source>
+                <target>Tu pago se está registrando. Puedes cerrar esta página.</target>
+            </trans-unit>
+            <trans-unit id="PVQF9Ak">
+                <source>label.share_unavailable</source>
+                <target>Este pedido ya no espera un pago.</target>
+            </trans-unit>
             <trans-unit id="UrYhtmD">
                 <source>label.shipping</source>
                 <target>Gastos de envío</target>
+            </trans-unit>
+            <trans-unit id="UmjoRgD">
+                <source>label.shipping_flat_rate</source>
+                <target>Gastos de envío: %amount%</target>
+            </trans-unit>
+            <trans-unit id="8HAH_FY">
+                <source>label.shipping_free</source>
+                <target>Envío gratuito</target>
+            </trans-unit>
+            <trans-unit id="kOCB1Dk">
+                <source>label.shipping_free_from</source>
+                <target>Envío gratuito a partir de %amount%</target>
+            </trans-unit>
+            <trans-unit id="iYdA640">
+                <source>label.shipping_free_missing</source>
+                <target>Solo %amount% más para conseguir el envío gratuito</target>
+            </trans-unit>
+            <trans-unit id="8y0K.sW">
+                <source>label.shipping_free_reached</source>
+                <target>El envío de este pedido es gratuito</target>
+            </trans-unit>
+            <trans-unit id="RvRgAhf">
+                <source>label.shipping_labels</source>
+                <target>Etiquetas de dirección</target>
             </trans-unit>
             <trans-unit id="VB8ZpHn">
                 <source>label.shop</source>
@@ -410,6 +1162,10 @@
                 <source>label.status</source>
                 <target>Estado</target>
             </trans-unit>
+            <trans-unit id="o3mFitM">
+                <source>label.subtotal</source>
+                <target>Subtotal</target>
+            </trans-unit>
             <trans-unit id="4gqsO4y">
                 <source>label.support_message</source>
                 <target>Mensaje de apoyo</target>
@@ -417,6 +1173,14 @@
             <trans-unit id="2nMDj1i">
                 <source>label.test_mode</source>
                 <target>Los pagos están en modo de prueba, no se realizará ningún cargo real.</target>
+            </trans-unit>
+            <trans-unit id="AiUSzYd">
+                <source>label.test_mode_revolut_card</source>
+                <target>Tarjeta de prueba: 4929 4205 7359 5709, con cualquier fecha de caducidad futura y cualquier código de seguridad.</target>
+            </trans-unit>
+            <trans-unit id="i_z0Dw6">
+                <source>label.test_mode_stripe_card</source>
+                <target>Tarjeta de prueba: 4242 4242 4242 4242, con cualquier fecha de caducidad futura y cualquier código de seguridad.</target>
             </trans-unit>
             <trans-unit id="3B2nxZf">
                 <source>label.thanks_shopping</source>
@@ -426,6 +1190,10 @@
                 <source>label.total</source>
                 <target>Total</target>
             </trans-unit>
+            <trans-unit id="sRAdQrE">
+                <source>label.total_incl_vat</source>
+                <target>Total con IVA</target>
+            </trans-unit>
             <trans-unit id="Bsu6ghK">
                 <source>label.track_order</source>
                 <target>Seguimiento del pedido</target>
@@ -434,9 +1202,29 @@
                 <source>label.track_order_information</source>
                 <target>Vuelva a esta página para hacer el seguimiento de su pedido.</target>
             </trans-unit>
+            <trans-unit id="zbz7WMY">
+                <source>label.transaction</source>
+                <target>Transacción</target>
+            </trans-unit>
             <trans-unit id="hOpDGnW">
                 <source>label.transaction_id</source>
                 <target>Transacción</target>
+            </trans-unit>
+            <trans-unit id="TCWL3G2">
+                <source>label.unit_price</source>
+                <target>Precio unitario</target>
+            </trans-unit>
+            <trans-unit id="rkIvgaD">
+                <source>label.used_count</source>
+                <target>Usos</target>
+            </trans-unit>
+            <trans-unit id="FtObEqz">
+                <source>label.valid_from</source>
+                <target>Válido desde</target>
+            </trans-unit>
+            <trans-unit id="xyxHcrH">
+                <source>label.valid_until</source>
+                <target>Válido hasta</target>
             </trans-unit>
             <trans-unit id="M2GHic6">
                 <source>label.validate</source>
@@ -446,6 +1234,14 @@
                 <source>label.validate_basket</source>
                 <target>Validar el carrito</target>
             </trans-unit>
+            <trans-unit id="6ebrco4">
+                <source>label.vat</source>
+                <target>IVA</target>
+            </trans-unit>
+            <trans-unit id="wjSED6i">
+                <source>label.vat_rate</source>
+                <target>IVA %rate% %</target>
+            </trans-unit>
             <trans-unit id="KZSx1Gj">
                 <source>label.view_order</source>
                 <target>Ver</target>
@@ -453,6 +1249,10 @@
             <trans-unit id="8Inlz5r">
                 <source>label.zip</source>
                 <target>Código postal</target>
+            </trans-unit>
+            <trans-unit id="HE2c1xW">
+                <source>placeholder.gift_card_recipient_message</source>
+                <target>¡Feliz cumpleaños!</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>
@@ -462,9 +1262,13 @@
                 <source>text.counterparts_shipped</source>
                 <target>Las contrapartidas fueron enviadas el </target>
             </trans-unit>
-            <trans-unit id="HTS7_1v">
-                <source>text.downloads_stay_available</source>
-                <target>Estos archivos siguen disponibles desde esta página, independientemente del enlace recibido por email.</target>
+            <trans-unit id="1BIdF4I">
+                <source>text.download_expires_on</source>
+                <target>— enlace válido hasta el %date%</target>
+            </trans-unit>
+            <trans-unit id="qj.dUzn">
+                <source>text.downloads_same_as_email</source>
+                <target>Estos enlaces son exactamente los de su correo de confirmación y caducan al mismo tiempo.</target>
             </trans-unit>
             <trans-unit id="Ynv7N3b">
                 <source>text.items_downloaded</source>

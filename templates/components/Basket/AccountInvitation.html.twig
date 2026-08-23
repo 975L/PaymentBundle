@@ -1,0 +1,14 @@
+{# <twig:c975LPayment:Basket:AccountInvitation basket="{{ basket }}"/> - the invitation an order left by a guest carries, on its own page and in its confirmation email #}
+{# Nothing at all when the order already belongs to an account, or when no provider offers the one-click sign-in this is worth following: creating a password on the way out of a checkout is the friction this exists to avoid #}
+{% trans_default_domain 'payment' %}
+{% set link = link|default(false) %}
+
+{% if basket.user is null and oauth_login_providers() is not empty %}
+    <p class="text text-center">{{ 'label.account_invitation'|trans }}</p>
+    {% if link %}
+        {# In an email, where a sign-in flow can't be started: it invites back to the order's own page, which carries the buttons #}
+        <p class="text text-center"><a href="{{ absolute_url(path('basket_paid', {'number': basket.number, 'securityToken': basket.securityToken})) }}">{{ 'label.account_invitation_link'|trans }}</a></p>
+    {% else %}
+        <twig:c975LConfig:Security:OAuthLogin redirect="{{ path('basket_paid', {'number': basket.number, 'securityToken': basket.securityToken}) }}"/>
+    {% endif %}
+{% endif %}

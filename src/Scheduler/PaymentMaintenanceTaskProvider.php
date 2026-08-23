@@ -13,14 +13,16 @@ namespace c975L\PaymentBundle\Scheduler;
 use c975L\ConfigBundle\Scheduler\MaintenanceTask;
 use c975L\ConfigBundle\Scheduler\MaintenanceTaskProviderInterface;
 
-// The commands this bundle needs run on a cadence, declared here rather than listed by every site in its own MaintenanceSchedule - c975l:shop:baskets:delete lives here and not in ShopBundle, baskets being this bundle's own
+// The commands this bundle needs run on a cadence, declared here rather than listed by every site in its own MaintenanceSchedule - both live here and not in ShopBundle, baskets being this bundle's own
 class PaymentMaintenanceTaskProvider implements MaintenanceTaskProviderInterface
 {
     public function getMaintenanceTasks(): array
     {
         return [
-            // Baskets left unvalidated, nightly
-            new MaintenanceTask('# #(1-3) * * *', 'c975l:shop:baskets:delete'),
+            // Everything the retention rules take away or set aside, nightly
+            new MaintenanceTask('# #(1-3) * * *', 'c975l:payment:baskets:retention'),
+            // Reminders for the orders left unpaid, mid-morning rather than in the small hours: it is an e-mail a customer reads, not a table the site tidies up
+            new MaintenanceTask('# #(8-9) * * *', 'c975l:payment:baskets:remind'),
         ];
     }
 }

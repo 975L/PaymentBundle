@@ -1,0 +1,16 @@
+{# <twig:c975LPayment:Basket:GatewayChoice/> #}
+{% trans_default_domain 'payment' %}
+{% set gateways = payment_gateways() %}
+{# A shop paid through one provider asks nothing: the checkout opens with it whether the field is there or not #}
+{% if gateways|length > 1 %}
+    <fieldset>
+        <legend>{{ 'label.choose_gateway'|trans }}</legend>
+        {% for gateway in gateways %}
+            <div class="form-check">
+                {# The first is the one payment-gateway names, which is the shop's own preference #}
+                <input type="radio" class="form-check-input" name="gateway" id="gateway-{{ gateway }}" value="{{ gateway }}"{% if loop.first %} checked{% endif %}>
+                <label class="form-check-label" for="gateway-{{ gateway }}">{{ ('label.gateway_' ~ gateway)|trans }}</label>
+            </div>
+        {% endfor %}
+    </fieldset>
+{% endif %}

@@ -17,8 +17,13 @@ use c975L\PaymentBundle\Message\ItemsShippedMessage;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
+use c975L\PaymentBundle\Repository\DiscountRepository;
+use c975L\PaymentBundle\Repository\GiftCardRepository;
+use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketService;
+use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -44,7 +49,7 @@ class BasketShippingTest extends TestCase
     // The basket is looked up on its order number, the one written on the packing slip - never on an id nobody outside the database knows
     public function testAnOrderIsFoundOnTheNumberItIsShippedUnder(): void
     {
-        $basket = $this->basket(['product' => ['anything']]);
+        $basket = $this->basket(['product' => [1 => []]]);
         $repository = $this->repository('SHOP-1', $basket);
 
         $this->assertSame($basket, $this->service($repository)->itemsShipped('SHOP-1', 'product'));
@@ -62,7 +67,7 @@ class BasketShippingTest extends TestCase
     // One kind of item in the basket, so shipping it ships the whole order
     public function testAnOrderOfOneKindIsShippedOutright(): void
     {
-        $basket = $this->basket(['product' => ['anything']]);
+        $basket = $this->basket(['product' => [1 => []]]);
 
         $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
 
@@ -73,7 +78,7 @@ class BasketShippingTest extends TestCase
     // Two kinds, shipped by two hands: the first one moves nothing but its own date
     public function testAnOrderOfTwoKindsWaitsForTheSecondOne(): void
     {
-        $basket = $this->basket(['product' => ['anything'], 'crowdfunding' => ['anything']]);
+        $basket = $this->basket(['product' => [1 => []], 'crowdfunding' => [1 => []]]);
         $service = $this->service($this->repository('SHOP-1', $basket));
 
         $service->itemsShipped('SHOP-1', 'product');
@@ -91,7 +96,7 @@ class BasketShippingTest extends TestCase
     // The message is what sends the customer their "it is on its way" email, so it goes out on every shipment
     public function testEachShipmentIsAnnounced(): void
     {
-        $basket = $this->basket(['product' => ['anything']]);
+        $basket = $this->basket(['product' => [1 => []]]);
 
         $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
 
@@ -101,7 +106,7 @@ class BasketShippingTest extends TestCase
     // An order already shipped is left alone: telling the customer twice is worse than not telling them again
     public function testAnOrderAlreadyShippedIsNotAnnouncedAgain(): void
     {
-        $basket = $this->basket(['product' => ['anything']]);
+        $basket = $this->basket(['product' => [1 => []]]);
         $basket->setStatus('shipped');
 
         $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
@@ -172,6 +177,9 @@ class BasketShippingTest extends TestCase
             $this->createStub(BasketItemProviderRegistry::class),
             $this->createStub(PaymentGatewayRegistry::class),
             $this->createStub(PaymentTestModeInterface::class),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new VatCalculator($this->createStub(BasketItemProviderRegistry::class)),
+            $this->createStub(InvoiceService::class),
         );
     }
 }

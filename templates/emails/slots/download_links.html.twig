@@ -1,0 +1,2 @@
+{# The one-time links the download email carries; nothing at all in any other email, which is passed none #}
+{% if downloadLinks is defined and downloadLinks is not empty %}<twig:c975LPayment:Basket:DownloadLinks downloadLinks="{{ downloadLinks }}"/>{% endif %}

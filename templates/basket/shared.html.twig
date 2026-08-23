@@ -1,0 +1,21 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# The customer's own page once they asked somebody else to settle their order. Reached by the security token, so it may show everything - it is the payer's page that shows nothing of the address #}
+{% set title = 'label.share_order'|trans %}
+
+{% block content %}
+    <twig:c975LPayment:Basket:TestMode/>
+    <twig:c975LPayment:Basket:Number number="{{ basket.number }}" securityToken="{{ basket.securityToken }}"/>
+    <p class="text text-center lead">{{ 'label.share_explanation'|trans }}</p>
+    {# A read-only field the customer selects and copies, and no handler on it: the sites running this bundle serve a CSP with no unsafe-inline, where an onfocus="" is simply dropped #}
+    <p class="text-center">
+        <label for="share-link">{{ 'label.share_link'|trans }}</label><br>
+        <input type="text" id="share-link" class="share-link" value="{{ payUrl }}" readonly>
+    </p>
+    <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+    <twig:c975LShop:Shop:ViewButton/>
+{% endblock %}
+
+{% block share %}
+{% endblock %}

@@ -1,0 +1,81 @@
+{# <twig:c975LPayment:GiftCard:Card image="" text="" amount="{{ amount }}" currency="EUR" [balance="{{ balance }}"] [code=""] [revealUrl=""] [scratch="true"] [validUntil="{{ date }}"] [testMode="false"] [level="h2"]/> #}
+{# One component for the three places a card is seen: the shop, where it has neither code nor balance yet, the order that bought it, and the page whoever it was given to opens. What tells them apart is what is handed over, never a mode of its own #}
+{# Built on UiBundle's flip card rather than on its component: the two faces here are pictures printed on, not a title and a rich text, and its component reads a Media entity where a card carries the asset path the basket already copied (see GiftCard::$designImage) #}
+{# No amount at all is a state of its own: a card offered in a shop is not worth anything yet, the figure being what the buyer picks under it #}
+{% set amount = amount|default(null) %}
+{% set currency = currency|default('EUR') %}
+{% set code = code|default('') %}
+{% set revealUrl = revealUrl|default('') %}
+{# "is defined" and not "|default(true)": a prop holding false comes down as the empty string it was rendered as, which the default filter reads as absent and would turn back into true - the one place the basket components' "|default(false)|to_bool" cannot be copied. "false", "0" and "" are all read as false by that filter #}
+{% set scratch = scratch is defined ? scratch|to_bool : true %}
+{% set testMode = testMode|default(false)|to_bool %}
+{% set image = image|default('') %}
+{# The panel exists only where the code is fetched: what it hides is a request, not a hidden element, so a page handed the code outright - an order of the customer's own area, the back-office register - prints it rather than dressing it up as something to rub off #}
+{% set hasScratch = scratch and revealUrl and not code %}
+{% set showBack = 'label.gift_card_show_back'|trans({}, 'payment') %}
+{% set showFront = 'label.gift_card_show_front'|trans({}, 'payment') %}
+<div class="gift-card flip-card flip-card-ratio-credit-card" data-controller="flipCard{% if revealUrl %} giftCard{% endif %}"{% if revealUrl %} data-giftCard-url-value="{{ revealUrl }}"{% endif %}>
+    <div class="flip-card-inner">
+        <div class="flip-card-face flip-card-front" data-flipCard-target="face">
+            {% if image %}
+                <img src="{{ asset(image) }}" alt="" class="gift-card-visual" loading="lazy">
+            {% else %}
+                <span class="gift-card-visual gift-card-visual-none"></span>
+            {% endif %}
+            <div class="gift-card-print">
+                <div>
+                    {% if site_media('logo') is not null %}
+                        <img src="{{ asset('/' ~ site_media('logo').filename) }}" alt="" class="gift-card-logo" loading="lazy">
+                    {% endif %}
+                </div>
+                {% if text %}<p class="gift-card-text">{{ text }}</p>{% endif %}
+                {% if amount is not null and amount is not empty %}
+                    <p class="gift-card-amounts">
+                        <span class="gift-card-amount">{{ (amount / 100)|format_currency(currency) }}</span>
+                        {# Said only once it differs from what the card was born with: a card never spent has one figure, not the same one printed twice #}
+                        {% if balance is defined and balance is not null and balance != amount %}
+                            <span class="gift-card-balance">{{ 'label.gift_card_balance'|trans({}, 'payment') }} {{ (balance / 100)|format_currency(currency) }}</span>
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <span></span>
+                {% endif %}
+            </div>
+            {# Hidden until flip-card.js takes over, a control turning nothing being a dead one - see UiBundle's flip card #}
+            <button type="button" class="flip-card-toggle" data-action="flipCard#toggle" aria-label="{{ showBack }}" hidden></button>
+        </div>
+        <div class="flip-card-face flip-card-back" data-flipCard-target="face">
+            {% if image %}
+                <img src="{{ asset(image) }}" alt="" class="gift-card-visual gift-card-visual-back" loading="lazy">
+            {% else %}
+                <span class="gift-card-visual gift-card-visual-none"></span>
+            {% endif %}
+            <div class="gift-card-print">
+                {% if testMode %}
+                    <span class="gift-card-test-mode">{{ 'label.test_mode'|trans({}, 'payment') }}</span>
+                {% else %}
+                    <span></span>
+                {% endif %}
+                <div>
+                    {% if hasScratch %}
+                        {# The code is not written here when there is an address to ask for it: a page pasted into a chat is fetched by a robot that reads the markup and runs no script, so what the panel hides is a request and not a hidden element #}
+                        <button type="button" class="gift-card-scratch" data-action="giftCard#reveal" data-giftCard-target="scratch">{{ 'label.gift_card_scratch_it'|trans({}, 'payment') }}</button>
+                        <span class="gift-card-code" data-giftCard-target="code" hidden></span>
+                    {% elseif code %}
+                        <span class="gift-card-code">{{ code }}</span>
+                    {% else %}
+                        <span class="gift-card-legend">{{ 'label.gift_card_code_after_payment'|trans({}, 'payment') }}</span>
+                    {% endif %}
+                </div>
+                <p class="gift-card-legend">
+                    {% if validUntil is defined and validUntil is not null %}
+                        {{ 'label.gift_card_valid_until'|trans({}, 'payment') }} {{ validUntil|date('d/m/Y') }}
+                    {% else %}
+                        {{ 'label.gift_card_no_expiry'|trans({}, 'payment') }}
+                    {% endif %}
+                </p>
+            </div>
+            <button type="button" class="flip-card-toggle" data-action="flipCard#toggle" aria-label="{{ showFront }}" hidden></button>
+        </div>
+    </div>
+</div>

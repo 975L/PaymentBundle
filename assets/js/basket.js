@@ -15,7 +15,7 @@ let timezoneSent = false;
 const CACHE_DURATION = 5000;
 
 export default class extends Controller {
-    static targets = ["quantity", "total", "shipping", "submitButton", "itemTotal", "itemQuantity"];
+    static targets = ["quantity", "subtotal", "total", "vat", "vatRow", "shipping", "freeShipping", "submitButton", "itemTotal", "itemQuantity", "code", "codeRow", "codeAmount", "codeLabel"];
 
     connect() {
         // Sets timezone in Symfony session, once for the browsing session however many controllers the pages carry
@@ -114,6 +114,101 @@ export default class extends Controller {
             .catch(() => Handlers.displayMessage(Handlers.translate(errorKey), "alert-danger"));
     }
 
+    // What is actually charged: the items, the shipping, less whatever a code took off. The server holds the same rule (see Basket::getPayable()) - this is what the page has to print beside it
+    payable(basket) {
+        return Math.max(0, basket.total + basket.shipping - (basket.discountAmount ?? 0));
+    }
+
+    // Sends the basket's one code, the server telling a promotion from a gift card, and answers whether it was taken - what the validate button waits for
+    applyCode() {
+        if (!this.hasCodeTarget || "" === this.codeTarget.value.trim()) {
+            return Promise.resolve(false);
+        }
+
+        return this.sendCode("POST", { code: this.codeTarget.value.trim() }, "basket.code.error");
+    }
+
+    // A code typed and left in the field is applied on the way to the coordinates: a customer who did not see the "Apply" button beside it would have paid full price
+    validateWithCode(event) {
+        const link = event.target.closest("a");
+
+        if (null === link || !this.hasCodeTarget || "" === this.codeTarget.value.trim()) {
+            return;
+        }
+
+        event.preventDefault();
+
+        // A refused code keeps the customer on the basket, where the server's own sentence is displayed
+        this.applyCode().then((applied) => {
+            if (applied) {
+                window.location.href = link.href;
+            }
+        });
+    }
+
+    removeCode() {
+        this.sendCode("DELETE", {}, "basket.code.error");
+    }
+
+    sendCode(method, body, errorKey) {
+        return fetch("/shop/basket/code", {
+            method: method,
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+            .then((response) => response.ok ? response.json() : Promise.reject(response.status))
+            .then((data) => {
+                // Dropped so the next read sees the basket as this call left it
+                basketDataPromise = null;
+
+                // The refusal is the server's own sentence, already translated: only it knows whether the code is unknown, expired, out of quota or short of a minimum
+                if (data.error) {
+                    Handlers.displayMessage(data.error, "alert-danger");
+
+                    return false;
+                }
+
+                if (this.hasCodeTarget) {
+                    this.codeTarget.value = "";
+                }
+
+                this.update(data);
+
+                return true;
+            })
+            .catch(() => {
+                Handlers.displayMessage(Handlers.translate(errorKey), "alert-danger");
+
+                return false;
+            });
+    }
+
+    // Shows or hides the line a code adds to the totals, and says which of the two kinds it is
+    updateCodeDisplay(data) {
+        if (!this.hasCodeRowTarget || !data.basket) {
+            return;
+        }
+
+        const amount = data.basket.discountAmount ?? 0;
+        this.codeRowTarget.hidden = amount <= 0;
+
+        if (amount <= 0) {
+            return;
+        }
+
+        if (this.hasCodeLabelTarget) {
+            // Each key written out in full: the translations are checked against what this file literally asks for
+            const kind = "gift_card" === data.basket.discountKind ? Handlers.translate("basket.gift_card") : Handlers.translate("basket.discount");
+            this.codeLabelTarget.textContent = kind + " " + data.basket.discountCode;
+        }
+
+        if (this.hasCodeAmountTarget) {
+            this.codeAmountTarget.textContent = "-" + Handlers.formatAmount(amount, data.basket.currency);
+        }
+    }
+
     // Updates what this controller holds, then tells the other instances of the page
     update(data) {
         if (!data) {
@@ -122,6 +217,9 @@ export default class extends Controller {
 
         this.updateBasketButton(data);
         this.updateBasketPage(data);
+
+        // Outside updateBasketPage(), which returns as soon as the document is not the basket: a product sheet carries add buttons and no basket table, and its digital items would stay clickable for a file already in the basket
+        this.updateAddButtons(data);
 
         // Prefixed with the identifier by Stimulus, so the event name stays "basket:update"
         this.dispatch("update", { detail: { data } });
@@ -140,7 +238,7 @@ export default class extends Controller {
         }
 
         if (this.hasTotalTarget) {
-            this.totalTarget.textContent = ((data.basket.total + data.basket.shipping) / 100).toFixed(2) + Handlers.getCurrencySymbol(data.basket.currency);
+            this.totalTarget.textContent = Handlers.formatAmount(this.payable(data.basket), data.basket.currency);
         }
 
         if (this.hasQuantityTarget) {
@@ -199,14 +297,67 @@ export default class extends Controller {
         Object.entries(data.basket.items).forEach(([type, items]) => {
             Object.entries(items ?? {}).forEach(([id, itemData]) => this.updateItemRow(`${type}-${id}`, itemData));
         });
-
-        this.updateAddButtons(data);
     }
 
     // Updates the basket totals
     updateBasketTotals(data) {
         this.updateBasketCounters(data);
+        this.updateSubtotalDisplay(data);
         this.updateShippingDisplay(data);
+        this.updateFreeShippingDisplay(data);
+        this.updateVatDisplay(data);
+        this.updateCodeDisplay(data);
+    }
+
+    // What the articles alone are worth, before the shipping and before a code
+    updateSubtotalDisplay(data) {
+        if (!this.hasSubtotalTarget || !data.basket) {
+            return;
+        }
+
+        this.subtotalTarget.textContent = Handlers.formatAmount(data.basket.total, data.basket.currency);
+    }
+
+    // The tax held in what is paid, one line whatever the rates - the recap per rate is stated on the order, once nothing can move any more (see components/Basket/Items.html.twig)
+    updateVatDisplay(data) {
+        if (!this.hasVatRowTarget || !data.basket) {
+            return;
+        }
+
+        const amount = data.basket.vat ?? 0;
+
+        this.vatRowTarget.hidden = 0 === amount;
+
+        if (this.hasVatTarget) {
+            this.vatTarget.textContent = Handlers.formatAmount(amount, data.basket.currency);
+        }
+    }
+
+    // Says what is left to reach the free shipping, the line the basket page raises an order with (see components/Basket/Shipping.html.twig)
+    updateFreeShippingDisplay(data) {
+        if (!this.hasFreeShippingTarget || !data.basket) {
+            return;
+        }
+
+        const line = this.freeShippingTarget;
+        const free = parseInt(line.dataset.shippingFree, 10) || 0;
+        const flag = parseInt(line.dataset.shippingFlag, 10) || 0;
+
+        // Nothing to reach without a threshold, and nothing to ship once the basket only holds files or services
+        if (0 === free || 0 === (data.basket.contentflags & flag)) {
+            line.hidden = true;
+
+            return;
+        }
+
+        // Compared against what the basket holds and not against what is paid, the way the server applies the shipping (see BasketService::updateTotals())
+        const missing = free - data.basket.total;
+        const amount = Handlers.formatAmount(missing, data.basket.currency);
+
+        line.hidden = false;
+        line.textContent = missing > 0
+            ? Handlers.translate("basket.free_shipping_missing").replace("%amount%", amount)
+            : Handlers.translate("basket.free_shipping_reached");
     }
 
     // Updates the shipping display
@@ -216,7 +367,7 @@ export default class extends Controller {
         }
 
         this.shippingTarget.textContent = data.basket.shipping > 0
-            ? (data.basket.shipping / 100).toFixed(2) + Handlers.getCurrencySymbol(data.basket.currency)
+            ? Handlers.formatAmount(data.basket.shipping, data.basket.currency)
             : Handlers.translate("basket.offered");
     }
 
@@ -226,7 +377,7 @@ export default class extends Controller {
             return;
         }
 
-        const total = ((data.basket.total + data.basket.shipping) / 100).toFixed(2) + Handlers.getCurrencySymbol(data.basket.currency);
+        const total = Handlers.formatAmount(this.payable(data.basket), data.basket.currency);
 
         this.submitButtonTarget.value = `${Handlers.translate("label.pay")} ${total}`;
     }
@@ -240,7 +391,7 @@ export default class extends Controller {
 
         const itemTotalElement = this.itemTotalTargets.find((target) => target.dataset.itemId === combinedId);
         if (itemTotalElement) {
-            itemTotalElement.textContent = 0 === itemData.total ? Handlers.translate("label.free") : (itemData.total / 100).toFixed(2) + Handlers.getCurrencySymbol(itemData.item.currency);
+            itemTotalElement.textContent = 0 === itemData.total ? Handlers.translate("label.free") : Handlers.formatAmount(itemData.total, itemData.item.currency);
         }
     }
 

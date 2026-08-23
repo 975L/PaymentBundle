@@ -1,0 +1,19 @@
+{# <twig:c975LPayment:Basket:GiftCardsShared basket="{{ basket }}"/> - the same cards as GiftCards, addressed to whoever they were bought for #}
+{# The code is deliberately absent: it is what spends the card, this message travels through a mailbox that is not the buyer's, and the address below shows it behind the panel to whoever opens it #}
+{% trans_default_domain 'payment' %}
+{% set giftCards = payment_gift_cards(basket) %}
+{% if giftCards is not empty %}
+    <table>
+        {% for giftCard in giftCards %}
+            <tr>
+                <td>{{ (giftCard.initialAmount / 100)|format_currency(giftCard.currency) }}</td>
+                <td>
+                    {# A card issued before the address existed has none, and is used by its code alone - which this email does not carry, so there is nothing to show #}
+                    {% if giftCard.shareToken %}
+                        <a href="{{ url('gift_card_display', {'shareToken': giftCard.shareToken}) }}">{{ 'label.gift_card_open'|trans }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}

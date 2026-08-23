@@ -7,6 +7,7 @@
     data-title="{{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     data-alert="warning"
     data-text="{{ 'label.removed'|trans({}, 'payment') }}"
+    aria-label="{{ 'label.remove_item'|trans({}, 'payment') }} : {{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     class="btn btn-{{ type }} btn-small btn-grey">
     <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/trash-can.svg" width="16" height="16" class="disabled"/>
 </button>

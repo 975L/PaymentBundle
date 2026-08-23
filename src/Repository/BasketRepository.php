@@ -46,15 +46,76 @@ class BasketRepository extends ServiceEntityRepository
         return 1 === $updated;
     }
 
+    /**
+     * The paid orders with something still to post, oldest first.
+     *
+     * Both flags, because a shop and a campaign both ship: a product order and a crowdfunding counterpart go in
+     * the same postbag and are picked from the same list. Each flag is paired with its own "shipped" date and
+     * never with the other's: an order of products alone carries no counterpart to post, so its counterpart date
+     * stays null for ever and reading the two together would put that order back on every sheet, for ever.
+     *
+     * @return list<Basket>
+     */
+    public function findAwaitingShipping(int $limit = 200): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status = :paid')
+            ->andWhere('(BIT_AND(b.contentflags, :physical) > 0 AND b.itemsShipped IS NULL)
+                OR (BIT_AND(b.contentflags, :counterparts) > 0 AND b.counterpartsShipped IS NULL)')
+            ->setParameter('paid', 'paid')
+            ->setParameter('physical', Basket::CONTENT_FLAG_PHYSICAL)
+            ->setParameter('counterparts', Basket::CONTENT_FLAG_CF_SHIPPING)
+            ->orderBy('b.creation', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The baskets the nightly purge takes away.
+     *
+     * Read on the last change and not on the creation: a basket is kept alive by the visitor coming back to it,
+     * and one filled again yesterday is a shopper still shopping, whatever day it was opened.
+     */
     public function findUnvalidated(int $days)
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.status = :status')
-            ->andWhere('b.creation < :date')
+            ->andWhere('b.modification < :date')
             ->setParameter('status', 'new')
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * The basket a returning visitor's recovery cookie names, or nothing.
+     *
+     * Only one still open: an order - validated, paid, shipped - is no longer a basket, and handing one back as
+     * the current basket would have the customer go on adding to something already being charged for.
+     */
+    public function findRecoverable(string $token): ?Basket
+    {
+        return $this->findOneBy(['recoveryToken' => $token, 'status' => 'new']);
+    }
+
+    /**
+     * The basket that user left open, newest first, for when their session names none.
+     *
+     * A customer who logs in on their phone after filling a basket on their laptop finds it there: the row
+     * carries their id, which outlives any session or cookie of theirs.
+     */
+    public function findLastOpenByUser(UserInterface $user): ?Basket
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.user = :user')
+            ->andWhere('b.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', 'new')
+            ->orderBy('b.modification', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /**
@@ -73,6 +134,175 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('statuses', ['paid', 'shipped'])
             ->orderBy('b.creation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders placed under that address, paid or shipped only, newest first.
+     *
+     * By address and not by account, unlike findPaidByUser() above: a shop takes orders from visitors who never
+     * opened one, and the address is the only thing those orders and the person who left a review have in common
+     * (see ShopBundle's ProductReviewVerifier). Compared in lower case on both sides, an address typed with a
+     * capital at the checkout and without one on a review form being the same address.
+     *
+     * @return Basket[]
+     */
+    public function findPaidByEmail(string $email): array
+    {
+        $email = strtolower(trim($email));
+
+        if ('' === $email) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('b')
+            ->andWhere('LOWER(b.email) = :email')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('email', $email)
+            ->setParameter('statuses', ['paid', 'shipped'])
+            ->orderBy('b.creation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Hands the orders left under that address to the account that just proved it owns it, and says how many.
+     *
+     * A shop takes orders from visitors who never opened an account: those baskets carry the address typed at
+     * the checkout and no account at all (see BasketService::create(), which only ever poses the buyer of a
+     * visitor already signed in). Nothing else ever links them, so the day their buyer signs in - through a
+     * provider or through the form - the orders they placed before become theirs and show up in their customer
+     * area, without anyone having to click anything.
+     *
+     * Only ever called for an account whose address has been proved (see BasketAccountLinkSubscriber): matching
+     * on an unproved address would hand a stranger's orders, delivery address included, to whoever registered
+     * with their email. Paid and shipped orders only, as findPaidByUser(): an abandoned basket is not a purchase,
+     * and re-seating one would collide with the basket the visitor is filling right now.
+     *
+     * Written as one statement rather than as a loop of loaded entities: this runs on a login, where a customer
+     * of ten years is ten rows nobody asked for.
+     */
+    public function attachOrphansTo(UserInterface $user, string $email): int
+    {
+        $email = strtolower(trim($email));
+
+        if ('' === $email) {
+            return 0;
+        }
+
+        return (int) $this->createQueryBuilder('b')
+            ->update()
+            ->set('b.user', ':user')
+            ->andWhere('b.user IS NULL')
+            ->andWhere('LOWER(b.email) = :email')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('email', $email)
+            ->setParameter('statuses', ['paid', 'shipped'])
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * Whether that buyer has already paid for one given item, in whatever order and however long ago.
+     *
+     * The question a paywall asks before showing what it protects, and this bundle answers it from the orders
+     * alone: a satellite gating its own media never has to keep a right of its own beside them. Not to be
+     * confused with the downloads of the customer area, which they resemble - a bought file is handed over for
+     * as long as its emailed link lives, while this says the purchase happened and says nothing about a delay.
+     *
+     * A UserInterface is matched on the account and a string on the address, as findPaidByUser() and
+     * findPaidByEmail() do, and the match itself is left to the entity: the column is JSON, and a search
+     * written in SQL would be one database's and not the next one's.
+     *
+     * A page gating several assets asks once per asset: keep the answer for the request rather than calling
+     * this in a loop over a gallery.
+     */
+    public function hasPaidFor(UserInterface | string $buyer, string $kind, int | string $itemId): bool
+    {
+        $baskets = $buyer instanceof UserInterface ? $this->findPaidByUser($buyer) : $this->findPaidByEmail($buyer);
+
+        return array_any($baskets, static fn (Basket $basket): bool => $basket->holdsItem($kind, $itemId));
+    }
+
+    /**
+     * The baskets a visitor filled in and validated but never paid, untouched long enough to be given up on.
+     *
+     * Read on the last change like the unvalidated ones, and not on the creation: a customer still coming back
+     * to their order is not somebody who abandoned it, whatever day they first opened it.
+     *
+     * @return Basket[]
+     */
+    public function findAbandoned(int $days): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.modification < :date')
+            ->setParameter('status', 'validated')
+            ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The abandoned baskets due for their next reminder, i.e. the ones that have had exactly that many already.
+     *
+     * The consent is read here and not left to the caller: a basket whose visitor did not ask to be reminded is
+     * one this query must never hand back, whichever reminder is being sent.
+     *
+     * @return Basket[]
+     */
+    public function findToRemind(int $days, int $alreadySent): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.reminderConsent = true')
+            ->andWhere('b.email IS NOT NULL')
+            ->andWhere('b.remindersSent = :sent')
+            ->andWhere('b.modification < :date')
+            ->setParameter('status', 'validated')
+            ->setParameter('sent', $alreadySent)
+            ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders that have stopped being current business and belong in the intermediate archive.
+     *
+     * Read on the creation rather than on the shipping date: an order delivered within days of being placed
+     * makes the two dates the same to within a rounding error, and the creation is the one every order carries.
+     *
+     * @return Basket[]
+     */
+    public function findToArchive(int $years): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status IN (:statuses)')
+            ->andWhere('b.archived IS NULL')
+            ->andWhere('b.creation < :date')
+            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('date', new \DateTime('-' . $years . ' years'))
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders whose accounting obligation has run out and which nothing keeps any more.
+     *
+     * The ten years run from the close of the accounting year and not from the order itself, so the cut is the
+     * first of January of that year: reading it off the order date would take an order away several months early.
+     *
+     * @return Basket[]
+     */
+    public function findExpired(int $years): array
+    {
+        $year = (int) new \DateTime()->format('Y') - $years;
+
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.creation < :date')
+            ->setParameter('date', new \DateTime($year . '-01-01'))
             ->getQuery()
             ->getResult();
     }

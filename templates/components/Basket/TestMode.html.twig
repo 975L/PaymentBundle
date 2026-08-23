@@ -2,5 +2,14 @@
 {% if config('payment-test-mode') %}
     <twig:c975LUi:Alert:Alert type="warning">
         {{ 'label.test_mode'|trans({}, 'payment') }}
+        {# The card each offered gateway takes for a rehearsal, said here rather than looked up in the provider's documentation - and named per provider, the customer picking which one they pay through #}
+        {% for gateway in payment_gateways() %}
+            {% set key = 'label.test_mode_' ~ gateway ~ '_card' %}
+            {# A provider of somebody else's shipping no such key would print the key itself, which the translator hands back untouched #}
+            {% if key|trans({}, 'payment') != key %}
+                <br>
+                {{ ('label.gateway_' ~ gateway)|trans({}, 'payment') }} - {{ key|trans({}, 'payment') }}
+            {% endif %}
+        {% endfor %}
     </twig:c975LUi:Alert:Alert>
 {% endif %}

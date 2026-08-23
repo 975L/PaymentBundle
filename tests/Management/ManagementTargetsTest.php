@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ConfigBundle\Test\ManagementTargetsTestCase;
 use c975L\PaymentBundle\Management\LinkableRouteProvider;
 use c975L\PaymentBundle\Management\MenuProvider;
+use c975L\PaymentBundle\Management\PaymentGuidedProjectProvider;
 use c975L\PaymentBundle\Management\PaymentShortcutProvider;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -23,12 +24,17 @@ class ManagementTargetsTest extends ManagementTargetsTestCase
 {
     protected function managementProviders(): iterable
     {
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $configService->method('get')->willReturn('ROLE_ADMIN');
+
         return [
             new MenuProvider(),
             new LinkableRouteProvider(),
+            // The guided projects generate their urls, so they take the recorders this test case reads them back from
+            new PaymentGuidedProjectProvider($this->adminUrlGenerator(), $this->urlGenerator(), $configService),
             new PaymentShortcutProvider(
                 $this->createStub(TranslatorInterface::class),
-                $this->createStub(ConfigServiceInterface::class),
+                $configService,
                 $this->createStub(PaymentTestModeInterface::class),
             ),
         ];

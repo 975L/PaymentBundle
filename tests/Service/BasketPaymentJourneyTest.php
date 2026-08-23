@@ -17,13 +17,19 @@ use c975L\PaymentBundle\Contract\PaymentNotification;
 use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Message\ConfirmOrderMessage;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
+use c975L\PaymentBundle\Repository\DiscountRepository;
+use c975L\PaymentBundle\Repository\GiftCardRepository;
+use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketService;
+use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -108,6 +114,29 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertNull($this->dispatched);
     }
 
+    // The one place an order is numbered, and the only path the database lets through once
+    public function testTheOrderIsInvoicedWhenItIsDelivered(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: true));
+
+        $invoiceService = $this->createMock(InvoiceService::class);
+        $invoiceService->expects($this->once())->method('assign')->with($basket);
+
+        $this->service(invoiceService: $invoiceService)->paid($basket);
+    }
+
+    // A basket the claim went against is not invoiced either: a number drawn for an order somebody else delivered is a gap in the sequence
+    public function testTheRequestThatLosesTheClaimInvoicesNothing(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: true));
+        $this->claimAnswers = false;
+
+        $invoiceService = $this->createMock(InvoiceService::class);
+        $invoiceService->expects($this->never())->method('assign');
+
+        $this->service(invoiceService: $invoiceService)->paid($basket);
+    }
+
     // A basket already delivered is not delivered twice, whichever path asks
     public function testAnAlreadyPaidBasketIsNotDeliveredAgain(): void
     {
@@ -132,6 +161,21 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertTrue($payment->isFinished());
         $this->assertSame('pi_1', $payment->getTransactionId());
         $this->assertSame('card', $payment->getPaymentMethod());
+        $this->assertSame(['product'], $this->delivered);
+        $this->assertSame('paid', $basket->getStatus());
+    }
+
+    // The checkout is opened for what is left to pay, so the charge is compared to that and not to the undiscounted total - an order settled with a code or a gift card would otherwise be refused every time
+    public function testANotificationChargingTheDiscountedAmountDelivers(): void
+    {
+        $payment = $this->payment(2000, finished: false);
+        $basket = $this->basket(2500, $payment);
+        $basket->setDiscountCode('NOEL');
+        $basket->setDiscountAmount(500);
+
+        $this->service($basket)->applyNotification(new PaymentNotification('42', 'stripe', 'pi_1', 'card', 2000));
+
+        $this->assertTrue($payment->isFinished());
         $this->assertSame(['product'], $this->delivered);
         $this->assertSame('paid', $basket->getStatus());
     }
@@ -254,6 +298,19 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertTrue($session->has('basket'));
     }
 
+    // On a shared order the visitor coming back is the payer and not the customer: their own basket is none of this order's business, and dropping it would take the recovery cookie with it (see BasketRecoverySubscriber)
+    public function testTheOrderOfSomebodyElseLeavesThePayersOwnBasketAlone(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: true));
+        $basket->setStatus('paid');
+
+        $session = $this->sessionNaming(77);
+
+        $this->service($basket, null, $session)->confirmReturn($basket, new Request());
+
+        $this->assertSame(77, $session->get('basket'), 'The payer keeps the basket their own session named');
+    }
+
     // ------------------------------------------- editing a checkout in flight
 
     // The checkout the customer is looking at was priced before this edit: the basket goes back to being a basket, so the session left open at the provider can no longer deliver anything
@@ -341,6 +398,83 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame(['product' => ['contributor' => 'Camille']], $basket->getCheckoutData());
     }
 
+    /**
+     * The mode the checkout is opened in, stamped on the order as it is frozen.
+     *
+     * Read afterwards by InvoiceService::assign(), which bills no number to an order charged against the
+     * provider's test keys - and read from the order rather than from the toggle, which can be flipped back
+     * between the moment an order is validated and the moment it is paid.
+     */
+    public function testAnOrderRemembersTheModeItsCheckoutWasOpenedIn(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setStatus('new');
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
+        $this->assertFalse($basket->isTestMode());
+
+        $rehearsed = $this->basket(2500, $this->payment(2500, finished: false));
+        $rehearsed->setStatus('new');
+
+        $this->service($rehearsed, $this->returnAwareGateway(null), $this->sessionNaming(42), testMode: true)->validate(new Request());
+        $this->assertTrue($rehearsed->isTestMode());
+    }
+
+    // An order covered in full by a code or a gift card is delivered exactly like a paid one: the free path used to return before this loop, and every provider was handed an empty array when the order was delivered
+    public function testWhatAProviderHandsOverIsKeptOnAnOrderWithNothingLeftToPay(): void
+    {
+        $basket = $this->basket(0, null);
+        $basket->setStatus('new');
+
+        $this->service($basket, null, $this->sessionNaming(42))->validate(new Request());
+
+        $this->assertSame(['product' => ['contributor' => 'Camille']], $basket->getCheckoutData());
+    }
+
+    // The code was read when the basket was last touched, which can be days ago: one turned off or expired since then is taken off the order rather than left lowering what it is charged, and the customer is sent back to a basket saying the true price
+    public function testACodeThatStoppedApplyingRefusesTheOrderAndLeavesTheBasket(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setDiscountCode('SOLDES')->setDiscountKind('percentage')->setDiscountAmount(500);
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
+            $this->fail('An order carrying a code that no longer applies is refused');
+        } catch (BasketNotOrderableException) {
+        }
+
+        $this->assertNull($basket->getDiscountCode(), 'The code goes, or the same refusal comes back forever');
+        $this->assertSame(0, $basket->getDiscountAmount());
+        $this->assertSame('new', $basket->getStatus(), 'Nothing was frozen: the basket is the one the customer left');
+    }
+
+    // The slug arrives off a form: one naming a provider the shop does not offer - keys cleared since the page was drawn, or simply typed in - would open a checkout the shop cannot be paid through
+    public function testAGatewayNamedButNotOfferedFallsBackOnTheShopsOwn(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setStatus('new');
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))
+            ->validate(new Request([], ['gateway' => 'paypal']));
+
+        $this->assertSame('stripe', $basket->getPayment()->getGateway());
+    }
+
+    // The payer of a shared order is given no choice of their own: the order is settled through the provider it was opened with, and falls back on the shop's own once that provider holds no key
+    public function testASharedOrderIsSettledThroughTheProviderItWasOpenedWith(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->getPayment()->setGateway('revolut');
+        $basket->setShareToken('1111222233334444');
+
+        $this->service($basket, $this->returnAwareGateway(null))->payShared($basket);
+
+        // The checkout that was open is called off through the provider that opened it, before the row names another
+        $this->assertSame(['cs_1'], $this->expired);
+        $this->assertSame('stripe', $basket->getPayment()->getGateway());
+    }
+
     // Delivery hands it back, and the webhook is the path that has nowhere else to read it from
     public function testTheWebhookHandsTheCheckoutDataBackToTheProvider(): void
     {
@@ -408,6 +542,8 @@ class BasketPaymentJourneyTest extends TestCase
         $basket->setShipping(0);
         $basket->setCurrency('EUR');
         $basket->setNumber('202608-AB-12345');
+        // Every order taken from the front carries one, CoordinatesType asking for it - and the confirmation is only sent to an order that names somebody
+        $basket->setEmail('marie@example.org');
         $basket->setItems(['product' => [1 => [
             'quantity' => 1,
             'total' => $total,
@@ -457,7 +593,15 @@ class BasketPaymentJourneyTest extends TestCase
         return new Request([], [], [], [], [], [], json_encode($data));
     }
 
-    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null): BasketService
+    private function paymentTestMode(bool $enabled): PaymentTestModeInterface
+    {
+        $testMode = $this->createStub(PaymentTestModeInterface::class);
+        $testMode->method('isEnabled')->willReturn($enabled);
+
+        return $testMode;
+    }
+
+    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false): BasketService
     {
         $basketRepository = $this->createStub(BasketRepository::class);
         $basketRepository->method('find')->willReturn($basket);
@@ -482,6 +626,7 @@ class BasketPaymentJourneyTest extends TestCase
 
         $gatewayRegistry = $this->createStub(PaymentGatewayRegistry::class);
         $gatewayRegistry->method('getActiveOrNull')->willReturn($gateway);
+        $gatewayRegistry->method('getOffered')->willReturn(null !== $gateway ? [$gateway->getSlug() => $gateway] : []);
         $gatewayRegistry->method('has')->willReturn(null !== $gateway);
         if (null !== $gateway) {
             $gatewayRegistry->method('getActive')->willReturn($gateway);
@@ -514,7 +659,10 @@ class BasketPaymentJourneyTest extends TestCase
             $this->createStub(TokenStorageInterface::class),
             $itemProviderRegistry,
             $gatewayRegistry,
-            $this->createStub(PaymentTestModeInterface::class),
+            $this->paymentTestMode($testMode),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new VatCalculator($itemProviderRegistry),
+            $invoiceService ?? $this->createStub(InvoiceService::class),
         );
     }
 }

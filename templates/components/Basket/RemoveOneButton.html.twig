@@ -8,6 +8,7 @@
     data-title="{{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     data-alert="warning"
     data-text="{{ 'label.removed'|trans({}, 'payment') }}"
+    aria-label="{{ 'label.decrease_quantity'|trans({}, 'payment') }} : {{ item.parent.title ~ ' (' ~ item.item.title ~')' }}"
     class="btn btn-{{ type }} btn-small lead">
     <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/minus.svg" width="16" height="16" class="white"/>
 </button>

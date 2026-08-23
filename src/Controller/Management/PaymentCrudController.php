@@ -108,7 +108,7 @@ class PaymentCrudController extends AbstractCrudController
     {
         $role = $this->configService->get('site-role-admin');
 
-        $viewTransaction = Action::new('viewTransaction', 'Invoice', 'fa fa-file-invoice')
+        $viewTransaction = Action::new('viewTransaction', t('label.transaction', [], 'payment'), 'fa fa-file-invoice')
             ->linkToUrl(fn (Payment $payment) => $this->getTransactionUrl($payment) ?? '#')
             ->displayIf(fn (Payment $payment) => null !== $this->getTransactionUrl($payment));
 

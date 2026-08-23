@@ -291,8 +291,12 @@ class SkillsTest extends TestCase
                 }
 
                 $source = (string) file_get_contents($file);
-                $needle = str_ends_with($member, '()') ? 'function ' . substr($member, 0, -2) . '(' : 'const ' . $member;
-                $this->assertStringContainsString($needle, $source, sprintf('%s quotes "%s", which %s does not hold', $directory, $token, basename($file)));
+
+                // A constant carries a type since PHP 8.3 ("const int UNVALIDATED_DAYS"), so one is allowed to sit between the keyword and the name
+                $pattern = str_ends_with($member, '()')
+                    ? '/\bfunction\s+' . preg_quote(substr($member, 0, -2), '/') . '\s*\(/'
+                    : '/\bconst\s+(?:[A-Za-z_][A-Za-z0-9_]*\s+)?' . preg_quote($member, '/') . '\b/';
+                $this->assertMatchesRegularExpression($pattern, $source, sprintf('%s quotes "%s", which %s does not hold', $directory, $token, basename($file)));
             }
         }
     }

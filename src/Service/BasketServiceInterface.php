@@ -33,6 +33,20 @@ interface BasketServiceInterface
      */
     public function addItem(Request $request): array;
 
+    /**
+     * Applies the one code the basket page asks for - a promotional code or a gift card, told apart by the service.
+     *
+     * @return array{basket?: array<string, mixed>, error?: string} the refused reason, translated, or the basket as it now stands
+     */
+    public function applyCode(Request $request): array;
+
+    /**
+     * Takes that code back off the basket.
+     *
+     * @return array{basket?: array<string, mixed>}
+     */
+    public function removeCode(): array;
+
     // Creates an empty basket and stores its id in the session.
     public function create(): Basket;
 
@@ -48,7 +62,7 @@ interface BasketServiceInterface
      *
      * @return CheckoutSession the url to redirect the customer to, and what the provider calls that checkout by
      */
-    public function createCheckout(): CheckoutSession;
+    public function createCheckout(?string $successUrl = null): CheckoutSession;
 
     /**
      * Deletes the whole basket and clears it from the session.
@@ -56,9 +70,6 @@ interface BasketServiceInterface
      * @return array{total: int, quantity: int} always zeroed, for the front-end to reset its counters
      */
     public function delete(): array;
-
-    // Removes the baskets left unvalidated long enough to be considered abandoned.
-    public function deleteUnvalidated(): void;
 
     /**
      * Removes one line from the basket, the request body carrying {id, type}.
@@ -97,7 +108,13 @@ interface BasketServiceInterface
      */
     public function itemsShipped(string $number, string $type): Basket;
 
-    // Recomputes the basket's totals, VAT and shipping from its current lines.
+    /**
+     * Recomputes the basket's totals, VAT and shipping from its current lines.
+     *
+     * The lines themselves are read again off their providers first, as long as the basket has not been validated:
+     * a basket sits for days, and it is charged at the price it is showing today, not at the one that stood when it
+     * was filled. An order's lines are never touched again.
+     */
     public function updateTotals(): void;
 
     /**
@@ -112,7 +129,34 @@ interface BasketServiceInterface
      * @throws PaymentUnavailableException when the basket is to be charged and the active gateway holds no
      *                                     usable key - the basket is left untouched
      */
-    public function validate(Request $request): string;
+    public function validate(Request $request, bool $forSharing = false): string;
+
+    /**
+     * Opens the checkout of an order somebody else is settling, and hands back the page to send them to.
+     *
+     * @throws PaymentUnavailableException when the order is not waiting for a payment, or no gateway can take one
+     */
+    public function payShared(Basket $basket): string;
+
+    /**
+     * Writes the order a payment link stands for, and hands back the address to send whoever is going to settle it.
+     *
+     * The same frozen order payShared() charges, its single line typed by the shop instead of read from a
+     * catalogue - a deposit, a repair, an invoice settled online. The e-mail is required: the confirmation is what
+     * tells the customer their payment went through, and its blind copy is what tells the shop.
+     *
+     * @param string      $label       what the line is called, on the payer's page as at the provider
+     * @param int         $amount      in the currency's smallest unit (cents), VAT included as every basket amount is
+     * @param string      $email       whoever the link is sent to, the address the confirmation goes to
+     * @param string|null $description shown under the label on the payer's page, when there is more to say
+     *
+     * @return string the absolute url of the payer's page, in its short form - a link sent by text message has
+     *                160 characters to live in (see BasketController::shortPay())
+     *
+     * @throws \InvalidArgumentException   when the amount is not worth charging
+     * @throws PaymentUnavailableException when the active gateway holds no usable key - nothing is written
+     */
+    public function createPaymentLink(string $label, int $amount, string $email, ?string $description = null): string;
 
     /**
      * Delivers a validated basket whose payment is settled - every provider's own post-payment effects, then the

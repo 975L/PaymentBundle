@@ -1,0 +1,45 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# The page whoever the card was bought for opens, from an address forwarded to them - no account, and nothing here saying who bought it #}
+{% set title = 'label.gift_card'|trans %}
+{# Out of every index: the address is the card, and one listed in a search engine is a balance handed to whoever searched for it. The variable the layout reads, and the response header says the same to whatever never renders the page (see GiftCardController) #}
+{% set robots = 'noindex, nofollow' %}
+
+{% block content %}
+    <h1>{{ 'label.gift_card'|trans }}</h1>
+
+    {% if giftCard.testMode %}
+        <twig:c975LUi:Alert:Alert type="warning">{{ 'label.gift_card_test_mode'|trans }}</twig:c975LUi:Alert:Alert>
+    {% endif %}
+
+    <twig:c975LPayment:GiftCard:Card
+        image="{{ giftCard.designImage }}"
+        text="{{ giftCard.designText }}"
+        amount="{{ giftCard.initialAmount }}"
+        balance="{{ giftCard.balance }}"
+        currency="{{ giftCard.currency }}"
+        scratch="{{ giftCard.scratch }}"
+        code="{{ giftCard.scratch ? '' : giftCard.code }}"
+        revealUrl="{{ path('gift_card_reveal', {'shareToken': giftCard.shareToken}) }}"
+        validUntil="{{ giftCard.validUntil }}"
+        testMode="{{ giftCard.testMode }}"
+    />
+
+    {# A file the holder keeps, which the page itself is not: a card printed carries its code on it, so it is offered only while the card is worth something #}
+    {% if giftCard.active %}
+        <twig:c975LUi:Button:Button label="{{ 'label.gift_card_download'|trans }}" url="{{ path('gift_card_pdf', {'shareToken': giftCard.shareToken}) }}" type="secondary"/>
+    {% endif %}
+
+    {# What the card is worth said in words as well as printed on it: a balance is the one thing read again months later, and a figure lying over a photograph is not where it is looked for #}
+    {% if giftCard.spendable %}
+        <p class="lead">{{ 'label.gift_card_balance'|trans }} {{ (giftCard.balance / 100)|format_currency(giftCard.currency) }}</p>
+        <p>{{ 'description.gift_card_how_to_use'|trans }}</p>
+    {% elseif not giftCard.active %}
+        <twig:c975LUi:Alert:Alert type="danger">{{ 'label.gift_card_inactive'|trans }}</twig:c975LUi:Alert:Alert>
+    {% elseif giftCard.balance <= 0 %}
+        <twig:c975LUi:Alert:Alert type="info">{{ 'label.gift_card_spent'|trans }}</twig:c975LUi:Alert:Alert>
+    {% else %}
+        <twig:c975LUi:Alert:Alert type="warning">{{ 'label.gift_card_expired'|trans }}</twig:c975LUi:Alert:Alert>
+    {% endif %}
+{% endblock %}

@@ -34,3 +34,18 @@ services:
     c975L\PaymentBundle\Registry\BasketDownloadRegistry:
         arguments:
             $providers: !tagged_iterator payment.basket_download_provider
+
+    # The block saying what delivery costs, in the same "Boutique" group of the picker as the kinds ShopBundle offers - not cacheable, its two amounts being read from the configuration at render time and a cached copy outliving a change made to it
+    payment.block.shipping:
+        class: stdClass
+        tags:
+            - name: ui.block
+              kind: payment_shipping
+              label: 'label.block_shipping'
+              description: 'label.block_shipping_description'
+              translation_domain: 'payment'
+              category: 'label.category_shop'
+              form: 'c975L\PaymentBundle\Form\Block\ShippingBlockType'
+              template: '@c975LPayment/blocks/Shipping.html.twig'
+              pickable: true
+              cacheable: false
