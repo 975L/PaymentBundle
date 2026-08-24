@@ -1,0 +1,5 @@
+{# The way out carried by every reminder of an unpaid order, and by nothing else: the other basket emails report something that already happened, and there is nothing to stop #}
+{% if unsubscribe_url is defined %}
+    {% set link %}<a href="{{ unsubscribe_url|escape('html_attr') }}">{{ unsubscribe_url }}</a>{% endset %}
+    <p>{{ 'label.basket_reminder_unsubscribe'|trans({'%url%': link}, 'payment')|raw }}</p>
+{% endif %}

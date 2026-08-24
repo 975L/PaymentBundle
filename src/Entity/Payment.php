@@ -64,7 +64,8 @@ class Payment implements \Stringable
         return (string) $this->id;
     }
 
-    public function getId(): int
+    // Nullable, like the column and like every other entity's own: a payment row not persisted yet has no id, and a getter that fatals on it makes the object impossible to read
+    public function getId(): ?int
     {
         return $this->id;
     }

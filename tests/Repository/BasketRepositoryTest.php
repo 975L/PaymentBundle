@@ -63,19 +63,75 @@ class BasketRepositoryTest extends TestCase
     }
 
     /**
-     * The two conditions that keep an order nobody asked to be reminded of out of the reminders.
+     * The three conditions that keep an order out of the reminders.
      *
-     * Read here rather than trusted to the defaults that happen to satisfy them: an order written in the
-     * back-office - a payment link - carries neither an address nor a consent, and a query dropping either of
-     * these clauses would start writing to people who never gave one.
+     * Read here rather than trusted to the defaults that happen to satisfy them: a query dropping the
+     * opposition would write to somebody who asked to hear no more, and one dropping the service flag would
+     * start dunning the clients a shopkeeper wrote a payment link for and is chasing themselves.
      */
-    public function testOnlyTheOrdersWhoseCustomerAskedToBeRemindedAreEverReminded(): void
+    public function testTheOppositionTheAddressAndThePaymentLinksAllGateTheReminders(): void
     {
         $this->createRepository()->findToRemind(1, 0);
 
-        $this->assertStringContainsString('b.reminderConsent = true', $this->dql);
+        $this->assertStringContainsString('b.reminderOptOutAt IS NULL', $this->dql);
+        $this->assertStringContainsString('b.contentflags != :service', $this->dql);
         $this->assertStringContainsString('b.email IS NOT NULL', $this->dql);
         $this->assertSame('validated', $this->parameters['status']);
+        $this->assertSame(Basket::CONTENT_FLAG_SERVICE, $this->parameters['service']);
+    }
+
+    // An order with nothing to pay carries no payment row at all (see BasketService::paid()), so reading it as unpaid would report every free order there ever was
+    public function testTheIntegrityQueryLeavesTheOrdersWithNothingToPayOut(): void
+    {
+        $this->createRepository()->findDeliveredWithoutFinishedPayment(new \DateTime('-12 months'));
+
+        $this->assertStringContainsString('b.total + b.shipping - b.discountAmount > 0', $this->dql);
+        $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
+        $this->assertSame(['paid', 'shipped'], $this->parameters['delivered']);
+    }
+
+    // "eur" and "EUR" are one and the same currency, and a check reporting them as two would report every order of a shop storing them differently on each side
+    public function testTheAmountQueryComparesTheCurrencyWhateverItsCase(): void
+    {
+        $this->createRepository()->findWithPaymentAmountMismatch(new \DateTime('-12 months'));
+
+        $this->assertStringContainsString('LOWER(p.currency) <> LOWER(b.currency)', $this->dql);
+        $this->assertStringContainsString('p.isFinished = true', $this->dql);
+    }
+
+    // Payable is what a customer can still be charged for: an archived order is out of current business and no longer one of them
+    public function testThePayableQueryReadsTheOpenBasketsAndLeavesTheArchivedOut(): void
+    {
+        $this->createRepository()->findPayable();
+
+        $this->assertStringContainsString('b.archived IS NULL', $this->dql);
+        $this->assertSame(['new', 'validated'], $this->parameters['open']);
+    }
+
+    /**
+     * Every query behind the integrity check leaves the test orders out.
+     *
+     * A shop trying its checkout out writes orders nobody settles, delivers or invoices, and each one of them
+     * would be reported as a defect - the dashboard filling up with the shopkeeper's own trials until the one
+     * order that is genuinely wrong is no longer visible among them.
+     */
+    public function testEveryIntegrityQueryLeavesTheTestOrdersOut(): void
+    {
+        $since = new \DateTime('-12 months');
+        $queries = [
+            fn () => $this->createRepository()->findDeliveredWithoutFinishedPayment($since),
+            fn () => $this->createRepository()->findWithPaymentAmountMismatch($since),
+            fn () => $this->createRepository()->findDeliveredWithoutNumber($since),
+            fn () => $this->createRepository()->findOrdersSince($since),
+            fn () => $this->createRepository()->findPayable(),
+        ];
+
+        foreach ($queries as $query) {
+            $this->dql = '';
+            $query();
+
+            $this->assertStringContainsString('b.testMode = false', $this->dql);
+        }
     }
 
     // The query the repository builds is read back through the DQL the entity manager is handed, the rest of it being Doctrine's own

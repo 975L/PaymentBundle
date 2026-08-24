@@ -74,6 +74,7 @@ class BasketReminderService
             1 === $rank ? 'basket_reminder_first' : 'basket_reminder_second',
             [
                 'pay_url' => $this->payUrl($basket),
+                'unsubscribe_url' => $this->unsubscribeUrl($basket),
                 'days' => BasketRetentionService::ABANDONED_DAYS,
             ],
         );
@@ -94,25 +95,43 @@ class BasketReminderService
      * The link that takes the customer straight back to their payment page.
      *
      * The shared-payment route rather than a new one of its own: it already opens the checkout of an order
-     * waiting for its money without asking anything to be filled in again. Its token is only handed out when
-     * somebody asks to share their order, so an abandoned basket has none and is given one here.
+     * waiting for its money without asking anything to be filled in again.
      */
     private function payUrl(Basket $basket): string
+    {
+        return $this->urlGenerator->generate(
+            'basket_shared_pay',
+            [
+                'number' => $basket->getNumber(),
+                'shareToken' => $this->shareToken($basket),
+                // The page it opens is written for somebody settling an order that is not theirs: told the customer is the one coming back, it says so in their words instead
+                'reminder' => 1,
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+    }
+
+    // The link that stops the reminders, carried by every one of them: what makes the follow-up of an unpaid order something other than prospection is that the person it goes to can end it in one click
+    private function unsubscribeUrl(Basket $basket): string
+    {
+        return $this->urlGenerator->generate(
+            'basket_reminder_unsubscribe',
+            [
+                'number' => $basket->getNumber(),
+                'shareToken' => $this->shareToken($basket),
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+    }
+
+    // The share token both links are built on, minted on the spot when the order has none: it is only handed out when somebody asks to share their order, and an abandoned basket never did
+    private function shareToken(Basket $basket): string
     {
         if (null === $basket->getShareToken()) {
             $basket->setShareToken($this->basketService->generateSecurityToken());
             $this->entityManager->flush();
         }
 
-        return $this->urlGenerator->generate(
-            'basket_shared_pay',
-            [
-                'number' => $basket->getNumber(),
-                'shareToken' => $basket->getShareToken(),
-                // The page it opens is written for somebody settling an order that is not theirs: told the customer is the one coming back, it says so in their words instead
-                'reminder' => 1,
-            ],
-            UrlGeneratorInterface::ABSOLUTE_URL,
-        );
+        return $basket->getShareToken();
     }
 }

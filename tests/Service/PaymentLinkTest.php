@@ -127,12 +127,12 @@ class PaymentLinkTest extends TestCase
         $this->assertNull($this->persisted->getUser());
     }
 
-    // The reminders are for the customers who walked out of a checkout, not for a link the shop wrote: the consent is what the repository reads, and nobody was there to give it
+    // The reminders are for the customers who walked out of a checkout, not for a link the shop wrote: the service flag is what the repository reads a link by, and it is stamped here
     public function testALinkIsNeverEligibleForAReminder(): void
     {
         $this->service()->createPaymentLink('Acompte chantier', 25000, 'marie@example.org');
 
-        $this->assertFalse($this->persisted->isReminderConsent());
+        $this->assertSame(Basket::CONTENT_FLAG_SERVICE, $this->persisted->getContentFlags());
         $this->assertSame(0, $this->persisted->getRemindersSent());
     }
 

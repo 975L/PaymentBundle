@@ -248,8 +248,12 @@ class BasketRepository extends ServiceEntityRepository
     /**
      * The abandoned baskets due for their next reminder, i.e. the ones that have had exactly that many already.
      *
-     * The consent is read here and not left to the caller: a basket whose visitor did not ask to be reminded is
-     * one this query must never hand back, whichever reminder is being sent.
+     * The opposition is read here and not left to the caller: a customer who has asked to hear no more about
+     * their order is one this query must never hand back, whichever reminder is being sent.
+     *
+     * Payment links are left out for the same reason: nobody walked out of a checkout there, the order having
+     * been written in the back-office by the shopkeeper - who is chasing their own client themselves, and in
+     * their own words rather than in a reminder that tells them they validated something.
      *
      * @return Basket[]
      */
@@ -257,11 +261,13 @@ class BasketRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.status = :status')
-            ->andWhere('b.reminderConsent = true')
+            ->andWhere('b.reminderOptOutAt IS NULL')
+            ->andWhere('b.contentflags != :service')
             ->andWhere('b.email IS NOT NULL')
             ->andWhere('b.remindersSent = :sent')
             ->andWhere('b.modification < :date')
             ->setParameter('status', 'validated')
+            ->setParameter('service', Basket::CONTENT_FLAG_SERVICE)
             ->setParameter('sent', $alreadySent)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
             ->getQuery()
@@ -303,6 +309,129 @@ class BasketRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
             ->andWhere('b.creation < :date')
             ->setParameter('date', new \DateTime($year . '-01-01'))
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders whose payment the provider never confirmed, and which were delivered all the same.
+     *
+     * Nothing else says it: the order looks settled from every screen, its payment row says it never was, and the
+     * two are only ever read apart. An order with nothing to pay is left out - it is delivered without a payment
+     * row at all, which is the one case BasketService::paid() lets through on its own.
+     *
+     * Orders placed in test mode are left out here as everywhere in this check: a shop trying its checkout out
+     * writes rows nobody ever settles, and reporting them would bury the one order that is genuinely wrong.
+     *
+     * @return list<Basket>
+     */
+    public function findDeliveredWithoutFinishedPayment(\DateTimeInterface $since, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.payment', 'p')
+            ->andWhere('b.status IN (:delivered)')
+            ->andWhere('b.creation >= :since')
+            ->andWhere('b.total + b.shipping - b.discountAmount > 0')
+            ->andWhere('p.id IS NULL OR p.isFinished = false')
+            ->andWhere('b.testMode = false')
+            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('since', $since)
+            ->orderBy('b.creation', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders the shop was paid a different amount for than the one they add up to.
+     *
+     * The comparison is made twice on purpose: the database narrows it down, and the caller settles it on
+     * Basket::getPayable() itself - the floor that method applies to a negative payable has no equivalent in DQL,
+     * and what a payment row must match is what the checkout charged, not an expression recopied here.
+     *
+     * Test orders are left out: they are charged against the provider's sandbox and nothing keeps their two rows
+     * in step once the trial is over.
+     *
+     * @return list<Basket>
+     */
+    public function findWithPaymentAmountMismatch(\DateTimeInterface $since, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.payment', 'p')
+            ->andWhere('p.isFinished = true')
+            ->andWhere('b.creation >= :since')
+            ->andWhere('p.amount <> b.total + b.shipping - b.discountAmount OR LOWER(p.currency) <> LOWER(b.currency)')
+            ->andWhere('b.testMode = false')
+            ->setParameter('since', $since)
+            ->orderBy('b.creation', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The delivered orders carrying no invoice number, which the accounting sequence has no way of showing.
+     *
+     * The number is minted when the order is validated, so one missing on a delivered order means it was written
+     * around the checkout - by a fixture, an import or a hand-made row - and no invoice can ever be drawn for it.
+     *
+     * Test orders are left out: no invoice is ever drawn for them.
+     *
+     * @return list<Basket>
+     */
+    public function findDeliveredWithoutNumber(\DateTimeInterface $since, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status IN (:delivered)')
+            ->andWhere('b.creation >= :since')
+            ->andWhere('b.number IS NULL')
+            ->andWhere('b.testMode = false')
+            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('since', $since)
+            ->orderBy('b.creation', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The orders placed since that date, newest first, for whoever has to read their lines again.
+     *
+     * Test orders excluded, this being read by the integrity check alone: an order placed to try the checkout out
+     * is not one whose lines have to add up.
+     *
+     * @return list<Basket>
+     */
+    public function findOrdersSince(\DateTimeInterface $since, int $limit = 500): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status IN (:delivered)')
+            ->andWhere('b.creation >= :since')
+            ->andWhere('b.testMode = false')
+            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('since', $since)
+            ->orderBy('b.creation', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * The baskets and the orders still awaiting payment, newest first - everything a customer can still be charged for.
+     *
+     * Test baskets excluded, this being read by the integrity check alone: nobody is ever charged for one.
+     *
+     * @return list<Basket>
+     */
+    public function findPayable(int $limit = 200): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status IN (:open)')
+            ->andWhere('b.archived IS NULL')
+            ->andWhere('b.testMode = false')
+            ->setParameter('open', ['new', 'validated'])
+            ->orderBy('b.modification', 'DESC')
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

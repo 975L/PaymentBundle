@@ -28,9 +28,6 @@ class CoordinatesType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'label.email',
                 'required' => true,
-                'attr' => [
-                    'placeholder' => 'placeholder.email',
-                ],
             ])
         ;
         // Shipping address if not full digital
@@ -39,40 +36,22 @@ class CoordinatesType extends AbstractType
                 ->add('name', TextType::class, [
                     'label' => 'label.name',
                     'required' => true,
-                    'attr' => [
-                        'placeholder' => 'placeholder.name',
-                    ],
                 ])
                 ->add('address', TextType::class, [
                     'label' => 'label.address',
-                    'attr' => [
-                        'placeholder' => 'placeholder.address',
-                    ],
                 ])
                 ->add('city', TextType::class, [
                     'label' => 'label.city',
-                    'attr' => [
-                        'placeholder' => 'placeholder.city',
-                    ],
                 ])
                 ->add('zip', TextType::class, [
                     'label' => 'label.zip',
-                    'attr' => [
-                        'placeholder' => 'placeholder.zip',
-                    ],
                 ])
                 ->add('country', TextType::class, [
                     'label' => 'label.country',
-                    'attr' => [
-                        'placeholder' => 'placeholder.country',
-                    ],
                 ])
                 ->add('message', TextareaType::class, [
                     'required' => false,
                     'label' => 'label.message',
-                    'attr' => [
-                        'placeholder' => 'placeholder.message',
-                    ],
                 ])
             ;
         }
@@ -84,15 +63,11 @@ class CoordinatesType extends AbstractType
                     'label' => 'label.gift_card_recipient_email',
                     'required' => false,
                     'help' => 'description.gift_card_recipient_email',
-                    'attr' => [
-                        'placeholder' => 'placeholder.email',
-                    ],
                 ])
                 ->add('giftCardRecipientMessage', TextareaType::class, [
                     'label' => 'label.gift_card_recipient_message',
                     'required' => false,
                     'attr' => [
-                        'placeholder' => 'placeholder.gift_card_recipient_message',
                         'rows' => 3,
                     ],
                 ])
@@ -125,7 +100,6 @@ class CoordinatesType extends AbstractType
                     'required' => false,
                     'mapped' => false,
                     'attr' => [
-                        'placeholder' => 'placeholder.support_message',
                         'rows' => 3,
                     ],
                 ])
@@ -133,22 +107,12 @@ class CoordinatesType extends AbstractType
                     'label' => 'label.signature',
                     'required' => false,
                     'mapped' => false,
-                    'attr' => [
-                        'placeholder' => 'placeholder.signature',
-                    ],
                 ])
             ;
         }
 
         // Checkboxes
         $builder
-            // GDPR
-            ->add('gdpr', CheckboxType::class, [
-                'label' => 'text.gdpr',
-                'translation_domain' => 'site',
-                'required' => true,
-                'mapped' => false,
-            ])
             // Terms of use
             ->add('cgu', CheckboxType::class, [
                 'label' => $options['config']['touUrl'],
@@ -162,11 +126,6 @@ class CoordinatesType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'mapped' => false,
-            ])
-            // Reminder of an order left unpaid, the only box here that is asked for and not required: an abandoned basket is no concluded sale, so the exception article L34-5 of the CPCE makes for analogous products does not cover it and nothing but consent allows the e-mail. Mapped, unlike the three above: it is the basket that carries the answer, the reminder going out days later with nobody around to be asked again
-            ->add('reminderConsent', CheckboxType::class, [
-                'label' => 'label.reminder_consent',
-                'required' => false,
             ])
         ;
     }

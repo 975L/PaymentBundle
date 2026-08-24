@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Controller\Management;
 
+use c975L\ConfigBundle\Management\EasyAdminActionHelper;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\GiftCard;
 use c975L\PaymentBundle\Service\GiftCardService;
@@ -66,7 +67,7 @@ class GiftCardCrudController extends AbstractCrudController
         ;
     }
 
-    // No "new" and no "delete": a card nobody bought is money out of nowhere, and one deleted is a customer's balance gone with it - what takes a stolen card out of circulation is its "active" switch
+    // No "new": a card nobody bought is money out of nowhere, so a card is minted by "issue" and never typed in. Deleting one is allowed, and it is a real deletion: the balance goes with the card, so an admin who only wants to take a card out of circulation switches "active" off instead
     public function configureActions(Actions $actions): Actions
     {
         // "Issue" and not "new": the amount is written once and the card is minted from it, where a creation form would let a balance be typed - and edited afterwards
@@ -76,8 +77,17 @@ class GiftCardCrudController extends AbstractCrudController
         ;
 
         return $actions
-            ->disable(Action::NEW, Action::DELETE)
+            ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, $issue)
+            // Icon-only row buttons, as everywhere else in the back office: worded ones widen a table that already carries nine columns
+            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
+                $action,
+                $this->translator->trans('action.edit', [], 'EasyAdminBundle'),
+            ))
+            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
+                $action,
+                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
+            ))
         ;
     }
 
@@ -139,7 +149,7 @@ class GiftCardCrudController extends AbstractCrudController
     {
         return [
             TextField::new('code')
-                ->setLabel(t('label.code', [], 'payment'))
+                ->setLabel(t('label.gift_card_code', [], 'payment'))
                 ->setFormTypeOption('disabled', 'disabled'),
             MoneyField::new('initialAmount')
                 ->setLabel(t('label.initial_amount', [], 'payment'))
@@ -170,7 +180,7 @@ class GiftCardCrudController extends AbstractCrudController
             BooleanField::new('active')
                 ->setLabel(t('label.active', [], 'payment')),
             BooleanField::new('testMode')
-                ->setLabel(t('label.test_mode', [], 'payment'))
+                ->setLabel(t('label.test', [], 'payment'))
                 ->setHelp(t('help.code_test_mode', [], 'payment'))
                 ->renderAsSwitch(false)
                 ->hideOnForm(),

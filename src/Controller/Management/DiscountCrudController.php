@@ -10,10 +10,13 @@
 
 namespace c975L\PaymentBundle\Controller\Management;
 
+use c975L\ConfigBundle\Management\EasyAdminActionHelper;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -22,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\Translation\t;
 
@@ -31,6 +35,7 @@ class DiscountCrudController extends AbstractCrudController
     public function __construct(
         private readonly ConfigServiceInterface $configService,
         private readonly PaymentTestModeInterface $testMode,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -59,6 +64,21 @@ class DiscountCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(t('label.discount', [], 'payment'))
             ->setEntityLabelInPlural(t('label.discounts', [], 'payment'))
             ->overrideTemplate('crud/index', '@c975LPayment/management/discount_crud_index.html.twig')
+        ;
+    }
+
+    // Icon-only row buttons, as everywhere else in the back office: worded ones widen a table that already carries ten columns
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
+                $action,
+                $this->translator->trans('action.edit', [], 'EasyAdminBundle'),
+            ))
+            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
+                $action,
+                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
+            ))
         ;
     }
 
@@ -104,7 +124,7 @@ class DiscountCrudController extends AbstractCrudController
             BooleanField::new('active')
                 ->setLabel(t('label.active', [], 'payment')),
             BooleanField::new('testMode')
-                ->setLabel(t('label.test_mode', [], 'payment'))
+                ->setLabel(t('label.test', [], 'payment'))
                 ->setHelp(t('help.code_test_mode', [], 'payment'))
                 ->renderAsSwitch(false)
                 ->hideOnForm(),

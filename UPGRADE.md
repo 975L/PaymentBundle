@@ -1,5 +1,50 @@
 # UPGRADE
 
+## v6.1 > v6.2
+
+**The reminder of an unpaid order asks for no consent and carries a way out instead.** A reminder is the
+follow-up of an order the customer placed themselves and left unpaid, not prospection, so it goes out without
+being asked for; what article L34-5 of the CPCE then asks is that it can be stopped in one click, which the new
+`reminder_unsubscribe` slot at the foot of both reminders does (`basket_reminder_unsubscribe`, no confirmation
+step). `Basket::$reminderConsent` is replaced by `$reminderOptOutAt`, the day the customer asked to hear no more:
+
+```sql
+ALTER TABLE payment_basket ADD reminder_opt_out_at DATETIME DEFAULT NULL;
+ALTER TABLE payment_basket DROP reminder_consent;
+```
+
+Generate it with `doctrine:migrations:diff` and run it. **Know what it changes for the orders already taken**:
+every validated-and-unpaid basket whose customer had left the box unticked becomes remindable, the new column
+being null for all of them. A shop that would rather not reopen that backlog carries the old answers over, with
+this line added by hand to the generated migration **between** the two statements above - `reminder_consent` has
+to still be there to be read:
+
+```sql
+UPDATE payment_basket SET reminder_opt_out_at = NOW() WHERE status = 'validated' AND reminder_consent = 0;
+```
+
+The customers who had ticked the box keep their reminders, everyone else is opted out - which is the behaviour
+the shop had the day before the upgrade.
+
+Payment links are left out of the reminders altogether now (`CONTENT_FLAG_SERVICE`): the order was written in
+the back-office by a shopkeeper who chases their own client themselves.
+
+**The two reminder templates gain a slot.** `c975l:ui:email-templates:ensure` backfills it into the templates a
+site was already seeded with - run it once after the migration, or the reminders go out with no way out at their
+foot.
+
+**The checkout no longer asks for a GDPR consent.** What it processes, the contract itself needs, and a box the
+customer could not refuse without giving up their order was never a consent. `CoordinatesType` drops its `gdpr`
+field, and `Basket:Validation` prints `text.gdpr_information` instead - UiBundle's own key, linking to the page
+the `url-privacy-policy` setting names. **Fill that setting** (Configuration → Legal): while it is empty the line
+is skipped entirely and the checkout says nothing at all. A shop that overrode `Basket/Validation.html.twig` has
+that block to bring into its copy. The checkout fields also lost their placeholders, their label saying what is
+asked.
+
+**Nothing to run for the rest**: the six `basket-integrity` checks appear on the Health check page by themselves,
+weekly, and the four gateway keys carry the *info* severity instead of *danger* - a shop charging with Stripe has
+no Revolut key to fill in, and `PaymentAlertProvider` is what says a shop takes orders it cannot charge.
+
 ## v6.0 > v6.1
 
 **The customer picks who they pay through, and a provider is offered as soon as its keys are filled in.**

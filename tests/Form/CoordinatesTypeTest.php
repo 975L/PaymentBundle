@@ -61,23 +61,18 @@ class CoordinatesTypeTest extends TestCase
         $this->assertTrue($added['name']['options']['required']);
     }
 
-    // An abandoned basket is no concluded sale, so nothing but consent allows the reminder: a box ticked in advance, or one that cannot be left alone, is not a consent
-    public function testTheReminderConsentIsTheOneBoxThatIsNotRequired(): void
+    // The reminder of an unpaid order is the follow-up of that order and not prospection, so no box asks for it: what the customer is offered is the way out at the foot of each one. No GDPR box either - the checkout processes what the contract needs, and a consent that cannot be refused is none. Every box left here is contractual, and one they have to tick
+    public function testEveryBoxLeftInTheFormIsRequired(): void
     {
         $added = $this->build(Basket::CONTENT_FLAG_PHYSICAL);
 
-        $this->assertSame(CheckboxType::class, $added['reminderConsent']['type']);
-        $this->assertFalse($added['reminderConsent']['options']['required']);
-        $this->assertArrayNotHasKey('data', $added['reminderConsent']['options']);
-    }
+        $this->assertArrayNotHasKey('reminderConsent', $added);
+        $this->assertArrayNotHasKey('gdpr', $added);
 
-    // The reminder goes out days later with nobody around to be asked again, so the answer is the basket's own column and not an unmapped box
-    public function testTheReminderConsentIsCarriedByTheBasket(): void
-    {
-        $added = $this->build(Basket::CONTENT_FLAG_PHYSICAL);
-
-        $this->assertArrayNotHasKey('mapped', $added['reminderConsent']['options']);
-        $this->assertFalse($added['gdpr']['options']['mapped']);
-        $this->assertFalse($added['cgv']['options']['mapped']);
+        foreach (['cgu', 'cgv'] as $box) {
+            $this->assertSame(CheckboxType::class, $added[$box]['type']);
+            $this->assertTrue($added[$box]['options']['required']);
+            $this->assertFalse($added[$box]['options']['mapped']);
+        }
     }
 }

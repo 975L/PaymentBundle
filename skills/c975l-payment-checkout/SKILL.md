@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-checkout
-description: "Use this skill when working on the basket or the checkout of a c975L site — adding to and emptying the basket, validating it, sending the customer to the payment provider, confirming the payment, delivering the order, the customer area and the transactional emails. Covers the rule that decides when an order is real, the two paths that confirm a payment, and what must never be trusted. Triggers on: BasketService, Basket entity, Payment entity, basket_display, basket_validate, basket_paid, payment_webhook, PaymentWebhookController, applyNotification, confirmReturn, claimPaid, checkout_data, gateway_reference, payment-test-mode, customer_orders, BasketDownloadProviderInterface, ConfirmOrderMessage, ItemsShippedMessage, BasketCodeService, Discount, GiftCard, GiftCardService, GiftCardDesign, GiftCardController, gift_card_display, gift_card_reveal, gift_card_pdf, gift_card_recipient, GiftCardRecipientMessage, giftCardRecipientEmail, designImage, designText, scratch, basket_code_apply, VatCalculator, payment_vat, payment_vat_rate, lineRate, InvoiceService, InvoiceSequence, invoiceNumber, basket_invoice_pdf, shop-invoice-prefix, shop-invoice-mentions, shippingLabels, findAwaitingShipping, payment_gift_cards, basket_shared, basket_shared_pay, basket_shared_paid, payShared, shareToken, recoveryToken, BasketRecoverySubscriber, BasketRetentionService, BasketReminderService, c975l:payment:baskets:retention, c975l:payment:baskets:remind."
+description: "Use this skill when working on the basket or the checkout of a c975L site — adding to and emptying the basket, validating it, sending the customer to the payment provider, confirming the payment, delivering the order, the customer area and the transactional emails. Covers the rule that decides when an order is real, the two paths that confirm a payment, and what must never be trusted. Triggers on: BasketService, Basket entity, Payment entity, basket_display, basket_validate, basket_paid, payment_webhook, PaymentWebhookController, applyNotification, confirmReturn, claimPaid, checkout_data, gateway_reference, payment-test-mode, customer_orders, BasketDownloadProviderInterface, ConfirmOrderMessage, ItemsShippedMessage, BasketCodeService, Discount, GiftCard, GiftCardService, GiftCardDesign, GiftCardController, gift_card_display, gift_card_reveal, gift_card_pdf, gift_card_recipient, GiftCardRecipientMessage, giftCardRecipientEmail, designImage, designText, scratch, basket_code_apply, VatCalculator, payment_vat, payment_vat_rate, lineRate, InvoiceService, InvoiceSequence, invoiceNumber, basket_invoice_pdf, shop-invoice-prefix, shop-invoice-mentions, shippingLabels, findAwaitingShipping, payment_gift_cards, basket_shared, basket_shared_pay, basket_shared_paid, payShared, shareToken, recoveryToken, BasketRecoverySubscriber, BasketRetentionService, BasketReminderService, c975l:payment:baskets:retention, c975l:payment:baskets:remind, reminderOptOutAt, basket_reminder_unsubscribe, reminder_unsubscribe, payment-share-validity, BasketIntegrityHealthCheckProvider, basket-integrity, findDeliveredWithoutFinishedPayment, findFinishedWithoutDeliveredBasket, findWithPaymentAmountMismatch."
 ---
 
 # c975L PaymentBundle — the basket and the checkout
@@ -10,7 +10,7 @@ description: "Use this skill when working on the basket or the checkout of a c97
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Service/BasketService.php`, `src/Entity/Basket.php`, `src/Entity/Payment.php`, `src/Controller/BasketController.php`, `src/Controller/PaymentWebhookController.php`, `src/Controller/CustomerAreaController.php`, `src/Repository/BasketRepository.php`, `src/Email/BasketEmailFactory.php`, `src/MessageHandler/`, `src/Service/BasketCodeService.php`, `src/Service/GiftCardService.php`, `src/Service/VatCalculator.php`, `src/Service/BasketRetentionService.php`, `src/Service/BasketReminderService.php`, `src/Entity/Discount.php`, `src/Entity/GiftCard.php`, `src/Contract/GiftCardDesign.php`, `src/Controller/GiftCardController.php`, `templates/components/GiftCard/`, `src/EventSubscriber/BasketRecoverySubscriber.php`, `src/Command/`, `templates/basket/`, `templates/customer/`
+`src/Service/BasketService.php`, `src/Entity/Basket.php`, `src/Entity/Payment.php`, `src/Controller/BasketController.php`, `src/Controller/PaymentWebhookController.php`, `src/Controller/CustomerAreaController.php`, `src/Repository/BasketRepository.php`, `src/Email/BasketEmailFactory.php`, `src/MessageHandler/`, `src/Service/BasketCodeService.php`, `src/Service/GiftCardService.php`, `src/Service/VatCalculator.php`, `src/Service/BasketRetentionService.php`, `src/Service/BasketReminderService.php`, `src/Management/BasketIntegrityHealthCheckProvider.php`, `src/Entity/Discount.php`, `src/Entity/GiftCard.php`, `src/Contract/GiftCardDesign.php`, `src/Controller/GiftCardController.php`, `templates/components/GiftCard/`, `src/EventSubscriber/BasketRecoverySubscriber.php`, `src/Command/`, `templates/basket/`, `templates/customer/`
 
 **Related skills:** `c975l-payment-gateway` and `c975l-payment-items` in this same bundle; `c975l-config` and `c975l-management` in `c975l/core-bundle`.
 
@@ -135,6 +135,13 @@ a tracking barcode comes from the carrier's own API.
 | `basket_shared_paid` | `shareToken` | where the payer lands, which is never the customer's order page |
 | `basket_short_pay` | `shareToken` | `/pay/{shareToken}` — a **302** to `basket_shared_pay`, and what both `basket_shared` and `createPaymentLink()` hand out |
 
+**The checkout asks for no GDPR consent.** What it processes, the contract needs; `CoordinatesType` carries the
+terms-of-use and terms-of-sales boxes alone, and `Basket:Validation` prints `text.gdpr_information` from the
+**`ui`** catalog — core-bundle's, not `site`'s: this bundle depends on core-bundle and on nothing else — linking
+to the page `url-privacy-policy` names and skipped while that setting is empty. `payment-share-validity` (days,
+7) is what the checkout says a shared order is held for: a promise, not a mechanism — nothing is reserved and
+`BasketRetentionService` still takes it away at thirty days.
+
 **`shareToken` is deliberately not `securityToken`.** Sharing the latter would hand the payer the delivery page — the recipient's name and address, which is the one thing a gift must not disclose. `GiftCard` carries a `shareToken` of its own, named the same thing for the same reason and belonging to another entity: do not confuse the two.
 
 An order already settled, or taken back to a basket by its customer, says so and offers nothing to pay rather than opening a second checkout.
@@ -149,7 +156,7 @@ An order already settled, or taken back to a basket by its customer, says so and
 - The line carries `CONTENT_FLAG_SERVICE`, so a settled link never joins the orders left to ship.
 - **The e-mail is required.** `sendEmails()` dispatches no confirmation for an order naming nobody, and `EmailService` would otherwise fall back on the site's own address.
 - The address it answers is `basket_short_pay` (`/pay/{shareToken}`), the one route of the bundle whose token is read **whatever its case** — lower-cased before the query, never left to the collation. A **302** to `basket_shared_pay` — a text message has 160 characters and the long address spends half of them. The share token is unique on its own; the number beside it guards nothing. **Do not render the payer's page there**: "already settled", "no longer available" and the `noindex` headers stay written once.
-- The order is deleted after `ABANDONED_DAYS` like any unpaid one, and no reminder is ever sent for it — `findToRemind()` reads a consent only `CoordinatesType` asks for.
+- The order is deleted after `ABANDONED_DAYS` like any unpaid one, and no reminder is ever sent for it — `findToRemind()` leaves the `CONTENT_FLAG_SERVICE` lines out, a shopkeeper who wrote the order chasing their own client themselves.
 
 ## A basket that outlives its session
 
@@ -168,6 +175,14 @@ Two commands, scheduled by `Scheduler\PaymentMaintenanceTaskProvider` rather tha
 
 The windows are constants on `BasketRetentionService` and `BasketReminderService` — read them, never re-type the number.
 
+**A reminder asks for no consent and carries a way out.** It is the follow-up of an order the customer placed
+themselves and left unpaid, not prospection: it goes out unasked, and every one carries the
+`reminder_unsubscribe` slot linking to `basket_reminder_unsubscribe` — one click, no confirmation step, stamping
+`Basket::$reminderOptOutAt`. `findToRemind()` reads that opposition itself, and leaves the payment links
+(`CONTENT_FLAG_SERVICE`) out. Both links of the e-mail are built on the same share token, minted on the spot when
+the order has none. **Do not add a consent box to the checkout for this**, and do not read the opposition from a
+caller.
+
 ## Test mode
 
 `payment-test-mode` is switched from the dashboard tile, never edited by hand. While on: the provider's test keys are used, the order number carries a `TEST-` prefix, the basket pages carry `Basket:TestMode`, and the payment CRUD stops linking to the provider's live dashboard. The prefix follows the setting, **not** the word "test" in the secret key.
@@ -185,6 +200,28 @@ The handlers **throw** when a send fails, so Messenger retries rather than dropp
 Downloads come from `BasketDownloadProviderInterface`; with nothing implementing it the section is left out rather than drawn empty.
 
 The same `Basket:Downloads` component is rendered on the paid page, gated on the basket being paid, so a buyer whose email is late or filtered still takes their files — the emailed link is never the only way to them.
+
+## What is checked weekly
+
+`BasketIntegrityHealthCheckProvider` (kind `basket-integrity`) runs six checks, one dashboard row each. They all
+share the same shape: two rows a shop only ever reads apart, put side by side. Nothing else — no log line, no
+error page, no email — ever reports any of them.
+
+| Row | Reads |
+|---|---|
+| `#charged-not-delivered` | a finished `Payment` whose `Basket` never reached `paid`/`shipped` — the customer was charged and nothing followed |
+| `#delivered-unpaid` | a delivered order with no finished payment, orders with `getPayable() === 0` excluded (they carry no payment row at all) |
+| `#amount-mismatch` | `Payment::getAmount()` against `Basket::getPayable()`, the currency compared whatever its case |
+| `#missing-number` | a delivered order without its invoice number |
+| `#total-mismatch` | the sum of `Basket::$items` lines against `$total`/`$quantity`, an order whose lines carry no `total` key skipped rather than reported |
+| `#unresolvable-items` | a payable basket whose lines no longer resolve through `BasketItemProviderRegistry` — `has()` before `get()`, a kind whose bundle is gone being one of the answers |
+
+Rules that keep it read rather than switched off: twelve months back only, an hour's grace on a confirmed payment
+(the webhook and the customer's return settle the order within seconds), `Basket::$testMode` orders left out of
+all six by the queries themselves, and each check guarded on its own — `HealthCheckRunner` drops **every** row of
+a provider that throws, and no rows at all reads as "nothing to report".
+
+---
 
 ## Do not
 

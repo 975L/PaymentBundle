@@ -386,6 +386,14 @@
                 <source>label.basket_reminder_second</source>
                 <target>Your order has still not been paid. This is the last message we will send you about it.</target>
             </trans-unit>
+            <trans-unit id="2k6GVfP">
+                <source>label.basket_reminder_unsubscribe</source>
+                <target>You are receiving this message because you placed this order without paying for it. To hear no more about it: %url%</target>
+            </trans-unit>
+            <trans-unit id="PlWktlj">
+                <source>label.basket_reminder_unsubscribed</source>
+                <target>Reminders stopped</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>Thank you for your order and your trust!</target>
@@ -629,6 +637,10 @@
             <trans-unit id="FCszOOZ">
                 <source>label.gift_card_balance</source>
                 <target>Balance</target>
+            </trans-unit>
+            <trans-unit id="ybKisP8">
+                <source>label.gift_card_code</source>
+                <target>Code</target>
             </trans-unit>
             <trans-unit id="NOdGSCy">
                 <source>label.gift_card_code_after_payment</source>
@@ -874,6 +886,90 @@
                 <source>label.guided_step_payment_transaction_review_provider</source>
                 <target>Check the transaction at the provider</target>
             </trans-unit>
+            <trans-unit id="aXCv0Nx">
+                <source>label.health_check_advice_basket_offender</source>
+                <target>%order% - %info%</target>
+            </trans-unit>
+            <trans-unit id="xuhM4fV">
+                <source>label.health_check_advice_basket_offenders</source>
+                <target>The %count% order(s) concerned</target>
+            </trans-unit>
+            <trans-unit id="PHRD_Hz">
+                <source>label.health_check_basket_amount_mismatch</source>
+                <target>Amounts charged against the orders they settle</target>
+            </trans-unit>
+            <trans-unit id="p.EnhFk">
+                <source>label.health_check_basket_amount_mismatch_ko</source>
+                <target>%count% order(s) charged an amount or a currency of their own</target>
+            </trans-unit>
+            <trans-unit id="T.Trifm">
+                <source>label.health_check_basket_amount_mismatch_ok</source>
+                <target>Every payment matches the amount of its order</target>
+            </trans-unit>
+            <trans-unit id=".zDZQfQ">
+                <source>label.health_check_basket_charged_not_delivered</source>
+                <target>Payments charged without a delivered order</target>
+            </trans-unit>
+            <trans-unit id="DLHie5D">
+                <source>label.health_check_basket_charged_not_delivered_ko</source>
+                <target>%count% payment(s) confirmed by the provider whose order was never delivered</target>
+            </trans-unit>
+            <trans-unit id="pcrDQgN">
+                <source>label.health_check_basket_charged_not_delivered_ok</source>
+                <target>Every confirmed payment has its delivered order</target>
+            </trans-unit>
+            <trans-unit id="Mh90rI6">
+                <source>label.health_check_basket_check_failed</source>
+                <target>The check could not run: %message%</target>
+            </trans-unit>
+            <trans-unit id="oZFEUwz">
+                <source>label.health_check_basket_delivered_unpaid</source>
+                <target>Delivered orders without a confirmed payment</target>
+            </trans-unit>
+            <trans-unit id="ahowYx5">
+                <source>label.health_check_basket_delivered_unpaid_ko</source>
+                <target>%count% order(s) delivered with no payment answering for them</target>
+            </trans-unit>
+            <trans-unit id="_5pVPLf">
+                <source>label.health_check_basket_delivered_unpaid_ok</source>
+                <target>Every delivered order has its confirmed payment</target>
+            </trans-unit>
+            <trans-unit id="bQ.4H.f">
+                <source>label.health_check_basket_missing_number</source>
+                <target>Delivered orders without an invoice number</target>
+            </trans-unit>
+            <trans-unit id="fmXOfTK">
+                <source>label.health_check_basket_missing_number_ko</source>
+                <target>%count% delivered order(s) no invoice can ever be drawn for</target>
+            </trans-unit>
+            <trans-unit id="00.FtKA">
+                <source>label.health_check_basket_missing_number_ok</source>
+                <target>Every delivered order carries its invoice number</target>
+            </trans-unit>
+            <trans-unit id="YGCzg0m">
+                <source>label.health_check_basket_total_mismatch</source>
+                <target>Order lines against the totals stored beside them</target>
+            </trans-unit>
+            <trans-unit id="2qtG5lP">
+                <source>label.health_check_basket_total_mismatch_ko</source>
+                <target>%count% order(s) whose lines do not add up to their own total</target>
+            </trans-unit>
+            <trans-unit id="zp1pp2z">
+                <source>label.health_check_basket_total_mismatch_ok</source>
+                <target>Every order adds up to the total stored beside it</target>
+            </trans-unit>
+            <trans-unit id="FvQFIBO">
+                <source>label.health_check_basket_unresolvable_items</source>
+                <target>Baskets holding an article that no longer exists</target>
+            </trans-unit>
+            <trans-unit id="qLWPvaq">
+                <source>label.health_check_basket_unresolvable_items_ko</source>
+                <target>%count% basket(s) the checkout will refuse without telling anybody</target>
+            </trans-unit>
+            <trans-unit id="zdD8LGj">
+                <source>label.health_check_basket_unresolvable_items_ok</source>
+                <target>Every basket still awaiting payment can be ordered</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>of which VAT</target>
@@ -1042,10 +1138,6 @@
                 <source>label.quantity</source>
                 <target>Quantity</target>
             </trans-unit>
-            <trans-unit id="8Pr.1JV">
-                <source>label.reminder_consent</source>
-                <target>Remind me of my order by e-mail if I do not pay for it</target>
-            </trans-unit>
             <trans-unit id="nS4remy">
                 <source>label.reminder_pay_explanation</source>
                 <target>Your order %number% has not been paid yet. Here is what it holds.</target>
@@ -1104,7 +1196,7 @@
             </trans-unit>
             <trans-unit id="o_BITv_">
                 <source>label.share_order_help</source>
-                <target>Your order is set aside and you receive a link to send to whoever wishes to offer it to you</target>
+                <target>Your order is set aside for %days% days and you receive a link to send to whoever wishes to offer it to you</target>
             </trans-unit>
             <trans-unit id="iEGmGsX">
                 <source>label.share_paid_explanation</source>
@@ -1169,6 +1261,10 @@
             <trans-unit id="4gqsO4y">
                 <source>label.support_message</source>
                 <target>Message of support</target>
+            </trans-unit>
+            <trans-unit id="UnIjb60">
+                <source>label.test</source>
+                <target>Test</target>
             </trans-unit>
             <trans-unit id="2nMDj1i">
                 <source>label.test_mode</source>
@@ -1250,9 +1346,9 @@
                 <source>label.zip</source>
                 <target>Zip code</target>
             </trans-unit>
-            <trans-unit id="HE2c1xW">
-                <source>placeholder.gift_card_recipient_message</source>
-                <target>Happy birthday!</target>
+            <trans-unit id="BY7BrsF">
+                <source>text.basket_reminder_unsubscribed</source>
+                <target>Done: we will not mention this order again. You can still pay for it from the link you were sent earlier.</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>

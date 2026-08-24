@@ -22,7 +22,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 ## Contents
 
 - **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [Stimulus controllers](#register-stimulus-controllers)
-- **Using it** — [test mode](#test-mode) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
+- **Using it** — [test mode](#test-mode) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
 
 ## Features
 
@@ -47,6 +47,9 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 - Status report and health check contributions: the orders left to ship and the payments started and never
   confirmed land in `/status/report`, and `c975l:health-check:run` asks the active gateway whether its keys still
   authenticate — a revoked or mistyped key reads from the config exactly like a working one
+- **The orders check out against their own payments**, weekly and without being asked: `basket-integrity` reports
+  the charge nobody was told about — money taken and no order delivered — along with five other disagreements
+  nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed
 - A `payment_shipping` block kind stating what delivery costs, its amounts read from the configuration
@@ -217,6 +220,7 @@ renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.p
 | `basket_shared_pay` | `/shop/basket/pay/{number}/{shareToken}` | The payer's page: what is bought and what it costs, **and nothing of who it is for** |
 | `basket_shared_paid` | `/shop/basket/pay/{number}/{shareToken}/done` | Where the payer lands, which is never the customer's own order page |
 | `basket_short_pay` | `/pay/{shareToken}` | The same payer's page at an address short enough to travel in a text message — a 302 to `basket_shared_pay`, its token read whatever its case |
+| `basket_reminder_unsubscribe` | `/shop/basket/pay/{number}/{shareToken}/no-reminder` | The way out every reminder of an unpaid order carries: one click, no confirmation step |
 | `gift_card_display` | `/gift-card/{shareToken}` | The card as whoever it was bought for sees it - no account, `noindex`, `no-store`, and no code in the markup |
 | `gift_card_reveal` | `/gift-card/{shareToken}/code` | What the scratch panel asks for, refused on a card taken out of circulation |
 | `gift_card_pdf` | `/gift-card/{shareToken}/pdf` | The card as a file to print or keep, its code on it, refused on a card taken out of circulation |
@@ -463,12 +467,17 @@ a basket still `new` carries no e-mail more often than not.
 
 The reminder links to the shared-payment route, which reopens the checkout of an order still waiting for its
 money without asking for anything to be filled in again. Its token is only handed out when somebody shares
-their order, so an abandoned basket is given one when its first reminder goes out.
+their order, so an abandoned basket is given one when its first reminder goes out — and both links the e-mail
+carries, the payment one and the way out, are built on that same token.
 
-An abandoned basket is not a concluded sale, so the exception article L34-5 of the CPCE makes for products
-analogous to a previous purchase does not cover the reminder: it needs consent, which `Form\CoordinatesType`
-asks for with the one box of the checkout that is not required, and which is read by the query itself rather
-than by the caller. Nothing is sent while the shop is in test mode.
+**No consent is asked for, and a way out is carried instead.** A reminder is the follow-up of an order the
+customer placed themselves and left unpaid, not prospection: it goes out without being asked for, and every one
+of them carries the `reminder_unsubscribe` slot whose link stops them in one click, with no confirmation step
+(`basket_reminder_unsubscribe`, which stamps `Basket::$reminderOptOutAt` and renders
+`basket/reminder_unsubscribed.html.twig`). The opposition is read by the query itself rather than by the caller.
+Payment links are left out of the reminders altogether — nobody walked out of a checkout there, the order having
+been written in the back-office by a shopkeeper who chases their own client themselves. Nothing is sent while the
+shop is in test mode.
 
 The count lives on the basket in `remindersSent` and never touches `modification`: the retention pass reads
 that date to know when the visitor last touched their basket, and a reminder writing to it would push the
@@ -494,6 +503,16 @@ never on the customer's order history.
 The link the customer is given is the short one, `/pay/{shareToken}` — the same address a payment link travels
 by, and the one they forward in a text message as readily as in an e-mail. It is a 302 to `basket_shared_pay`,
 and reads its token whatever its case: this is an address that gets dictated over the telephone and retyped.
+
+The checkout says how long the shop will hold such an order, read from **`payment-share-validity`** (days, 7 by
+default). It is the shopkeeper's promise and not a mechanism: nothing is reserved, stock only moves when the
+order is paid, and `BasketRetentionService` takes an unpaid order away at thirty days whatever the setting says.
+
+**The checkout asks for no GDPR consent.** What it processes, the contract itself needs; a box the customer could
+not refuse without giving up their order was never a consent. `Form\CoordinatesType` carries the terms-of-use and
+terms-of-sales boxes alone, and the validation page prints the information line instead —
+`text.gdpr_information` from UiBundle's own `ui` catalog, linking to the page `url-privacy-policy` names, and
+skipped entirely while that setting is empty.
 
 ---
 
@@ -528,7 +547,8 @@ to click.
 
 **A link is settled once and is meant to be settled soon.** It is one order, so paying it twice is not possible,
 and an unpaid one is deleted after 30 days like any other abandoned order — the link then answers a 404. No
-reminder is ever sent for one: the reminders read a consent that only the checkout form asks for.
+reminder is ever sent for one: `findToRemind()` leaves the `CONTENT_FLAG_SERVICE` lines out, a shopkeeper who
+wrote the order chasing their own client in their own words.
 
 Nothing of this kind can be added to a basket from the front. `PaymentLinkItemProvider::findItem()` resolves
 nothing and `validateAddition()` refuses, which is what keeps a visitor from posting themselves a line worth what
@@ -682,6 +702,34 @@ A gateway implementing `c975L\PaymentBundle\Contract\VerifiableGatewayInterface`
 when they do not. `GatewayHealthCheckProvider` calls it from `c975l:health-check:run` — never from a controller,
 it reaches a third party. A gateway that does not implement it stays perfectly valid: its row is reported as
 skipped rather than left out. `StripeGateway` implements it by retrieving the account the key belongs to.
+
+---
+
+## What the orders are checked for
+
+`BasketIntegrityHealthCheckProvider` runs six checks weekly, one dashboard row each, under the `basket-integrity`
+kind. They have one thing in common: each reads two rows that a shop only ever looks at apart, so nothing else —
+no log line, no error page, no screen — ever says a word about them.
+
+| Row | What it reports |
+|---|---|
+| `#charged-not-delivered` | the provider confirmed the payment and the order was never delivered: no stock decremented, no file minted, no confirmation sent |
+| `#delivered-unpaid` | the other way round, an order that went out with no payment answering for it (an order with nothing to pay carries no payment row at all and is left out) |
+| `#amount-mismatch` | the amount or the currency charged is not the one the order adds up to (`Basket::getPayable()`) |
+| `#missing-number` | a delivered order carrying no invoice number, which no invoice can ever be drawn for |
+| `#total-mismatch` | an order whose own lines do not add up to the total stored beside them |
+| `#unresolvable-items` | a basket still awaiting payment holding an article the catalogue no longer has — the checkout refuses it without telling anybody |
+
+```bash
+php bin/console c975l:health-check:run --kind=basket-integrity
+```
+
+Each row lists the orders behind its count, one link apiece, on the Health check page. Orders are read twelve
+months back — a shape that changed years ago is not a defect — and a payment confirmed within the last hour is
+left alone, the webhook and the customer's own return settling the order within seconds of the charge.
+
+Orders placed in test mode are out of all six checks: a shop trying its checkout out writes orders nobody settles,
+delivers or invoices, and reporting them would bury the one order that is genuinely wrong.
 
 ---
 

@@ -60,6 +60,28 @@ class PaymentEmailTemplateProviderTest extends TestCase
         }
     }
 
+    /**
+     * The way out is a slot in both reminders, and a slot in nothing else.
+     *
+     * A slot rather than a sentence because only data blocks are backfilled into the templates a site was seeded
+     * with before it existed: written as a sentence, this link would only ever reach the shops installed after it,
+     * and every one already running would go on sending reminders carrying no way to stop them.
+     */
+    public function testBothRemindersCarryTheUnsubscribeSlotAndNoOtherEmailDoes(): void
+    {
+        foreach ($this->provider()->getEmailTemplates() as $name => $blocksByLocale) {
+            foreach ($blocksByLocale as $locale => $blocks) {
+                $slots = array_column(array_filter($blocks, static fn (array $block): bool => 'slot' === $block[0]), 4);
+
+                $this->assertSame(
+                    str_starts_with($name, 'basket_reminder_'),
+                    in_array('reminder_unsubscribe', $slots, true),
+                    sprintf('"%s" (%s) carries the unsubscribe slot where it should not, or lacks it where it should', $name, $locale)
+                );
+            }
+        }
+    }
+
     // Nothing composed into an email is a translation key left unresolved, in any of the three languages
     public function testEverySentenceIsTranslatedInEveryLanguage(): void
     {

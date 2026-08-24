@@ -386,6 +386,14 @@
                 <source>label.basket_reminder_second</source>
                 <target>Su pedido sigue sin pagarse. Este es el último mensaje que le enviamos al respecto.</target>
             </trans-unit>
+            <trans-unit id="2k6GVfP">
+                <source>label.basket_reminder_unsubscribe</source>
+                <target>Recibe este mensaje porque realizó este pedido sin pagarlo. Para no volver a recibir avisos: %url%</target>
+            </trans-unit>
+            <trans-unit id="PlWktlj">
+                <source>label.basket_reminder_unsubscribed</source>
+                <target>Recordatorios detenidos</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>¡Le agradecemos su pedido y su confianza!</target>
@@ -629,6 +637,10 @@
             <trans-unit id="FCszOOZ">
                 <source>label.gift_card_balance</source>
                 <target>Saldo</target>
+            </trans-unit>
+            <trans-unit id="ybKisP8">
+                <source>label.gift_card_code</source>
+                <target>Código</target>
             </trans-unit>
             <trans-unit id="NOdGSCy">
                 <source>label.gift_card_code_after_payment</source>
@@ -874,6 +886,90 @@
                 <source>label.guided_step_payment_transaction_review_provider</source>
                 <target>Consultar la transacción en el proveedor</target>
             </trans-unit>
+            <trans-unit id="aXCv0Nx">
+                <source>label.health_check_advice_basket_offender</source>
+                <target>%order% - %info%</target>
+            </trans-unit>
+            <trans-unit id="xuhM4fV">
+                <source>label.health_check_advice_basket_offenders</source>
+                <target>Los %count% pedido(s) afectados</target>
+            </trans-unit>
+            <trans-unit id="PHRD_Hz">
+                <source>label.health_check_basket_amount_mismatch</source>
+                <target>Importes cobrados frente a los pedidos</target>
+            </trans-unit>
+            <trans-unit id="p.EnhFk">
+                <source>label.health_check_basket_amount_mismatch_ko</source>
+                <target>%count% pedido(s) cobrado(s) con un importe o una moneda distintos</target>
+            </trans-unit>
+            <trans-unit id="T.Trifm">
+                <source>label.health_check_basket_amount_mismatch_ok</source>
+                <target>Cada pago coincide con el importe de su pedido</target>
+            </trans-unit>
+            <trans-unit id=".zDZQfQ">
+                <source>label.health_check_basket_charged_not_delivered</source>
+                <target>Pagos cobrados sin pedido entregado</target>
+            </trans-unit>
+            <trans-unit id="DLHie5D">
+                <source>label.health_check_basket_charged_not_delivered_ko</source>
+                <target>%count% pago(s) confirmado(s) por el proveedor cuyo pedido nunca se entregó</target>
+            </trans-unit>
+            <trans-unit id="pcrDQgN">
+                <source>label.health_check_basket_charged_not_delivered_ok</source>
+                <target>Cada pago confirmado tiene su pedido entregado</target>
+            </trans-unit>
+            <trans-unit id="Mh90rI6">
+                <source>label.health_check_basket_check_failed</source>
+                <target>La comprobación no pudo ejecutarse: %message%</target>
+            </trans-unit>
+            <trans-unit id="oZFEUwz">
+                <source>label.health_check_basket_delivered_unpaid</source>
+                <target>Pedidos entregados sin pago confirmado</target>
+            </trans-unit>
+            <trans-unit id="ahowYx5">
+                <source>label.health_check_basket_delivered_unpaid_ko</source>
+                <target>%count% pedido(s) entregado(s) sin pago correspondiente</target>
+            </trans-unit>
+            <trans-unit id="_5pVPLf">
+                <source>label.health_check_basket_delivered_unpaid_ok</source>
+                <target>Cada pedido entregado tiene su pago confirmado</target>
+            </trans-unit>
+            <trans-unit id="bQ.4H.f">
+                <source>label.health_check_basket_missing_number</source>
+                <target>Pedidos entregados sin número de factura</target>
+            </trans-unit>
+            <trans-unit id="fmXOfTK">
+                <source>label.health_check_basket_missing_number_ko</source>
+                <target>%count% pedido(s) entregado(s) para los que no se podrá emitir factura</target>
+            </trans-unit>
+            <trans-unit id="00.FtKA">
+                <source>label.health_check_basket_missing_number_ok</source>
+                <target>Cada pedido entregado lleva su número de factura</target>
+            </trans-unit>
+            <trans-unit id="YGCzg0m">
+                <source>label.health_check_basket_total_mismatch</source>
+                <target>Líneas de pedido frente a los totales registrados</target>
+            </trans-unit>
+            <trans-unit id="2qtG5lP">
+                <source>label.health_check_basket_total_mismatch_ko</source>
+                <target>%count% pedido(s) cuyas líneas no coinciden con su propio total</target>
+            </trans-unit>
+            <trans-unit id="zp1pp2z">
+                <source>label.health_check_basket_total_mismatch_ok</source>
+                <target>Cada pedido coincide con el total registrado junto a él</target>
+            </trans-unit>
+            <trans-unit id="FvQFIBO">
+                <source>label.health_check_basket_unresolvable_items</source>
+                <target>Cestas con un artículo que ya no existe</target>
+            </trans-unit>
+            <trans-unit id="qLWPvaq">
+                <source>label.health_check_basket_unresolvable_items_ko</source>
+                <target>%count% cesta(s) que el pago rechazará sin avisar a nadie</target>
+            </trans-unit>
+            <trans-unit id="zdD8LGj">
+                <source>label.health_check_basket_unresolvable_items_ok</source>
+                <target>Cada cesta pendiente de pago aún se puede pedir</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>IVA incluido</target>
@@ -1042,10 +1138,6 @@
                 <source>label.quantity</source>
                 <target>Cantidad</target>
             </trans-unit>
-            <trans-unit id="8Pr.1JV">
-                <source>label.reminder_consent</source>
-                <target>Recordarme mi pedido por correo electrónico si no lo pago</target>
-            </trans-unit>
             <trans-unit id="nS4remy">
                 <source>label.reminder_pay_explanation</source>
                 <target>Su pedido %number% aún no se ha pagado. Esto es lo que contiene.</target>
@@ -1104,7 +1196,7 @@
             </trans-unit>
             <trans-unit id="o_BITv_">
                 <source>label.share_order_help</source>
-                <target>Tu pedido queda reservado y recibes un enlace para enviar a quien quiera regalártelo</target>
+                <target>Tu pedido queda reservado durante %days% días y recibes un enlace para enviar a quien quiera regalártelo</target>
             </trans-unit>
             <trans-unit id="iEGmGsX">
                 <source>label.share_paid_explanation</source>
@@ -1169,6 +1261,10 @@
             <trans-unit id="4gqsO4y">
                 <source>label.support_message</source>
                 <target>Mensaje de apoyo</target>
+            </trans-unit>
+            <trans-unit id="UnIjb60">
+                <source>label.test</source>
+                <target>Prueba</target>
             </trans-unit>
             <trans-unit id="2nMDj1i">
                 <source>label.test_mode</source>
@@ -1250,9 +1346,9 @@
                 <source>label.zip</source>
                 <target>Código postal</target>
             </trans-unit>
-            <trans-unit id="HE2c1xW">
-                <source>placeholder.gift_card_recipient_message</source>
-                <target>¡Feliz cumpleaños!</target>
+            <trans-unit id="BY7BrsF">
+                <source>text.basket_reminder_unsubscribed</source>
+                <target>Hecho: no volveremos a hablarle de este pedido. Todavía puede pagarlo desde el enlace que recibió antes.</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>

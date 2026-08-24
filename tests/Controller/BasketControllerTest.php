@@ -20,6 +20,7 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Form\FormInterface;
@@ -47,6 +48,8 @@ class BasketControllerTest extends TestCase
 
     /** @var array<string, mixed> */
     private array $criteria = [];
+
+    private bool $flushed = false;
 
     protected function setUp(): void
     {
@@ -204,6 +207,49 @@ class BasketControllerTest extends TestCase
         $this->controller($this->createStub(BasketServiceInterface::class))
             ->shortPay('aaaabbbbccccdddd', $this->basketRepository(new Basket()))
         ;
+    }
+
+    /**
+     * The way out carried by every reminder of an unpaid order.
+     *
+     * One click and nothing else: the link is in the recipient's own e-mail and asking to hear no more is what
+     * they came for, where a second click is what makes people mark the message as spam instead.
+     */
+    public function testTheUnsubscribeLinkStopsTheRemindersInOneClick(): void
+    {
+        $basket = new Basket()
+            ->setNumber('202608-AB-12345')
+            ->setShareToken('aaaabbbbccccdddd')
+        ;
+
+        $response = $this->controller($this->createStub(BasketServiceInterface::class), twig: $this->createStub(Environment::class))
+            ->unsubscribeReminder($basket, $this->entityManager())
+        ;
+
+        $this->assertNotNull($basket->getReminderOptOutAt());
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertTrue($this->flushed);
+    }
+
+    // The address is guarded by the order number and the share token together, so an order carrying no token is one nobody can be unsubscribed from
+    public function testAnOrderThatWasNeverSharedHasNoUnsubscribeAddress(): void
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->controller($this->createStub(BasketServiceInterface::class))
+            ->unsubscribeReminder(new Basket(), $this->entityManager())
+        ;
+    }
+
+    // Says whether the opposition was written rather than only set on the object in memory
+    private function entityManager(): EntityManagerInterface
+    {
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('flush')->willReturnCallback(function (): void {
+            $this->flushed = true;
+        });
+
+        return $entityManager;
     }
 
     // The order the short address names, and what it was looked up with

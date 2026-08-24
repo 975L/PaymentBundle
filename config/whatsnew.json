@@ -1,5 +1,35 @@
 [
     {
+        "date": "2026-08-24",
+        "description": [
+            {
+                "en": "Your orders are now checked against their own payments every week, and the Health check dashboard says what it found: a payment you were paid whose order never went out, an order delivered with no payment answering for it, an amount that does not match, an order without an invoice number, a basket holding an article you have withdrawn. Every one of them used to be invisible - no error page, no email, nothing. Each line lists the orders concerned, with a link to open each of them.",
+                "fr": "Vos commandes sont désormais vérifiées chaque semaine face à leurs paiements, et le tableau de bord Contrôle de santé vous dit ce qu'il a trouvé : un paiement que vous avez encaissé dont la commande n'est jamais partie, une commande livrée sans paiement en face, un montant qui ne correspond pas, une commande sans numéro de facture, un panier contenant un article que vous avez retiré. Aucune de ces situations n'était visible jusqu'ici - pas de page d'erreur, pas d'email, rien. Chaque ligne liste les commandes concernées, avec un lien pour ouvrir chacune.",
+                "es": "Sus pedidos se comprueban ahora cada semana frente a sus propios pagos, y el panel Comprobación de estado le dice lo que ha encontrado: un pago que usted cobró cuyo pedido nunca salió, un pedido entregado sin pago que responda por él, un importe que no coincide, un pedido sin número de factura, una cesta con un artículo que usted ha retirado. Ninguna de estas situaciones era visible hasta ahora: sin página de error, sin correo, sin nada. Cada línea enumera los pedidos afectados, con un enlace para abrir cada uno."
+            },
+            {
+                "en": "The consent box has left your checkout, replaced by a short line telling the customer what their details are used for and linking to your privacy policy — fill in the \"Privacy policy URL\" setting, in Configuration - Legal, and the line appears",
+                "fr": "La case de consentement a quitté votre commande, remplacée par une courte phrase qui dit au client à quoi servent ses coordonnées et renvoie à vos règles de confidentialité — renseignez le réglage « URL des règles de confidentialité », dans Configuration - Légal, et la phrase apparaît",
+                "es": "La casilla de consentimiento ha salido de su pedido, sustituida por una frase breve que dice al cliente para qué sirven sus datos y enlaza con sus reglas de confidencialidad: rellene el ajuste «URL de las reglas de confidencialidad», en Configuración - Legal, y la frase aparece"
+            },
+            {
+                "en": "The reminder of an unpaid order now goes to every customer who left one, instead of only those who had ticked a box nobody ticked — each reminder carries a link that stops them in one click",
+                "fr": "La relance d'une commande impayée part désormais vers tous les clients qui en ont laissé une, au lieu des seuls qui avaient coché une case que personne ne cochait — chaque relance porte un lien qui les arrête en un clic",
+                "es": "El recordatorio de un pedido sin pagar llega ahora a todos los clientes que dejaron uno, en lugar de solo a quienes marcaban una casilla que nadie marcaba: cada recordatorio lleva un enlace que los detiene en un clic"
+            },
+            {
+                "en": "The checkout says how many days a shared order stays payable, a number you set yourself in \"Order sharing validity\"",
+                "fr": "La commande indique combien de jours un paiement partagé reste possible, un nombre que vous fixez vous-même dans « Validité du partage de commande »",
+                "es": "El pedido indica cuántos días sigue siendo posible un pago compartido, un número que usted mismo fija en «Validez del uso compartido del pedido»"
+            },
+            {
+                "en": "The Discounts and Gift cards screens no longer widen the page: their tables scroll on their own, their buttons are icons, and a gift card can be deleted again",
+                "fr": "Les écrans Réductions et Cartes cadeaux n'élargissent plus la page : leurs tableaux défilent d'eux-mêmes, leurs boutons sont des icônes, et une carte cadeau peut de nouveau être supprimée",
+                "es": "Las pantallas Descuentos y Tarjetas regalo ya no ensanchan la página: sus tablas se desplazan solas, sus botones son iconos, y una tarjeta regalo puede volver a eliminarse"
+            }
+        ]
+    },
+    {
         "date": "2026-08-23",
         "description": [
             {

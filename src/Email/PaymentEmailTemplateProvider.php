@@ -105,6 +105,10 @@ class PaymentEmailTemplateProvider implements EmailTemplateProviderInterface
     /**
      * The two reminders differ by their opening sentence alone, the rest saying the same thing at J+1 and J+7.
      *
+     * The way out is a slot and not a sentence: what makes the follow-up of an unpaid order something other than
+     * prospection is that the person it goes to can end it in one click, and a sentence is the admin's to write,
+     * to move and to delete - where a slot reaches the sites seeded before it existed, backfilled at the end.
+     *
      * @return list<array{0: string, 1: ?string, 2: ?string, 3: ?string, 4: ?string, 5: ?string}>
      */
     private function reminder(string $opening, string $locale): array
@@ -115,6 +119,7 @@ class PaymentEmailTemplateProvider implements EmailTemplateProviderInterface
             $this->slot('items'),
             ['button', null, null, null, $this->trans('label.basket_reminder_pay', $locale), '{{ pay_url }}'],
             $this->text('label.basket_reminder_ignore', $locale, ['%days%' => '{{ days }}']),
+            $this->slot('reminder_unsubscribe'),
         ];
     }
 

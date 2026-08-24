@@ -152,9 +152,9 @@ class Basket implements \Stringable
     #[ORM\Column(type: 'smallint', options: ['default' => 0])]
     private int $remindersSent = 0;
 
-    // Whether the visitor asked to be reminded of the basket they are about to leave unpaid: an abandoned basket is not a concluded sale, so the exception article L34-5 of the CPCE makes for analogous products does not cover it and the reminder needs their consent
-    #[ORM\Column(options: ['default' => false])]
-    private bool $reminderConsent = false;
+    // The day the customer asked to hear no more about this order. Null for as long as they have not: a reminder is not prospection but the follow-up of an order they placed themselves and left unpaid, so it goes out without being asked for - and stops the moment the link at the foot of it is clicked
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $reminderOptOutAt = null;
 
     // The language the order was placed in, remembered because the e-mails that follow it are not all sent from the customer's own request: a reminder goes out from a nightly command and a shipping notice from the shopkeeper's click, and neither would know what language to write in. Null on the orders taken before this was kept, which the site's own language answers for
     #[ORM\Column(length: 5, nullable: true)]
@@ -512,14 +512,14 @@ class Basket implements \Stringable
         return $this;
     }
 
-    public function isReminderConsent(): bool
+    public function getReminderOptOutAt(): ?\DateTimeInterface
     {
-        return $this->reminderConsent;
+        return $this->reminderOptOutAt;
     }
 
-    public function setReminderConsent(bool $reminderConsent): static
+    public function setReminderOptOutAt(?\DateTimeInterface $reminderOptOutAt): static
     {
-        $this->reminderConsent = $reminderConsent;
+        $this->reminderOptOutAt = $reminderOptOutAt;
 
         return $this;
     }

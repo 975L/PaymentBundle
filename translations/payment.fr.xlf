@@ -386,6 +386,14 @@
                 <source>label.basket_reminder_second</source>
                 <target>Votre commande n'est toujours pas réglée. C'est le dernier message que nous vous envoyons à son sujet.</target>
             </trans-unit>
+            <trans-unit id="2k6GVfP">
+                <source>label.basket_reminder_unsubscribe</source>
+                <target>Vous recevez ce message parce que vous avez passé cette commande sans la régler. Pour ne plus en être informé : %url%</target>
+            </trans-unit>
+            <trans-unit id="PlWktlj">
+                <source>label.basket_reminder_unsubscribed</source>
+                <target>Rappels arrêtés</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>Nous vous remercions pour votre commande et votre confiance !</target>
@@ -629,6 +637,10 @@
             <trans-unit id="FCszOOZ">
                 <source>label.gift_card_balance</source>
                 <target>Solde</target>
+            </trans-unit>
+            <trans-unit id="ybKisP8">
+                <source>label.gift_card_code</source>
+                <target>Code</target>
             </trans-unit>
             <trans-unit id="NOdGSCy">
                 <source>label.gift_card_code_after_payment</source>
@@ -874,6 +886,90 @@
                 <source>label.guided_step_payment_transaction_review_provider</source>
                 <target>Consulter la transaction chez le fournisseur</target>
             </trans-unit>
+            <trans-unit id="aXCv0Nx">
+                <source>label.health_check_advice_basket_offender</source>
+                <target>%order% - %info%</target>
+            </trans-unit>
+            <trans-unit id="xuhM4fV">
+                <source>label.health_check_advice_basket_offenders</source>
+                <target>Les %count% commande(s) concernée(s)</target>
+            </trans-unit>
+            <trans-unit id="PHRD_Hz">
+                <source>label.health_check_basket_amount_mismatch</source>
+                <target>Montants encaissés comparés aux commandes</target>
+            </trans-unit>
+            <trans-unit id="p.EnhFk">
+                <source>label.health_check_basket_amount_mismatch_ko</source>
+                <target>%count% commande(s) encaissée(s) pour un montant ou une devise qui ne sont pas les leurs</target>
+            </trans-unit>
+            <trans-unit id="T.Trifm">
+                <source>label.health_check_basket_amount_mismatch_ok</source>
+                <target>Chaque paiement correspond au montant de sa commande</target>
+            </trans-unit>
+            <trans-unit id=".zDZQfQ">
+                <source>label.health_check_basket_charged_not_delivered</source>
+                <target>Paiements encaissés sans commande livrée</target>
+            </trans-unit>
+            <trans-unit id="DLHie5D">
+                <source>label.health_check_basket_charged_not_delivered_ko</source>
+                <target>%count% paiement(s) confirmé(s) par le prestataire dont la commande n'a jamais été livrée</target>
+            </trans-unit>
+            <trans-unit id="pcrDQgN">
+                <source>label.health_check_basket_charged_not_delivered_ok</source>
+                <target>Chaque paiement confirmé a bien sa commande livrée</target>
+            </trans-unit>
+            <trans-unit id="Mh90rI6">
+                <source>label.health_check_basket_check_failed</source>
+                <target>Le contrôle n'a pas pu s'exécuter : %message%</target>
+            </trans-unit>
+            <trans-unit id="oZFEUwz">
+                <source>label.health_check_basket_delivered_unpaid</source>
+                <target>Commandes livrées sans paiement confirmé</target>
+            </trans-unit>
+            <trans-unit id="ahowYx5">
+                <source>label.health_check_basket_delivered_unpaid_ko</source>
+                <target>%count% commande(s) livrée(s) sans paiement correspondant</target>
+            </trans-unit>
+            <trans-unit id="_5pVPLf">
+                <source>label.health_check_basket_delivered_unpaid_ok</source>
+                <target>Chaque commande livrée a bien son paiement confirmé</target>
+            </trans-unit>
+            <trans-unit id="bQ.4H.f">
+                <source>label.health_check_basket_missing_number</source>
+                <target>Commandes livrées sans numéro de facture</target>
+            </trans-unit>
+            <trans-unit id="fmXOfTK">
+                <source>label.health_check_basket_missing_number_ko</source>
+                <target>%count% commande(s) livrée(s) dont aucune facture ne pourra être éditée</target>
+            </trans-unit>
+            <trans-unit id="00.FtKA">
+                <source>label.health_check_basket_missing_number_ok</source>
+                <target>Chaque commande livrée porte son numéro de facture</target>
+            </trans-unit>
+            <trans-unit id="YGCzg0m">
+                <source>label.health_check_basket_total_mismatch</source>
+                <target>Lignes de commande comparées aux totaux enregistrés</target>
+            </trans-unit>
+            <trans-unit id="2qtG5lP">
+                <source>label.health_check_basket_total_mismatch_ko</source>
+                <target>%count% commande(s) dont les lignes ne correspondent pas à leur propre total</target>
+            </trans-unit>
+            <trans-unit id="zp1pp2z">
+                <source>label.health_check_basket_total_mismatch_ok</source>
+                <target>Chaque commande correspond au total enregistré à côté d'elle</target>
+            </trans-unit>
+            <trans-unit id="FvQFIBO">
+                <source>label.health_check_basket_unresolvable_items</source>
+                <target>Paniers contenant un article qui n'existe plus</target>
+            </trans-unit>
+            <trans-unit id="qLWPvaq">
+                <source>label.health_check_basket_unresolvable_items_ko</source>
+                <target>%count% panier(s) que la commande refusera sans que personne en soit averti</target>
+            </trans-unit>
+            <trans-unit id="zdD8LGj">
+                <source>label.health_check_basket_unresolvable_items_ok</source>
+                <target>Chaque panier en attente de paiement peut encore être commandé</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>dont TVA</target>
@@ -1042,10 +1138,6 @@
                 <source>label.quantity</source>
                 <target>Quantité</target>
             </trans-unit>
-            <trans-unit id="8Pr.1JV">
-                <source>label.reminder_consent</source>
-                <target>Me rappeler ma commande par e-mail si je ne la règle pas</target>
-            </trans-unit>
             <trans-unit id="nS4remy">
                 <source>label.reminder_pay_explanation</source>
                 <target>Votre commande %number% n'a pas encore été réglée. Voici ce qu'elle contient.</target>
@@ -1104,7 +1196,7 @@
             </trans-unit>
             <trans-unit id="o_BITv_">
                 <source>label.share_order_help</source>
-                <target>Votre commande est mise de côté et vous recevez un lien à envoyer à la personne qui souhaite vous l'offrir</target>
+                <target>Votre commande est mise de côté pendant %days% jours et vous recevez un lien à envoyer à la personne qui souhaite vous l'offrir</target>
             </trans-unit>
             <trans-unit id="iEGmGsX">
                 <source>label.share_paid_explanation</source>
@@ -1169,6 +1261,10 @@
             <trans-unit id="4gqsO4y">
                 <source>label.support_message</source>
                 <target>Message de soutien</target>
+            </trans-unit>
+            <trans-unit id="UnIjb60">
+                <source>label.test</source>
+                <target>Test</target>
             </trans-unit>
             <trans-unit id="2nMDj1i">
                 <source>label.test_mode</source>
@@ -1250,9 +1346,9 @@
                 <source>label.zip</source>
                 <target>Code postal</target>
             </trans-unit>
-            <trans-unit id="HE2c1xW">
-                <source>placeholder.gift_card_recipient_message</source>
-                <target>Joyeux anniversaire !</target>
+            <trans-unit id="BY7BrsF">
+                <source>text.basket_reminder_unsubscribed</source>
+                <target>C'est fait : nous ne vous reparlerons plus de cette commande. Vous pouvez toujours la régler depuis le lien reçu précédemment.</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>

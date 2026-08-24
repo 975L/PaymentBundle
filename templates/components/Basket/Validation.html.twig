@@ -18,13 +18,20 @@
             {% if basket.payable > 0 %}
                 <div>
                     <button type="submit" name="share" value="1" class="btn btn-secondary">{{ 'label.share_order'|trans }}</button>
-                    <p class="text-muted">{{ 'label.share_order_help'|trans }}</p>
+                    {# How long the shop says it will hold the order, which is the shopkeeper's promise and not a mechanism: nothing is reserved, stock only moves when the order is paid, and BasketRetentionService takes an unpaid order away at thirty days whatever is said here #}
+                    <p class="text-muted">{{ 'label.share_order_help'|trans({'%days%': config('payment-share-validity')}) }}</p>
                 </div>
             {% endif %}
             {# Mandatory field #}
             <p class="text-muted">
                 {{ 'label.mandatory_field'|trans({}, 'site') }}
             </p>
+            {# The GDPR information the checkout owes the customer, the processing resting on the contract itself and never on a consent they could not refuse. Skipped rather than shown broken when the admin has not filled the url in #}
+            {% if config('url-privacy-policy') %}
+                <p class="text-muted small">
+                    {{ 'text.gdpr_information'|trans({'%privacyUrl%': config('url-privacy-policy')}, 'ui')|raw }}
+                </p>
+            {% endif %}
         {{ form_end(form) }}
         {# Secure payment #}
         <twig:c975LPayment:Basket:SecurePayments/>

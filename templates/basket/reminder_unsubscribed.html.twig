@@ -1,0 +1,14 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Defines specific variables #}
+{% set title = 'label.basket_reminder_unsubscribed'|trans %}
+{% set robots = 'noindex, follow' %}
+
+{% block content %}
+    <section class="text-center">
+        <twig:c975LUi:Alert:Alert type="success">
+            {{ 'text.basket_reminder_unsubscribed'|trans }}
+        </twig:c975LUi:Alert:Alert>
+    </section>
+{% endblock %}

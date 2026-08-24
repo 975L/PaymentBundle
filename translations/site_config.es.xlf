@@ -14,6 +14,10 @@
                 <source>description.payment_link_vat_rate</source>
                 <target>Tipo aplicado a los enlaces de pago creados desde el back-office, p. ej. 20 para 20 %. 0 si no factura IVA.</target>
             </trans-unit>
+            <trans-unit id="wgKNCR_">
+                <source>description.payment_share_validity</source>
+                <target>Número de días durante los cuales un pedido que el cliente pide que le regalen sigue siendo pagadero por el enlace compartido. El plazo se anuncia al cliente, no se impone: el pedido se borra realmente al cabo de 30 días si no se paga.</target>
+            </trans-unit>
             <trans-unit id="i415WZO">
                 <source>description.payment_test_mode</source>
                 <target>Poner en true para cobrar con las claves de prueba del proveedor: no se cobra a nadie y un aviso lo indica al cliente</target>
@@ -117,6 +121,10 @@
             <trans-unit id="r08WXeQ">
                 <source>label.payment_link_vat_rate</source>
                 <target>Tipo de IVA de los enlaces de pago (%)</target>
+            </trans-unit>
+            <trans-unit id="8WjAZqT">
+                <source>label.payment_share_validity</source>
+                <target>Validez de un pedido compartido (días)</target>
             </trans-unit>
             <trans-unit id="KlPswTP">
                 <source>label.payment_test_mode</source>

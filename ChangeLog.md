@@ -1,5 +1,46 @@
 # Changelog
 
+## v6.2.0
+
+The orders check out against their own payments, weekly
+
+- Requires `c975l/core-bundle` `^1.16`, which the checkout line and the datagrid wrapper read from (24/08/2026)
+- Added `BasketIntegrityHealthCheckProvider`, six weekly checks under the `basket-integrity` kind (24/08/2026)
+- They report a charge whose order was never delivered, an order delivered with no payment, an amount or currency off `Basket::getPayable()`, a delivered order without its invoice number, lines that do not add up, and a payable basket holding an article the catalogue no longer has (24/08/2026)
+- Added `BasketIntegrityHealthCheckAdviceProvider`, listing the orders behind each count, one link apiece (24/08/2026)
+- Each check is guarded on its own, `HealthCheckRunner` dropping every row of a provider that throws (24/08/2026)
+- The six checks leave the test orders out, the queries themselves filtering on `Basket::$testMode` (24/08/2026)
+- Orders are read twelve months back, and a payment confirmed within the hour is left alone (24/08/2026)
+- Added `BasketRepository::findDeliveredWithoutFinishedPayment()`, `findWithPaymentAmountMismatch()`, `findDeliveredWithoutNumber()`, `findOrdersSince()` and `findPayable()` (24/08/2026)
+- Added `PaymentRepository::findFinishedWithoutDeliveredBasket()` (24/08/2026)
+- Added the `label.health_check_basket_*` and `label.health_check_advice_basket_*` keys to the `payment` catalogs (24/08/2026)
+- The four gateway keys carry the *info* severity instead of *danger* (24/08/2026)
+- `Payment::getId()` returns `?int`, like its own column and like every other entity's (24/08/2026)
+- The reminder of an unpaid order is sent without being asked for, being the follow-up of an order the customer placed themselves (24/08/2026) [BC-Break]
+- Removed the `reminderConsent` box from `CoordinatesType` and `label.reminder_consent` from the `payment` catalogs (24/08/2026) [BC-Break]
+- Replaced `Basket::$reminderConsent` with `$reminderOptOutAt` (24/08/2026) [BC-Break] **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- Added the `basket_reminder_unsubscribe` route, one click and no confirmation step (24/08/2026)
+- Added the `basket/reminder_unsubscribed.html.twig` page it renders (24/08/2026)
+- Both reminders carry the new `reminder_unsubscribe` slot, backfilled into the sites seeded before it (24/08/2026)
+- The link is built on the same share token as the reminder's own payment link, minted once for the two (24/08/2026)
+- `findToRemind()` leaves the payment links out (24/08/2026)
+- Added `label.basket_reminder_unsubscribe`, `label.basket_reminder_unsubscribed` and `text.basket_reminder_unsubscribed` to the `payment` catalogs (24/08/2026)
+- The checkout no longer asks for a GDPR consent, what it processes being what the contract needs (24/08/2026) [BC-Break]
+- `Basket:Validation` prints `text.gdpr_information` instead, read from UiBundle's `ui` catalog and linking to the page `url-privacy-policy` names (24/08/2026)
+- The checkout fields no longer carry a `placeholder`, their label saying what is asked (`CoordinatesType`) (24/08/2026)
+- Dropped `placeholder.gift_card_recipient_message` from the `payment` catalogs (24/08/2026)
+- The checkout says how long a shared order stays payable, read from the new `payment-share-validity` setting (24/08/2026)
+- The Discounts and Gift cards indexes draw their row actions as icons alone (24/08/2026)
+- Both wrap their datagrid in `.table-responsive`, which holds with UiBundle's `management/_datagrid.scss` (24/08/2026)
+- A gift card can be deleted again, the balance going with it where the *active* switch only takes it out of circulation (24/08/2026)
+- `label.test_mode` becomes `label.test` and `label.code` becomes `label.gift_card_code` on the two screens (24/08/2026)
+- The README gains a *What the orders are checked for* section, and states the reminder's way out, `payment-share-validity` and the checkout's information line (24/08/2026)
+- The `c975l-payment-checkout` skill states the same three, plus the six checks and their rules (24/08/2026)
+- UPGRADE.md walks a shop through the column, the backlog of baskets it reopens, the slot to backfill and the setting to fill in (24/08/2026)
+- Added `BasketIntegrityHealthCheckProviderTest`, `BasketIntegrityHealthCheckAdviceProviderTest` and `PaymentRepositoryTest` (24/08/2026)
+- Added `CheckoutGdprInformationTest`, locking the information line, its catalog and its guard (24/08/2026)
+- Extended `BasketControllerTest`, `BasketRepositoryTest`, `BasketReminderServiceTest`, `PaymentEmailTemplateProviderTest` and `CoordinatesTypeTest` (24/08/2026)
+
 ## v6.1.1
 
 Guided projects moved into the 7000 block

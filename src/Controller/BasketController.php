@@ -19,6 +19,7 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -271,6 +272,29 @@ class BasketController extends AbstractController
             'basket' => $basket,
             'confirmed' => in_array($basket->getStatus(), ['paid', 'shipped'], true),
         ]);
+    }
+
+    // REMINDER UNSUBSCRIBE - the way out carried by every reminder of an unpaid order
+    #[Route(
+        '/shop/basket/pay/{number:basket}/{shareToken:basket}/no-reminder',
+        name: 'basket_reminder_unsubscribe',
+        requirements: [
+            'number' => '.{15,20}',
+            'shareToken' => '[a-f0-9]{16}',
+        ],
+        methods: ['GET']
+    )]
+    public function unsubscribeReminder(?Basket $basket, EntityManagerInterface $entityManager): Response
+    {
+        if (null === $basket || !$basket->isShared()) {
+            throw $this->createNotFoundException();
+        }
+
+        // No confirmation step: the link is in the recipient's own e-mail and asking to hear no more is what they came for, where a second click is what makes people mark the message as spam instead. Written again on a second visit rather than left alone, the date being of no use beyond saying the opposition was made
+        $basket->setReminderOptOutAt(new \DateTime());
+        $entityManager->flush();
+
+        return $this->render('@c975LPayment/basket/reminder_unsubscribed.html.twig');
     }
 
     // PAID

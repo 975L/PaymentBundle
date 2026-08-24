@@ -32,6 +32,9 @@ class BasketReminderServiceTest extends TestCase
 {
     private bool $sends = true;
 
+    /** @var array<string, mixed> what the last reminder handed its template */
+    private array $context = [];
+
     // A shop being tried out is not selling: its orders are rehearsals, and their addresses are the shopkeeper's own
     public function testNothingGoesOutWhileTheShopIsInTestMode(): void
     {
@@ -81,12 +84,29 @@ class BasketReminderServiceTest extends TestCase
         $this->assertNotNull($basket->getShareToken());
     }
 
+    /**
+     * The way out carried by every reminder.
+     *
+     * What makes the follow-up of an unpaid order something other than prospection is that the person it goes
+     * to can end it in one click, so a reminder leaving without that link is one that should not have left.
+     */
+    public function testEveryReminderCarriesTheLinkThatStopsThem(): void
+    {
+        $basket = $this->basket();
+
+        $this->service([$basket])->send();
+
+        $this->assertStringContainsString('basket_reminder_unsubscribe', $this->context['unsubscribe_url']);
+        $this->assertStringContainsString($basket->getShareToken(), $this->context['unsubscribe_url']);
+        // The same token opens both, minted once for the two of them rather than twice over
+        $this->assertStringContainsString($basket->getShareToken(), $this->context['pay_url']);
+    }
+
     private function basket(): Basket
     {
         return new Basket()
             ->setStatus('validated')
             ->setEmail('someone@example.org')
-            ->setReminderConsent(true)
             ->setModification(new \DateTime('-2 days'))
         ;
     }
@@ -103,7 +123,11 @@ class BasketReminderServiceTest extends TestCase
         );
 
         $emailSender = $this->createStub(BasketEmailSender::class);
-        $emailSender->method('send')->willReturnCallback(fn (): bool => $this->sends);
+        $emailSender->method('send')->willReturnCallback(function (Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null): bool {
+            $this->context = $context;
+
+            return $this->sends;
+        });
 
         $basketService = $this->createStub(BasketServiceInterface::class);
         $basketService->method('generateSecurityToken')->willReturn('0123456789abcdef');
@@ -111,8 +135,11 @@ class BasketReminderServiceTest extends TestCase
         $testModeStub = $this->createStub(PaymentTestModeInterface::class);
         $testModeStub->method('isEnabled')->willReturn($testMode);
 
+        // Echoes back the route and the parameters it was handed, the real generator's own output being Symfony's business rather than this bundle's
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('https://example.org/pay');
+        $urlGenerator->method('generate')->willReturnCallback(
+            fn (string $name, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string => 'https://example.org/' . $name . '?' . http_build_query($parameters)
+        );
 
         return new BasketReminderService(
             $repository,

@@ -37,6 +37,7 @@ class BasketEmailFactory
         'download_links',
         'delivery',
         'account_invitation',
+        'reminder_unsubscribe',
     ];
 
     public function __construct(
