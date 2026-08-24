@@ -17,6 +17,7 @@ use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 interface BasketServiceInterface
 {
@@ -29,7 +30,8 @@ interface BasketServiceInterface
      * @return array{error: string}|array{basket: array<string, mixed>} the translated refusal from the
      *                                                                  provider's validateAddition(), or the updated basket
      *
-     * @throws \Exception when no item matches the submitted id
+     * @throws \Exception              when no item matches the submitted id
+     * @throws BadRequestHttpException when the body cannot be read, or carries no id, quantity and known type
      */
     public function addItem(Request $request): array;
 
@@ -37,6 +39,8 @@ interface BasketServiceInterface
      * Applies the one code the basket page asks for - a promotional code or a gift card, told apart by the service.
      *
      * @return array{basket?: array<string, mixed>, error?: string} the refused reason, translated, or the basket as it now stands
+     *
+     * @throws BadRequestHttpException when the body cannot be read
      */
     public function applyCode(Request $request): array;
 
@@ -75,6 +79,8 @@ interface BasketServiceInterface
      * Removes one line from the basket, the request body carrying {id, type}.
      *
      * @return array{basket: array<string, mixed>}|array{} same shape as getJson()
+     *
+     * @throws BadRequestHttpException when the body cannot be read, or carries no id and type
      */
     public function deleteItem(Request $request): array;
 

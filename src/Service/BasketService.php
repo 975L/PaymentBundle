@@ -32,8 +32,10 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -605,6 +607,16 @@ class BasketService implements BasketServiceInterface
     // Adds item to basket and returns total and quantity
     public function addItem(Request $request): array
     {
+        // Read before anything is created: what the body carries used to be read after the basket, so a call carrying nothing crashed on the read and left that empty basket behind
+        $data = $this->readPayload($request);
+        if (!isset($data['id'], $data['quantity'], $data['type']) || !is_numeric($data['quantity']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type'])) {
+            throw new BadRequestHttpException('The body must carry "id", "quantity" and a "type" a provider answers for.');
+        }
+
+        $itemId = $data['id'];
+        $quantity = (int) $data['quantity'];
+        $type = $data['type'];
+
         $basket = $this->get();
 
         // An order is no longer a basket: one still named by the session - its customer paid and never came back to the site, so nothing cleared it - is left alone and the visitor starts a new one
@@ -615,11 +627,7 @@ class BasketService implements BasketServiceInterface
         $this->basket = $basket ?? $this->create();
         $this->reopen($this->basket);
 
-        $data = $request->toArray();
         $items = $this->basket->getItems();
-        $itemId = $data['id'];
-        $quantity = $data['quantity'];
-        $type = $data['type'];
 
         $provider = $this->itemProviderRegistry->get($type);
         $item = $provider->findItem($itemId);
@@ -676,7 +684,7 @@ class BasketService implements BasketServiceInterface
 
         $this->reopen($this->basket);
 
-        $data = $request->toArray();
+        $data = $this->readPayload($request);
         $code = isset($data['code']) && \is_string($data['code']) ? $data['code'] : '';
 
         $resolution = $this->basketCodeService->resolveForBasket($code, $this->basket, $this->giftCardTotal());
@@ -725,7 +733,11 @@ class BasketService implements BasketServiceInterface
 
         $this->reopen($this->basket);
 
-        $data = $request->toArray();
+        $data = $this->readPayload($request);
+        if (!isset($data['id'], $data['type']) || !\is_string($data['type'])) {
+            throw new BadRequestHttpException('The body must carry "id" and "type".');
+        }
+
         $type = $data['type'];
 
         // Deletes item from basket
@@ -742,6 +754,16 @@ class BasketService implements BasketServiceInterface
         $this->entityManager->flush();
 
         return $this->getJson();
+    }
+
+    // The JSON body a basket call carries, an unreadable one being the caller's error and answered as such rather than as a crash of the site
+    private function readPayload(Request $request): array
+    {
+        try {
+            return $request->toArray();
+        } catch (JsonException) {
+            throw new BadRequestHttpException('The request body is not valid JSON.');
+        }
     }
 
     // A basket that has been paid for, or shipped, and is an order rather than something still being filled

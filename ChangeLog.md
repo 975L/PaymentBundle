@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.2.1
+
+The basket answers a body it cannot read rather than crashing on it
+
+- `BasketService::addItem()` reads and checks the body before creating anything (24/08/2026)
+- A refused call no longer leaves the empty basket it had just created behind it (24/08/2026)
+- A kind no provider answers for is refused rather than reaching the registry (24/08/2026)
+- `deleteItem()` and `applyCode()` read their body through the same `readPayload()` (24/08/2026)
+- The three basket routes answer 400 on an unreadable body, where they answered 500 (24/08/2026)
+- `BasketServiceInterface` states the `BadRequestHttpException` the three methods now throw (24/08/2026)
+- Added `tests/Service/BasketMalformedRequestTest.php`, pinning the four refusals and the empty code that is not one (24/08/2026)
+
 ## v6.2.0
 
 The orders check out against their own payments, weekly

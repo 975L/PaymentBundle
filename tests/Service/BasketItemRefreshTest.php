@@ -149,6 +149,7 @@ class BasketItemRefreshTest extends TestCase
 
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
         $itemProviderRegistry->method('get')->willReturn($provider);
+        $itemProviderRegistry->method('has')->willReturn(true);
 
         $session = new Session(new MockArraySessionStorage());
         $session->set('basket', 1);
