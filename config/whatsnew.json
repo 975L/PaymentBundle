@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-08-25",
+        "description": [
+            {
+                "en": "Your order emails can now go out with your invoice and your terms of sale attached to them. It is off to begin with: switch it on with the \"Enable sending invoices and terms of sale\" tile of your dashboard, once those documents say what you want them to say. Handing your customer the terms they accepted as a file, rather than as a link to a page you can rewrite afterwards, is what the law asks for - so the tile stays highlighted until you turn it on. Which email carries which document stays yours to tick, email by email, in the email builder.",
+                "fr": "Vos emails de commande peuvent désormais partir avec votre facture et vos CGV en pièce jointe. C'est désactivé au départ : activez-le avec la tuile « Activer l'envoi des factures et CGV » de votre tableau de bord, une fois que ces documents disent ce que vous voulez qu'ils disent. Remettre au client les conditions qu'il a acceptées sous forme de fichier, plutôt que par un lien vers une page que vous pouvez réécrire ensuite, est ce que demande la loi — la tuile reste donc en évidence tant que vous ne l'avez pas activé. Quel email emporte quel document reste à cocher par vous, email par email, dans le constructeur d'emails.",
+                "es": "Sus correos de pedido pueden ahora salir con su factura y sus condiciones de venta adjuntas. Está desactivado al principio: actívelo con el mosaico «Activar el envío de facturas y condiciones de venta» de su panel, una vez que esos documentos digan lo que usted quiere. Entregar al cliente las condiciones que aceptó como archivo, en lugar de un enlace a una página que usted puede reescribir después, es lo que pide la ley: por eso el mosaico permanece resaltado mientras no lo active. Qué correo lleva qué documento sigue siendo cosa suya, correo por correo, en el constructor de correos."
+            }
+        ]
+    },
+    {
         "date": "2026-08-24",
         "description": [
             {

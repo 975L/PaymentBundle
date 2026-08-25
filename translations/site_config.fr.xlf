@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="fr" datatype="plaintext" original="site_config.fr.xlf">
         <body>
+            <trans-unit id="ck17EZz">
+                <source>description.payment_email_attachments</source>
+                <target>Mettre à true pour que les emails de commande emportent les documents cochés sur eux dans le constructeur d'emails : facture et CGV. À false, aucune pièce jointe n'est envoyée</target>
+            </trans-unit>
             <trans-unit id=".WVUEkd">
                 <source>description.payment_gateway</source>
                 <target>Prestataire avec lequel la boutique encaisse, ex. stripe ou revolut</target>
@@ -109,6 +113,10 @@
             <trans-unit id="UfelsWV">
                 <source>description.url_terms_of_use</source>
                 <target>URL des CGU, ex. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="3dSJMbG">
+                <source>label.payment_email_attachments</source>
+                <target>Factures et CGV par email</target>
             </trans-unit>
             <trans-unit id="JAhMYFJ">
                 <source>label.payment_gateway</source>

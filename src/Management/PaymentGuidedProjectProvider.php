@@ -34,11 +34,13 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     {
         return [
             $this->testModeProject(),
+            $this->emailAttachmentsProject(),
             $this->transactionReviewProject(),
             $this->paymentLinkProject(),
             $this->giftCardIssueProject(),
             $this->discountCodeProject(),
             $this->shippingProject(),
+            $this->basketIntegrityProject(),
         ];
     }
 
@@ -75,6 +77,41 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_test_mode_done',
                     'description' => 'description.guided_step_payment_test_mode_done',
+                ],
+            ],
+        ];
+    }
+
+    // The one switch deciding whether an order leaves with its invoice and the terms the customer accepted, rather than with its sentences alone
+    private function emailAttachmentsProject(): array
+    {
+        return [
+            'slug' => 'payment-email-attachments',
+            'label' => 'label.guided_project_payment_email_attachments',
+            'description' => 'description.guided_project_payment_email_attachments',
+            'translation_domain' => 'payment',
+            // Slipped between the test-mode parcours and the transaction one: both this and the test mode are switches to set before a first real order, not a task carried out on the orders already taken
+            'order' => 7015,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_email_attachments_open',
+                    'description' => 'description.guided_step_payment_email_attachments_open',
+                    'url' => $this->urlGenerator->generate('management'),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_email_attachments_enable',
+                    'description' => 'description.guided_step_payment_email_attachments_enable',
+                    'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_email_attachments_check',
+                    'description' => 'description.guided_step_payment_email_attachments_check',
+                    'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_email_attachments_done',
+                    'description' => 'description.guided_step_payment_email_attachments_done',
                 ],
             ],
         ];
@@ -305,6 +342,52 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_shipping_done',
                     'description' => 'description.guided_step_payment_shipping_done',
+                ],
+            ],
+        ];
+    }
+
+    // The six weekly checks are run by a scheduler nobody watches - what is missing is the habit of reading what they found, and of following each count to the orders behind it
+    private function basketIntegrityProject(): array
+    {
+        return [
+            'slug' => 'payment-basket-integrity',
+            'label' => 'label.guided_project_payment_basket_integrity',
+            'description' => 'description.guided_project_payment_basket_integrity',
+            'translation_domain' => 'payment',
+            'order' => 7070,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_basket_integrity_open',
+                    'description' => 'description.guided_step_payment_basket_integrity_open',
+                    // ConfigBundle's own screen, this bundle only filling six of its rows: the checks are the shop's, the page they land on is the site's
+                    'url' => $this->urlGenerator->generate('management_health_check_index'),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_basket_integrity_run',
+                    'description' => 'description.guided_step_payment_basket_integrity_run',
+                    'highlight' => 'form[action$="/health-check/run"] button',
+                ],
+                [
+                    // The rows carry their kind as a data attribute for the table's own filtering (see ConfigBundle's health-check-table controller), which is what lets a parcours point at this bundle's six among everything else the page lists
+                    'label' => 'label.guided_step_payment_basket_integrity_rows',
+                    'description' => 'description.guided_step_payment_basket_integrity_rows',
+                    'highlight' => 'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_basket_integrity_offenders',
+                    'description' => 'description.guided_step_payment_basket_integrity_offenders',
+                    'highlight' => '.health-check-advice-items summary',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_basket_integrity_acknowledge',
+                    'description' => 'description.guided_step_payment_basket_integrity_acknowledge',
+                    'highlight' => '[data-action="health-check-table#acknowledge"]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_basket_integrity_done',
+                    'description' => 'description.guided_step_payment_basket_integrity_done',
                 ],
             ],
         ];

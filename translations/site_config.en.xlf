@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="en" datatype="plaintext" original="site_config.en.xlf">
         <body>
+            <trans-unit id="ck17EZz">
+                <source>description.payment_email_attachments</source>
+                <target>Set to true for order emails to carry the documents ticked on them in the email builder: invoice and terms of sale. At false, nothing is attached</target>
+            </trans-unit>
             <trans-unit id=".WVUEkd">
                 <source>description.payment_gateway</source>
                 <target>The provider the shop charges with, eg. stripe or revolut</target>
@@ -109,6 +113,10 @@
             <trans-unit id="UfelsWV">
                 <source>description.url_terms_of_use</source>
                 <target>Terms of use page URL, e.g. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="3dSJMbG">
+                <source>label.payment_email_attachments</source>
+                <target>Invoices and terms of sale by email</target>
             </trans-unit>
             <trans-unit id="JAhMYFJ">
                 <source>label.payment_gateway</source>

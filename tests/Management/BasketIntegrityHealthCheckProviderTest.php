@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Management;
 
 use c975L\ConfigBundle\Entity\HealthCheckResult;
+use c975L\ConfigBundle\Management\HealthCheckSiteWideInterface;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
@@ -25,6 +26,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 // The three ways an order goes wrong without saying so: nobody was told, nothing was logged, and the two rows that disagree are only ever read apart
 class BasketIntegrityHealthCheckProviderTest extends TestCase
 {
+    // Six checks reading the whole shop at once, not one page of it: without this the rows land in the Health check page's "Pages" table, as if the site root carrying a #fragment were a page of its own
+    public function testTheProviderDeclaresItselfSiteWide(): void
+    {
+        $this->assertInstanceOf(HealthCheckSiteWideInterface::class, $this->provider());
+    }
+
     // The dashboard has to say "checked, nothing found" and not just fall silent - silence is what a check that never ran looks like
     public function testASoundShopReportsEveryCheckAsGreen(): void
     {

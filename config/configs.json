@@ -1,5 +1,16 @@
 [
     {
+        "label": "label.payment_email_attachments",
+        "slug": "payment-email-attachments",
+        "sensitive": false,
+        "restricted": false,
+        "value": "false",
+        "kind": "bool",
+        "group": "payment",
+        "severity": "warning",
+        "description": "description.payment_email_attachments"
+    },
+    {
         "label": "label.payment_gateway",
         "slug": "payment-gateway",
         "sensitive": false,

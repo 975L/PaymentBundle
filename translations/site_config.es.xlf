@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="es" datatype="plaintext" original="site_config.es.xlf">
         <body>
+            <trans-unit id="ck17EZz">
+                <source>description.payment_email_attachments</source>
+                <target>Poner a true para que los correos de pedido lleven los documentos marcados en el constructor de correos: factura y condiciones de venta. En false, no se adjunta nada</target>
+            </trans-unit>
             <trans-unit id=".WVUEkd">
                 <source>description.payment_gateway</source>
                 <target>Proveedor con el que cobra la tienda, p. ej. stripe o revolut</target>
@@ -109,6 +113,10 @@
             <trans-unit id="UfelsWV">
                 <source>description.url_terms_of_use</source>
                 <target>URL de condiciones de uso, ej. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="3dSJMbG">
+                <source>label.payment_email_attachments</source>
+                <target>Facturas y condiciones de venta por correo</target>
             </trans-unit>
             <trans-unit id="JAhMYFJ">
                 <source>label.payment_gateway</source>

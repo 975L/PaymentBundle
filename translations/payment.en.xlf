@@ -18,9 +18,17 @@
                 <source>description.gift_card_recipient_email</source>
                 <target>Optional. The card is sent straight to them; leave it empty to get it yourself and pass it on.</target>
             </trans-unit>
+            <trans-unit id="ZqyUp7y">
+                <source>description.guided_project_payment_basket_integrity</source>
+                <target>Take up the habit of reading what the weekly check found, and of opening the orders behind it</target>
+            </trans-unit>
             <trans-unit id="XBBuu0j">
                 <source>description.guided_project_payment_discount_code</source>
                 <target>Take a percentage or a fixed sum off an order, within the limits the code carries itself</target>
+            </trans-unit>
+            <trans-unit id="2EJgWak">
+                <source>description.guided_project_payment_email_attachments</source>
+                <target>Let every order leave with its invoice and the terms the customer has just accepted</target>
             </trans-unit>
             <trans-unit id="3KSFe5s">
                 <source>description.guided_project_payment_gift_card_issue</source>
@@ -41,6 +49,30 @@
             <trans-unit id="20v9CiO">
                 <source>description.guided_project_payment_transaction_review</source>
                 <target>Reconcile a payment recorded here against its real entry at Stripe or another provider</target>
+            </trans-unit>
+            <trans-unit id="0n9FexF">
+                <source>description.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Once the order is handled, mark the row rather than running the whole check again: it leaves the default view and comes back on its own if the problem reappears.</target>
+            </trans-unit>
+            <trans-unit id="oi3uhvy">
+                <source>description.guided_step_payment_basket_integrity_done</source>
+                <target>None of this raises anything of its own: an order charged and never delivered has no error page and no email to report itself. This screen is the only place it shows, and it only serves if it is opened.</target>
+            </trans-unit>
+            <trans-unit id="GSYB1xh">
+                <source>description.guided_step_payment_basket_integrity_offenders</source>
+                <target>A count does not say what to do: the unfolded list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
+            </trans-unit>
+            <trans-unit id="eiduuiL">
+                <source>description.guided_step_payment_basket_integrity_open</source>
+                <target>The screen gathers everything the site checks on its own. Six of those rows are about your orders: a payment you were paid whose order never went out, an order delivered with no payment answering for it, an amount or a currency that does not match, an order delivered without its invoice number, lines that do not add up, a basket holding an article withdrawn from the catalogue.</target>
+            </trans-unit>
+            <trans-unit id="bWJwjeF">
+                <source>description.guided_step_payment_basket_integrity_rows</source>
+                <target>They carry the "basket-integrity" kind and each says how many orders it found. Orders placed in test mode are left out: a shop rehearsing its checkout writes orders nobody settles or delivers, and every one of them would read here as a defect.</target>
+            </trans-unit>
+            <trans-unit id="Qqh3X78">
+                <source>description.guided_step_payment_basket_integrity_run</source>
+                <target>The six checks run on their own every week. This button runs them straight away, if the page is empty or if you have just fixed something.</target>
             </trans-unit>
             <trans-unit id="849UuDC">
                 <source>description.guided_step_payment_discount_code_code</source>
@@ -69,6 +101,22 @@
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
                 <target>Read as a percentage for the first kind, and in cents for the second: 10 is either a tenth of the order or ten cents off it.</target>
+            </trans-unit>
+            <trans-unit id="36OccY.">
+                <source>description.guided_step_payment_email_attachments_check</source>
+                <target>The tile is no longer highlighted and now offers to turn it off: that is the only sign to read, the sending itself only showing on the next order.</target>
+            </trans-unit>
+            <trans-unit id="Fd0XLW7">
+                <source>description.guided_step_payment_email_attachments_done</source>
+                <target>Place a rehearsal order in test mode: its confirmation should arrive with the files ticked on that template. If none comes, the switch is on but nothing was ticked in the email builder.</target>
+            </trans-unit>
+            <trans-unit id=".3CFVoz">
+                <source>description.guided_step_payment_email_attachments_enable</source>
+                <target>The tile stays highlighted while the sending is off: handing the customer the terms they accepted as a file, rather than as a link to a page rewritten afterwards, is what the law calls a durable medium.</target>
+            </trans-unit>
+            <trans-unit id="nugIkMQ">
+                <source>description.guided_step_payment_email_attachments_open</source>
+                <target>The shop's switches are here, as tiles. This one decides whether your order emails carry files at all; which files is ticked template by template in the email builder, which the "Tailor an e-mail" project walks through.</target>
             </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
@@ -237,6 +285,14 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>No order is waiting to be posted with an address to print.</target>
+            </trans-unit>
+            <trans-unit id="dzI5V2T">
+                <source>flash.payment_email_attachments_disabled</source>
+                <target>Order emails go out with no attachment: neither invoice nor terms of sale.</target>
+            </trans-unit>
+            <trans-unit id="vMtJyZa">
+                <source>flash.payment_email_attachments_enabled</source>
+                <target>Order emails now go out with the documents ticked on them: invoice and terms of sale.</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -730,9 +786,17 @@
                 <source>label.gift_cards_bought</source>
                 <target>Your gift cards</target>
             </trans-unit>
+            <trans-unit id="uDn2cDu">
+                <source>label.guided_project_payment_basket_integrity</source>
+                <target>Read the order checks</target>
+            </trans-unit>
             <trans-unit id="oO8CncP">
                 <source>label.guided_project_payment_discount_code</source>
                 <target>Write a promotional code</target>
+            </trans-unit>
+            <trans-unit id="N99aoIk">
+                <source>label.guided_project_payment_email_attachments</source>
+                <target>Send the invoices and the terms of sale</target>
             </trans-unit>
             <trans-unit id="mXJ10rx">
                 <source>label.guided_project_payment_gift_card_issue</source>
@@ -753,6 +817,30 @@
             <trans-unit id="FZYAus7">
                 <source>label.guided_project_payment_transaction_review</source>
                 <target>Trace a transaction back to its provider</target>
+            </trans-unit>
+            <trans-unit id="xppHcLR">
+                <source>label.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Declare a row dealt with</target>
+            </trans-unit>
+            <trans-unit id="bN8mDzz">
+                <source>label.guided_step_payment_basket_integrity_done</source>
+                <target>The check is read</target>
+            </trans-unit>
+            <trans-unit id="YiZA_an">
+                <source>label.guided_step_payment_basket_integrity_offenders</source>
+                <target>Open the list of orders</target>
+            </trans-unit>
+            <trans-unit id="jgAek_O">
+                <source>label.guided_step_payment_basket_integrity_open</source>
+                <target>Open the health check</target>
+            </trans-unit>
+            <trans-unit id="E1SLFxP">
+                <source>label.guided_step_payment_basket_integrity_rows</source>
+                <target>Find the order rows</target>
+            </trans-unit>
+            <trans-unit id="LqLmmZT">
+                <source>label.guided_step_payment_basket_integrity_run</source>
+                <target>Run the check again</target>
             </trans-unit>
             <trans-unit id="UfV9AOP">
                 <source>label.guided_step_payment_discount_code_code</source>
@@ -781,6 +869,22 @@
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
                 <target>Set what it takes off</target>
+            </trans-unit>
+            <trans-unit id="uAFGPZE">
+                <source>label.guided_step_payment_email_attachments_check</source>
+                <target>Check that it is in place</target>
+            </trans-unit>
+            <trans-unit id="LLaLwY.">
+                <source>label.guided_step_payment_email_attachments_done</source>
+                <target>The documents travel</target>
+            </trans-unit>
+            <trans-unit id="6bQZ9q8">
+                <source>label.guided_step_payment_email_attachments_enable</source>
+                <target>Turn the sending on</target>
+            </trans-unit>
+            <trans-unit id="CnN8RYt">
+                <source>label.guided_step_payment_email_attachments_open</source>
+                <target>Open the dashboard</target>
             </trans-unit>
             <trans-unit id="RTgQnIQ">
                 <source>label.guided_step_payment_gift_card_issue_amount</source>
@@ -1085,6 +1189,14 @@
             <trans-unit id="QqBUjYP">
                 <source>label.payment_confirming_info</source>
                 <target>Your payment is being checked with our provider. As soon as it is confirmed, your order is recorded and you receive a confirmation e-mail. Nothing else is asked of you.</target>
+            </trans-unit>
+            <trans-unit id="rBtrbhw">
+                <source>label.payment_email_attachments_disable</source>
+                <target>Disable sending invoices and terms of sale</target>
+            </trans-unit>
+            <trans-unit id="bQx3h2v">
+                <source>label.payment_email_attachments_enable</source>
+                <target>Enable sending invoices and terms of sale</target>
             </trans-unit>
             <trans-unit id="ma8Bmbh">
                 <source>label.payment_gateway_unavailable</source>

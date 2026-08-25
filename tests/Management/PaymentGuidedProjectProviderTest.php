@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Management;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Management\BasketIntegrityHealthCheckProvider;
 use c975L\PaymentBundle\Management\PaymentGuidedProjectProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -66,10 +67,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping'],
+            ['payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping', 'payment-basket-integrity'],
             array_column($projects, 'slug'),
         );
-        $this->assertSame([7010, 7020, 7030, 7040, 7050, 7060], array_column($projects, 'order'));
+        // 7015 slips between two tens rather than being appended: the documents switch is set beside the test mode, before a first real order, and not after the shipping round
+        $this->assertSame([7010, 7015, 7020, 7030, 7040, 7050, 7060, 7070], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -121,14 +123,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         }
     }
 
-    // The test-mode toggle lives on the dashboard, not on a CRUD screen
-    public function testTheTestModeProjectOpensOnTheDashboard(): void
+    // The two toggles live on the dashboard and the order checks on ConfigBundle's health check screen, none of them on a CRUD one
+    public function testTheProjectsOpeningOnAPlainRouteNameIt(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['management'], $routes);
+        $this->assertSame(['management', 'management', 'management_health_check_index'], $routes);
     }
 
     // Each parcours opens on the listing the task starts from, the two written from the baskets one included
@@ -196,6 +198,29 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $this->assertSame(
             ['form[action$="/payment/test-mode-toggle"] button', 'form[action$="/payment/test-mode-toggle"] button'],
             array_values(array_filter($highlights)),
+        );
+    }
+
+    // The same shape for the documents tile, whose route is the other half of PaymentShortcutController - a parcours pointing at a toggle no tile posts to highlights nothing
+    public function testTheDocumentsToggleStepsHighlightTheOtherShortcutButton(): void
+    {
+        $project = $this->createProvider()->getGuidedProjects()[1];
+        $highlights = array_column($project['steps'], 'highlight');
+
+        $this->assertSame(
+            ['form[action$="/payment/email-attachments-toggle"] button', 'form[action$="/payment/email-attachments-toggle"] button'],
+            array_values(array_filter($highlights)),
+        );
+    }
+
+    // The rows this bundle fills on a screen it does not own: the parcours points at them by the very kind the provider declares, so a renamed kind fails here rather than silently highlighting nothing
+    public function testTheIntegrityStepPointsAtTheKindTheProviderDeclares(): void
+    {
+        $project = $this->createProvider()->getGuidedProjects()[7];
+
+        $this->assertContains(
+            'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
+            array_column($project['steps'], 'highlight'),
         );
     }
 

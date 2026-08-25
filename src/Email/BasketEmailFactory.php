@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Email;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\UiBundle\Model\EmailAttachment;
 use c975L\UiBundle\Model\EmailSendRequest;
 use c975L\UiBundle\Service\EmailTemplateRenderer;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -87,9 +88,30 @@ class BasketEmailFactory
             replyToName: $this->config('shop-email-reply-to-name'),
             bcc: $this->config('shop-email-bcc'),
             wrapLayout: false,
-            // What that same template says it travels with - the terms of sale a shop attaches to its order confirmations, and whatever else its bundles offer. Ticked in the builder beside the blocks, never decided here
-            attachments: $this->emailTemplateRenderer->attachmentsFor($template, ['basket' => $basket] + $context, $basket->getLocale()),
+            // What that same template says it travels with - the invoice and the terms of sale a shop attaches to its order confirmations, and whatever else its bundles offer. Which ones is ticked in the builder beside the blocks; whether any travels at all is the shop's own switch, read here
+            attachments: $this->attachments($basket, $template, $context),
         );
+    }
+
+    /**
+     * The documents that email goes out with, or none at all.
+     *
+     * Which files a template carries is ticked in the builder, one template at a time; this only says whether the
+     * shop sends any. Off by default, and deliberately: a site whose invoice mentions or terms of sale are not
+     * written yet would otherwise attach them to its first order, and the attaching is worth a decision - where the
+     * law asks for a durable medium, the file in the customer's mailbox is the one that answers, and the link is not.
+     *
+     * @param array<string, mixed> $context
+     *
+     * @return list<EmailAttachment>
+     */
+    private function attachments(Basket $basket, string $template, array $context): array
+    {
+        if (!$this->configService->getBool($this->configService->get('payment-email-attachments'))) {
+            return [];
+        }
+
+        return $this->emailTemplateRenderer->attachmentsFor($template, ['basket' => $basket] + $context, $basket->getLocale());
     }
 
     /**

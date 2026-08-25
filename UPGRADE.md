@@ -1,5 +1,21 @@
 # UPGRADE
 
+## v6.2 > v6.3
+
+**The documents an order email carries are now behind one switch, off by default.** `payment-email-attachments`
+says whether an order email travels with any file at all - its invoice (`payment:invoice`) and the terms of sale
+(UiBundle's `legal:*`) - and a fresh install holds `false`. Which template carries which document is unchanged:
+it stays ticked template by template in the email builder.
+
+**A site whose templates already had one of them ticked stops attaching it the day it upgrades**, silently, its
+emails going out with their body and nothing else. Flip the tile back on from the dashboard - *Activer l'envoi
+des factures et CGV*, beside the test-mode one - and everything already ticked travels again. Nothing else is to
+be done: no migration, no re-seeding, the ticks are where they were.
+
+The tile is painted as a warning while the sending is off, which is the opposite of the test-mode tile beside it:
+where the law asks for a durable medium, the file in the customer's mailbox is what answers, and a link to a page
+that can be rewritten afterwards is not.
+
 ## v6.1 > v6.2
 
 **The reminder of an unpaid order asks for no consent and carries a way out instead.** A reminder is the

@@ -18,9 +18,17 @@
                 <source>description.gift_card_recipient_email</source>
                 <target>Facultatif. La carte lui sera envoyée directement ; laissez vide pour la recevoir vous-même et la transmettre vous-même.</target>
             </trans-unit>
+            <trans-unit id="ZqyUp7y">
+                <source>description.guided_project_payment_basket_integrity</source>
+                <target>Prendre l'habitude de lire ce que la vérification hebdomadaire a trouvé, et d'ouvrir les commandes en cause</target>
+            </trans-unit>
             <trans-unit id="XBBuu0j">
                 <source>description.guided_project_payment_discount_code</source>
                 <target>Retirer un pourcentage ou une somme fixe d'une commande, dans les limites que le code porte lui-même</target>
+            </trans-unit>
+            <trans-unit id="2EJgWak">
+                <source>description.guided_project_payment_email_attachments</source>
+                <target>Laisser partir avec chaque commande la facture et les conditions que le client vient d'accepter</target>
             </trans-unit>
             <trans-unit id="3KSFe5s">
                 <source>description.guided_project_payment_gift_card_issue</source>
@@ -41,6 +49,30 @@
             <trans-unit id="20v9CiO">
                 <source>description.guided_project_payment_transaction_review</source>
                 <target>Réconcilier un paiement enregistré ici avec son écriture réelle chez Stripe ou un autre fournisseur</target>
+            </trans-unit>
+            <trans-unit id="0n9FexF">
+                <source>description.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Une fois la commande traitée, marquez la ligne plutôt que de relancer tout le contrôle : elle quitte la vue par défaut et revient d'elle-même si le problème réapparaît.</target>
+            </trans-unit>
+            <trans-unit id="oi3uhvy">
+                <source>description.guided_step_payment_basket_integrity_done</source>
+                <target>Rien de tout cela ne déclenche d'alerte de son côté : une commande encaissée et jamais livrée n'a ni page d'erreur ni email pour se signaler. Cet écran est le seul endroit où elle se voit, et il ne sert que si on l'ouvre.</target>
+            </trans-unit>
+            <trans-unit id="GSYB1xh">
+                <source>description.guided_step_payment_basket_integrity_offenders</source>
+                <target>Un compte ne dit pas quoi faire : la liste dépliée nomme les commandes derrière lui, chacune avec son lien pour l'ouvrir dans le back-office. C'est là que le travail commence.</target>
+            </trans-unit>
+            <trans-unit id="eiduuiL">
+                <source>description.guided_step_payment_basket_integrity_open</source>
+                <target>L'écran rassemble tout ce que le site vérifie de lui-même. Six de ces lignes portent sur vos commandes : un paiement encaissé dont la commande n'est jamais partie, une commande livrée sans paiement en face, un montant ou une devise qui ne correspond pas, une commande livrée sans numéro de facture, des lignes qui ne s'additionnent pas, un panier contenant un article retiré du catalogue.</target>
+            </trans-unit>
+            <trans-unit id="bWJwjeF">
+                <source>description.guided_step_payment_basket_integrity_rows</source>
+                <target>Elles portent le type « basket-integrity » et disent chacune combien de commandes elles ont trouvées. Les commandes passées en mode test en sont exclues : une boutique qui répète sa vente écrit des commandes que personne ne règle ni ne livre, et toutes se liraient ici comme des défauts.</target>
+            </trans-unit>
+            <trans-unit id="Qqh3X78">
+                <source>description.guided_step_payment_basket_integrity_run</source>
+                <target>Les six vérifications tournent d'elles-mêmes chaque semaine. Ce bouton les relance tout de suite, si la page est vide ou si vous venez de corriger quelque chose.</target>
             </trans-unit>
             <trans-unit id="849UuDC">
                 <source>description.guided_step_payment_discount_code_code</source>
@@ -69,6 +101,22 @@
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
                 <target>Lu comme un pourcentage pour le premier type, et en centimes pour le second : 10 vaut soit un dixième de la commande, soit dix centimes de moins.</target>
+            </trans-unit>
+            <trans-unit id="36OccY.">
+                <source>description.guided_step_payment_email_attachments_check</source>
+                <target>La tuile n'est plus en évidence et propose maintenant de désactiver : c'est le seul signe à lire, l'envoi ne se voit qu'à la commande suivante.</target>
+            </trans-unit>
+            <trans-unit id="Fd0XLW7">
+                <source>description.guided_step_payment_email_attachments_done</source>
+                <target>Passez une commande d'essai en mode test : sa confirmation doit arriver avec les fichiers cochés sur ce modèle. S'il n'y en a aucun, l'interrupteur est bien allumé mais rien n'a été coché dans le constructeur d'emails.</target>
+            </trans-unit>
+            <trans-unit id=".3CFVoz">
+                <source>description.guided_step_payment_email_attachments_enable</source>
+                <target>La tuile reste en évidence tant que l'envoi est désactivé : remettre au client les conditions qu'il a acceptées sous forme de fichier, et non par un lien vers une page réécrite ensuite, est ce que la loi appelle un support durable.</target>
+            </trans-unit>
+            <trans-unit id="nugIkMQ">
+                <source>description.guided_step_payment_email_attachments_open</source>
+                <target>Les interrupteurs de la boutique sont ici, en tuiles. Celui-ci décide si vos emails de commande emportent des fichiers ; quels fichiers, cela se coche modèle par modèle dans le constructeur d'emails, ce que montre le parcours « Personnaliser un e-mail ».</target>
             </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
@@ -237,6 +285,14 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>Aucune commande en attente d'expédition avec une adresse à imprimer.</target>
+            </trans-unit>
+            <trans-unit id="dzI5V2T">
+                <source>flash.payment_email_attachments_disabled</source>
+                <target>Les emails de commande partent sans pièce jointe : ni facture, ni CGV.</target>
+            </trans-unit>
+            <trans-unit id="vMtJyZa">
+                <source>flash.payment_email_attachments_enabled</source>
+                <target>Les emails de commande partent désormais avec les documents cochés sur eux : facture et CGV.</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -730,9 +786,17 @@
                 <source>label.gift_cards_bought</source>
                 <target>Vos cartes cadeaux</target>
             </trans-unit>
+            <trans-unit id="uDn2cDu">
+                <source>label.guided_project_payment_basket_integrity</source>
+                <target>Lire le contrôle des commandes</target>
+            </trans-unit>
             <trans-unit id="oO8CncP">
                 <source>label.guided_project_payment_discount_code</source>
                 <target>Écrire un code promo</target>
+            </trans-unit>
+            <trans-unit id="N99aoIk">
+                <source>label.guided_project_payment_email_attachments</source>
+                <target>Envoyer les factures et les CGV</target>
             </trans-unit>
             <trans-unit id="mXJ10rx">
                 <source>label.guided_project_payment_gift_card_issue</source>
@@ -753,6 +817,30 @@
             <trans-unit id="FZYAus7">
                 <source>label.guided_project_payment_transaction_review</source>
                 <target>Retrouver une transaction chez son fournisseur</target>
+            </trans-unit>
+            <trans-unit id="xppHcLR">
+                <source>label.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Déclarer une ligne réglée</target>
+            </trans-unit>
+            <trans-unit id="bN8mDzz">
+                <source>label.guided_step_payment_basket_integrity_done</source>
+                <target>Le contrôle est lu</target>
+            </trans-unit>
+            <trans-unit id="YiZA_an">
+                <source>label.guided_step_payment_basket_integrity_offenders</source>
+                <target>Ouvrir la liste des commandes</target>
+            </trans-unit>
+            <trans-unit id="jgAek_O">
+                <source>label.guided_step_payment_basket_integrity_open</source>
+                <target>Ouvrir le contrôle de santé</target>
+            </trans-unit>
+            <trans-unit id="E1SLFxP">
+                <source>label.guided_step_payment_basket_integrity_rows</source>
+                <target>Repérer les lignes des commandes</target>
+            </trans-unit>
+            <trans-unit id="LqLmmZT">
+                <source>label.guided_step_payment_basket_integrity_run</source>
+                <target>Relancer la vérification</target>
             </trans-unit>
             <trans-unit id="UfV9AOP">
                 <source>label.guided_step_payment_discount_code_code</source>
@@ -781,6 +869,22 @@
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
                 <target>Fixer ce qui est retiré</target>
+            </trans-unit>
+            <trans-unit id="uAFGPZE">
+                <source>label.guided_step_payment_email_attachments_check</source>
+                <target>Vérifier que c'est en place</target>
+            </trans-unit>
+            <trans-unit id="LLaLwY.">
+                <source>label.guided_step_payment_email_attachments_done</source>
+                <target>Les documents partent</target>
+            </trans-unit>
+            <trans-unit id="6bQZ9q8">
+                <source>label.guided_step_payment_email_attachments_enable</source>
+                <target>Activer l'envoi</target>
+            </trans-unit>
+            <trans-unit id="CnN8RYt">
+                <source>label.guided_step_payment_email_attachments_open</source>
+                <target>Ouvrir le tableau de bord</target>
             </trans-unit>
             <trans-unit id="RTgQnIQ">
                 <source>label.guided_step_payment_gift_card_issue_amount</source>
@@ -1085,6 +1189,14 @@
             <trans-unit id="QqBUjYP">
                 <source>label.payment_confirming_info</source>
                 <target>Votre paiement est en cours de vérification auprès de notre prestataire. Dès qu'il est confirmé, votre commande est enregistrée et vous recevez un e-mail de confirmation. Rien d'autre ne vous est demandé.</target>
+            </trans-unit>
+            <trans-unit id="rBtrbhw">
+                <source>label.payment_email_attachments_disable</source>
+                <target>Désactiver l'envoi des factures et CGV</target>
+            </trans-unit>
+            <trans-unit id="bQx3h2v">
+                <source>label.payment_email_attachments_enable</source>
+                <target>Activer l'envoi des factures et CGV</target>
             </trans-unit>
             <trans-unit id="ma8Bmbh">
                 <source>label.payment_gateway_unavailable</source>

@@ -1,5 +1,23 @@
 # Changelog
 
+## v6.3.0
+
+The shop says whether its orders travel with their documents
+
+- Added the `payment-email-attachments` config, `false` by default: whether an order email carries the files its template has ticked (25/08/2026)
+- `BasketEmailFactory` reads it before asking for any attachment, so nothing is drawn while it is off (25/08/2026)
+- Added the toggle tile flipping it from the dashboard, beside the test-mode one (25/08/2026)
+- The tile is painted as a warning while the sending is off, an order confirmed without its invoice and its terms being the state worth an eye (25/08/2026)
+- `PaymentShortcutController` flips both tiles through one `toggle()`, the route name being the CSRF token id and the flash key its own suffix (25/08/2026)
+- Requires `c975l/core-bundle` `^1.18`, for the `HealthCheckSiteWideInterface` below (25/08/2026)
+- `BasketIntegrityHealthCheckProvider` declares itself site-wide, its six rows having been listed among the pages (25/08/2026)
+- Added the `payment-email-attachments` and `payment-basket-integrity` guided projects, at 7015 and 7070 (25/08/2026)
+- Added the `label.payment_email_attachments*`, `description.payment_email_attachments` and `flash.payment_email_attachments_*` keys in the three locales (25/08/2026)
+- The `c975l-payment-checkout` skill states the switch, and that the factory is the only place it is read (25/08/2026)
+- Added `GalleryShowcaseProvider`, `payment_shipping` being the only block kind the showcase had no example of (25/08/2026)
+- `Basket:Shipping` takes `shipping`, `free` and `currency` as optional props, each falling back to its own configuration (25/08/2026)
+- Added `tests/Service/GalleryShowcaseProviderTest.php` and `tests/Templates/ShippingTest.php` (25/08/2026)
+
 ## v6.2.1
 
 The basket answers a body it cannot read rather than crashing on it

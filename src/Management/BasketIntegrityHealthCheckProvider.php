@@ -12,7 +12,7 @@ namespace c975L\PaymentBundle\Management;
 
 use c975L\ConfigBundle\Entity\HealthCheckResult;
 use c975L\ConfigBundle\Management\HealthCheckErrorRow;
-use c975L\ConfigBundle\Management\HealthCheckProviderInterface;
+use c975L\ConfigBundle\Management\HealthCheckSiteWideInterface;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 // One row per check rather than one per offending order (see IntrusionHealthCheckProvider, same shape): a shop with fifty stalled orders would otherwise push every other check off the dashboard, and the orders themselves are listed under their row by BasketIntegrityHealthCheckAdviceProvider
 //
 // Orders placed in test mode are out of all six, the queries themselves leaving them behind: a shop trying its checkout out writes orders nobody settles, delivers or invoices, and every one of them would read here as a defect
-class BasketIntegrityHealthCheckProvider implements HealthCheckProviderInterface
+class BasketIntegrityHealthCheckProvider implements HealthCheckSiteWideInterface
 {
     public const string KIND = 'basket-integrity';
 

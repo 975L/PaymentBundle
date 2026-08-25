@@ -22,7 +22,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 ## Contents
 
 - **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [Stimulus controllers](#register-stimulus-controllers)
-- **Using it** — [test mode](#test-mode) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
+- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
 
 ## Features
 
@@ -257,6 +257,10 @@ The block stores a heading and a free line only: `shop-shipping`, `shop-shipping
 read at render time, so the announced amounts follow the configuration and the kind is registered
 `cacheable: false`, a cached copy otherwise outliving a change made to them.
 
+`Basket:Shipping` also takes those three as optional props, each falling back to its own configuration when
+the caller hands over none. Only `GalleryShowcaseProvider` uses them: a block showcase runs on a site that
+sells nothing, whose shop configuration is unset, and the block would otherwise render nothing at all there.
+
 The block renders `components/Basket/Shipping.html.twig`, the threshold on its own. On a basket it is
 `Basket:FreeShipping` that speaks instead, saying what is left to reach it — `Only 12.00 € more to get free
 delivery` — which is what raises an order. `Basket:Items` renders it under the articles and above the totals on an
@@ -370,7 +374,7 @@ shop from charging any. That is written by the shopkeeper, who is the only one w
 | --- | --- |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}`, linked from the customer's own order page |
 | Back office | An **Invoice** action on every numbered order, opening the same file |
-| E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments) |
+| E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments), and sent only while the shop's own switch is on — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
 
 **This is a B2C invoice.** Selling to businesses is another matter entirely — a Factur-X document, PDF/A-3 with its
 XML inside, sent through an approved platform — and nothing here pretends to be one.
@@ -419,6 +423,24 @@ language happened to be current. An order taken before this was kept has no loca
 
 The subject is not composed in the back-office: `BasketEmailFactory::buildSubject()` builds it as
 `Shop <name> - <what this email is about> - <order number>`, from the `payment` catalogs and the `shop-name` config.
+
+### Documents attached to the e-mails
+
+An order e-mail can travel with files: its **invoice** (`payment:invoice`, this bundle's own
+`InvoiceAttachmentProvider`) and the site's **terms of sale** (`legal:*`, UiBundle's
+`LegalDocumentAttachmentProvider`). Which template carries which is ticked in the e-mail builder, one template at a
+time; whether any of them is sent at all is one switch for the whole shop, **`payment-email-attachments`**, flipped
+from the dashboard's tile rather than edited by hand.
+
+It is **off by default**, and deliberately: a site whose `shop-invoice-mentions` or whose terms of sale are not
+written yet would otherwise attach them to its very first order. While it is off `BasketEmailFactory` asks for
+nothing, so no invoice PDF is drawn only to be thrown away.
+
+Turning it on is worth doing once the documents are ready. Where the law asks for a **durable medium** — the terms
+a customer accepted, handed to them at the moment of the sale — a link to a page is not one, the page being
+rewritable afterwards (art. L221-13 of the Code de la consommation, and CJEU C-49/11 on the hyperlink); a file in
+their mailbox is. That is why the tile is painted as a warning while the sending is off, which is the opposite of
+the test-mode tile beside it.
 
 ---
 
