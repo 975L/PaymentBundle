@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.3.1
+
+A released version is what is asked for
+
+- `c975l/core-bundle` is required from `^1.17.4` and no longer from `^1.18`, a version that was never released - the constraint v6.3.0 carries, so a site asking for it resolves nothing (25/08/2026)
+
 ## v6.3.0
 
 The shop says whether its orders travel with their documents
