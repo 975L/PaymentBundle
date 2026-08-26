@@ -424,6 +424,13 @@ language happened to be current. An order taken before this was kept has no loca
 The subject is not composed in the back-office: `BasketEmailFactory::buildSubject()` builds it as
 `Shop <name> - <what this email is about> - <order number>`, from the `payment` catalogs and the `shop-name` config.
 
+**The envelope is the shop's, and the blind copy is its archive.** The six `shop-email-*` keys say who an order
+e-mail comes from, who it answers to and who is copied on it; one left blank falls back on the site-wide `email-*`
+address, blank meaning trimmed so a key holding a space alone is not turned into a broken sender. `shop-email-bcc`
+is the only record the shop keeps of the confirmations and the download links that went out - nothing else stores
+them - and left empty it says nothing, the e-mail simply leaving without it. The dashboard therefore warns while it
+is empty, linking to the e-mail group of the configuration.
+
 ### Documents attached to the e-mails
 
 An order e-mail can travel with files: its **invoice** (`payment:invoice`, this bundle's own

@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-08-26",
+        "description": [
+            {
+                "en": "Your dashboard now tells you when no copy of your order emails is kept. The \"Shop email (blind copy)\" setting is the only record you have of the order confirmations and download links that went out - left empty, nothing warned you, the emails simply left without it. Fill in an address and the warning goes away; a customer disputing an order months later is then answered with the email itself rather than with their word alone.",
+                "fr": "Votre tableau de bord vous dit désormais quand aucune copie de vos emails de commande n'est conservée. Le réglage « Email de la boutique (copie cachée) » est la seule trace que vous gardez des confirmations de commande et des liens de téléchargement partis - laissé vide, rien ne vous prévenait, les emails partaient simplement sans. Renseignez une adresse et l'avertissement disparaît ; un client qui conteste une commande des mois plus tard se voit alors répondre avec l'email lui-même, et non avec sa seule parole.",
+                "es": "Su panel le dice ahora cuándo no se guarda ninguna copia de sus correos de pedido. El ajuste «Correo de la tienda (CCO)» es el único registro que conserva de las confirmaciones de pedido y de los enlaces de descarga enviados: dejado vacío, nada le avisaba, los correos salían simplemente sin él. Indique una dirección y el aviso desaparece; a un cliente que impugne un pedido meses después se le responde entonces con el propio correo, y no solo con su palabra."
+            }
+        ]
+    },
+    {
         "date": "2026-08-25",
         "description": [
             {

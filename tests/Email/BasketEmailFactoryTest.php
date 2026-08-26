@@ -78,7 +78,7 @@ class BasketEmailFactoryTest extends TestCase
         $this->assertNotNull($request->html);
     }
 
-    // A blank key must come back as null, so UiBundle falls back on the site-wide address instead of building a broken one
+    // A blank key must come back as null, so UiBundle falls back on the site-wide address instead of building a broken one - a space alone being blank too, which an Address would otherwise throw on
     public function testABlankAddressKeyIsLeftToTheSiteWideFallback(): void
     {
         $configService = $this->configService([
@@ -87,7 +87,7 @@ class BasketEmailFactoryTest extends TestCase
             ['shop-email-from-name', ''],
             ['shop-email-reply-to', ''],
             ['shop-email-reply-to-name', ''],
-            ['shop-email-bcc', ''],
+            ['shop-email-bcc', ' '],
         ]);
 
         $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);

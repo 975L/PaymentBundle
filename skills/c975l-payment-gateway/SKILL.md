@@ -106,7 +106,7 @@ Rules that follow, and each is a bug if broken:
 - **Ask the provider that took the money, not the default.** `confirmWithGateway()` and `expireCheckout()` both resolve from `Payment::getGateway()`: the default is not who charged an order once the customer picks, and never was for an order settled before the shop changed provider.
 - **The CSP names every offered provider**, not the default alone — the customer picks after the page is drawn.
 - **Templates read `payment_gateways()`** (`Twig\GatewayExtension`), never `config('payment-gateway')`, which only ever named one.
-- **The health check walks `getOffered()`**, one row per provider; the dashboard alert fires when the list is empty, or when `payment-gateway` names a provider no bundle registers.
+- **The health check walks `getOffered()`**, one row per provider; the dashboard alert fires when the list is empty, or when `payment-gateway` names a provider no bundle registers. `Management\PaymentAlertProvider` also raises one alert of its own that has nothing to do with a provider — an empty `shop-email-bcc`, see `c975l-payment-checkout`.
 
 ## Keys and test mode
 

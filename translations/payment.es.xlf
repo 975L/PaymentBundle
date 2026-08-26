@@ -238,6 +238,10 @@
                 <source>description.payment_link</source>
                 <target>Cobre lo que el catálogo no vende: un anticipo, una reparación, una factura. El pedido se escribe congelado y su enlace se paga en línea como cualquier otro.</target>
             </trans-unit>
+            <trans-unit id="L1QL409">
+                <source>description.shop_email_bcc_missing</source>
+                <target>«Correo de la tienda (CCO)» está vacío: no se guarda ninguna copia de las confirmaciones de pedido ni de los enlaces de descarga. Indique una dirección para conservar su registro.</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Este código ya no se aplica a este pedido como antes: se ha actualizado el precio</target>
@@ -1357,6 +1361,10 @@
             <trans-unit id="VB8ZpHn">
                 <source>label.shop</source>
                 <target>Tienda</target>
+            </trans-unit>
+            <trans-unit id="92Luq2f">
+                <source>label.shop_email_bcc_missing</source>
+                <target>Correos de pedido sin archivar</target>
             </trans-unit>
             <trans-unit id="iRN1Pg4">
                 <source>label.signature</source>

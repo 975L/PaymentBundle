@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.3.2
+
+The dashboard says when no copy of the order emails is kept
+
+- `PaymentAlertProvider` warns while `shop-email-bcc` is empty: the order confirmations and download links then leave without the blind copy that is the shop's only record of them (26/08/2026)
+- The alert links to the email group of the config listing, where the entry to fill in sits (26/08/2026)
+- A `shop-email-*` key holding whitespace alone now counts as blank, instead of building an `Address` that throws (26/08/2026)
+- The README states the `shop-email-*` envelope, its fallback and the archive alert (26/08/2026)
+- The `c975l-payment-checkout` and `c975l-payment-gateway` skills state the same (26/08/2026)
+
 ## v6.3.1
 
 A released version is what is asked for

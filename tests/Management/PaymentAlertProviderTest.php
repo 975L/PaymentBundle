@@ -23,9 +23,31 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 // The dashboard says what the checkout would otherwise say to a customer: whether the shop can charge at all
 class PaymentAlertProviderTest extends TestCase
 {
-    public function testAConfiguredGatewayRaisesNothing(): void
+    public function testAConfiguredGatewayKeepingACopyOfItsEmailsRaisesNothing(): void
     {
         $this->assertSame([], $this->provider('stripe', true, false)->getAlerts());
+    }
+
+    // The blind copy is the shopkeeper's only record of the confirmations and download links that went out, and left empty it fails silently - the email simply leaves without it
+    public function testAnEmptyBlindCopyIsAlerted(): void
+    {
+        $alerts = $this->provider('stripe', true, false, '')->getAlerts();
+
+        $this->assertCount(1, $alerts);
+        $this->assertSame('label.shop_email_bcc_missing', $alerts[0]['label']);
+        $this->assertSame('description.shop_email_bcc_missing', $alerts[0]['description']);
+        $this->assertSame(Config::SEVERITY_WARNING, $alerts[0]['severity']);
+    }
+
+    // A shop that can charge nothing and keeps no copy has two things to fix, and says both
+    public function testTheGatewayAndTheBlindCopyAreSaidTogether(): void
+    {
+        $alerts = $this->provider('stripe', false, false, '')->getAlerts();
+
+        $this->assertSame(
+            ['label.payment_keys_missing', 'label.shop_email_bcc_missing'],
+            array_column($alerts, 'label'),
+        );
     }
 
     public function testAGatewayWithoutItsKeysIsAlerted(): void
@@ -55,7 +77,30 @@ class PaymentAlertProviderTest extends TestCase
         $this->assertSame('label.payment_gateway_unavailable', $alerts[0]['label']);
     }
 
-    private function provider(string $activeSlug, bool $configured, bool $testMode): PaymentAlertProvider
+    // The entry to fill in sits in a different group for each alert, and the payment group alone needs its sensitive values shown - the email listing is not sensitive, and showing it as such would reveal keys nothing asked for
+    public function testEachAlertLinksToTheGroupHoldingItsOwnEntry(): void
+    {
+        $calls = [];
+        $urlGenerator = $this->createStub(AdminUrlGeneratorInterface::class);
+        $urlGenerator->method('unsetAll')->willReturnSelf();
+        $urlGenerator->method('setController')->willReturnSelf();
+        $urlGenerator->method('setAction')->willReturnSelf();
+        $urlGenerator->method('generateUrl')->willReturn('/admin/config');
+        $urlGenerator->method('set')->willReturnCallback(function (string $name, mixed $value) use (&$calls, $urlGenerator) {
+            $calls[] = [$name, $value];
+
+            return $urlGenerator;
+        });
+
+        $this->provider('stripe', false, false, '', $urlGenerator)->getAlerts();
+
+        $this->assertSame(
+            [['group', Config::GROUP_PAYMENT], ['showSensitive', 1], ['group', Config::GROUP_EMAIL]],
+            $calls,
+        );
+    }
+
+    private function provider(string $activeSlug, bool $configured, bool $testMode, string $bcc = 'archive@shop.test', ?AdminUrlGeneratorInterface $urlGenerator = null): PaymentAlertProvider
     {
         $gateway = $this->createStub(PaymentGatewayInterface::class);
         $gateway->method('getSlug')->willReturn('stripe');
@@ -65,6 +110,7 @@ class PaymentAlertProviderTest extends TestCase
         $configService->method('get')->willReturnCallback(fn (string $slug) => match ($slug) {
             'payment-gateway' => $activeSlug,
             'site-role-admin' => 'ROLE_ADMIN',
+            'shop-email-bcc' => $bcc,
             default => null,
         });
 
@@ -75,12 +121,14 @@ class PaymentAlertProviderTest extends TestCase
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
 
-        $urlGenerator = $this->createStub(AdminUrlGeneratorInterface::class);
-        $urlGenerator->method('unsetAll')->willReturnSelf();
-        $urlGenerator->method('setController')->willReturnSelf();
-        $urlGenerator->method('setAction')->willReturnSelf();
-        $urlGenerator->method('set')->willReturnSelf();
-        $urlGenerator->method('generateUrl')->willReturn('/admin/config');
+        if (null === $urlGenerator) {
+            $urlGenerator = $this->createStub(AdminUrlGeneratorInterface::class);
+            $urlGenerator->method('unsetAll')->willReturnSelf();
+            $urlGenerator->method('setController')->willReturnSelf();
+            $urlGenerator->method('setAction')->willReturnSelf();
+            $urlGenerator->method('set')->willReturnSelf();
+            $urlGenerator->method('generateUrl')->willReturn('/admin/config');
+        }
 
         return new PaymentAlertProvider(
             new PaymentGatewayRegistry([$gateway], $configService),

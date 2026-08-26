@@ -150,9 +150,9 @@ class BasketEmailFactory
             . ' - ' . $basket->getNumber();
     }
 
-    // A key left blank comes back as null rather than as an empty string, so UiBundle falls back on the site-wide "email-*" address instead of building a broken one
+    // A key left blank comes back as null rather than as an empty string, so UiBundle falls back on the site-wide "email-*" address instead of building a broken one - trimmed, a key holding a space alone being blank too, and an Address built on it throwing on every order email
     private function config(string $key): ?string
     {
-        return $this->configService->get($key) ?: null;
+        return trim((string) $this->configService->get($key)) ?: null;
     }
 }
