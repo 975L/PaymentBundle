@@ -1,5 +1,9 @@
 # Changelog
 
+## v6.3.3
+
+Logo modified
+
 ## v6.3.2
 
 The dashboard says when no copy of the order emails is kept
