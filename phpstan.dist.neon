@@ -23,3 +23,10 @@ parameters:
             identifier: trait.unused
             paths:
                 - */src/Entity/Trait/*
+
+        # PHP Mess Detector's own marker, which PHPStan reads as a typed tag and cannot parse - see the phpmd.xml.dist beside this file
+        -
+            identifier: phpDoc.parseError
+            paths:
+                - */src/Controller/Management/BasketCrudController.php
+                - */src/Form/CoordinatesType.php

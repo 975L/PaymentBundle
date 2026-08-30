@@ -1,0 +1,33 @@
+/*
+ * (c) 2026: 975L <contact@975l.com>
+ * (c) 2026: Laurent Marquet <laurent.marquet@laposte.net>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+/* The silhouettes of this bundle's block kinds, shown wherever a kind has to be recognised at a glance: the visual picker an editor chooses a block from (UiBundle's assets/js/block-picker.js) and the public block showcase of a site. Drawn here rather than in UiBundle for the same reason as the kinds' templates and fixtures: a block belongs to the bundle shipping it. The frame, the five parts and the default silhouette come from UiBundle's sass/_block-thumbs.scss - what follows only says how this bundle's kinds arrange them. */
+
+/* What shipping costs, announced as the one-line notice it is - a strip with its marker, and the free-delivery threshold under it */
+.ui-block-thumb--payment_shipping {
+    justify-content: center;
+
+    .ui-block-thumb__title {
+        width: 85%;
+        height: 1.125rem;
+        align-self: center;
+        border-radius: 2px;
+        border-left: 3px solid var(--bs-primary, #0d6efd);
+        opacity: .2;
+    }
+
+    .ui-block-thumb__line {
+        align-self: center;
+        width: 55%;
+        margin-top: .25rem;
+    }
+
+    .ui-block-thumb__line + .ui-block-thumb__line {
+        display: none;
+    }
+}

@@ -34,7 +34,7 @@ export default class extends Controller {
             this.codeTarget.textContent = data.code;
             this.codeTarget.hidden = false;
             this.element.classList.add("gift-card-scratched");
-        } catch (error) {
+        } catch {
             // The panel stays, so the card can be rubbed again: what failed is a request, and a card left with neither a code nor a panel says nothing at all
             this.revealed = false;
             if (this.hasScratchTarget) {

@@ -1,5 +1,28 @@
 # Changelog
 
+## v6.4.1
+
+The block picker draws the shipping block rather than framing it
+
+- The `payment_shipping` block has its own silhouette in the back-office picker (30/08/2026)
+- `StylesheetProvider` implements `BundleStylesheetManagementProviderInterface` (30/08/2026)
+- `RevolutOrderReader` reads the basket id and the order id in their own methods (30/08/2026)
+- `StripeSessionReader` reads the basket id, the payment intent and the method in their own methods (30/08/2026)
+- `RevolutGateway` totals and describes the order in its own method (30/08/2026)
+- `validate()` asserts the code then the items, each in its own method (30/08/2026)
+- `validate()` collects the providers' checkout data in its own method (30/08/2026)
+- `addItem()` reads what the call asks for in its own method (30/08/2026)
+- `addItem()` writes the line on the basket's items in its own method (30/08/2026)
+- The `@return array{...}` of `readAddition()` and `totalAndDescription()` are docblocks, so PHPStan reads them (30/08/2026)
+- `phpmd.xml.dist` states which rules PHP Mess Detector reads the bundle against (30/08/2026)
+- The `phpDoc.parseError` ignore is scoped to the two files carrying a PHPMD marker (30/08/2026)
+- Codacy excludes `public/`, `tests/` and the minified files at the repository root too (30/08/2026)
+- The basket and gift card controllers build their strings with template literals (30/08/2026)
+- The gift card controller drops the binding of a catch that never reads it (30/08/2026)
+- `BasketAdditionTest` covers what a second addition does to a line already held (30/08/2026)
+- `StylesheetProviderTest` checks every pickable kind has its silhouette (30/08/2026)
+- `RevolutOrderReaderTest` covers the refused order id, and the order no payment answers for (30/08/2026)
+
 ## v6.4.0
 
 An invoice states who issued it the day it was issued

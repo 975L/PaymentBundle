@@ -52,7 +52,9 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed
-- A `payment_shipping` block kind stating what delivery costs, its amounts read from the configuration
+- A `payment_shipping` block kind stating what delivery costs, its amounts read from the configuration, drawn
+  as its own silhouette in the back-office block picker through UiBundle's
+  `BundleStylesheetManagementProviderInterface`
 - Promotional codes and gift cards through one basket field, an EasyAdmin CRUD for each, a card being minted
   either by a purchase or by hand from the back-office
 - A gift card is drawn as a card: a flip card in the ID-1 format, its visual copied onto it at issuance, and a

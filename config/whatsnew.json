@@ -6,6 +6,11 @@
                 "en": "An invoice now stays exactly as it was issued: the seller block and the legal mentions are copied onto the order when it is billed, so moving, changing your company name or crossing the VAT threshold no longer rewrites the invoices you sent years ago",
                 "fr": "Une facture reste désormais exactement telle qu'elle a été émise : le bloc vendeur et les mentions légales sont recopiés sur la commande au moment de la facturation, de sorte qu'un déménagement, un changement de dénomination ou le franchissement du seuil de TVA ne réécrit plus les factures envoyées il y a des années",
                 "es": "Una factura permanece ahora exactamente como fue emitida: el bloque del vendedor y las menciones legales se copian en el pedido al facturarlo, de modo que una mudanza, un cambio de denominación o superar el umbral de IVA ya no reescribe las facturas enviadas hace años"
+            },
+            {
+                "en": "Choosing a block to add to a page is now a matter of looking rather than reading: the shipping block is drawn as a small picture of itself in the picker, instead of the same anonymous frame every other block wore",
+                "fr": "Choisir un bloc à ajouter à une page devient affaire de coup d'œil plutôt que de lecture : le bloc de livraison est dessiné dans le sélecteur sous la forme d'une petite image de lui-même, au lieu du cadre anonyme que portaient tous les blocs",
+                "es": "Elegir un bloque para añadir a una página es ahora cuestión de mirar y no de leer: el bloque de envío se dibuja en el selector como una pequeña imagen de sí mismo, en lugar del mismo marco anónimo que llevaban todos los bloques"
             }
         ]
     },

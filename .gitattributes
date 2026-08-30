@@ -13,6 +13,7 @@
 /bin export-ignore
 /eslint.config.mjs export-ignore
 /phpcs.xml.dist export-ignore
+/phpmd.xml.dist export-ignore
 /phpstan.dist.neon export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore

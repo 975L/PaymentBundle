@@ -265,30 +265,60 @@ class BasketService implements BasketServiceInterface
         return $giftCardTotal;
     }
 
-    // Validates basket; $forSharing freezes the numbered order without opening a checkout, returning a link to hand to whoever settles it
-    public function validate(Request $request, bool $forSharing = false): string
+    // The code was last read when the basket was last touched, which can be days ago: one deactivated, expired or drained since then must not still be lowering what this order is charged. Dropped from the basket and refused rather than dropped silently, the customer having clicked "pay" on a total they were shown - and dropped first, so the basket they come back to says the true price instead of refusing again forever
+    private function assertCodeStillHolds(): void
     {
-        $this->basket = $this->get();
-
-        // The code was last read when the basket was last touched, which can be days ago: one deactivated, expired or drained since then must not still be lowering what this order is charged. Dropped from the basket and refused rather than dropped silently, the customer having clicked "pay" on a total they were shown - and dropped first, so the basket they come back to says the true price instead of refusing again forever
         $code = $this->basket->getDiscountCode();
-        if (null !== $code) {
-            $resolution = $this->basketCodeService->resolveForBasket($code, $this->basket, $this->giftCardTotal());
-            if ($resolution['amount'] !== $this->basket->getDiscountAmount()) {
-                $this->basketCodeService->apply($this->basket, $resolution);
-                $this->entityManager->flush();
-
-                throw new BasketNotOrderableException($resolution['error'] ?? $this->translator->trans('error.code_changed', [], 'payment'));
-            }
+        if (null === $code) {
+            return;
         }
 
-        // Asked first, and for the same reason as the gateway below: a basket holding something that ran out, was withdrawn or was taken offline while it sat there takes no order at all, rather than being numbered and charged for what cannot be delivered. Every path of this method is behind it, the free one included
+        $resolution = $this->basketCodeService->resolveForBasket($code, $this->basket, $this->giftCardTotal());
+        if ($resolution['amount'] === $this->basket->getDiscountAmount()) {
+            return;
+        }
+
+        $this->basketCodeService->apply($this->basket, $resolution);
+        $this->entityManager->flush();
+
+        throw new BasketNotOrderableException($resolution['error'] ?? $this->translator->trans('error.code_changed', [], 'payment'));
+    }
+
+    // Asked first, and for the same reason as the gateway: a basket holding something that ran out, was withdrawn or was taken offline while it sat there takes no order at all, rather than being numbered and charged for what cannot be delivered. Every path of validate() is behind it, the free one included
+    private function assertItemsOrderable(): void
+    {
         foreach ($this->basket->getItems() as $type => $itemsOfThisKind) {
             $error = $this->itemProviderRegistry->get($type)->validateCheckout($this->basket, $itemsOfThisKind);
             if (null !== $error) {
                 throw new BasketNotOrderableException($error);
             }
         }
+    }
+
+    // Each provider hands over what it will need back once the basket is delivered, which is kept on the basket rather than in the visitor's session - the webhook that confirms the payment carries no session of theirs. Asked before the free path returns: an order covered in full is delivered just like a paid one, and paid() reads the same data back
+    private function collectCheckoutData(Request $request): array
+    {
+        $requestData = $request->request->all();
+        $checkoutData = [];
+
+        foreach ($this->basket->getItems() as $type => $itemsOfThisKind) {
+            $handedOver = $this->itemProviderRegistry->get($type)->onBasketValidated($this->basket, $itemsOfThisKind, $requestData);
+            if ([] !== $handedOver) {
+                $checkoutData[$type] = $handedOver;
+            }
+        }
+
+        return $checkoutData;
+    }
+
+    // Validates basket; $forSharing freezes the numbered order without opening a checkout, returning a link to hand to whoever settles it
+    // The code is asserted first, then the items, both before anything is written: a basket refused leaves nothing half-persisted behind
+    public function validate(Request $request, bool $forSharing = false): string
+    {
+        $this->basket = $this->get();
+
+        $this->assertCodeStillHolds();
+        $this->assertItemsOrderable();
 
         // Asked before anything is written, and on what is left to charge: an order covered in full needs no gateway, and a shop able to charge with none leaves the basket as it was rather than half-persisted
         $this->gateway = $this->resolveGateway($request->request->getString('gateway') ?: null);
@@ -305,18 +335,8 @@ class BasketService implements BasketServiceInterface
         $this->basket->setTestMode($this->testMode->isEnabled());
         $this->entityManager->persist($this->basket);
 
-        // Each provider hands over what it will need back once the basket is delivered, which is kept on the basket rather than in the visitor's session - the webhook that confirms the payment carries no session of theirs. Asked before the free path returns: an order covered in full is delivered just like a paid one, and paid() reads the same data back
-        $requestData = $request->request->all();
-        $checkoutData = [];
-        foreach ($this->basket->getItems() as $type => $itemsOfThisKind) {
-            $handedOver = $this->itemProviderRegistry->get($type)->onBasketValidated($this->basket, $itemsOfThisKind, $requestData);
-            if ([] !== $handedOver) {
-                $checkoutData[$type] = $handedOver;
-            }
-        }
-
         // Written now, and flushed by whichever path this method leaves through
-        $this->basket->setCheckoutData($checkoutData);
+        $this->basket->setCheckoutData($this->collectCheckoutData($request));
 
         // Nothing left to pay - the free path, which a code covering the whole order now takes too
         if (0 === $this->basket->getPayable()) {
@@ -604,27 +624,57 @@ class BasketService implements BasketServiceInterface
         return $basket;
     }
 
-    // Adds item to basket and returns total and quantity
-    public function addItem(Request $request): array
+    // What the call asks to be added, refused whole rather than half-read
+    // Read before anything is created: what the body carries used to be read after the basket, so a call carrying nothing crashed on the read and left that empty basket behind
+    /** @return array{0: mixed, 1: int, 2: string} */
+    private function readAddition(Request $request): array
     {
-        // Read before anything is created: what the body carries used to be read after the basket, so a call carrying nothing crashed on the read and left that empty basket behind
         $data = $this->readPayload($request);
         if (!isset($data['id'], $data['quantity'], $data['type']) || !is_numeric($data['quantity']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type'])) {
             throw new BadRequestHttpException('The body must carry "id", "quantity" and a "type" a provider answers for.');
         }
 
-        $itemId = $data['id'];
-        $quantity = (int) $data['quantity'];
-        $type = $data['type'];
+        return [$data['id'], (int) $data['quantity'], $data['type']];
+    }
 
+    // An order is no longer a basket: one still named by the session - its customer paid and never came back to the site, so nothing cleared it - is left alone and the visitor starts a new one
+    private function basketToAddTo(): Basket
+    {
         $basket = $this->get();
 
-        // An order is no longer a basket: one still named by the session - its customer paid and never came back to the site, so nothing cleared it - is left alone and the visitor starts a new one
-        if (null !== $basket && $this->isOrder($basket)) {
-            $basket = null;
+        return null !== $basket && !$this->isOrder($basket) ? $basket : $this->create();
+    }
+
+    // The line written over, dropped, or opened, on the basket's own lines - the caller writing them back once the totals have been drawn
+    private function addToItems(array &$items, string $type, mixed $itemId, object $item, BasketItemProviderInterface $provider, int $quantity): void
+    {
+        // New item
+        if (!isset($items[$type][$itemId])) {
+            $items[$type][$item->getId()] = $this->line($provider, $item, $quantity);
+
+            return;
         }
 
-        $this->basket = $basket ?? $this->create();
+        // Deletes item if quantity is 0
+        if ($items[$type][$itemId]['quantity'] + $quantity <= 0) {
+            unset($items[$type][$itemId]);
+
+            return;
+        }
+
+        // Otherwise updates quantity unless it's a digital item
+        // Only the quantity is written here: the line's price, its totals and its VAT are drawn from the item itself by the refresh updateTotals() runs afterwards
+        if (false === method_exists($item, 'getFile') || null === $item->getFile()->getName()) {
+            $items[$type][$itemId]['quantity'] += $quantity;
+        }
+    }
+
+    // Adds the item the call names to the basket, and hands back the basket as the page redraws it
+    public function addItem(Request $request): array
+    {
+        [$itemId, $quantity, $type] = $this->readAddition($request);
+
+        $this->basket = $this->basketToAddTo();
         $this->reopen($this->basket);
 
         $items = $this->basket->getItems();
@@ -641,20 +691,7 @@ class BasketService implements BasketServiceInterface
             return ['error' => $error];
         }
 
-        // Adds item to basket
-        if (isset($items[$type][$itemId])) {
-            // Deletes item if quantity is 0
-            if ($items[$type][$itemId]['quantity'] + $quantity <= 0) {
-                unset($items[$type][$itemId]);
-            // Otherwise updates quantity unless it's a digital item
-            } elseif (false === method_exists($item, 'getFile') || null === $item->getFile()->getName()) {
-                // Only the quantity is written here: the line's price, its totals and its VAT are drawn from the item itself by the refresh updateTotals() runs a few lines below
-                $items[$type][$itemId]['quantity'] += $quantity;
-            }
-        // New item
-        } else {
-            $items[$type][$item->getId()] = $this->line($provider, $item, $quantity);
-        }
+        $this->addToItems($items, $type, $itemId, $item, $provider, $quantity);
 
         $this->basket->setItems($items);
         $this->basket->setModification(new \DateTime());

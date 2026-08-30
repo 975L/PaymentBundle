@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<ruleset name="c975L"
+    xmlns="http://pmd.sf.net/ruleset/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+    xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+    <description>PHP Mess Detector rules for the c975L bundles, kept to what the code chooses rather than what the framework imposes</description>
+
+    <!-- Symfony and EasyAdmin impose the signature: configureFields(string $pageName), buildForm($builder, array $options), a bundle's build(ContainerBuilder $container) -->
+    <rule ref="rulesets/unusedcode.xml">
+        <exclude name="UnusedFormalParameter"/>
+    </rule>
+
+    <!-- The counting rules measure the contract, not the code: AbstractCrudController requires its configure* methods, a controller its routes, a repository its queries, and a Doctrine entity carries one accessor pair per column -->
+    <rule ref="rulesets/codesize.xml">
+        <exclude name="TooManyMethods"/>
+        <exclude name="TooManyPublicMethods"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="ExcessiveClassComplexity"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="CyclomaticComplexity"/>
+    </rule>
+
+    <!-- The same fifteen Lizard's ccn-medium palier uses: PHPMD's own default of 10 is McCabe's 1976 figure, which counts the ??, ?: and && that PHP 8 makes concise -->
+    <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+        <properties>
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- A constructor injecting a dozen services is how Symfony wires them; past sixteen parameters the signature is the problem -->
+    <rule ref="rulesets/codesize.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="16"/>
+        </properties>
+    </rule>
+
+    <!-- CouplingBetweenObjects counts the entities and services a controller must know to do its job, NumberOfChildren the compiler passes deriving from one base -->
+    <rule ref="rulesets/design.xml">
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="NumberOfChildren"/>
+    </rule>
+
+    <!-- Names are written to be read, so their length is not the measure -->
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+        <exclude name="LongVariable"/>
+        <exclude name="LongClassName"/>
+    </rule>
+</ruleset>

@@ -59,6 +59,17 @@ class RevolutOrderReaderTest extends TestCase
         $this->assertSame('42', new RevolutOrderReader()->read($order)?->basketId);
     }
 
+    // The order id is what the back-office records of the payment, and one recorded against nothing links nowhere
+    public function testACompletedOrderWithoutAnIdIsRefused(): void
+    {
+        $order = $this->order();
+        unset($order['id']);
+
+        $this->expectException(InvalidNotificationException::class);
+
+        new RevolutOrderReader()->read($order);
+    }
+
     // The versions around the one the gateway pins carry the amount under "order_amount", and an amount left null is one the checkout cannot match against the basket
     public function testTheAmountIsReadWhereverTheVersionCarriesIt(): void
     {
@@ -78,6 +89,16 @@ class RevolutOrderReaderTest extends TestCase
         ]]);
 
         $this->assertSame('revolut_pay', new RevolutOrderReader()->read($order)?->paymentMethod);
+    }
+
+    // An order completed with no payment of its own answering for it names no method, rather than the first attempt made on it
+    public function testNoCompletedPaymentNamesNoMethod(): void
+    {
+        $order = $this->order(['payments' => [
+            ['state' => 'failed', 'payment_method' => ['type' => 'card']],
+        ]]);
+
+        $this->assertNull(new RevolutOrderReader()->read($order)?->paymentMethod);
     }
 
     private function order(array $overrides = []): array

@@ -33,20 +33,11 @@ final class RevolutOrderReader
             return null;
         }
 
-        // Revolut hands nothing of ours back but the merchant reference, which is what the checkout wrote the basket into; the order fetched from the api names it under the key it was sent with, the webhook under its own
-        $basketId = $order['merchant_order_ext_ref'] ?? $order['merchant_order_data']['reference'] ?? null;
-        if (null === $basketId || '' === (string) $basketId) {
-            throw new InvalidNotificationException('Basket ID is missing from the merchant reference');
-        }
-
-        // The order id is what the back-office records of the payment, Revolut charging an order rather than naming a charge of its own
-        $orderId = $order['id'] ?? null;
-        if (!is_string($orderId) || '' === $orderId) {
-            throw new InvalidNotificationException('Order id is missing from the completed order');
-        }
+        $basketId = $this->basketId($order);
+        $orderId = $this->orderId($order);
 
         return new PaymentNotification(
-            (string) $basketId,
+            $basketId,
             RevolutGateway::SLUG,
             $orderId,
             $this->readPaymentMethod($order),
@@ -54,7 +45,29 @@ final class RevolutOrderReader
         );
     }
 
-    // An order carries every attempt made on it, a card declined then a wallet accepted included: the one that went through is what the customer actually paid with
+    // Revolut hands nothing of ours back but the merchant reference, which is what the checkout wrote the basket into; the order fetched from the api names it under the key it was sent with, the webhook under its own
+    private function basketId(array $order): string
+    {
+        $basketId = $order['merchant_order_ext_ref'] ?? $order['merchant_order_data']['reference'] ?? null;
+        if (null === $basketId || '' === (string) $basketId) {
+            throw new InvalidNotificationException('Basket ID is missing from the merchant reference');
+        }
+
+        return (string) $basketId;
+    }
+
+    // The order id is what the back-office records of the payment, Revolut charging an order rather than naming a charge of its own
+    private function orderId(array $order): string
+    {
+        $orderId = $order['id'] ?? null;
+        if (!is_string($orderId) || '' === $orderId) {
+            throw new InvalidNotificationException('Order id is missing from the completed order');
+        }
+
+        return $orderId;
+    }
+
+    // An order carries every attempt made on it, a card declined then a wallet accepted included: the method of the one payment that went through is what the customer actually paid with, and null when none did
     private function readPaymentMethod(array $order): ?string
     {
         foreach ($order['payments'] ?? [] as $payment) {

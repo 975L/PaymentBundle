@@ -108,7 +108,7 @@ export default class extends Controller {
                     return;
                 }
 
-                Handlers.displayMessage(`"${target.dataset.title}" ${target.dataset.text}`, "alert-" + target.dataset.alert);
+                Handlers.displayMessage(`"${target.dataset.title}" ${target.dataset.text}`, `alert-${target.dataset.alert}`);
                 this.update(data);
             })
             .catch(() => Handlers.displayMessage(Handlers.translate(errorKey), "alert-danger"));
@@ -201,11 +201,11 @@ export default class extends Controller {
         if (this.hasCodeLabelTarget) {
             // Each key written out in full: the translations are checked against what this file literally asks for
             const kind = "gift_card" === data.basket.discountKind ? Handlers.translate("basket.gift_card") : Handlers.translate("basket.discount");
-            this.codeLabelTarget.textContent = kind + " " + data.basket.discountCode;
+            this.codeLabelTarget.textContent = `${kind} ${data.basket.discountCode}`;
         }
 
         if (this.hasCodeAmountTarget) {
-            this.codeAmountTarget.textContent = "-" + Handlers.formatAmount(amount, data.basket.currency);
+            this.codeAmountTarget.textContent = `-${Handlers.formatAmount(amount, data.basket.currency)}`;
         }
     }
 
@@ -295,7 +295,7 @@ export default class extends Controller {
         }
 
         Object.entries(data.basket.items).forEach(([type, items]) => {
-            Object.entries(items ?? {}).forEach(([id, itemData]) => this.updateItemRow(`${type}-${id}`, itemData));
+            Object.entries(items ?? {}).forEach(([id, itemData]) => { this.updateItemRow(`${type}-${id}`, itemData); });
         });
     }
 

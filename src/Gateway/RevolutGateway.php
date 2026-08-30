@@ -60,20 +60,29 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
         return '' !== $this->getSecret();
     }
 
-    public function createCheckout(CheckoutRequest $request): CheckoutSession
+    // Revolut charges one amount for the whole order where Stripe itemises it, so the lines are added up here and named in the description - what the customer reads on the checkout page is otherwise a bare total
+    /** @return array{0: int, 1: string} */
+    private function totalAndDescription(CheckoutRequest $request): array
     {
-        // Revolut charges one amount for the whole order where Stripe itemises it, so the lines are added up here and named in the description - what the customer reads on the checkout page is otherwise a bare total
         $amount = 0;
         $names = [];
+
         foreach ($request->lines as $line) {
             $amount += $line['amount'] * $line['quantity'];
             $names[] = $line['quantity'] > 1 ? $line['quantity'] . ' x ' . $line['name'] : $line['name'];
         }
 
+        return [$amount, mb_substr(implode(', ', $names), 0, 1000)];
+    }
+
+    public function createCheckout(CheckoutRequest $request): CheckoutSession
+    {
+        [$amount, $description] = $this->totalAndDescription($request);
+
         $payload = [
             'amount' => $amount,
             'currency' => strtoupper($request->currency),
-            'description' => mb_substr(implode(', ', $names), 0, 1000),
+            'description' => $description,
             // The one thing of ours Revolut hands back with its events, under the name "merchant_order_ext_ref": the basket is written there because a notification carrying no basket settles nothing
             'merchant_order_data' => ['reference' => (string) ($request->metadata['basket_id'] ?? '')],
             // Where the customer is sent once they have paid. Revolut offers no counterpart for the customer who gives up, who is left on the checkout page with the site's own link out of it

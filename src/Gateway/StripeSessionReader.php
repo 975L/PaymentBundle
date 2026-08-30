@@ -33,26 +33,45 @@ final class StripeSessionReader
             return null;
         }
 
+        $basketId = $this->basketId($session);
+        $transactionId = $this->transactionId($session);
+
+        return new PaymentNotification(
+            $basketId,
+            StripeGateway::SLUG,
+            $transactionId,
+            $this->paymentMethod($session),
+            isset($session['amount_total']) ? (int) $session['amount_total'] : null,
+        );
+    }
+
+    // The basket the session was opened for, which Stripe hands back in the metadata it was given
+    private function basketId(array | \ArrayAccess $session): string
+    {
         $basketId = $session['metadata']['basket_id'] ?? null;
         if (null === $basketId || '' === (string) $basketId) {
             throw new InvalidNotificationException('Basket ID is missing from metadata');
         }
 
-        // A paid session names the payment intent that carries the charge, which is what the back-office links to
+        return (string) $basketId;
+    }
+
+    // A paid session names the payment intent that carries the charge, which is what the back-office links to
+    private function transactionId(array | \ArrayAccess $session): string
+    {
         $transactionId = $session['payment_intent'] ?? null;
         if (!is_string($transactionId) || '' === $transactionId) {
             throw new InvalidNotificationException('Payment intent is missing from the paid session');
         }
 
-        // The methods the checkout was opened with, the session carrying the same list the payment intent does - reading it here spares a second call to Stripe on every payment
+        return $transactionId;
+    }
+
+    // The methods the checkout was opened with, the session carrying the same list the payment intent does - reading it here spares a second call to Stripe on every payment
+    private function paymentMethod(array | \ArrayAccess $session): ?string
+    {
         $paymentMethodTypes = $session['payment_method_types'] ?? null;
 
-        return new PaymentNotification(
-            (string) $basketId,
-            StripeGateway::SLUG,
-            $transactionId,
-            is_iterable($paymentMethodTypes) ? ((array) $paymentMethodTypes)[0] ?? null : null,
-            isset($session['amount_total']) ? (int) $session['amount_total'] : null,
-        );
+        return is_iterable($paymentMethodTypes) ? ((array) $paymentMethodTypes)[0] ?? null : null;
     }
 }

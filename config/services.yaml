@@ -13,6 +13,7 @@ services:
     c975L\PaymentBundle\Service\StylesheetProvider:
         tags:
             - { name: 'ui.stylesheet', priority: 20 }
+            - { name: 'ui.management_stylesheet' }
 
     # The basket controller is mounted by templates of this bundle and of the ones plugging into it, so the front layout loads it on every page
     c975L\PaymentBundle\Service\ScriptProvider:
