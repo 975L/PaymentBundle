@@ -29,9 +29,10 @@
     <tr>
         <td>
             <h2>{{ 'label.seller'|trans }}</h2>
-            {{ legal_var('site-owner')|raw }}<br>
-            {{ legal_var('site-address')|raw }}<br>
-            {{ legal_var('site-contact-email') }}
+            {# The seller as this invoice was issued, frozen on the order when it was numbered - never legal_var(), which would state whoever the shop has become since (see InvoiceService::seller). Frozen raw, so each value is formatted here: the owner block is rich text, the address is plain text over several lines, the email is printed as it stands #}
+            {{ seller.owner|raw }}<br>
+            {{ seller.address|nl2br }}<br>
+            {{ seller.email }}
         </td>
         <td>
             <h2>{{ 'label.billed_to'|trans }}</h2>

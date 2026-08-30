@@ -172,6 +172,20 @@ class Basket implements \Stringable
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $invoiceNumber = null;
 
+    // Who issued the invoice, frozen with its number and never looked up again (see InvoiceService::assign()). A shop is renamed, moves, changes its status; an invoice has to be reproducible as it was issued for six years, so the seller block is copied onto the order rather than read back off a configuration that has since moved on. Null on every order billed before the shop started freezing it, which is what the invoice falls back on the live values for
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $invoiceSeller = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $invoiceSellerAddress = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invoiceSellerEmail = null;
+
+    // The registration numbers, the VAT number, or the article exempting the shop from charging any. Frozen for the sharpest reason of the four: a shopkeeper crossing the VAT threshold rewrites these, and every invoice issued before that day must keep saying what it said
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $invoiceMentions = null;
+
     // Whoever the gift cards of this order were bought for, and what the buyer wanted said to them. One address per order, not one per card: a shopper buying two cards for the same person is the ordinary case, and asking twice for two lines that go to the same mailbox helps nobody
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Email]
@@ -683,6 +697,37 @@ class Basket implements \Stringable
     public function setInvoiceNumber(?string $invoiceNumber): static
     {
         $this->invoiceNumber = $invoiceNumber;
+
+        return $this;
+    }
+
+    public function getInvoiceSeller(): ?string
+    {
+        return $this->invoiceSeller;
+    }
+
+    public function getInvoiceSellerAddress(): ?string
+    {
+        return $this->invoiceSellerAddress;
+    }
+
+    public function getInvoiceSellerEmail(): ?string
+    {
+        return $this->invoiceSellerEmail;
+    }
+
+    public function getInvoiceMentions(): ?string
+    {
+        return $this->invoiceMentions;
+    }
+
+    // Written by InvoiceService::assign() alone, at the same moment as the number, and never afterwards - the four together are what makes the document reproducible, so they are set as one rather than one setter at a time
+    public function setInvoiceIssuer(?string $seller, ?string $address, ?string $email, ?string $mentions): static
+    {
+        $this->invoiceSeller = $seller;
+        $this->invoiceSellerAddress = $address;
+        $this->invoiceSellerEmail = $email;
+        $this->invoiceMentions = $mentions;
 
         return $this;
     }

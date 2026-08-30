@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.4.0
+
+An invoice states who issued it the day it was issued
+
+- `InvoiceService::assign()` freezes the seller block and the legal mentions on the order, with its number (30/08/2026) **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- `Basket` gained `invoice_seller`, `invoice_seller_address`, `invoice_seller_email` and `invoice_mentions`, written by `setInvoiceIssuer()` alone (30/08/2026)
+- The invoice PDF reads the frozen issuer, and falls back on the configuration for the orders billed before (30/08/2026)
+- A config slug left blank freezes `null` rather than `''`, so a shop that has not said who it is yet keeps reading the live values (30/08/2026)
+- The template prints the frozen seller instead of `legal_var()`, formatting each value where it is printed (30/08/2026)
+- The README and the `c975l-payment-checkout` skill state the freeze and its fallback (30/08/2026)
+- Added five cases to `InvoiceServiceTest` covering the freeze, the fallback and the blank slugs (30/08/2026)
+- Added `tests/Templates/InvoiceSellerTest.php`, guarding the seller block against a `legal_var()` coming back (30/08/2026)
+
 ## v6.3.3
 
 Logo modified

@@ -26,7 +26,10 @@ use Doctrine\ORM\EntityManagerInterface;
  * keys, a rehearsal being no sale to bill.
  *
  * The file is drawn on demand and kept nowhere: it says what the order says, and the order is the record. Drawing
- * it again next year from the same row gives the same document, which a stored copy could not promise.
+ * it again next year from the same row gives the same document, which a stored copy could not promise - but only
+ * because the seller block and the legal mentions are copied onto the order when it is numbered. Read back off the
+ * configuration they would be today's, and a shop that has moved or crossed the VAT threshold would be reissuing its
+ * old invoices with the wrong company on them, which the six years an invoice must stay reproducible do not allow.
  *
  * This is a B2C invoice. Selling to businesses is another matter entirely - a Factur-X document (PDF/A-3 with its
  * XML inside) sent through an approved platform - and nothing here pretends to be one.
@@ -67,6 +70,13 @@ class InvoiceService
 
         $basket->setInvoiceNumber($number);
         $basket->setInvoiceDate(new \DateTime());
+        // Frozen in the same breath as the number: the two are the document, and an invoice numbered without its issuer is one that will be reissued under whoever the shop has become since. Frozen as the configuration holds it and not as a template printed it, the formatting being the renderer's business (see the invoice template) - a value frozen already escaped would be escaped a second time on the way out
+        $basket->setInvoiceIssuer(
+            $this->config('site-owner'),
+            $this->config('site-address'),
+            $this->config('site-contact-email'),
+            (string) $this->configService->get('shop-invoice-mentions'),
+        );
         $this->entityManager->flush();
 
         return $number;
@@ -82,8 +92,35 @@ class InvoiceService
         return $this->pdfGenerator->render($template, [
             'basket' => $basket,
             'vat' => $this->vatCalculator->breakdown($basket),
-            'mentions' => (string) $this->configService->get('shop-invoice-mentions'),
+            'seller' => $this->seller($basket),
+            'mentions' => $basket->getInvoiceMentions() ?? (string) $this->configService->get('shop-invoice-mentions'),
         ]);
+    }
+
+    /**
+     * Who the invoice says issued it: what was frozen when it was numbered.
+     *
+     * Falls back on the configuration as it stands for the orders billed before the shop started freezing anything -
+     * those invoices were already being reissued with today's company, and an empty seller block would be worse than a
+     * dated one.
+     *
+     * @return array{owner: string, address: string, email: string}
+     */
+    private function seller(Basket $basket): array
+    {
+        return [
+            'owner' => $basket->getInvoiceSeller() ?? (string) $this->config('site-owner'),
+            'address' => $basket->getInvoiceSellerAddress() ?? (string) $this->config('site-address'),
+            'email' => $basket->getInvoiceSellerEmail() ?? (string) $this->config('site-contact-email'),
+        ];
+    }
+
+    // A setting as the shop filled it in, or nothing at all: a shop numbering its first invoice before stating who it is freezes nothing, so its invoices go on reading the configuration until it is filled in - which "" frozen once would have forbidden for ever
+    private function config(string $slug): ?string
+    {
+        $value = trim((string) $this->configService->get($slug));
+
+        return '' === $value ? null : $value;
     }
 
     // What the recipient sees the file called, the number being what anybody filing it looks for

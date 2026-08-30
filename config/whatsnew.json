@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-08-30",
+        "description": [
+            {
+                "en": "An invoice now stays exactly as it was issued: the seller block and the legal mentions are copied onto the order when it is billed, so moving, changing your company name or crossing the VAT threshold no longer rewrites the invoices you sent years ago",
+                "fr": "Une facture reste désormais exactement telle qu'elle a été émise : le bloc vendeur et les mentions légales sont recopiés sur la commande au moment de la facturation, de sorte qu'un déménagement, un changement de dénomination ou le franchissement du seuil de TVA ne réécrit plus les factures envoyées il y a des années",
+                "es": "Una factura permanece ahora exactamente como fue emitida: el bloque del vendedor y las menciones legales se copian en el pedido al facturarlo, de modo que una mudanza, un cambio de denominación o superar el umbral de IVA ya no reescribe las facturas enviadas hace años"
+            }
+        ]
+    },
+    {
         "date": "2026-08-26",
         "description": [
             {

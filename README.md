@@ -370,6 +370,14 @@ The document itself is drawn on demand and kept nowhere: it says what the order 
 `shop-invoice-mentions` is printed at its foot — registration numbers, a VAT number, or the article exempting the
 shop from charging any. That is written by the shopkeeper, who is the only one who knows their own situation.
 
+**Who issued the invoice is frozen with its number.** `assign()` copies the seller block — `site-owner`,
+`site-address`, `site-contact-email` — and `shop-invoice-mentions` onto the order, and the file reads them back
+from there rather than from the configuration. A shop that is renamed, moves, or crosses the VAT threshold would
+otherwise be reissuing its old invoices under whoever it has become since, which the six years an invoice must stay
+reproducible do not allow. A shop that has not said who it is yet freezes nothing rather than a blank block, so its
+invoices go on reading the configuration until it is filled in; the orders billed before the freeze existed carry
+nothing either, and fall back on the same live values they were already being drawn with.
+
 | Where | What |
 | --- | --- |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}`, linked from the customer's own order page |

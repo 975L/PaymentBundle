@@ -125,10 +125,87 @@ class InvoiceServiceTest extends TestCase
         $this->assertSame('fa2026-0001.pdf', $this->service()->filename(new Basket()->setInvoiceNumber('FA2026-0001')));
     }
 
+    // An invoice has to be reproducible as it was issued for six years, so who issued it is copied onto the order and not read back off a configuration the shop is free to change
+    public function testTheSellerIsFrozenWhenTheOrderIsNumbered(): void
+    {
+        $basket = new Basket();
+        $this->service()->assign($basket);
+
+        $this->assertSame('975L', $basket->getInvoiceSeller());
+        $this->assertSame("12 rue des Lilas\n74000 Annecy", $basket->getInvoiceSellerAddress());
+        $this->assertSame('contact@975l.com', $basket->getInvoiceSellerEmail());
+        $this->assertSame('TVA non applicable, art. 293 B du CGI', $basket->getInvoiceMentions());
+    }
+
+    // A shop numbering its first invoice before saying who it is freezes nothing rather than an empty seller block: "" frozen once would have printed a blank issuer for ever, even after the configuration was filled in
+    public function testAShopThatHasNotSaidWhoItIsFreezesNothing(): void
+    {
+        $basket = new Basket();
+        $this->service(owner: '')->assign($basket);
+
+        $this->assertNull($basket->getInvoiceSeller());
+        $this->assertNull($basket->getInvoiceSellerAddress());
+        $this->assertNull($basket->getInvoiceSellerEmail());
+    }
+
+    // Mentions are the exception: a shop charging no VAT and having nothing to state freezes that emptiness, and its old invoices keep saying nothing rather than picking up whatever it writes the day it crosses the threshold
+    public function testMentionsLeftBlankAreFrozenAsBlank(): void
+    {
+        $basket = new Basket();
+        $this->service(mentions: '')->assign($basket);
+
+        $this->assertSame('', $basket->getInvoiceMentions());
+    }
+
+    // The whole point: the shop moves, is renamed, crosses the VAT threshold - and the invoices it already issued go on saying what they said
+    public function testAnAlreadyNumberedInvoiceIgnoresWhatTheShopHasBecomeSince(): void
+    {
+        $pdfGenerator = $this->createMock(PdfGeneratorInterface::class);
+        $pdfGenerator
+            ->expects($this->once())
+            ->method('render')
+            ->with($this->anything(), $this->callback(function (array $parameters): bool {
+                $this->assertSame('Editions Lolant', $parameters['seller']['owner']);
+                $this->assertSame('3 place du Marche, Lyon', $parameters['seller']['address']);
+                $this->assertSame('TVA 20%', $parameters['mentions']);
+
+                return true;
+            }))
+            ->willReturn('%PDF-1.7')
+        ;
+
+        $basket = new Basket()->setInvoiceNumber('FA2026-0001');
+        $basket->setInvoiceIssuer('Editions Lolant', '3 place du Marche, Lyon', 'contact@editions-lolant.com', 'TVA 20%');
+
+        $this->service(pdfGenerator: $pdfGenerator)->pdf($basket);
+    }
+
+    // Orders billed before the shop started freezing anything carry nothing, and an empty seller block would be worse on paper than a dated one
+    public function testAnInvoiceIssuedBeforeTheFreezeFallsBackOnTheLiveValues(): void
+    {
+        $pdfGenerator = $this->createMock(PdfGeneratorInterface::class);
+        $pdfGenerator
+            ->expects($this->once())
+            ->method('render')
+            ->with($this->anything(), $this->callback(function (array $parameters): bool {
+                $this->assertSame('975L', $parameters['seller']['owner']);
+                $this->assertSame("12 rue des Lilas\n74000 Annecy", $parameters['seller']['address']);
+                $this->assertSame('TVA non applicable, art. 293 B du CGI', $parameters['mentions']);
+
+                return true;
+            }))
+            ->willReturn('%PDF-1.7')
+        ;
+
+        $this->service(pdfGenerator: $pdfGenerator)->pdf(new Basket()->setInvoiceNumber('FA2026-0001'));
+    }
+
     private function service(
         ?InvoiceSequenceRepository $sequence = null,
         ?PdfGeneratorInterface $pdfGenerator = null,
         string $prefix = 'FA',
+        string $owner = '975L',
+        string $mentions = 'TVA non applicable, art. 293 B du CGI',
     ): InvoiceService {
         if (null === $sequence) {
             $sequence = $this->createStub(InvoiceSequenceRepository::class);
@@ -138,7 +215,11 @@ class InvoiceServiceTest extends TestCase
         $configService = $this->createStub(ConfigServiceInterface::class);
         $configService->method('get')->willReturnMap([
             ['shop-invoice-prefix', $prefix],
-            ['shop-invoice-mentions', ''],
+            ['shop-invoice-mentions', $mentions],
+            ['site-owner', $owner],
+            // Multi-line on purpose: a postal address is what the freeze must keep as the shop typed it, the <br> being the template's business
+            ['site-address', $owner ? "12 rue des Lilas\n74000 Annecy" : ''],
+            ['site-contact-email', $owner ? 'contact@975l.com' : ''],
         ]);
 
         return new InvoiceService(

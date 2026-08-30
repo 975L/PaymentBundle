@@ -1,5 +1,24 @@
 # UPGRADE
 
+## v6.3 > v6.4
+
+**An invoice now states who issued it the day it was issued.** The seller block and the legal mentions are copied
+onto the order when its number is drawn, instead of being read back off the configuration every time the file is
+drawn again: a shop that is renamed, moves, or crosses the VAT threshold would otherwise be reissuing its old
+invoices under whoever it has become since, which the six years an invoice must stay reproducible do not allow.
+Four columns carry it:
+
+```sql
+ALTER TABLE payment_basket ADD invoice_seller LONGTEXT DEFAULT NULL;
+ALTER TABLE payment_basket ADD invoice_seller_address LONGTEXT DEFAULT NULL;
+ALTER TABLE payment_basket ADD invoice_seller_email VARCHAR(255) DEFAULT NULL;
+ALTER TABLE payment_basket ADD invoice_mentions LONGTEXT DEFAULT NULL;
+```
+
+Generate it with `doctrine:migrations:diff` and run it. **Leave them null on the orders already billed**: that is
+what makes those invoices go on reading the configuration as it stands, which is what they were already doing -
+backfilling today's company onto them would state as frozen something that never was.
+
 ## v6.2 > v6.3
 
 **The documents an order email carries are now behind one switch, off by default.** `payment-email-attachments`
