@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Form;
 use c975L\PaymentBundle\Entity\Basket;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -48,7 +49,8 @@ class CoordinatesType extends AbstractType
                 ->add('zip', TextType::class, [
                     'label' => 'label.zip',
                 ])
-                ->add('country', TextType::class, [
+                // A list and not a free text: the delivery is priced on the country, and a zone naming "FR" recognises nothing in "france", "France" or "FRANCE". CountryType stores the ISO 3166-1 alpha-2 code and shows the customer the name in their own language
+                ->add('country', CountryType::class, [
                     'label' => 'label.country',
                 ])
                 ->add('message', TextareaType::class, [

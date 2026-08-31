@@ -1,5 +1,36 @@
 # Changelog
 
+## v6.5.0
+
+Delivery is priced on a grid of zones and weight tiers
+
+- New `WeighableBasketItemProviderInterface`, optional beside `BasketItemProviderInterface`: `getWeight(array $itemData): ?int`, the weight of one line in grams, quantity included (31/08/2026)
+- Kept apart rather than added to `BasketItemProviderInterface`, a provider selling nothing that ships staying valid without it — and no implementor breaking on upgrade (31/08/2026)
+- Null for a download, a service or an unweighed article, added up as nothing rather than as zero (31/08/2026)
+
+### The shipping grid
+
+- **New `ShippingZone` and `ShippingRate`**, a delivery grid written in the back office: a zone groups the countries posted at one tariff and carries its weight tiers, edited in one screen (31/08/2026) **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- A parcel is charged at the first tier it fits in, the ceiling included, the boundless tier catching what the others do not (31/08/2026)
+- The zone naming no country is the default one, where a country named nowhere else falls (31/08/2026)
+- **Nothing written is nothing charged**: no zone, no default zone, or no tier covering the parcel, and the delivery is free (31/08/2026)
+- New `ShippingRateResolverInterface` and its `payment_shipping_from()` Twig function, which the shipping block states delivery from (31/08/2026)
+- **`shop-shipping` is removed**, the grid replacing the single flat rate (31/08/2026) [BC-Break] see [UPGRADE.md](UPGRADE.md)
+- New `shop-shipping-country`: the country the basket page estimates delivery on before an address is given (31/08/2026)
+- `validate()` counts the basket again once the address is bound, so an order is charged for where it actually goes and not for the estimate (31/08/2026)
+- **Delivery costing more than the estimate refuses the order** rather than charging it silently, the customer being sent back to the basket now saying the true price (31/08/2026)
+- A promotional code worth less on the refreshed totals refuses the order too, `assertCodeStillHolds()` reading those of before the refresh (31/08/2026)
+- `CoordinatesType` asks for the country in a list rather than in a free text, storing its ISO code (31/08/2026) [BC-Break]
+- The parcel label, the invoice and the order page spell the country out rather than showing its ISO code (31/08/2026)
+- **A free-shipping threshold left unset is no threshold at all**, where it used to make `$total < null` false and charge no delivery on any basket (31/08/2026) [BC-Break]
+- **The packaging is not weighed**, a tier being written for the parcel the carrier puts on the scales and not for what it holds (31/08/2026)
+- New `ShippingHealthCheckProvider`: an empty grid, a missing or duplicated default zone, and a zone without a boundless tier are reported rather than found on a month of orders (31/08/2026)
+- Site-wide, its rows keyed on the site root and translated, the zones summed on one row rather than one per zone (31/08/2026)
+- The README, `UPGRADE.md` and the `c975l-payment-checkout` and `c975l-payment-items` skills state the grid, the weight and the threshold (31/08/2026)
+- Added `tests/Twig/ShippingExtensionTest.php`, covering what a page states and the grid that states nothing (31/08/2026)
+- Added `tests/Form/ShippingRateTypeTest.php`, covering the boundless ceiling and the shop's own currency (31/08/2026)
+- `CoordinatesTypeTest` checks the country is picked from a list (31/08/2026)
+
 ## v6.4.1
 
 The block picker draws the shipping block rather than framing it

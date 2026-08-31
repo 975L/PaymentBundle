@@ -20,12 +20,12 @@ class ShippingTest extends TestCase
         return (string) file_get_contents(\dirname(__DIR__, 2) . '/templates/components/Basket/Shipping.html.twig');
     }
 
-    // A page placing the block hands over nothing, so each prop falls back to the configuration it has always read
+    // A page placing the block hands over nothing, so each prop falls back on its own - the amount on the grid, the two others on the configuration they have always read
     public function testEachPropFallsBackToItsOwnConfiguration(): void
     {
         $component = $this->component();
 
-        $this->assertStringContainsString("{% set shipping = shipping is defined ? shipping : config('shop-shipping') %}", $component);
+        $this->assertStringContainsString('{% set shipping = shipping is defined ? shipping : payment_shipping_from() %}', $component);
         $this->assertStringContainsString("{% set free = free is defined ? free : config('shop-shipping-free') %}", $component);
         $this->assertStringContainsString("{% set currency = currency is defined ? currency : config('shop-currency') %}", $component);
     }

@@ -40,7 +40,7 @@
             {% if basket.name %}{{ basket.name }}<br>{% endif %}
             {% if basket.address %}{{ basket.address }}<br>{% endif %}
             {% if basket.zip or basket.city %}{{ basket.zip }} {{ basket.city }}<br>{% endif %}
-            {% if basket.country %}{{ basket.country }}<br>{% endif %}
+            {% if basket.country %}{{ basket.country|country_name|default(basket.country) }}<br>{% endif %}
             {{ basket.email }}
         </td>
     </tr>

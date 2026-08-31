@@ -17,6 +17,7 @@ use c975L\PaymentBundle\Contract\PaymentGatewayInterface;
 use c975L\PaymentBundle\Contract\PaymentLinkItem;
 use c975L\PaymentBundle\Contract\PaymentNotification;
 use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
+use c975L\PaymentBundle\Contract\WeighableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
@@ -67,6 +68,7 @@ class BasketService implements BasketServiceInterface
         private readonly BasketCodeService $basketCodeService,
         private readonly VatCalculator $vatCalculator,
         private readonly InvoiceService $invoiceService,
+        private readonly ShippingRateResolverInterface $shippingRateResolver,
     ) {
         try {
             $this->session = $this->requestStack->getSession();
@@ -83,7 +85,7 @@ class BasketService implements BasketServiceInterface
         $basket->setTotal(0);
         $basket->setQuantity(0);
         $basket->setCurrency($this->configService->get('shop-currency'));
-        $basket->setShipping($this->configService->get('shop-shipping'));
+        $basket->setShipping(0);
         $basket->setCreation(new \DateTime());
         $basket->setModification(new \DateTime());
         $basket->setStatus('new');
@@ -145,7 +147,6 @@ class BasketService implements BasketServiceInterface
     // Updates total
     public function updateTotals(): void
     {
-        $shipping = $this->configService->get('shop-shipping');
         $shippingFree = $this->configService->get('shop-shipping-free');
 
         // Read again before anything is counted, so what is summed below is what the catalogue says today
@@ -158,6 +159,8 @@ class BasketService implements BasketServiceInterface
         $contentFlags = 0;
         // What of the basket is money bought in advance, which a promotional code is never taken off (see Basket::CONTENT_FLAG_GIFT_CARD)
         $giftCardTotal = 0;
+        // What the parcel weighs, in grams - only the providers that say so contribute, the others leaving it where it stands (see WeighableBasketItemProviderInterface)
+        $weight = 0;
 
         foreach ($items as $type => $item) {
             $provider = $this->itemProviderRegistry->get($type);
@@ -171,6 +174,10 @@ class BasketService implements BasketServiceInterface
                 if (($flags & Basket::CONTENT_FLAG_GIFT_CARD) > 0) {
                     $giftCardTotal += $itemContent['total'];
                 }
+
+                if ($provider instanceof WeighableBasketItemProviderInterface) {
+                    $weight += $provider->getWeight($itemContent) ?? 0;
+                }
             }
         }
 
@@ -178,13 +185,30 @@ class BasketService implements BasketServiceInterface
         $this->basket->setTotal($total);
 
         // Shipping only for physical items, weighed against what the basket holds and not what is paid: a code must not cost the customer the free shipping they had earned
+        // A threshold left unset is no threshold at all, and no longer "free from zero": read as an amount it made "$total < null" false on every basket, so a shop that had not set one was charging no delivery whatever its rate said - which the grid would have inherited, written in full and applied to nobody
         $requiresShipping = ($contentFlags & Basket::FLAG_NEEDS_SHIPPING) > 0;
-        $applyShipping = $requiresShipping && $total < $shippingFree;
-        $this->basket->setShipping($applyShipping ? $shipping : 0);
+        $freeFrom = (int) $shippingFree;
+        $applyShipping = $requiresShipping && (0 === $freeFrom || $total < $freeFrom);
+        $this->basket->setShipping($applyShipping ? $this->shipping($weight) : 0);
         $this->basket->setQuantity($quantity);
 
         // Read again on every change of the basket rather than kept as it was resolved: removing an article can take the basket under a code's minimum, and a card is worth what is left on it today
         $this->refreshCode($giftCardTotal);
+    }
+
+    /**
+     * What the grid charges to post this parcel - nothing when it says nothing, which is what a shop that has
+     * written no zone charges (see ShippingRateResolver).
+     *
+     * The country is the one the order carries, and it is only given at the checkout: before that the basket page
+     * shows what "shop-shipping-country" says the shop posts to by default, which is an estimate and reads as one.
+     * The real one is charged because validate() runs this pass again once the address is bound.
+     */
+    private function shipping(int $weight): int
+    {
+        $country = $this->basket->getCountry() ?: $this->configService->get('shop-shipping-country');
+
+        return $this->shippingRateResolver->resolve(\is_string($country) ? $country : null, $weight) ?? 0;
     }
 
     /**
@@ -295,6 +319,19 @@ class BasketService implements BasketServiceInterface
         }
     }
 
+    // What updateTotals() has just written against what the customer was last shown. Flushed before it refuses, so the basket they come back to says the true price instead of refusing again forever - the same rule as assertCodeStillHolds()
+    private function assertUnchanged(?int $displayed, ?int $counted, string $error): void
+    {
+        // Cast: a basket never counted yet carries no shipping at all, which is the same promise as a shipping of zero
+        if ((int) $displayed === (int) $counted) {
+            return;
+        }
+
+        $this->entityManager->flush();
+
+        throw new BasketNotOrderableException($this->translator->trans($error, [], 'payment'));
+    }
+
     // Each provider hands over what it will need back once the basket is delivered, which is kept on the basket rather than in the visitor's session - the webhook that confirms the payment carries no session of theirs. Asked before the free path returns: an order covered in full is delivered just like a paid one, and paid() reads the same data back
     private function collectCheckoutData(Request $request): array
     {
@@ -319,6 +356,19 @@ class BasketService implements BasketServiceInterface
 
         $this->assertCodeStillHolds();
         $this->assertItemsOrderable();
+
+        // What the customer was last shown, kept before the basket is counted again: the two totals below are compared to these, and not to what the fresh pass writes over them
+        $displayedShipping = $this->basket->getShipping();
+        $displayedDiscount = $this->basket->getDiscountAmount();
+
+        // Counted again now that the address is bound, and this is the last pass: the coordinates form has just written the country on the basket, and until it did, the delivery was priced on the zone the shop posts to by default. What is charged has to be what the parcel actually costs to where it goes - the status turns to "validated" three lines below, after which refreshItems() lets nothing move again
+        $this->updateTotals();
+
+        // Refused rather than charged silently: the total the customer clicked "pay" on was the one estimated on the shop's default country, and no page of the site ever showed them this one
+        $this->assertUnchanged($displayedShipping, $this->basket->getShipping(), 'error.shipping_changed');
+
+        // The same for the promotional code, which updateTotals() has just resolved again: assertCodeStillHolds() reads the totals of before the refresh, so a code falling short only on the fresh ones is caught here
+        $this->assertUnchanged($displayedDiscount, $this->basket->getDiscountAmount(), 'error.code_changed');
 
         // Asked before anything is written, and on what is left to charge: an order covered in full needs no gateway, and a shop able to charge with none leaves the basket as it was rather than half-persisted
         $this->gateway = $this->resolveGateway($request->request->getString('gateway') ?: null);

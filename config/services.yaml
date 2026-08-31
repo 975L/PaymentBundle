@@ -36,7 +36,7 @@ services:
         arguments:
             $providers: !tagged_iterator payment.basket_download_provider
 
-    # The block saying what delivery costs, in the same "Boutique" group of the picker as the kinds ShopBundle offers - not cacheable, its two amounts being read from the configuration at render time and a cached copy outliving a change made to it
+    # The block saying what delivery costs, in the same "Boutique" group of the picker as the kinds ShopBundle offers - not cacheable, its threshold being read from the configuration and its starting price off the shipping grid at render time, a cached copy outliving a change made to either
     payment.block.shipping:
         class: stdClass
         tags:

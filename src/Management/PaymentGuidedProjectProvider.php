@@ -16,6 +16,7 @@ use c975L\PaymentBundle\Controller\Management\BasketCrudController;
 use c975L\PaymentBundle\Controller\Management\DiscountCrudController;
 use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
+use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -39,6 +40,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             $this->paymentLinkProject(),
             $this->giftCardIssueProject(),
             $this->discountCodeProject(),
+            $this->shippingGridProject(),
             $this->shippingProject(),
             $this->basketIntegrityProject(),
         ];
@@ -299,6 +301,61 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_discount_code_live',
                     'description' => 'description.guided_step_payment_discount_code_live',
+                ],
+            ],
+        ];
+    }
+
+    // What the shop charges to post a parcel, written once before the first order rather than discovered on a month of them - and the one screen whose emptiness costs money in silence, an unwritten grid posting everything free
+    private function shippingGridProject(): array
+    {
+        return [
+            'slug' => 'payment-shipping-grid',
+            'label' => 'label.guided_project_payment_shipping_grid',
+            'description' => 'description.guided_project_payment_shipping_grid',
+            'translation_domain' => 'payment',
+            // Just before the parcel round it makes possible: nothing can be posted at a price the grid does not state
+            'order' => 7055,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_open',
+                    'description' => 'description.guided_step_payment_shipping_grid_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(ShippingZoneCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_new',
+                    'description' => 'description.guided_step_payment_shipping_grid_new',
+                    'highlight' => '.action-new',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_name',
+                    'description' => 'description.guided_step_payment_shipping_grid_name',
+                    'highlight' => '#ShippingZone_name',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_countries',
+                    'description' => 'description.guided_step_payment_shipping_grid_countries',
+                    'highlight' => '#ShippingZone_countries',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_rates',
+                    'description' => 'description.guided_step_payment_shipping_grid_rates',
+                    'highlight' => '#ShippingZone_rates',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shipping_grid_active',
+                    'description' => 'description.guided_step_payment_shipping_grid_active',
+                    'highlight' => '#ShippingZone_active',
+                ],
+                [
+                    // The health check screen is another one entirely and only the opening step may carry an url, so the parcours names it rather than walking to it - see ShippingHealthCheckProvider for the three things it reports
+                    'label' => 'label.guided_step_payment_shipping_grid_check',
+                    'description' => 'description.guided_step_payment_shipping_grid_check',
                 ],
             ],
         ];

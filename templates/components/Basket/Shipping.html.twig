@@ -1,15 +1,16 @@
-{# <twig:c975LPayment:Basket:Shipping [shipping="490"] [free="5000"] [currency="EUR"]/> - what the shop charges for delivery, read from "shop-shipping" and "shop-shipping-free" rather than typed in. On a basket, Basket:FreeShipping says what is left to reach it instead #}
+{# <twig:c975LPayment:Basket:Shipping [shipping="490"] [free="5000"] [currency="EUR"]/> - what the shop charges for delivery, read from the shipping grid and "shop-shipping-free" rather than typed in. On a basket, Basket:FreeShipping says what is left to reach it instead #}
 {% trans_default_domain 'payment' %}
-{# The three props exist for the block showcase alone (see GalleryShowcaseProvider): it runs on a site that sells nothing, whose shop configuration is unset, and the block would render nothing at all there. A page placing the block hands over none of them and reads the configuration as before #}
-{# "is defined" and not "|default()": a rate set to zero is a promise of its own - the filter reads it as absent and would fall back to the configuration #}
-{% set shipping = shipping is defined ? shipping : config('shop-shipping') %}
+{# The three props exist for the block showcase alone (see GalleryShowcaseProvider): it runs on a site that sells nothing, whose shop configuration is unset, and the block would render nothing at all there. A page placing the block hands over none of them and reads the grid as before #}
+{# "is defined" and not "|default()": a rate set to zero is a promise of its own - the filter reads it as absent and would fall back to the grid #}
+{% set shipping = shipping is defined ? shipping : payment_shipping_from() %}
 {% set free = free is defined ? free : config('shop-shipping-free') %}
 {% set currency = currency is defined ? currency : config('shop-currency') %}
 {% if free > 0 %}
     <p class="lead text-center">{{ 'label.shipping_free_from'|trans({'%amount%': (free / 100)|format_currency(currency, {fraction_digit: 0})}) }}</p>
+{# The grid holds one price per zone and per weight, so the page states what it starts at rather than a single rate #}
 {% elseif shipping > 0 %}
-    <p class="lead text-center">{{ 'label.shipping_flat_rate'|trans({'%amount%': (shipping / 100)|format_currency(currency)}) }}</p>
-{# Nothing said when the shop has not set a rate yet: an unset configuration is not the same promise as a rate set to zero #}
+    <p class="lead text-center">{{ 'label.shipping_from'|trans({'%amount%': (shipping / 100)|format_currency(currency)}) }}</p>
+{# Nothing said when the shop has written no tier: an empty grid is not the same promise as a tier set to zero #}
 {% elseif shipping is not null %}
     <p class="lead text-center">{{ 'label.shipping_free'|trans }}</p>
 {% endif %}

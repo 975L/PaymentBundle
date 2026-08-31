@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -10,7 +10,7 @@ description: "Use this skill when plugging a new kind of sellable item into the 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`
+`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`
 
 **Related skills:** `c975l-payment-checkout` and `c975l-payment-gateway` in this same bundle.
 
@@ -64,6 +64,18 @@ Most kinds have nothing to carry — what was ordered is already on the basket. 
 
 They decide whether the order needs shipping, whether it appears in the "orders to ship" figure, and what the order page renders. Getting them wrong makes a digital-only order wait forever for a shipment.
 
+## Saying what a line weighs
+
+A provider selling something that is posted also implements `Contract\WeighableBasketItemProviderInterface`, whose single `getWeight(array $itemData): ?int` answers the weight of **one line, in grams, quantity included** — three articles of 400 g weigh 1200. Grams and whole, as prices are held in cents.
+
+**Kept apart from `BasketItemProviderInterface` on purpose**, like the optional gateway interfaces: a provider selling nothing that ships stays valid without it, and so does one whose catalogue is not weighed yet. Nothing breaks on upgrade.
+
+Answer `null` for a line that contributes nothing to weigh — a download, a service, a gift card sent by e-mail — and `null` again for an article carrying no weight. The caller adds `null` up **as nothing rather than as zero**: a half-weighed catalogue would otherwise price a parcel as if the rest of it were feathers.
+
+Read the entry **with defaults rather than as a guaranteed shape**. An order's items are a snapshot frozen the day it was placed, and one taken before this bundle weighed anything carries no such key at all — a years-old order still has to be displayed, e-mailed and reprinted.
+
+What the interface settles is where the fact lives: the weight belongs to the bundle that sells the article, the tariff grid and the zones to the checkout that posts the parcel (see `c975l-payment-checkout`).
+
 ## The two optional registries
 
 - **`BasketRecommendationProviderInterface`** — the cross-sell strip under the basket. **Only one provider is asked**: the first registered wins, the others are never called. `[]` with none installed.
@@ -90,5 +102,7 @@ A page gating a whole gallery asks once per media, so keep the answer for the re
 - **Do not write anything in `validateCheckout()`** — it runs before the order exists.
 - **Do not mint a download link in `getDownloads()`** — hand over what the delivery made, with its `expiresAt`.
 - **Do not keep a right of your own beside the orders for a paywall** — `hasPaidFor()` reads them, and two records of the same purchase end up disagreeing.
+- **Do not add `getWeight()` to `BasketItemProviderInterface`** — it is optional, and a provider selling nothing that ships must stay valid without it.
+- **Do not answer `0` from `getWeight()` for an article you have not weighed** — `null` is the answer, and it is added up as nothing.
 - **Do not make this bundle aware of your entity.** It hands you a basket and renders what comes back.
 - **Do not expect `onBasketPaid()` more than once** — nor fewer than once.

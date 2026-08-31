@@ -82,9 +82,9 @@
                 <source>description.shop_name</source>
                 <target>Nom de la boutique, ex. Example Shop</target>
             </trans-unit>
-            <trans-unit id="9K.7BM7">
-                <source>description.shop_shipping</source>
-                <target>Montant des frais de livraison en centimes pour la boutique</target>
+            <trans-unit id="RTd7nAT">
+                <source>description.shop_shipping_country</source>
+                <target>Le code du pays sur lequel la page panier estime les frais de port, avant que le client ait donné son adresse (ex. FR). Le montant définitif est recalculé au moment du paiement.</target>
             </trans-unit>
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
@@ -194,9 +194,9 @@
                 <source>label.shop_name</source>
                 <target>Nom de la boutique</target>
             </trans-unit>
-            <trans-unit id="k12fYP7">
-                <source>label.shop_shipping</source>
-                <target>Frais de livraison de la boutique</target>
+            <trans-unit id="c95RrYu">
+                <source>label.shop_shipping_country</source>
+                <target>Pays de livraison par défaut</target>
             </trans-unit>
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>

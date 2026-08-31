@@ -1,5 +1,30 @@
 [
     {
+        "date": "2026-08-31",
+        "description": [
+            {
+                "en": "You now set what delivery costs yourself, in \"Payment → Shipping zones\": group the countries you post to at the same price into a zone, then write its weight brackets - up to 1 kg so much, up to 5 kg so much, above that so much. An order is charged at the first bracket its parcel fits into. A zone naming no country at all is your catch-all, where every country you have not listed elsewhere falls, so a shop posting everywhere at one price writes that one zone and nothing more.",
+                "fr": "Vous fixez désormais vous-même le prix de la livraison, dans « Paiement → Zones de livraison » : regroupez dans une zone les pays que vous expédiez au même tarif, puis écrivez ses tranches de poids - jusqu'à 1 kg tant, jusqu'à 5 kg tant, au-delà tant. Une commande est facturée à la première tranche dans laquelle son colis entre. Une zone qui ne nomme aucun pays est votre zone par défaut, celle où tombe tout pays que vous n'avez listé nulle part ailleurs : une boutique qui expédie partout au même tarif écrit cette seule zone et rien d'autre.",
+                "es": "Ahora fija usted mismo el precio del envío, en «Pago → Zonas de envío»: agrupe en una zona los países a los que envía al mismo precio y escriba sus tramos de peso: hasta 1 kg tanto, hasta 5 kg tanto, por encima tanto. Un pedido se cobra al primer tramo en el que entra su paquete. Una zona que no nombra ningún país es su zona por defecto, donde cae todo país que no haya indicado en otra parte: una tienda que envía a todas partes al mismo precio escribe esa única zona y nada más."
+            },
+            {
+                "en": "A grid you leave empty posts everything free, silently - which is why your dashboard now tells you when there is no zone at all, when no zone is your catch-all or when there are two, and when a zone has no bracket for a heavy parcel. Fill those in before your first order rather than discovering them on a month of them.",
+                "fr": "Une grille laissée vide expédie tout gratuitement, en silence - c'est pourquoi votre tableau de bord vous dit désormais quand il n'y a aucune zone, quand aucune zone n'est votre zone par défaut ou qu'il y en a deux, et quand une zone n'a pas de tranche pour un colis lourd. Renseignez-les avant votre première commande plutôt que de les découvrir sur un mois de commandes.",
+                "es": "Una tabla que deje vacía envía todo gratis, en silencio: por eso su panel le indica ahora cuándo no hay ninguna zona, cuándo ninguna zona es su zona por defecto o hay dos, y cuándo una zona no tiene tramo para un paquete pesado. Complételas antes de su primer pedido en lugar de descubrirlo tras un mes de pedidos."
+            },
+            {
+                "en": "Check your \"Shop shipping free\" setting: left empty, it used to make every order ship free whatever your rate said. It now means what it says - no free delivery - so a shop that had never filled it in starts charging its customers for delivery. Fill it in if free delivery was what you meant.",
+                "fr": "Vérifiez votre réglage « Livraison gratuite de la boutique » : laissé vide, il rendait jusqu'ici toute commande livrée gratuitement, quel que soit votre tarif. Il signifie désormais ce qu'il dit - pas de livraison gratuite - de sorte qu'une boutique qui ne l'avait jamais rempli se met à facturer la livraison à ses clients. Renseignez-le si c'est bien la gratuité que vous vouliez.",
+                "es": "Revise su ajuste «Envío gratuito de la tienda»: dejado vacío, hasta ahora hacía que todo pedido se enviara gratis, fuera cual fuera su tarifa. Ahora significa lo que dice - sin envío gratuito -, de modo que una tienda que nunca lo había rellenado empieza a cobrar el envío a sus clientes. Complételo si lo que quería era la gratuidad."
+            },
+            {
+                "en": "Your customer now picks their country from a list at checkout instead of typing it, so the right zone is always recognised - and their country is spelled out in full on your parcel labels, your invoices and the order page. If delivery to the address they finally give costs more than what the basket had estimated, the order is refused and they are sent back to a basket saying the true price, rather than being charged for something no page ever showed them.",
+                "fr": "Votre client choisit désormais son pays dans une liste au moment de la commande au lieu de le taper, de sorte que la bonne zone est toujours reconnue - et son pays est écrit en toutes lettres sur vos étiquettes de colis, vos factures et la page de commande. Si la livraison à l'adresse qu'il finit par donner coûte plus cher que ce que le panier avait estimé, la commande est refusée et il revient à un panier qui affiche le vrai prix, plutôt que d'être facturé d'un montant qu'aucune page ne lui a montré.",
+                "es": "Su cliente elige ahora su país en una lista al finalizar la compra en lugar de escribirlo, de modo que siempre se reconoce la zona correcta, y su país aparece escrito con todas sus letras en sus etiquetas de paquete, sus facturas y la página del pedido. Si el envío a la dirección que finalmente indica cuesta más de lo que el carrito había estimado, el pedido se rechaza y vuelve a un carrito que muestra el precio real, en lugar de cobrarle un importe que ninguna página le mostró."
+            }
+        ]
+    },
+    {
         "date": "2026-08-30",
         "description": [
             {

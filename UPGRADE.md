@@ -1,5 +1,41 @@
 # UPGRADE
 
+## v6.4 > v6.5
+
+**Delivery is priced on a grid written in the back office, and `shop-shipping` is gone.** A zone groups the
+countries posted at one tariff and carries its weight tiers; a parcel is charged at the first tier it fits in.
+The weight comes from the selling bundle through the new `WeighableBasketItemProviderInterface` - ShopBundle
+answers it from v2.5.0.
+
+```sql
+CREATE TABLE payment_shipping_zone (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(60) NOT NULL, countries JSON NOT NULL, active TINYINT(1) NOT NULL, creation DATETIME NOT NULL, PRIMARY KEY(id));
+CREATE TABLE payment_shipping_rate (id INT AUTO_INCREMENT NOT NULL, zone_id INT NOT NULL, max_weight INT DEFAULT NULL, price INT NOT NULL, INDEX IDX_shipping_rate_zone (zone_id), PRIMARY KEY(id));
+ALTER TABLE payment_shipping_rate ADD CONSTRAINT FK_shipping_rate_zone FOREIGN KEY (zone_id) REFERENCES payment_shipping_zone (id) ON DELETE CASCADE;
+```
+
+Generate it with `doctrine:migrations:diff` and run it.
+
+**A shop that writes no zone posts everything free**, which is deliberate - nothing written is nothing charged -
+but it is silent, so do this before upgrading in production. **To keep exactly what you had**, write one zone
+with **no country** (the default zone, where every country falls) and **one tier with no ceiling**, priced at
+whatever `shop-shipping` held. That reproduces the old flat rate for every parcel, weighed or not. Note the
+value down first: the key leaves `configs.json` with this release. The dashboard's health check reports an empty
+grid, a missing default zone and a zone whose tiers all stop short.
+
+**A free-shipping threshold left unset is now no threshold at all.** `shop-shipping-free` read as an amount made
+`$total < null` false on every basket, so a shop that had never set one was charging no delivery whatever its
+rate said. It now means "no free delivery", and delivery is charged. **A shop that relied on that silence starts
+charging its customers for delivery the day it upgrades** - set `shop-shipping-free` if free delivery was the
+intent.
+
+**The checkout asks for the country in a list.** `CoordinatesType` stores the ISO 3166-1 alpha-2 code, a zone
+naming "FR" recognising nothing in "france". Orders already placed keep the free text they carry: they are frozen
+snapshots and are never priced again, so there is nothing to backfill.
+
+New key: `shop-shipping-country`, the country the basket page estimates delivery on before the customer has given
+an address. The final amount is computed at the checkout, once the address is bound - which is what `validate()`
+now recounts the basket for.
+
 ## v6.3 > v6.4
 
 **An invoice now states who issued it the day it was issued.** The seller block and the legal mentions are copied
@@ -482,8 +518,8 @@ wrapped twice.**
 both read `Payment` properties the v6.0 rewrite dropped (`description`, `action`, `vat`, `orderId`, `stripeEmail`,
 `stripeFee`) plus a `payment_display` route this bundle no longer declares - they could not have rendered even
 with a working layout. Nothing in `src/` dispatched either one. `templates/fragments/merchantData.html.twig`,
-which `paymentDone` alone included, is removed with them; the invoice work tracked in `TODO-PaymentBundle.md` will
-bring its own rendering rather than inherit a template nothing has exercised in years. If you overrode any of the
+which `paymentDone` alone included, is removed with them; `InvoiceService::pdf()` draws the invoice itself rather
+than inheriting a template nothing has exercised in years. If you overrode any of the
 three under `templates/bundles/c975LPaymentBundle/`, delete your copy with it.
 
 **`BasketItemProviderInterface` gains `validateCheckout()`, which every provider must implement.** It is asked at the

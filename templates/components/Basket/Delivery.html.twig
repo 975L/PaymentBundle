@@ -11,6 +11,6 @@
         <p class="text text-center">{{ basket.name }}</p>
         <p class="text text-center">{{ basket.address }}</p>
         <p class="text text-center">{{ basket.zip }} {{ basket.city }}</p>
-        <p class="text text-center">{{ basket.country }}</p>
+        <p class="text text-center">{{ basket.country|country_name|default(basket.country) }}</p>
     </div>
 {% endif %}

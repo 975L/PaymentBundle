@@ -257,15 +257,15 @@
         "description": "description.shop_currency"
     },
     {
-        "label": "label.shop_shipping",
-        "slug": "shop-shipping",
+        "label": "label.shop_shipping_country",
+        "slug": "shop-shipping-country",
         "sensitive": false,
         "restricted": false,
         "value": null,
-        "kind": "int",
+        "kind": "string",
         "group": "shop",
-        "severity": "warning",
-        "description": "description.shop_shipping"
+        "severity": null,
+        "description": "description.shop_shipping_country"
     },
     {
         "label": "label.shop_shipping_free",

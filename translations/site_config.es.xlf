@@ -82,9 +82,9 @@
                 <source>description.shop_name</source>
                 <target>Nombre de la tienda, ej. Example Shop</target>
             </trans-unit>
-            <trans-unit id="9K.7BM7">
-                <source>description.shop_shipping</source>
-                <target>Importe de envío en céntimos para la tienda</target>
+            <trans-unit id="RTd7nAT">
+                <source>description.shop_shipping_country</source>
+                <target>El código del país sobre el que la página del carrito estima los gastos de envío, antes de que el cliente haya dado su dirección (p. ej. FR). El importe definitivo se recalcula en el pago.</target>
             </trans-unit>
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
@@ -194,9 +194,9 @@
                 <source>label.shop_name</source>
                 <target>Nombre de la tienda</target>
             </trans-unit>
-            <trans-unit id="k12fYP7">
-                <source>label.shop_shipping</source>
-                <target>Gastos de envío de la tienda</target>
+            <trans-unit id="c95RrYu">
+                <source>label.shop_shipping_country</source>
+                <target>País de entrega por defecto</target>
             </trans-unit>
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>

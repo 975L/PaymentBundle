@@ -1,0 +1,14 @@
+{% extends '@EasyAdmin/crud/index.html.twig' %}
+
+{% block main %}
+    <p>{{ ('label.info_shipping_zone'|trans({}, 'payment')) }}</p>
+
+    {{ parent() }}
+{% endblock main %}
+
+{# Above 767px EasyAdmin stops stacking rows into cards and the table keeps its columns, so it needs somewhere to scroll. This wrapper only holds if the dashboard's grid tracks name a zero minimum (see UiBundle sass/management/_datagrid.scss): an auto track grows with the wrapper, and neither half works without the other #}
+{% block datagrid %}
+    <div class="table-responsive">
+        {{ parent() }}
+    </div>
+{% endblock datagrid %}

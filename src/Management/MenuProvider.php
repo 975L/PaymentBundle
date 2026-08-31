@@ -15,6 +15,7 @@ use c975L\PaymentBundle\Controller\Management\BasketCrudController;
 use c975L\PaymentBundle\Controller\Management\DiscountCrudController;
 use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
+use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
 
 class MenuProvider implements MenuProviderInterface
 {
@@ -49,6 +50,13 @@ class MenuProvider implements MenuProviderInterface
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-tags',
                 'description' => 'label.info_discount',
+            ],
+            'shipping_zone' => [
+                'controller' => ShippingZoneCrudController::class,
+                'label' => 'label.shipping_zones',
+                'translation_domain' => 'payment',
+                'icon' => 'fas fa-truck',
+                'description' => 'label.info_shipping_zone',
             ],
             'gift_card' => [
                 'controller' => GiftCardCrudController::class,

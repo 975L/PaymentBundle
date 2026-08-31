@@ -67,11 +67,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping', 'payment-basket-integrity'],
+            ['payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-basket-integrity'],
             array_column($projects, 'slug'),
         );
-        // 7015 slips between two tens rather than being appended: the documents switch is set beside the test mode, before a first real order, and not after the shipping round
-        $this->assertSame([7010, 7015, 7020, 7030, 7040, 7050, 7060, 7070], array_column($projects, 'order'));
+        // 7015 and 7055 slip between two tens rather than being appended: the documents switch is set beside the test mode, before a first real order, and the delivery grid stands just before the parcel round it prices
+        $this->assertSame([7010, 7015, 7020, 7030, 7040, 7050, 7055, 7060, 7070], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -140,7 +140,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'BasketCrudController'], array_map(
+        $this->assertSame(['PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -216,7 +216,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
     // The rows this bundle fills on a screen it does not own: the parcours points at them by the very kind the provider declares, so a renamed kind fails here rather than silently highlighting nothing
     public function testTheIntegrityStepPointsAtTheKindTheProviderDeclares(): void
     {
-        $project = $this->createProvider()->getGuidedProjects()[7];
+        $project = $this->createProvider()->getGuidedProjects()[8];
 
         $this->assertContains(
             'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',

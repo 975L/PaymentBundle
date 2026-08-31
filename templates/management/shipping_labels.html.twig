@@ -34,7 +34,7 @@
                     <div class="name">{{ basket.name }}</div>
                     {{ basket.address }}<br>
                     {{ basket.zip }} {{ basket.city }}<br>
-                    {{ basket.country }}
+                    {{ basket.country|country_name|default(basket.country) }}
                     <div class="order">{{ basket.number }}</div>
                 </td>
             {% endfor %}

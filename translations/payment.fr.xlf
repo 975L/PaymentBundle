@@ -42,6 +42,10 @@
                 <source>description.guided_project_payment_shipping</source>
                 <target>Aller des commandes qui doivent un colis à l'e-mail qui annonce à chaque client que le sien est parti</target>
             </trans-unit>
+            <trans-unit id="feX2U_F">
+                <source>description.guided_project_payment_shipping_grid</source>
+                <target>Dire ce que coûte l'envoi d'un colis, zone par zone et palier de poids par palier de poids. Tant que rien n'est écrit, toutes les livraisons sont gratuites.</target>
+            </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
                 <target>Vérifier tout le tunnel de paiement sans débiter un client réel</target>
@@ -174,6 +178,34 @@
                 <source>description.guided_step_payment_shipping_filter</source>
                 <target>Payée est le seul état dans lequel un colis part : une commande seulement validée n'a pas été réglée, et rien n'est expédié pour elle.</target>
             </trans-unit>
+            <trans-unit id="ojd4DBv">
+                <source>description.guided_step_payment_shipping_grid_active</source>
+                <target>Seule une zone active est lue au moment de payer. Enregistrez, puis écrivez la zone suivante de la même façon.</target>
+            </trans-unit>
+            <trans-unit id="EFVqAIn">
+                <source>description.guided_step_payment_shipping_grid_check</source>
+                <target>L'écran de bilan de santé signale ce que la grille ne dit pas : aucune zone, aucune zone par défaut ou plusieurs, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
+            </trans-unit>
+            <trans-unit id="dPyH5v5">
+                <source>description.guided_step_payment_shipping_grid_countries</source>
+                <target>Les pays livrés à ce tarif. À laisser vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs — écrivez-la aussi, sans quoi une telle commande part en livraison gratuite.</target>
+            </trans-unit>
+            <trans-unit id="ebRCRvl">
+                <source>description.guided_step_payment_shipping_grid_name</source>
+                <target>Le nom n'est que pour vous : « France », « Union européenne », « Reste du monde ». Le client ne le lit jamais.</target>
+            </trans-unit>
+            <trans-unit id="AzxIXBG">
+                <source>description.guided_step_payment_shipping_grid_new</source>
+                <target>Une zone regroupe les pays que vous livrez au même tarif, et porte avec elle ses paliers de poids.</target>
+            </trans-unit>
+            <trans-unit id="GTiaNuM">
+                <source>description.guided_step_payment_shipping_grid_open</source>
+                <target>L'écran liste les zones déjà écrites. Une liste vide, c'est une boutique qui expédie tout gratuitement.</target>
+            </trans-unit>
+            <trans-unit id="Q1Hw.jN">
+                <source>description.guided_step_payment_shipping_grid_rates</source>
+                <target>Un prix par palier de poids, le colis étant facturé au premier palier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres part gratuitement.</target>
+            </trans-unit>
             <trans-unit id="m6GSizM">
                 <source>description.guided_step_payment_shipping_labels</source>
                 <target>Une planche pour toute la tournée, ouverte dans un autre onglet : elle rassemble les commandes en attente d'expédition qui portent une adresse, et le dit quand il n'y en a aucune.</target>
@@ -282,6 +314,10 @@
                 <source>error.payment_link_not_addable</source>
                 <target>Un lien de paiement ne s'ajoute pas au panier.</target>
             </trans-unit>
+            <trans-unit id="9Aypio_">
+                <source>error.shipping_changed</source>
+                <target>La livraison à l’adresse indiquée ne coûte pas ce que le panier estimait : le prix a été mis à jour</target>
+            </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
                 <target>Carte cadeau émise. Son code est %code% — notez-le, il n'est plus affiché ensuite.</target>
@@ -357,6 +393,18 @@
             <trans-unit id="qP_w3U6">
                 <source>help.payment_link_label</source>
                 <target>Ce que le client lira sur sa page de paiement et sur son reçu.</target>
+            </trans-unit>
+            <trans-unit id="u9p6rCY">
+                <source>help.shipping_countries</source>
+                <target>Les pays livrés à ce tarif. À laisser vide pour la zone par défaut, celle où tombe un pays nommé dans aucune autre.</target>
+            </trans-unit>
+            <trans-unit id="N2PtoAX">
+                <source>help.shipping_rates</source>
+                <target>Un tarif par palier de poids. Le colis est facturé au premier palier dans lequel il entre. Sans palier couvrant son poids, la livraison est gratuite.</target>
+            </trans-unit>
+            <trans-unit id="e4OF92e">
+                <source>help.shipping_zone_name</source>
+                <target>Le nom que vous lui donnez : « France », « Union européenne », « Reste du monde ». Il n'apparaît pas au client.</target>
             </trans-unit>
             <trans-unit id="iMFHcrw">
                 <source>label.account_invitation</source>
@@ -472,7 +520,7 @@
             </trans-unit>
             <trans-unit id="9A7z8zX">
                 <source>label.block_shipping_description</source>
-                <target>Annonce ce que coûte la livraison, le montant et le seuil de gratuité étant lus dans la configuration de la boutique</target>
+                <target>Annonce ce que coûte la livraison, le montant étant lu dans la grille de livraison et le seuil de gratuité dans la configuration de la boutique</target>
             </trans-unit>
             <trans-unit id="0pV09w2">
                 <source>label.block_shipping_note</source>
@@ -814,6 +862,10 @@
                 <source>label.guided_project_payment_shipping</source>
                 <target>Expédier les colis du jour</target>
             </trans-unit>
+            <trans-unit id="t0aGm66">
+                <source>label.guided_project_payment_shipping_grid</source>
+                <target>Écrire la grille de livraison</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Activer les paiements de test</target>
@@ -945,6 +997,34 @@
             <trans-unit id="BqrDqDa">
                 <source>label.guided_step_payment_shipping_filter</source>
                 <target>Se restreindre aux commandes payées</target>
+            </trans-unit>
+            <trans-unit id="zR9aQoA">
+                <source>label.guided_step_payment_shipping_grid_active</source>
+                <target>Mettre la zone en service</target>
+            </trans-unit>
+            <trans-unit id="E_gPp.0">
+                <source>label.guided_step_payment_shipping_grid_check</source>
+                <target>Faire vérifier la grille</target>
+            </trans-unit>
+            <trans-unit id="q1DMjxd">
+                <source>label.guided_step_payment_shipping_grid_countries</source>
+                <target>Choisir les pays</target>
+            </trans-unit>
+            <trans-unit id="mDsY7oh">
+                <source>label.guided_step_payment_shipping_grid_name</source>
+                <target>Nommer la zone</target>
+            </trans-unit>
+            <trans-unit id="7VU5DT9">
+                <source>label.guided_step_payment_shipping_grid_new</source>
+                <target>Ajouter une zone</target>
+            </trans-unit>
+            <trans-unit id="MjvWvyX">
+                <source>label.guided_step_payment_shipping_grid_open</source>
+                <target>Ouvrir les zones de livraison</target>
+            </trans-unit>
+            <trans-unit id="Mwe6hZg">
+                <source>label.guided_step_payment_shipping_grid_rates</source>
+                <target>Écrire les paliers de poids</target>
             </trans-unit>
             <trans-unit id="R6wrbyF">
                 <source>label.guided_step_payment_shipping_labels</source>
@@ -1078,6 +1158,42 @@
                 <source>label.health_check_basket_unresolvable_items_ok</source>
                 <target>Chaque panier en attente de paiement peut encore être commandé</target>
             </trans-unit>
+            <trans-unit id="gJn3sOU">
+                <source>label.health_check_shipping_default_zone</source>
+                <target>Zone de livraison par défaut</target>
+            </trans-unit>
+            <trans-unit id="aq3sSYY">
+                <source>label.health_check_shipping_default_zone_none</source>
+                <target>Aucune zone par défaut : un pays nommé dans aucune zone part en port gratuit</target>
+            </trans-unit>
+            <trans-unit id="Uh8crwT">
+                <source>label.health_check_shipping_default_zone_ok</source>
+                <target>La zone par défaut est « %zone% »</target>
+            </trans-unit>
+            <trans-unit id="gmd8MM4">
+                <source>label.health_check_shipping_default_zone_several</source>
+                <target>Plusieurs zones par défaut (%zones%) : celle lue en premier décide</target>
+            </trans-unit>
+            <trans-unit id="R4wAKkG">
+                <source>label.health_check_shipping_grid</source>
+                <target>Grille de livraison</target>
+            </trans-unit>
+            <trans-unit id="6dcoFSH">
+                <source>label.health_check_shipping_grid_empty</source>
+                <target>Aucune zone de livraison active : tous les colis partent en port gratuit</target>
+            </trans-unit>
+            <trans-unit id="hS9TSSs">
+                <source>label.health_check_shipping_zones</source>
+                <target>Zones de livraison comparées à ce qu’elles couvrent</target>
+            </trans-unit>
+            <trans-unit id="yHTHjr8">
+                <source>label.health_check_shipping_zones_ko</source>
+                <target>%count% zone(s) d’où un colis peut partir en port gratuit : %names%</target>
+            </trans-unit>
+            <trans-unit id="MDuGLOR">
+                <source>label.health_check_shipping_zones_ok</source>
+                <target>%count% zone(s), le colis le plus lourd inclus dans chacune</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>dont TVA</target>
@@ -1105,6 +1221,10 @@
             <trans-unit id="V9kI0CJ">
                 <source>label.info_payment</source>
                 <target>Tous les paiements encaissés, avec la référence de la transaction chez le prestataire.</target>
+            </trans-unit>
+            <trans-unit id="vfgwC1x">
+                <source>label.info_shipping_zone</source>
+                <target>Gérer les zones de livraison et leurs tarifs au poids</target>
             </trans-unit>
             <trans-unit id="xsfKfLg">
                 <source>label.initial_amount</source>
@@ -1334,9 +1454,9 @@
                 <source>label.shipping</source>
                 <target>Frais de port</target>
             </trans-unit>
-            <trans-unit id="UmjoRgD">
-                <source>label.shipping_flat_rate</source>
-                <target>Frais de port : %amount%</target>
+            <trans-unit id="W8TGL8H">
+                <source>label.shipping_countries</source>
+                <target>Pays desservis</target>
             </trans-unit>
             <trans-unit id="8HAH_FY">
                 <source>label.shipping_free</source>
@@ -1354,9 +1474,45 @@
                 <source>label.shipping_free_reached</source>
                 <target>La livraison de cette commande est offerte</target>
             </trans-unit>
+            <trans-unit id="bKzc6sh">
+                <source>label.shipping_from</source>
+                <target>Livraison à partir de %amount%</target>
+            </trans-unit>
             <trans-unit id="RvRgAhf">
                 <source>label.shipping_labels</source>
                 <target>Étiquettes d'adresse</target>
+            </trans-unit>
+            <trans-unit id="xHs80sb">
+                <source>label.shipping_max_weight</source>
+                <target>Jusqu'à (g)</target>
+            </trans-unit>
+            <trans-unit id="5qOnsm.">
+                <source>label.shipping_max_weight_help</source>
+                <target>Le poids maximum couvert par ce palier, en grammes, inclus. À laisser vide pour le palier sans plafond, celui qui prend tout ce qui dépasse les autres.</target>
+            </trans-unit>
+            <trans-unit id="P.pCXIM">
+                <source>label.shipping_price</source>
+                <target>Prix</target>
+            </trans-unit>
+            <trans-unit id="NidmWUY">
+                <source>label.shipping_price_help</source>
+                <target>Ce que coûte la livraison pour ce palier. Zéro est un tarif valable : c'est ainsi qu'on livre gratuitement les colis légers.</target>
+            </trans-unit>
+            <trans-unit id="QZT.0y3">
+                <source>label.shipping_rates</source>
+                <target>Tarifs au poids</target>
+            </trans-unit>
+            <trans-unit id="BuXlpBI">
+                <source>label.shipping_zone</source>
+                <target>Zone de livraison</target>
+            </trans-unit>
+            <trans-unit id="W8g6hwA">
+                <source>label.shipping_zone_name</source>
+                <target>Nom de la zone</target>
+            </trans-unit>
+            <trans-unit id="VcxciRk">
+                <source>label.shipping_zones</source>
+                <target>Zones de livraison</target>
             </trans-unit>
             <trans-unit id="VB8ZpHn">
                 <source>label.shop</source>

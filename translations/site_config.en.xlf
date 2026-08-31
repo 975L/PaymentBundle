@@ -82,9 +82,9 @@
                 <source>description.shop_name</source>
                 <target>Name of the shop: i.e. Example Shop</target>
             </trans-unit>
-            <trans-unit id="9K.7BM7">
-                <source>description.shop_shipping</source>
-                <target>Shipping amount in cents for the shop</target>
+            <trans-unit id="RTd7nAT">
+                <source>description.shop_shipping_country</source>
+                <target>The country code the basket page estimates delivery on, before the customer has given their address (e.g. FR). The final amount is recomputed at checkout.</target>
             </trans-unit>
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
@@ -194,9 +194,9 @@
                 <source>label.shop_name</source>
                 <target>Shop Name</target>
             </trans-unit>
-            <trans-unit id="k12fYP7">
-                <source>label.shop_shipping</source>
-                <target>Shop Shipping</target>
+            <trans-unit id="c95RrYu">
+                <source>label.shop_shipping_country</source>
+                <target>Default delivery country</target>
             </trans-unit>
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>

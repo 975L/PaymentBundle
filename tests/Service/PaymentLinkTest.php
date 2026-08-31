@@ -28,6 +28,7 @@ use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -238,6 +239,7 @@ class PaymentLinkTest extends TestCase
             new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
+            $this->createStub(ShippingRateResolverInterface::class),
         );
     }
 

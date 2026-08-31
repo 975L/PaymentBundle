@@ -52,8 +52,12 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed
-- A `payment_shipping` block kind stating what delivery costs, its amounts read from the configuration, drawn
-  as its own silhouette in the back-office block picker through UiBundle's
+- **Delivery priced on a grid written in the back office**: a zone groups the countries posted at one tariff and
+  carries its weight tiers, a parcel being charged at the first tier it fits in — the weight coming from the
+  bundle that sells the article, through `WeighableBasketItemProviderInterface` (see
+  [pricing delivery](#pricing-delivery-zones-and-weight-tiers))
+- A `payment_shipping` block kind stating what delivery costs, its threshold read from the configuration and its
+  starting price off the grid, drawn as its own silhouette in the back-office block picker through UiBundle's
   `BundleStylesheetManagementProviderInterface`
 - Promotional codes and gift cards through one basket field, an EasyAdmin CRUD for each, a card being minted
   either by a purchase or by hand from the back-office
@@ -246,6 +250,10 @@ and a 403 would confirm which ones exist.
 
 ## Block kinds
 
+![PaymentBundle blocks](.github/images/PaymentBlocks.png)
+
+One tile per kind, captured on the showcase at [bundles.975l.com](https://bundles.975l.com/pages/blocks/Payment) - a kind with several variants shows only its first one, and a kind with no example there has no tile. Colors are the showcase's own theme, not what a site with its own theme renders.
+
 The bundle registers one kind with UiBundle's `BlockRegistry`, in the **Shop** category, beside the ones
 ShopBundle offers.
 
@@ -255,7 +263,7 @@ ShopBundle offers.
 
 > **Maintenance note:** update this table whenever a kind is added, renamed, or removed in `config/services.yaml`.
 
-The block stores a heading and a free line only: `shop-shipping`, `shop-shipping-free` and `shop-currency` are
+The block stores a heading and a free line only: the shipping grid, `shop-shipping-free` and `shop-currency` are
 read at render time, so the announced amounts follow the configuration and the kind is registered
 `cacheable: false`, a cached copy otherwise outliving a change made to them.
 
@@ -731,6 +739,40 @@ is no record.
 
 Most kinds have nothing to carry: what was ordered is already on the basket, so `onBasketValidated()` returns `[]`
 and `onBasketPaid()` reads `$itemsOfThisKind`. That is what `ProductBasketItemProvider` does.
+
+### Saying what a line weighs
+
+A provider selling something that is posted also implements
+`c975L\PaymentBundle\Contract\WeighableBasketItemProviderInterface`, whose single
+`getWeight(array $itemData): ?int` answers the weight of one line **in grams, quantity included** — null for a
+download, a service, or an article carrying no weight. Kept apart from `BasketItemProviderInterface` so that a
+provider selling nothing that ships, or one whose catalogue is not weighed yet, stays valid without it.
+
+What the interface settles is where the fact lives — with the bundle that sells the article, never with the
+checkout, which owns the grid it is priced on (see below).
+
+---
+
+## Pricing delivery: zones and weight tiers
+
+Delivery is read off a grid an admin writes in the back office, under **Paiement → Zones de livraison**. A
+`ShippingZone` groups the countries posted at one tariff and carries its weight tiers (`ShippingRate`), edited in
+the same screen. A parcel is charged at the **first tier it fits in**, that tier's ceiling included; the tier with
+no ceiling catches everything above the others. The zone naming **no country** is the default one, where a country
+named in no other falls — a shop posting everywhere at one tariff writes that zone and nothing else.
+
+**Nothing written is nothing charged.** No zone, no default zone, or no tier covering the parcel, and delivery is
+free. That is deliberate and it is silent, so `ShippingHealthCheckProvider` reports each of those cases on the
+dashboard rather than leaving them to be found on a month of orders.
+
+The parcel's weight is summed from the lines whose provider implements `WeighableBasketItemProviderInterface`; a
+line that weighs nothing leaves it where it stands. `shop-shipping-free` still takes delivery off a basket above
+its threshold, and a threshold left unset is no threshold at all.
+
+The country is only known once the customer gives an address, so the basket page prices the parcel on
+`shop-shipping-country` and reads as an estimate; `validate()` counts the basket again once the address is bound,
+which is what the order is charged. A page stating what delivery starts at reads `payment_shipping_from()`, the
+lowest price the whole grid holds.
 
 ---
 

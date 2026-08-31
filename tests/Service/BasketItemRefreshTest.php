@@ -13,6 +13,8 @@ namespace c975L\PaymentBundle\Tests\Service;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Entity\Discount;
+use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
@@ -23,6 +25,7 @@ use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -108,6 +111,38 @@ class BasketItemRefreshTest extends TestCase
         $this->assertSame(1000, $sold['total']);
     }
 
+    // assertCodeStillHolds() reads the totals of before the refresh, so a code still holding on those and no longer on the fresh ones is only caught once updateTotals() has run
+    public function testACodeTheRefreshMovesRefusesTheOrder(): void
+    {
+        $line = ['quantity' => 1, 'total' => 2500, 'totalVat' => 0, 'type' => 'product', 'item' => ['id' => 7, 'title' => 'Yesterday', 'price' => 2500, 'vat' => 0.0], 'parent' => []];
+        $basket = $this->basketHolding($line);
+        // A fifth off the 2500 the basket page showed, which is still what the code takes off that total
+        $basket->setDiscountCode('SOLDES')->setDiscountKind(Basket::CODE_KIND_DISCOUNT)->setDiscountAmount(500);
+
+        // The shopkeeper has since dropped the price, so the same code is worth less than what the customer clicked "pay" on
+        $service = $this->service($basket, new RefreshableItem(7, 1000, 'Today'), $this->percentageDiscount('SOLDES', 20));
+
+        try {
+            $service->validate(new Request());
+            $this->fail('An order whose code moved with the refreshed total is charged for a reduction nobody was shown');
+        } catch (BasketNotOrderableException) {
+            $this->addToAssertionCount(1);
+        }
+
+        $this->assertSame(200, $basket->getDiscountAmount(), 'The basket carries what the code is worth today');
+        $this->assertSame('new', $basket->getStatus(), 'Nothing was frozen: the customer validates again on the total the basket now says');
+    }
+
+    private function percentageDiscount(string $code, int $percentage): Discount
+    {
+        return new Discount()
+            ->setCode($code)
+            ->setKind(Discount::KIND_PERCENTAGE)
+            ->setValue($percentage)
+            ->setActive(true)
+        ;
+    }
+
     private function basketHolding(array $line, string $kind = 'product', int | string $id = 7): Basket
     {
         $basket = new Basket();
@@ -128,10 +163,13 @@ class BasketItemRefreshTest extends TestCase
         return new Request([], [], [], [], [], [], json_encode($data));
     }
 
-    private function service(Basket $basket, ?RefreshableItem $item): BasketService
+    private function service(Basket $basket, ?RefreshableItem $item, ?Discount $discount = null): BasketService
     {
         $basketRepository = $this->createStub(BasketRepository::class);
         $basketRepository->method('find')->willReturn($basket);
+
+        $discountRepository = $this->createStub(DiscountRepository::class);
+        $discountRepository->method('findOneByCode')->willReturn($discount);
 
         // The one place the line's shape is written, asked again on every change of the basket
         $provider = $this->createStub(BasketItemProviderInterface::class);
@@ -174,9 +212,10 @@ class BasketItemRefreshTest extends TestCase
             $itemProviderRegistry,
             $this->createStub(PaymentGatewayRegistry::class),
             $this->createStub(PaymentTestModeInterface::class),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($discountRepository, $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
+            $this->createStub(ShippingRateResolverInterface::class),
         );
     }
 }

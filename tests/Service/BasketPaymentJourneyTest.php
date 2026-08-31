@@ -29,6 +29,7 @@ use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -442,6 +443,7 @@ class BasketPaymentJourneyTest extends TestCase
             $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
             $this->fail('An order carrying a code that no longer applies is refused');
         } catch (BasketNotOrderableException) {
+            $this->addToAssertionCount(1);
         }
 
         $this->assertNull($basket->getDiscountCode(), 'The code goes, or the same refusal comes back forever');
@@ -512,16 +514,59 @@ class BasketPaymentJourneyTest extends TestCase
     // Basket holds exactly one Payment: a checkout abandoned, edited and started again writes that row over rather than orphaning it
     public function testAnAbandonedCheckoutStartedAgainReusesItsPaymentRow(): void
     {
+        // The basket holds 9900 where its open checkout was opened at 2500: validate() counts it again before numbering it, so what the row carries is what the customer is charged
         $payment = $this->payment(2500, finished: false);
-        $basket = $this->basket(2500, $payment);
+        $basket = $this->basket(9900, $payment);
         $basket->setStatus('new');
-        $basket->setTotal(9900);
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
 
         $this->assertSame($payment, $basket->getPayment());
         $this->assertSame(9900, $payment->getAmount());
         $this->assertSame('cs_1', $payment->getGatewayReference());
+    }
+
+    // The whole point of counting the basket again in validate(): until the coordinates form ran, the delivery was priced on the country the shop posts to by default, and the order has to be charged for where it actually goes
+    // Written on the basket and refused rather than charged: no page of the site ever showed that price, and the basket the customer comes back to now says it
+    public function testDeliveryCostingMoreToTheAddressGivenIsWrittenAndRefused(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        // What CoordinatesType has just written on it, the basket page having priced the parcel on "shop-shipping-country" before that
+        $basket->setCountry('JP');
+
+        $resolver = $this->createStub(ShippingRateResolverInterface::class);
+        $resolver->method('resolve')->willReturnCallback(static fn (?string $country): ?int => 'JP' === $country ? 2990 : 490);
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $resolver)
+                ->validate(new Request());
+            $this->fail('The order was charged for a delivery the customer was never shown');
+        } catch (BasketNotOrderableException) {
+            $this->addToAssertionCount(1);
+        }
+
+        $this->assertSame(2990, $basket->getShipping());
+        // Nothing validated, nothing charged: the customer validates again on the total the basket now says
+        $this->assertSame('new', $basket->getStatus());
+    }
+
+    // The estimate holding is the ordinary case, and it must not be refused: the basket page priced the parcel on the country the address turns out to name
+    public function testDeliveryCostingWhatWasEstimatedGoesThrough(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setShipping(490);
+        $basket->setCountry('FR');
+
+        $resolver = $this->createStub(ShippingRateResolverInterface::class);
+        $resolver->method('resolve')->willReturn(490);
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $resolver)
+            ->validate(new Request());
+
+        $this->assertSame(490, $basket->getShipping());
+        $this->assertSame('validated', $basket->getStatus());
     }
 
     // ------------------------------------------------------------------ setup
@@ -601,7 +646,34 @@ class BasketPaymentJourneyTest extends TestCase
         return $testMode;
     }
 
-    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false): BasketService
+    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false, ?ShippingRateResolverInterface $shippingRateResolver = null): BasketService
+    {
+        // The one collaborator two of them are handed: the service prices the order through it, and so does the calculator
+        $itemProviderRegistry = $this->itemProviderRegistry();
+
+        return new BasketService(
+            $this->basketRepository($basket),
+            $this->configService(),
+            $this->createStub(EntityManagerInterface::class),
+            $this->requestStack($session),
+            $this->createStub(PaymentFormFactoryInterface::class),
+            $this->createStub(TranslatorInterface::class),
+            $this->messageBus(),
+            $this->createStub(UrlGeneratorInterface::class),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(TokenStorageInterface::class),
+            $itemProviderRegistry,
+            $this->gatewayRegistry($gateway),
+            $this->paymentTestMode($testMode),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new VatCalculator($itemProviderRegistry),
+            $invoiceService ?? $this->createStub(InvoiceService::class),
+            $shippingRateResolver ?? $this->createStub(ShippingRateResolverInterface::class),
+        );
+    }
+
+    // The row the session names, and the database answering whether this call is the one that moved it to paid
+    private function basketRepository(?Basket $basket): BasketRepository
     {
         $basketRepository = $this->createStub(BasketRepository::class);
         $basketRepository->method('find')->willReturn($basket);
@@ -614,16 +686,30 @@ class BasketPaymentJourneyTest extends TestCase
             return $this->claimAnswers;
         });
 
-        // Each provider's own delivery effects, recorded rather than run
+        return $basketRepository;
+    }
+
+    // Each provider's own delivery effects, recorded rather than run
+    private function itemProviderRegistry(): BasketItemProviderRegistry
+    {
         $provider = $this->createStub(\c975L\PaymentBundle\Contract\BasketItemProviderInterface::class);
         $provider->method('onBasketValidated')->willReturn(['contributor' => 'Camille']);
+        // Something posted, so the delivery of these baskets is priced rather than skipped outright
+        $provider->method('getContentFlags')->willReturn(Basket::CONTENT_FLAG_PHYSICAL);
         $provider->method('onBasketPaid')->willReturnCallback(function (Basket $basket, array $items, array $checkoutData): void {
             $this->delivered[] = 'product';
             $this->handedBack = $checkoutData;
         });
+
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
         $itemProviderRegistry->method('get')->willReturn($provider);
 
+        return $itemProviderRegistry;
+    }
+
+    // A shop offering the one gateway it was given, and none at all when it was given null
+    private function gatewayRegistry(?object $gateway): PaymentGatewayRegistry
+    {
         $gatewayRegistry = $this->createStub(PaymentGatewayRegistry::class);
         $gatewayRegistry->method('getActiveOrNull')->willReturn($gateway);
         $gatewayRegistry->method('getOffered')->willReturn(null !== $gateway ? [$gateway->getSlug() => $gateway] : []);
@@ -633,9 +719,21 @@ class BasketPaymentJourneyTest extends TestCase
             $gatewayRegistry->method('get')->willReturn($gateway);
         }
 
+        return $gatewayRegistry;
+    }
+
+    // What the service dispatches is kept rather than handled, for the test to read back
+    private function messageBus(): MessageBusInterface
+    {
         $messageBus = $this->createStub(MessageBusInterface::class);
         $messageBus->method('dispatch')->willReturnCallback(fn (object $message): Envelope => $this->dispatched = new Envelope($message));
 
+        return $messageBus;
+    }
+
+    // A request carrying the session, or no request at all when the test hands over none
+    private function requestStack(?Session $session): RequestStack
+    {
         $requestStack = new RequestStack();
         if (null !== $session) {
             $request = new Request();
@@ -643,27 +741,16 @@ class BasketPaymentJourneyTest extends TestCase
             $requestStack->push($request);
         }
 
+        return $requestStack;
+    }
+
+    // The shop's currency, everything else being counted in cents
+    private function configService(): ConfigServiceInterface
+    {
         $configService = $this->createStub(ConfigServiceInterface::class);
         $configService->method('get')->willReturnCallback(fn (string $slug) => 'shop-currency' === $slug ? 'EUR' : 0);
 
-        return new BasketService(
-            $basketRepository,
-            $configService,
-            $this->createStub(EntityManagerInterface::class),
-            $requestStack,
-            $this->createStub(PaymentFormFactoryInterface::class),
-            $this->createStub(TranslatorInterface::class),
-            $messageBus,
-            $this->createStub(UrlGeneratorInterface::class),
-            $this->createStub(LoggerInterface::class),
-            $this->createStub(TokenStorageInterface::class),
-            $itemProviderRegistry,
-            $gatewayRegistry,
-            $this->paymentTestMode($testMode),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
-            new VatCalculator($itemProviderRegistry),
-            $invoiceService ?? $this->createStub(InvoiceService::class),
-        );
+        return $configService;
     }
 }
 

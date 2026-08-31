@@ -20,6 +20,7 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
+use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -278,6 +279,7 @@ class BasketControllerTest extends TestCase
             $downloadRegistry ?? $this->createStub(BasketDownloadRegistry::class),
             $translator,
             $this->createStub(InvoiceService::class),
+            $this->createStub(ShippingRateResolverInterface::class),
         );
 
         $controller->setContainer($this->container($twig));

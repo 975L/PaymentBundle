@@ -42,6 +42,10 @@
                 <source>description.guided_project_payment_shipping</source>
                 <target>Ir de los pedidos que deben un paquete al correo que anuncia a cada cliente que el suyo ha salido</target>
             </trans-unit>
+            <trans-unit id="feX2U_F">
+                <source>description.guided_project_payment_shipping_grid</source>
+                <target>Decir lo que cuesta enviar un paquete, zona por zona y tramo de peso por tramo de peso. Mientras no haya nada escrito, todos los envíos son gratuitos.</target>
+            </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
                 <target>Recorrer todo el túnel de pago sin cobrar a un cliente real</target>
@@ -174,6 +178,34 @@
                 <source>description.guided_step_payment_shipping_filter</source>
                 <target>Pagado es el único estado en el que sale un paquete: un pedido solo validado no se ha abonado, y nada se envía por él.</target>
             </trans-unit>
+            <trans-unit id="ojd4DBv">
+                <source>description.guided_step_payment_shipping_grid_active</source>
+                <target>Solo se lee una zona activa en el momento de pagar. Guarde y escriba la siguiente zona de la misma manera.</target>
+            </trans-unit>
+            <trans-unit id="EFVqAIn">
+                <source>description.guided_step_payment_shipping_grid_check</source>
+                <target>La pantalla de estado de salud señala lo que la tabla no dice: ninguna zona, ninguna zona por defecto o varias, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
+            </trans-unit>
+            <trans-unit id="dPyH5v5">
+                <source>description.guided_step_payment_shipping_grid_countries</source>
+                <target>Los países enviados a esta tarifa. Déjelo vacío para la zona por defecto, aquella donde cae un país no nombrado en ninguna otra: escríbala también, o ese pedido saldrá con envío gratuito.</target>
+            </trans-unit>
+            <trans-unit id="ebRCRvl">
+                <source>description.guided_step_payment_shipping_grid_name</source>
+                <target>El nombre es solo para usted: «España», «Unión Europea», «Resto del mundo». El cliente nunca lo lee.</target>
+            </trans-unit>
+            <trans-unit id="AzxIXBG">
+                <source>description.guided_step_payment_shipping_grid_new</source>
+                <target>Una zona agrupa los países que usted envía a la misma tarifa, y lleva consigo sus tramos de peso.</target>
+            </trans-unit>
+            <trans-unit id="GTiaNuM">
+                <source>description.guided_step_payment_shipping_grid_open</source>
+                <target>La pantalla enumera las zonas ya escritas. Una lista vacía es una tienda que lo envía todo gratis.</target>
+            </trans-unit>
+            <trans-unit id="Q1Hw.jN">
+                <source>description.guided_step_payment_shipping_grid_rates</source>
+                <target>Un precio por tramo de peso; el paquete se cobra al primer tramo en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos ellos saldrá gratis.</target>
+            </trans-unit>
             <trans-unit id="m6GSizM">
                 <source>description.guided_step_payment_shipping_labels</source>
                 <target>Una hoja para toda la ronda, abierta en otra pestaña: reúne los pedidos pendientes de envío que llevan una dirección, y lo dice cuando no hay ninguno.</target>
@@ -282,6 +314,10 @@
                 <source>error.payment_link_not_addable</source>
                 <target>Un enlace de pago no se añade a la cesta.</target>
             </trans-unit>
+            <trans-unit id="9Aypio_">
+                <source>error.shipping_changed</source>
+                <target>El envío a la dirección indicada no cuesta lo que estimaba la cesta: se ha actualizado el precio</target>
+            </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
                 <target>Tarjeta regalo emitida. Su código es %code%: anótalo, no se vuelve a mostrar.</target>
@@ -357,6 +393,18 @@
             <trans-unit id="qP_w3U6">
                 <source>help.payment_link_label</source>
                 <target>Lo que el cliente leerá en su página de pago y en su recibo.</target>
+            </trans-unit>
+            <trans-unit id="u9p6rCY">
+                <source>help.shipping_countries</source>
+                <target>Los países enviados a esta tarifa. Dejar vacío para la zona por defecto, aquella donde cae un país no nombrado en ninguna otra.</target>
+            </trans-unit>
+            <trans-unit id="N2PtoAX">
+                <source>help.shipping_rates</source>
+                <target>Una tarifa por tramo de peso. El paquete se factura al primer tramo en el que entra. Sin tramo que cubra su peso, el envío es gratuito.</target>
+            </trans-unit>
+            <trans-unit id="e4OF92e">
+                <source>help.shipping_zone_name</source>
+                <target>El nombre que usted le da: «Francia», «Unión Europea», «Resto del mundo». El cliente nunca lo ve.</target>
             </trans-unit>
             <trans-unit id="iMFHcrw">
                 <source>label.account_invitation</source>
@@ -472,7 +520,7 @@
             </trans-unit>
             <trans-unit id="9A7z8zX">
                 <source>label.block_shipping_description</source>
-                <target>Indica lo que cuesta el envío; el importe y el umbral de gratuidad se leen de la configuración de la tienda</target>
+                <target>Indica lo que cuesta el envío; el importe se lee de la rejilla de envío y el umbral de gratuidad de la configuración de la tienda</target>
             </trans-unit>
             <trans-unit id="0pV09w2">
                 <source>label.block_shipping_note</source>
@@ -814,6 +862,10 @@
                 <source>label.guided_project_payment_shipping</source>
                 <target>Enviar los paquetes del día</target>
             </trans-unit>
+            <trans-unit id="t0aGm66">
+                <source>label.guided_project_payment_shipping_grid</source>
+                <target>Escribir la tabla de envíos</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Activar los pagos de prueba</target>
@@ -945,6 +997,34 @@
             <trans-unit id="BqrDqDa">
                 <source>label.guided_step_payment_shipping_filter</source>
                 <target>Limitarse a los pedidos pagados</target>
+            </trans-unit>
+            <trans-unit id="zR9aQoA">
+                <source>label.guided_step_payment_shipping_grid_active</source>
+                <target>Poner la zona en servicio</target>
+            </trans-unit>
+            <trans-unit id="E_gPp.0">
+                <source>label.guided_step_payment_shipping_grid_check</source>
+                <target>Hacer verificar la tabla</target>
+            </trans-unit>
+            <trans-unit id="q1DMjxd">
+                <source>label.guided_step_payment_shipping_grid_countries</source>
+                <target>Elegir los países</target>
+            </trans-unit>
+            <trans-unit id="mDsY7oh">
+                <source>label.guided_step_payment_shipping_grid_name</source>
+                <target>Nombrar la zona</target>
+            </trans-unit>
+            <trans-unit id="7VU5DT9">
+                <source>label.guided_step_payment_shipping_grid_new</source>
+                <target>Añadir una zona</target>
+            </trans-unit>
+            <trans-unit id="MjvWvyX">
+                <source>label.guided_step_payment_shipping_grid_open</source>
+                <target>Abrir las zonas de envío</target>
+            </trans-unit>
+            <trans-unit id="Mwe6hZg">
+                <source>label.guided_step_payment_shipping_grid_rates</source>
+                <target>Escribir los tramos de peso</target>
             </trans-unit>
             <trans-unit id="R6wrbyF">
                 <source>label.guided_step_payment_shipping_labels</source>
@@ -1078,6 +1158,42 @@
                 <source>label.health_check_basket_unresolvable_items_ok</source>
                 <target>Cada cesta pendiente de pago aún se puede pedir</target>
             </trans-unit>
+            <trans-unit id="gJn3sOU">
+                <source>label.health_check_shipping_default_zone</source>
+                <target>Zona de envío por defecto</target>
+            </trans-unit>
+            <trans-unit id="aq3sSYY">
+                <source>label.health_check_shipping_default_zone_none</source>
+                <target>Sin zona por defecto: un país que no figura en ninguna zona se envía sin gastos</target>
+            </trans-unit>
+            <trans-unit id="Uh8crwT">
+                <source>label.health_check_shipping_default_zone_ok</source>
+                <target>La zona por defecto es «%zone%»</target>
+            </trans-unit>
+            <trans-unit id="gmd8MM4">
+                <source>label.health_check_shipping_default_zone_several</source>
+                <target>Varias zonas por defecto (%zones%): decide la que se lee primero</target>
+            </trans-unit>
+            <trans-unit id="R4wAKkG">
+                <source>label.health_check_shipping_grid</source>
+                <target>Rejilla de envío</target>
+            </trans-unit>
+            <trans-unit id="6dcoFSH">
+                <source>label.health_check_shipping_grid_empty</source>
+                <target>Ninguna zona de envío activa: todos los paquetes se envían sin gastos</target>
+            </trans-unit>
+            <trans-unit id="hS9TSSs">
+                <source>label.health_check_shipping_zones</source>
+                <target>Zonas de envío frente a lo que cubren</target>
+            </trans-unit>
+            <trans-unit id="yHTHjr8">
+                <source>label.health_check_shipping_zones_ko</source>
+                <target>%count% zona(s) desde las que un paquete puede salir sin gastos: %names%</target>
+            </trans-unit>
+            <trans-unit id="MDuGLOR">
+                <source>label.health_check_shipping_zones_ok</source>
+                <target>%count% zona(s), con el paquete más pesado incluido en cada una</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>IVA incluido</target>
@@ -1105,6 +1221,10 @@
             <trans-unit id="V9kI0CJ">
                 <source>label.info_payment</source>
                 <target>Todos los pagos cobrados, con la referencia de la transacción del proveedor.</target>
+            </trans-unit>
+            <trans-unit id="vfgwC1x">
+                <source>label.info_shipping_zone</source>
+                <target>Gestionar las zonas de envío y sus tarifas por peso</target>
             </trans-unit>
             <trans-unit id="xsfKfLg">
                 <source>label.initial_amount</source>
@@ -1334,9 +1454,9 @@
                 <source>label.shipping</source>
                 <target>Gastos de envío</target>
             </trans-unit>
-            <trans-unit id="UmjoRgD">
-                <source>label.shipping_flat_rate</source>
-                <target>Gastos de envío: %amount%</target>
+            <trans-unit id="W8TGL8H">
+                <source>label.shipping_countries</source>
+                <target>Países servidos</target>
             </trans-unit>
             <trans-unit id="8HAH_FY">
                 <source>label.shipping_free</source>
@@ -1354,9 +1474,45 @@
                 <source>label.shipping_free_reached</source>
                 <target>El envío de este pedido es gratuito</target>
             </trans-unit>
+            <trans-unit id="bKzc6sh">
+                <source>label.shipping_from</source>
+                <target>Envío desde %amount%</target>
+            </trans-unit>
             <trans-unit id="RvRgAhf">
                 <source>label.shipping_labels</source>
                 <target>Etiquetas de dirección</target>
+            </trans-unit>
+            <trans-unit id="xHs80sb">
+                <source>label.shipping_max_weight</source>
+                <target>Hasta (g)</target>
+            </trans-unit>
+            <trans-unit id="5qOnsm.">
+                <source>label.shipping_max_weight_help</source>
+                <target>El peso máximo cubierto por este tramo, en gramos, incluido. Dejar vacío para el tramo sin techo, el que recoge todo lo que supera a los demás.</target>
+            </trans-unit>
+            <trans-unit id="P.pCXIM">
+                <source>label.shipping_price</source>
+                <target>Precio</target>
+            </trans-unit>
+            <trans-unit id="NidmWUY">
+                <source>label.shipping_price_help</source>
+                <target>Lo que cuesta el envío en este tramo. Cero es una tarifa válida: así se envían gratis los paquetes ligeros.</target>
+            </trans-unit>
+            <trans-unit id="QZT.0y3">
+                <source>label.shipping_rates</source>
+                <target>Tarifas por peso</target>
+            </trans-unit>
+            <trans-unit id="BuXlpBI">
+                <source>label.shipping_zone</source>
+                <target>Zona de envío</target>
+            </trans-unit>
+            <trans-unit id="W8g6hwA">
+                <source>label.shipping_zone_name</source>
+                <target>Nombre de la zona</target>
+            </trans-unit>
+            <trans-unit id="VcxciRk">
+                <source>label.shipping_zones</source>
+                <target>Zonas de envío</target>
             </trans-unit>
             <trans-unit id="VB8ZpHn">
                 <source>label.shop</source>
