@@ -30,4 +30,10 @@ class BasketRecommendationRegistry
     {
         return [] === $this->providers ? [] : $this->providers[0]->getRecommendations($basket, $limit);
     }
+
+    // The template drawing them, that of the same first provider - null when none is installed, the page then showing no recommendations at all
+    public function getTemplate(): ?string
+    {
+        return [] === $this->providers ? null : $this->providers[0]->getTemplate();
+    }
 }

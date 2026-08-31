@@ -128,6 +128,53 @@ class BasketControllerTest extends TestCase
         $this->assertSame([], $parameters['downloads']);
     }
 
+    // The entries and the markup showing them are handed over together, the page drawing nothing of its own
+    public function testABasketHoldingItemsIsHandedTheProvidersOwnStrip(): void
+    {
+        $basket = new Basket()->setItems(['product' => [7 => ['item' => ['id' => 7], 'total' => 1000]]]);
+
+        $parameters = $this->displayedParameters($basket, ['a-product'], '@c975LShop/components/Product/Recommendations.html.twig');
+
+        $this->assertSame(['a-product'], $parameters['recommendations']);
+        $this->assertSame('@c975LShop/components/Product/Recommendations.html.twig', $parameters['recommendationsTemplate']);
+    }
+
+    // An empty basket recommends nothing: no provider is asked, and the page is handed no template to include
+    public function testAnEmptyBasketIsHandedNoStripAtAll(): void
+    {
+        $parameters = $this->displayedParameters(new Basket(), ['a-product'], '@c975LShop/components/Product/Recommendations.html.twig');
+
+        $this->assertSame([], $parameters['recommendations']);
+        $this->assertNull($parameters['recommendationsTemplate']);
+    }
+
+    /**
+     * @param object[] $recommendations what the one registered provider would answer
+     *
+     * @return array<string, mixed> what the basket page is rendered with
+     */
+    private function displayedParameters(Basket $basket, array $recommendations, ?string $template): array
+    {
+        $recommendationRegistry = $this->createStub(BasketRecommendationRegistry::class);
+        $recommendationRegistry->method('getRecommendations')->willReturn($recommendations);
+        $recommendationRegistry->method('getTemplate')->willReturn($template);
+
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('get')->willReturn($basket);
+
+        $parameters = [];
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturnCallback(function (string $view, array $context) use (&$parameters): string {
+            $parameters = $context;
+
+            return '';
+        });
+
+        $this->controller($basketService, null, $twig, $recommendationRegistry)->display();
+
+        return $parameters;
+    }
+
     /**
      * @param list<array{title: string, url: string, size: ?int}> $downloads what every provider would answer for that basket
      *
@@ -266,7 +313,7 @@ class BasketControllerTest extends TestCase
         return $repository;
     }
 
-    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null): BasketController
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null): BasketController
     {
         // The translator answers the key itself, so a flash is asserted on the key rather than on a wording
         $translator = $this->createStub(TranslatorInterface::class);
@@ -275,7 +322,7 @@ class BasketControllerTest extends TestCase
         $controller = new BasketController(
             $this->createStub(ConfigServiceInterface::class),
             $basketService,
-            $this->createStub(BasketRecommendationRegistry::class),
+            $recommendationRegistry ?? $this->createStub(BasketRecommendationRegistry::class),
             $downloadRegistry ?? $this->createStub(BasketDownloadRegistry::class),
             $translator,
             $this->createStub(InvoiceService::class),

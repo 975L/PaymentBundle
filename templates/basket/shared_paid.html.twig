@@ -14,7 +14,7 @@
         {# The provider confirms on a request of its own, which may land after this one: the payer is told the payment is being recorded rather than that it failed #}
         <p class="text text-center lead">{{ 'label.share_pending'|trans }}</p>
     {% endif %}
-    <twig:c975LShop:Shop:ViewButton/>
+    <twig:c975LPayment:Basket:ContinueShoppingButton/>
 {% endblock %}
 
 {% block share %}

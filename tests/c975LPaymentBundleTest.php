@@ -119,4 +119,9 @@ class c975LPaymentBundleTestBasketRecommendationProviderFixture implements Baske
     {
         return [];
     }
+
+    public function getTemplate(): string
+    {
+        return 'a-template.html.twig';
+    }
 }

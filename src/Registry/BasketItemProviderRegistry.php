@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Registry;
 
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
+use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
 
 class BasketItemProviderRegistry
 {
@@ -36,6 +37,18 @@ class BasketItemProviderRegistry
     public function has(string $kind): bool
     {
         return isset($this->providers[$kind]);
+    }
+
+    // The listing the basket sends the customer back to, taken from the first provider that has one - null when nothing installed sells out of a catalogue (see CatalogueBasketItemProviderInterface)
+    public function getCatalogueUrl(): ?string
+    {
+        foreach ($this->providers as $provider) {
+            if ($provider instanceof CatalogueBasketItemProviderInterface && null !== $url = $provider->getCatalogueUrl()) {
+                return $url;
+            }
+        }
+
+        return null;
     }
 
     /** @return string[] */

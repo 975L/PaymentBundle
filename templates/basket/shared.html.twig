@@ -14,7 +14,7 @@
         <input type="text" id="share-link" class="share-link" value="{{ payUrl }}" readonly>
     </p>
     <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
-    <twig:c975LShop:Shop:ViewButton/>
+    <twig:c975LPayment:Basket:ContinueShoppingButton/>
 {% endblock %}
 
 {% block share %}

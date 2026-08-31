@@ -21,4 +21,7 @@ interface BasketRecommendationProviderInterface
      * @return object[] the provider's own entities, ready for its own template - return [] when the basket gives nothing to recommend from
      */
     public function getRecommendations(Basket $basket, int $limit): array;
+
+    // The template drawing what getRecommendations() returns, handed the entries as a "recommendations" variable - the entities are the provider's own, so is the markup showing them
+    public function getTemplate(): string;
 }

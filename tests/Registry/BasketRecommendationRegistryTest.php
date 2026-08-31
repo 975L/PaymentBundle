@@ -24,6 +24,7 @@ class BasketRecommendationRegistryTest extends TestCase
         $registry = new BasketRecommendationRegistry([]);
 
         $this->assertSame([], $registry->getRecommendations(new Basket(), 4));
+        $this->assertNull($registry->getTemplate());
     }
 
     // The one installed provider answers, and the limit reaches it untouched
@@ -52,5 +53,16 @@ class BasketRecommendationRegistryTest extends TestCase
         $registry = new BasketRecommendationRegistry([$first, $second]);
 
         $this->assertSame(['from-the-first'], $registry->getRecommendations(new Basket(), 4));
+    }
+
+    // The entries and the markup showing them come from the same provider, the basket page drawing nothing of its own
+    public function testTheTemplateComesFromTheSameProvider(): void
+    {
+        $provider = $this->createStub(BasketRecommendationProviderInterface::class);
+        $provider->method('getTemplate')->willReturn('@c975LShop/components/Product/Recommendations.html.twig');
+
+        $registry = new BasketRecommendationRegistry([$provider]);
+
+        $this->assertSame('@c975LShop/components/Product/Recommendations.html.twig', $registry->getTemplate());
     }
 }

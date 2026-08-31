@@ -1,2 +1,6 @@
 {# <twig:c975LPayment:Basket:ContinueShoppingButton/> #}
-<twig:c975LUi:Button:Button type="secondary" label="{{ 'label.continue_shopping'|trans({}, 'payment') }}" url="{{ path('shop_index') }}#products"/>
+{# Drawn only where a catalogue says where it lives: this bundle sells nothing of its own, and a site running the basket alone has nowhere to send anybody back to #}
+{% set catalogueUrl = payment_catalogue_url() %}
+{% if catalogueUrl is not null %}
+    <twig:c975LUi:Button:Button type="secondary" label="{{ 'label.continue_shopping'|trans({}, 'payment') }}" url="{{ catalogueUrl }}"/>
+{% endif %}

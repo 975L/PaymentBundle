@@ -69,9 +69,11 @@ class BasketController extends AbstractController
         $basket = $this->basketService->get();
 
         $recommendations = [];
+        $recommendationsTemplate = null;
 
         if ($basket && !empty($basket->getItems())) {
             $recommendations = $this->recommendationRegistry->getRecommendations($basket, 4);
+            $recommendationsTemplate = $this->recommendationRegistry->getTemplate();
         }
 
         // Renders the page
@@ -79,6 +81,7 @@ class BasketController extends AbstractController
             'action' => 'display',
             'basket' => $basket,
             'recommendations' => $recommendations,
+            'recommendationsTemplate' => $recommendationsTemplate,
         ]);
     }
 

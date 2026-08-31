@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -10,7 +10,7 @@ description: "Use this skill when plugging a new kind of sellable item into the 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`
+`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`, `src/Contract/CatalogueBasketItemProviderInterface.php`, `src/Twig/CatalogueExtension.php`
 
 **Related skills:** `c975l-payment-checkout` and `c975l-payment-gateway` in this same bundle.
 
@@ -76,9 +76,17 @@ Read the entry **with defaults rather than as a guaranteed shape**. An order's i
 
 What the interface settles is where the fact lives: the weight belongs to the bundle that sells the article, the tariff grid and the zones to the checkout that posts the parcel (see `c975l-payment-checkout`).
 
+## Saying where the catalogue is
+
+The basket's "continue shopping" button goes back to a listing this bundle knows nothing about, so a provider selling out of one also implements `Contract\CatalogueBasketItemProviderInterface`, whose single `getCatalogueUrl(): ?string` answers its address — **a path you generate yourself**, being the only one to know the parameters and the fragment your own listing takes, never a route name for this bundle to resolve.
+
+**Kept apart from `BasketItemProviderInterface` on purpose**, like the weight above: a provider selling a one-off payment link has no listing to return to. Nothing breaks on upgrade.
+
+Answer `null` when the catalogue is not reachable for now — nothing on sale, the listing behind a closed shop. `BasketItemProviderRegistry::getCatalogueUrl()` takes the **first provider answering an address**, passing over the ones answering `null`, and `Twig\CatalogueExtension` exposes it as `payment_catalogue_url()`, what `Basket:ContinueShoppingButton` is drawn from. With nothing installed selling out of a catalogue the button is simply not drawn, rather than pointing at a route no site declares.
+
 ## The two optional registries
 
-- **`BasketRecommendationProviderInterface`** — the cross-sell strip under the basket. **Only one provider is asked**: the first registered wins, the others are never called. `[]` with none installed.
+- **`BasketRecommendationProviderInterface`** — the cross-sell strip under the basket. `getRecommendations(Basket $basket, int $limit)` answers **your own entities**, and `getTemplate(): string` names the template drawing them, included with those entries as a `recommendations` variable **and nothing else** — no page context, so a `title` of your own is yours to set. The markup belongs to whichever bundle recommends; this one only says where the strip goes on the page. **Only one provider is asked**: the first registered wins for both, the others are never called. With none installed the strip is left out.
 - **`BasketDownloadProviderInterface`** — `getDownloads(Basket $basket): array` of `{title, url, size, expiresAt}`, letting a buyer download again what they bought from their customer area. Unlike recommendations, **every** provider is asked and their answers concatenated — a basket can hold files of several kinds. Return `[]` for a basket holding nothing of yours. With nothing installed the section is left out of the page rather than drawn empty. It is called for a basket already checked as paid and as belonging to the user asking.
 
   **Hand over the links the delivery already made; never mint one here.** The page is read again long after the order, and a link minted on the visit would outlive what the buyer was promised — `expiresAt` is that promise, and it is what the page tells them.
@@ -102,6 +110,9 @@ A page gating a whole gallery asks once per media, so keep the answer for the re
 - **Do not write anything in `validateCheckout()`** — it runs before the order exists.
 - **Do not mint a download link in `getDownloads()`** — hand over what the delivery made, with its `expiresAt`.
 - **Do not keep a right of your own beside the orders for a paywall** — `hasPaidFor()` reads them, and two records of the same purchase end up disagreeing.
+- **Do not add `getCatalogueUrl()` to `BasketItemProviderInterface`** — it is optional, and a provider selling a one-off payment link must stay valid without it.
+- **Do not answer an address from `getCatalogueUrl()` for a catalogue nobody can browse** — `null` is the answer, and the button is then not drawn.
+- **Do not draw the recommendation strip's heading in the basket page** — `getTemplate()` names your markup, headings included, and it is included without the page's context.
 - **Do not add `getWeight()` to `BasketItemProviderInterface`** — it is optional, and a provider selling nothing that ships must stay valid without it.
 - **Do not answer `0` from `getWeight()` for an article you have not weighed** — `null` is the answer, and it is added up as nothing.
 - **Do not make this bundle aware of your entity.** It hands you a basket and renders what comes back.

@@ -1,5 +1,30 @@
 # UPGRADE
 
+## v6.5 > v6.6
+
+**Nothing to do on a site**, the basket pages simply stop crashing where ShopBundle is not installed. Two contracts
+move, and both are the business of a bundle plugging into this one.
+
+**`BasketRecommendationProviderInterface` gains `getTemplate(): string`**, the template drawing what
+`getRecommendations()` returns, handed the entries as a `recommendations` variable. An implementor must add it -
+ShopBundle answers it from v2.6.0:
+
+```php
+public function getTemplate(): string
+{
+    return '@c975LShop/components/Product/Recommendations.html.twig';
+}
+```
+
+**The "continue shopping" button is drawn from the new `CatalogueBasketItemProviderInterface`**, optional beside
+`BasketItemProviderInterface`, whose `getCatalogueUrl(): ?string` returns the address of the listing to go back to.
+Nothing implementing it is nothing to go back to, and the button is left out. Add it to the provider selling out of
+a catalogue.
+
+**The download links of the `download_information` e-mail carry a `url` key instead of a `token`**, built by
+whichever bundle owns the download route, as `BasketDownloadProviderInterface` already did for the order page.
+A bundle sending that e-mail passes `['title' => ..., 'url' => ..., 'size' => ...]` per link.
+
 ## v6.4 > v6.5
 
 **Delivery is priced on a grid written in the back office, and `shop-shipping` is gone.** A zone groups the

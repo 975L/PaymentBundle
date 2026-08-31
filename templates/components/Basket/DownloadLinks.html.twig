@@ -1,5 +1,5 @@
 {# <twig:c975LPayment:Basket:Download/> #}
 {% trans_default_domain 'payment' %}
 {% for id, link in downloadLinks %}
-    <p><a href="{{ url('shop_download', {'token': link.token}) }}">{{ 'label.download'|trans }} {{ link.title }} ({{ (link.size / (1024 * 1024))|number_format(2) }} MB)</a></p>
+    <p><a href="{{ link.url }}">{{ 'label.download'|trans }} {{ link.title }} ({{ (link.size / (1024 * 1024))|number_format(2) }} MB)</a></p>
 {% endfor %}

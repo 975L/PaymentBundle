@@ -13,7 +13,11 @@
                 <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="false"/>
                 <twig:c975LPayment:Basket:Message/>
                 <twig:c975LPayment:Basket:Buttons basket="{{ basket }}"/>
-                <twig:c975LShop:Product:Recommendations recommendations="{{ recommendations }}"/>
+                {# The markup belongs to whichever bundle recommends, this one only saying where it goes on the page (see BasketRecommendationProviderInterface) #}
+                {% if recommendationsTemplate is not null and recommendations is not empty %}
+                    {# Without the page's own context, as the component call it replaces had none: the page sets a "title" of its own, which the strip would otherwise take for its heading #}
+                    {{ include(recommendationsTemplate, {'recommendations': recommendations}, with_context = false) }}
+                {% endif %}
             </div>
         {% elseif "validate" == action %}
             <div data-controller="basket" id="basket-page">
@@ -38,17 +42,17 @@
             {% if confirmed and app.user is null %}
                 <twig:c975LPayment:Basket:AccountInvitation basket="{{ basket }}"/>
             {% endif %}
-            <twig:c975LShop:Shop:ViewButton/>
+            <twig:c975LPayment:Basket:ContinueShoppingButton/>
         {% endif %}
     {# Empty basket #}
     {% else %}
         <twig:c975LPayment:Basket:Empty/>
-        <twig:c975LShop:Shop:ViewButton/>
+        <twig:c975LPayment:Basket:ContinueShoppingButton/>
     {% endif %}
     {# Empty basket for javascript use #}
     <template id="empty-basket-template">
         <twig:c975LPayment:Basket:Empty/>
-        <twig:c975LShop:Shop:ViewButton/>
+        <twig:c975LPayment:Basket:ContinueShoppingButton/>
     </template>
 {% endblock %}
 

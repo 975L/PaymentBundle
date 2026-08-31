@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Registry;
 
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
+use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -63,6 +64,34 @@ class BasketItemProviderRegistryTest extends TestCase
         $this->assertSame($second, $registry->get('product'));
     }
 
+    // Nothing installed sells out of a catalogue - a site running the basket for payment links alone draws no "continue shopping" button
+    public function testNoCatalogueUrlWithoutACatalogueProvider(): void
+    {
+        $registry = new BasketItemProviderRegistry([$this->provider('payment_link')]);
+
+        $this->assertNull($registry->getCatalogueUrl());
+    }
+
+    // The first listing installed wins, and a provider whose catalogue is not reachable for now is passed over rather than answered with null
+    public function testTheFirstReachableCatalogueWins(): void
+    {
+        $closed = $this->catalogueProvider('crowdfunding', null);
+        $shop = $this->catalogueProvider('product', '/shop#products');
+
+        $registry = new BasketItemProviderRegistry([$this->provider('payment_link'), $closed, $shop]);
+
+        $this->assertSame('/shop#products', $registry->getCatalogueUrl());
+    }
+
+    private function catalogueProvider(string $kind, ?string $url): BasketItemProviderInterface
+    {
+        $provider = $this->createStub(CatalogueProviderDouble::class);
+        $provider->method('getKind')->willReturn($kind);
+        $provider->method('getCatalogueUrl')->willReturn($url);
+
+        return $provider;
+    }
+
     private function provider(string $kind): BasketItemProviderInterface
     {
         $provider = $this->createStub(BasketItemProviderInterface::class);
@@ -70,4 +99,9 @@ class BasketItemProviderRegistryTest extends TestCase
 
         return $provider;
     }
+}
+
+// A provider selling out of a listing, both contracts held at once as ShopBundle's own does
+interface CatalogueProviderDouble extends BasketItemProviderInterface, CatalogueBasketItemProviderInterface
+{
 }
