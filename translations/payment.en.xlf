@@ -1354,6 +1354,18 @@
                 <source>label.payment_method</source>
                 <target>Method</target>
             </trans-unit>
+            <trans-unit id="w7ZbnjG">
+                <source>label.payment_sample_zone_around</source>
+                <target>European Union and Switzerland</target>
+            </trans-unit>
+            <trans-unit id="Mn09sfP">
+                <source>label.payment_sample_zone_elsewhere</source>
+                <target>Rest of the world</target>
+            </trans-unit>
+            <trans-unit id="lVHkErE">
+                <source>label.payment_sample_zone_home</source>
+                <target>Mainland France</target>
+            </trans-unit>
             <trans-unit id="huCp9xV">
                 <source>label.payment_test_mode_disable</source>
                 <target>Disable test payments</target>

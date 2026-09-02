@@ -165,8 +165,8 @@ class InvoiceServiceTest extends TestCase
             ->expects($this->once())
             ->method('render')
             ->with($this->anything(), $this->callback(function (array $parameters): bool {
-                $this->assertSame('Editions Lolant', $parameters['seller']['owner']);
-                $this->assertSame('3 place du Marche, Lyon', $parameters['seller']['address']);
+                $this->assertSame('Editions Exemple', $parameters['seller']['owner']);
+                $this->assertSame('1 rue Exemple, 75000 Paris', $parameters['seller']['address']);
                 $this->assertSame('TVA 20%', $parameters['mentions']);
 
                 return true;
@@ -175,7 +175,7 @@ class InvoiceServiceTest extends TestCase
         ;
 
         $basket = new Basket()->setInvoiceNumber('FA2026-0001');
-        $basket->setInvoiceIssuer('Editions Lolant', '3 place du Marche, Lyon', 'contact@editions-lolant.com', 'TVA 20%');
+        $basket->setInvoiceIssuer('Editions Exemple', '1 rue Exemple, 75000 Paris', 'contact@example.com', 'TVA 20%');
 
         $this->service(pdfGenerator: $pdfGenerator)->pdf($basket);
     }

@@ -202,6 +202,42 @@
   display: none;
 }
 
+/* BASKET NAVBAR */
+:root, [data-theme] {
+  --payment-navbar-background: var(--primary);
+  --payment-navbar-color: var(--background);
+}
+
+.basket-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: var(--payment-navbar-background);
+  color: var(--payment-navbar-color);
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(0);
+}
+
+.basket-navbar p {
+  margin: 0;
+}
+
+.basket-navbar.d-none {
+  transform: translateY(100%);
+}
+
+body.has-basket-navbar {
+  --bottom-bar-height: 72px;
+  padding-bottom: var(--bottom-bar-height);
+}
+
 /* GIFT CARD */
 @layer payment-defaults {
   :root, [data-theme] {

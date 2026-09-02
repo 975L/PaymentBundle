@@ -1354,6 +1354,18 @@
                 <source>label.payment_method</source>
                 <target>Método</target>
             </trans-unit>
+            <trans-unit id="w7ZbnjG">
+                <source>label.payment_sample_zone_around</source>
+                <target>Unión Europea y Suiza</target>
+            </trans-unit>
+            <trans-unit id="Mn09sfP">
+                <source>label.payment_sample_zone_elsewhere</source>
+                <target>Resto del mundo</target>
+            </trans-unit>
+            <trans-unit id="lVHkErE">
+                <source>label.payment_sample_zone_home</source>
+                <target>Francia metropolitana</target>
+            </trans-unit>
             <trans-unit id="huCp9xV">
                 <source>label.payment_test_mode_disable</source>
                 <target>Desactivar los pagos de prueba</target>

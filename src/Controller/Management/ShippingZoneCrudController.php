@@ -86,6 +86,8 @@ class ShippingZoneCrudController extends AbstractCrudController
                 ->setHelp(t('help.shipping_rates', [], 'payment'))
                 ->hideOnIndex()
                 ->setEntryType(ShippingRateType::class)
+                // What the "payment-shipping-grid" guided project points at: EasyAdmin puts no id on a collection's row (see its crud/form_theme.html.twig), so a collection carrying nothing of its own is a step with nothing to show
+                ->setFormTypeOption('row_attr', ['data-shipping-rates' => 'true'])
                 ->allowAdd()
                 ->allowDelete(),
             BooleanField::new('active')

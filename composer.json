@@ -24,7 +24,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "c975l/core-bundle": "^1.17.4",
+        "c975l/core-bundle": "^1.21",
         "doctrine/orm": "^3.6",
         "easycorp/easyadmin-bundle": "^5.1",
         "stripe/stripe-php": "^21.0",
@@ -34,6 +34,7 @@
         "symfony/translation": "^8.0"
     },
     "require-dev": {
+        "chrome-php/chrome": "^1.16",
         "phpunit/phpunit": "^13.2"
     },
     "suggest": {

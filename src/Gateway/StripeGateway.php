@@ -20,7 +20,6 @@ use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
 use c975L\PaymentBundle\Contract\VerifiableGatewayInterface;
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
-use Stripe\Account;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
@@ -137,7 +136,7 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
         return ['checkout.stripe.com'];
     }
 
-    // Asks Stripe for the account the key belongs to: the cheapest authenticated call there is, and the only one that tells a revoked or mistyped key from a well-formed one
+    // Lists a single Checkout Session, which tells a revoked or mistyped key from a well-formed one while asking for nothing the bundle does not already need: a restricted key scoped to Checkout alone answers this, where reading the account would be refused for lack of a permission no payment ever uses
     public function verifyCredentials(): ?string
     {
         if (!$this->isConfigured()) {
@@ -146,7 +145,7 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
 
         try {
             Stripe::setApiKey($this->getSecret());
-            Account::retrieve();
+            StripeSession::all(['limit' => 1]);
         } catch (ApiErrorException $e) {
             return $e->getMessage();
         }

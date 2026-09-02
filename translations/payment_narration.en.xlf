@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="payment_narration.en.xlf">
+        <body>
+            <trans-unit id="DELxlrC">
+                <source>narration.baskets</source>
+                <target>"Baskets" lists every order a customer validated, whether the payment went through or not.</target>
+            </trans-unit>
+            <trans-unit id="8dqdQ3y">
+                <source>narration.discounts</source>
+                <target>"Promotional codes" holds the codes the shop writes and hands out, with what each takes off and how many times it can still be spent.</target>
+            </trans-unit>
+            <trans-unit id="wjNqjLQ">
+                <source>narration.gift_cards</source>
+                <target>"Gift cards" lists the cards sold or issued by hand, their remaining balance and the order that issued them.</target>
+            </trans-unit>
+            <trans-unit id="oA7_dbp">
+                <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Once the order is handled, declare the row dealt with rather than running the whole check again: it leaves the default view and comes back on its own if the problem reappears.</target>
+            </trans-unit>
+            <trans-unit id="bq05eov">
+                <source>narration.guided_step_payment_basket_integrity_done</source>
+                <target>The check is read. None of this raises anything of its own: an order charged and never delivered has no error page and no e-mail to report itself. This screen is the only place it shows, and it only serves if it is opened.</target>
+            </trans-unit>
+            <trans-unit id="uc..0nj">
+                <source>narration.guided_step_payment_basket_integrity_offenders</source>
+                <target>Open the list of orders: a count does not say what to do, whereas the unfolded list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
+            </trans-unit>
+            <trans-unit id="8Ea8FOp">
+                <source>narration.guided_step_payment_basket_integrity_open</source>
+                <target>The panel takes you to the health check, which gathers everything the site verifies on its own. Six of those rows are about your orders: a payment taken whose order never went out, an order delivered with no payment answering for it, an amount or a currency that does not match, an order delivered without its invoice number, lines that do not add up, a basket holding an article withdrawn from the catalog.</target>
+            </trans-unit>
+            <trans-unit id="m9Wo.BI">
+                <source>narration.guided_step_payment_basket_integrity_rows</source>
+                <target>Find the order rows: they carry the basket-integrity kind and each says how many orders it found. Orders placed in test mode are left out, otherwise a shop rehearsing its checkout would read every one of them as a defect.</target>
+            </trans-unit>
+            <trans-unit id="WdfCfzm">
+                <source>narration.guided_step_payment_basket_integrity_run</source>
+                <target>Run the check again. The six checks run on their own every week; this button runs them straight away, if the page is empty or if you have just fixed something.</target>
+            </trans-unit>
+            <trans-unit id="vB7DPGB">
+                <source>narration.guided_step_payment_discount_code_code</source>
+                <target>Choose the code itself, what the customer types in their basket. It is dictated and retyped: keep it short and free of anything read two ways.</target>
+            </trans-unit>
+            <trans-unit id="5Nq88bc">
+                <source>narration.guided_step_payment_discount_code_kind</source>
+                <target>Choose the kind, percentage or fixed amount. This choice is what the next field is read by, the two sharing one column.</target>
+            </trans-unit>
+            <trans-unit id="hcKLqU0">
+                <source>narration.guided_step_payment_discount_code_limits</source>
+                <target>Bound what it may do: how many orders may spend it at most, the minimum an order has to reach, and the two dates framing it. Each one refuses the code on its own, at the moment the order is frozen.</target>
+            </trans-unit>
+            <trans-unit id="gJgcUSH">
+                <source>narration.guided_step_payment_discount_code_live</source>
+                <target>The code is live. Its counter is raised by settled orders alone, and its test mode column says which mode the shop was charging in the day it was written: a rehearsal code is never spendable for real.</target>
+            </trans-unit>
+            <trans-unit id="dYAf9if">
+                <source>narration.guided_step_payment_discount_code_new</source>
+                <target>Add a code with the usual button. Unlike a gift card, a code holds no money and is written straight into the form.</target>
+            </trans-unit>
+            <trans-unit id="s6v_5cl">
+                <source>narration.guided_step_payment_discount_code_open</source>
+                <target>The panel takes you to the promotional codes. Every one the shop wrote is listed there, with what it takes off and how often it has been spent.</target>
+            </trans-unit>
+            <trans-unit id="RfZ20d6">
+                <source>narration.guided_step_payment_discount_code_value</source>
+                <target>Set what it takes off. The value is read as a percentage for the first kind, and in cents for the second: ten is either a tenth of the order or ten cents off it.</target>
+            </trans-unit>
+            <trans-unit id="G8P2AdP">
+                <source>narration.guided_step_payment_email_attachments_check</source>
+                <target>Check that it is in place: the tile is no longer highlighted and now offers to turn it off. That is the only sign to read, the sending itself only showing on the next order.</target>
+            </trans-unit>
+            <trans-unit id="f0bddE7">
+                <source>narration.guided_step_payment_email_attachments_done</source>
+                <target>Place a rehearsal order in test mode: its confirmation should arrive with the files ticked on that template. If none comes, the switch is on but nothing was ticked in the e-mail builder.</target>
+            </trans-unit>
+            <trans-unit id="gTF4rJ6">
+                <source>narration.guided_step_payment_email_attachments_enable</source>
+                <target>Turn the sending on. The tile stays highlighted while it is off: handing the customer the terms they accepted as a file, rather than as a link to a page rewritten afterwards, is what the law calls a durable medium.</target>
+            </trans-unit>
+            <trans-unit id="Bh6jByn">
+                <source>narration.guided_step_payment_email_attachments_open</source>
+                <target>The panel takes you to the dashboard, where the shop's switches sit as tiles. This one decides whether your order e-mails carry files at all; which files is ticked template by template in the e-mail builder.</target>
+            </trans-unit>
+            <trans-unit id="b7YjqKV">
+                <source>narration.guided_step_payment_gift_card_issue_amount</source>
+                <target>Set the amount. It is typed in the shop's own currency and becomes the card's whole balance, which its holder spends over as many orders as it takes.</target>
+            </trans-unit>
+            <trans-unit id="l0R8V4s">
+                <source>narration.guided_step_payment_gift_card_issue_code</source>
+                <target>Copy the code down: it is shown once, in the message above the listing you land back on. No screen prints it again, so hand it over before leaving that page.</target>
+            </trans-unit>
+            <trans-unit id="u6DPDf_">
+                <source>narration.guided_step_payment_gift_card_issue_confirm</source>
+                <target>Mint the card. The code is drawn at random on submit, the same way a purchase draws one: nothing about it is typed.</target>
+            </trans-unit>
+            <trans-unit id="h7HTo.J">
+                <source>narration.guided_step_payment_gift_card_issue_open</source>
+                <target>The panel takes you to the gift cards. All of them are listed there, sold or issued by hand: the ones written here are told apart by naming no order.</target>
+            </trans-unit>
+            <trans-unit id="iMwSBIZ">
+                <source>narration.guided_step_payment_gift_card_issue_start</source>
+                <target>Open the issuing form with the button above the listing. There is no new button: the balance is minted from the amount rather than typed, and never edited afterwards.</target>
+            </trans-unit>
+            <trans-unit id="AZjEph1">
+                <source>narration.guided_step_payment_gift_card_issue_validity</source>
+                <target>Set an end date, or none. Left empty, the card never expires; filled in, it stops being spendable that day, whatever balance is left on it.</target>
+            </trans-unit>
+            <trans-unit id="wj9cQ_u">
+                <source>narration.guided_step_payment_payment_link_amount</source>
+                <target>Set the amount. It is typed in the shop's own currency and VAT included, as every price here is; the tax is taken out of it at the rate the setting holds.</target>
+            </trans-unit>
+            <trans-unit id="PR4iP94">
+                <source>narration.guided_step_payment_payment_link_create</source>
+                <target>Write the order. It is frozen there and then, and its short address appears above the form: send it by text message or by e-mail, and it is settled online like any other.</target>
+            </trans-unit>
+            <trans-unit id="4WFmELg">
+                <source>narration.guided_step_payment_payment_link_email</source>
+                <target>Give the customer's address: the confirmation goes there once the order is settled, and it is what attaches the order to their account should they open one.</target>
+            </trans-unit>
+            <trans-unit id="yLeSllg">
+                <source>narration.guided_step_payment_payment_link_label</source>
+                <target>Name what is being charged for. It is what the customer reads on their order, on their invoice and in their confirmation e-mail: "deposit for the flooring", "bicycle repair".</target>
+            </trans-unit>
+            <trans-unit id="9PvaycB">
+                <source>narration.guided_step_payment_payment_link_open</source>
+                <target>The panel takes you to the baskets: a payment link is written from the orders listing, which is where the one it creates comes to sit.</target>
+            </trans-unit>
+            <trans-unit id="3spo3F_">
+                <source>narration.guided_step_payment_payment_link_start</source>
+                <target>Open the form with the button above the listing. There is no row to start from: the order is written by the form it opens.</target>
+            </trans-unit>
+            <trans-unit id="BppffwD">
+                <source>narration.guided_step_payment_shipping_done</source>
+                <target>The round is closed: a marked order leaves the ones awaiting shipping, so tomorrow's sheet will hold only what is still owed.</target>
+            </trans-unit>
+            <trans-unit id="0G24Fiv">
+                <source>narration.guided_step_payment_shipping_filter</source>
+                <target>Narrow to the paid orders: it is the only state a parcel leaves on. An order merely validated has not been settled, and nothing is posted for it.</target>
+            </trans-unit>
+            <trans-unit id="zRghALn">
+                <source>narration.guided_step_payment_shipping_grid_active</source>
+                <target>Put the zone in service: only an active zone is read at checkout. Save, then write the next zone the same way.</target>
+            </trans-unit>
+            <trans-unit id="rYbzygH">
+                <source>narration.guided_step_payment_shipping_grid_check</source>
+                <target>Have the grid checked: the health check screen reports what it does not say, no zone at all, no default zone or several of them, a zone without a boundless tier. Read it once the grid is written, rather than on a month of orders.</target>
+            </trans-unit>
+            <trans-unit id="BoUVFIg">
+                <source>narration.guided_step_payment_shipping_grid_countries</source>
+                <target>Pick the countries posted at this tariff. Leave the list empty for the default zone, the one a country named nowhere else falls into: write that one too, or such an order is delivered free of charge.</target>
+            </trans-unit>
+            <trans-unit id="HZ7XxE7">
+                <source>narration.guided_step_payment_shipping_grid_name</source>
+                <target>Name the zone. The name is yours alone: "France", "European Union", "Rest of the world". The customer never reads it.</target>
+            </trans-unit>
+            <trans-unit id="I6s4tUw">
+                <source>narration.guided_step_payment_shipping_grid_new</source>
+                <target>Add a zone. A zone groups the countries you post at one tariff, and carries its weight tiers with it.</target>
+            </trans-unit>
+            <trans-unit id="JNANHcm">
+                <source>narration.guided_step_payment_shipping_grid_open</source>
+                <target>The panel takes you to the shipping zones, which list the ones already written. An empty list is a shop posting everything free of charge.</target>
+            </trans-unit>
+            <trans-unit id="oBcFSAW">
+                <source>narration.guided_step_payment_shipping_grid_rates</source>
+                <target>Write the weight tiers, one price per tier, the parcel charged at the first it fits in. End with a tier left without a ceiling, otherwise a parcel heavier than any of them is posted free of charge.</target>
+            </trans-unit>
+            <trans-unit id="kfV1YuP">
+                <source>narration.guided_step_payment_shipping_labels</source>
+                <target>Print the labels: one sheet for the whole round, opened in another tab. It gathers the orders awaiting shipping that carry an address, and says so when there are none.</target>
+            </trans-unit>
+            <trans-unit id="lIOEl6Y">
+                <source>narration.guided_step_payment_shipping_open</source>
+                <target>The panel takes you to the baskets. Every order is listed there, whatever its state, which is more than a shipping round needs.</target>
+            </trans-unit>
+            <trans-unit id="XX0EvQ6">
+                <source>narration.guided_step_payment_shipping_send</source>
+                <target>Mark one order sent, on the row of the one you have just packed. The button only shows on a paid order carrying something to post and not yet marked; the click records the shipping and e-mails the customer.</target>
+            </trans-unit>
+            <trans-unit id="iXtYQJP">
+                <source>narration.guided_step_payment_test_mode_check</source>
+                <target>Check the customer side: the basket shows its test-payment banner. Run a full payment to check the order does turn into paid.</target>
+            </trans-unit>
+            <trans-unit id="d03N3cT">
+                <source>narration.guided_step_payment_test_mode_disable</source>
+                <target>Disable the test mode with the same shortcut, its label now changed: the shop switches back to the real keys.</target>
+            </trans-unit>
+            <trans-unit id="omKln0j">
+                <source>narration.guided_step_payment_test_mode_done</source>
+                <target>Real payments resume. The test payment stays among the payments, told apart by an order carrying no invoice: a rehearsal never enters the invoice sequence.</target>
+            </trans-unit>
+            <trans-unit id="inVtc.A">
+                <source>narration.guided_step_payment_test_mode_enable</source>
+                <target>Enable the test mode: the shop switches to the active provider's test keys, and nobody is charged while it stays on.</target>
+            </trans-unit>
+            <trans-unit id="7Yiqp2o">
+                <source>narration.guided_step_payment_test_mode_open</source>
+                <target>The panel takes you to the dashboard: the test-payments shortcut sits there, next to the maintenance one.</target>
+            </trans-unit>
+            <trans-unit id="pHz3zc7">
+                <source>narration.guided_step_payment_transaction_review_basket</source>
+                <target>Trace the full order: the basket column leads back to the baskets screen, carrying the address, the content and the order's status.</target>
+            </trans-unit>
+            <trans-unit id="Tu9Ar9D">
+                <source>narration.guided_step_payment_transaction_review_detail</source>
+                <target>Open a payment's detail: the originating basket, the currency and the transaction id are gathered there.</target>
+            </trans-unit>
+            <trans-unit id="KcWkH0i">
+                <source>narration.guided_step_payment_transaction_review_open</source>
+                <target>The panel takes you to the payments: each is listed there with its provider, its amount and its status.</target>
+            </trans-unit>
+            <trans-unit id="wQW4ZFC">
+                <source>narration.guided_step_payment_transaction_review_provider</source>
+                <target>Check the transaction at the provider: the icon opens it on Stripe's dashboard, once an id has been recorded. Revolut publishes no stable address for an order, so the icon is absent there and only the id is shown.</target>
+            </trans-unit>
+            <trans-unit id="80ul_fx">
+                <source>narration.payments</source>
+                <target>"Payments" lists what has been taken in, with the reference of the transaction at the provider.</target>
+            </trans-unit>
+            <trans-unit id="D2KYkuw">
+                <source>narration.shipping_zones</source>
+                <target>"Shipping zones" groups the countries posted at one tariff, each with its weight tiers.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

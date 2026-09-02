@@ -33,6 +33,7 @@ class MenuProvider implements MenuProviderInterface
             'basket' => [
                 'controller' => BasketCrudController::class,
                 'label' => 'label.baskets',
+                'narration' => 'narration.baskets',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-basket-shopping',
                 'description' => 'label.info_basket',
@@ -40,6 +41,7 @@ class MenuProvider implements MenuProviderInterface
             'payment' => [
                 'controller' => PaymentCrudController::class,
                 'label' => 'label.payments',
+                'narration' => 'narration.payments',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-money-bill-wave',
                 'description' => 'label.info_payment',
@@ -47,6 +49,7 @@ class MenuProvider implements MenuProviderInterface
             'discount' => [
                 'controller' => DiscountCrudController::class,
                 'label' => 'label.discounts',
+                'narration' => 'narration.discounts',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-tags',
                 'description' => 'label.info_discount',
@@ -54,6 +57,7 @@ class MenuProvider implements MenuProviderInterface
             'shipping_zone' => [
                 'controller' => ShippingZoneCrudController::class,
                 'label' => 'label.shipping_zones',
+                'narration' => 'narration.shipping_zones',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-truck',
                 'description' => 'label.info_shipping_zone',
@@ -61,6 +65,7 @@ class MenuProvider implements MenuProviderInterface
             'gift_card' => [
                 'controller' => GiftCardCrudController::class,
                 'label' => 'label.gift_cards',
+                'narration' => 'narration.gift_cards',
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-gift',
                 'description' => 'label.info_gift_card',

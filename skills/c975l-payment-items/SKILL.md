@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -28,6 +28,19 @@ Implement `Contract\BasketItemProviderInterface` in a service — autoconfigured
 | `getContentFlags(array $itemData)` | this line's contribution to the basket's bitmask |
 | `onBasketValidated(...)` | pre-payment hook — **returns what you will need later** |
 | `onBasketPaid(...)` | post-payment hook — runs once, gets that data back |
+
+### What a line carries
+
+`toBasketData()` returns the same shape for every kind — `array{item, parent, type, quantity, totalVat, total}` — and the two arrays inside it are read by `Basket:Item` when the row is drawn:
+
+| Key | What it holds |
+| --- | --- |
+| `item.id` | **required** — what a basket row is keyed, drawn and added to by |
+| `item.title`, `item.description`, `item.media` | what the row reads; `BasketLine::normalize()` fills the last two when a kind has none |
+| `parent.url` | the page the line was bought on, when its catalogue is **not** reached by `<kind>_display` with a slug |
+| `parent.title`, `parent.slug`, `parent.image` | the catalogue entry the line hangs under, otherwise |
+
+A kind with no catalogue entry at all — a payment link typed by the shop — sends an empty `parent`: the row is then drawn as its label alone rather than linked to a route no site declares, and the picture falls back to `no-product-image.webp`.
 
 `validateCheckout()` runs for every provider at the top of `validate()`, **before anything is numbered, charged or written**. Its message is shown as-is via `BasketNotOrderableException` — only the bundle owning the item can say what is wrong with it. Nothing has been written when it throws, so the basket the visitor comes back to is the one they left.
 

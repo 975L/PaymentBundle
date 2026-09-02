@@ -117,8 +117,8 @@ class PaymentAlertProvider implements AlertProviderInterface
             'description' => $this->translator->trans($description, $parameters, 'payment'),
             'severity' => $severity,
             'url' => $url->generateUrl(),
-            // The same fallback ConfigService applies to a base it cannot read: an empty role here would deny everyone, hiding the alert on the very site whose configs were never loaded
-            'role' => (string) ($this->configService->get('site-role-admin') ?: 'ROLE_ADMIN'),
+            // ConfigService fills a missing "site-role-admin" with ROLE_ADMIN, and blanking it locks the back office out long before this alert matters - so the entry is read as it stands, like every other consumer does
+            'role' => (string) $this->configService->get('site-role-admin'),
         ];
     }
 }

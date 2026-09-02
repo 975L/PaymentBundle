@@ -7,11 +7,15 @@
     {# The article names its own row: the picture on one side, what was picked on the other, as the shops line them up #}
     <th scope="row" class="basket-item">
         {% set imageSrc = item.item.media != null ? item.item.media : "bundles/c975lpayment/images/no-product-image.webp" %}
-        {% set imageSrc = item.parent.image != false ? item.parent.image : imageSrc %}
+        {% set imageSrc = item.parent.image is defined and item.parent.image ? item.parent.image : imageSrc %}
         {# A line hanging under a catalogue entry, which is what names a page to link to and a picture to draw. A kind having none - a payment link, typed by the shop - is drawn as its label alone rather than sent to a route that was never declared #}
-        {% set linked = item.parent.slug is defined and item.parent.slug is not empty %}
-        {% set itemUrl = linked ? url(item.type ~ "_display", {'slug': item.parent.slug}) ~ "#" ~ item.item.slug : null %}
-        {% set title = linked ? item.parent.title ~ " (" ~ item.item.title ~ ")" : item.item.title %}
+        {% set catalogued = item.parent.slug is defined and item.parent.slug is not empty %}
+        {# The page the line was bought on, written by the provider when its catalogue is not reached by "<kind>_display" with a slug - a photograph is at "gallery_media", under its gallery and its own slug. Absolute, these rows being sent in the order emails #}
+        {% set ownUrl = item.parent.url is defined and item.parent.url is not empty %}
+        {% set itemUrl = ownUrl ? item.parent.url : (catalogued ? url(item.type ~ "_display", {'slug': item.parent.slug}) ~ "#" ~ item.item.slug : null) %}
+        {% set linked = itemUrl is not null %}
+        {# The entry names its line - "Sweatshirt (XL)" - which a line carrying its own url never needs, what it names being a page of its own and its title the whole of what was bought #}
+        {% set title = not ownUrl and catalogued ? item.parent.title ~ " (" ~ item.item.title ~ ")" : item.item.title %}
         {# Absolute url and eager loading, the same rows being sent in the order emails, and the picture named after the article; the pair sits in a container of its own, a cell laid out as a flex box stopping being a cell #}
         <div class="basket-item-inner">
             {% if linked %}

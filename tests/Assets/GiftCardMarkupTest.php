@@ -12,11 +12,10 @@ namespace c975L\PaymentBundle\Tests\Assets;
 
 use PHPUnit\Framework\TestCase;
 
-// The card is drawn by three files no browser here runs - a template, a stylesheet and a Stimulus controller - and what holds them together is checked against the contract the other two assume. The one property worth guarding above the rest: a card whose code is fetched must not carry that code in its markup
+// The card is drawn by a template and a stylesheet, and what holds them to the controller GiftCardBehaviourTest runs is checked here - a scenario mounting markup of its own can say nothing about the markup that ships. The one property worth guarding above the rest: a card whose code is fetched must not carry that code in its markup
 class GiftCardMarkupTest extends TestCase
 {
     private const string COMPONENT = 'templates/components/GiftCard/Card.html.twig';
-    private const string CONTROLLER_JS = 'assets/js/gift-card.js';
     private const string BARREL = 'assets/controllers.js';
     private const string STYLESHEET = 'sass/_gift-card.scss';
 
@@ -78,23 +77,19 @@ class GiftCardMarkupTest extends TestCase
         $this->assertStringContainsString('data-controller="flipCard{% if revealUrl %} giftCard{% endif %}"', $this->read(self::COMPONENT));
     }
 
-    // Each end of the pair: what the template declares is what the controller reads
-    public function testTheControllerReadsTheTargetsAndTheAddressTheTemplateDeclares(): void
+    // The half GiftCardBehaviourTest cannot see: it mounts markup of its own, so the targets and the address it drives the controller through are ones it wrote itself
+    public function testTheTemplateDeclaresTheTargetsAndTheAddressTheControllerReads(): void
     {
-        $controller = $this->read(self::CONTROLLER_JS);
         $component = $this->read(self::COMPONENT);
 
-        $this->assertStringContainsString('static targets = ["code", "scratch"];', $controller);
-        $this->assertStringContainsString('static values = { url: String };', $controller);
         $this->assertStringContainsString('data-giftCard-url-value=', $component);
         $this->assertStringContainsString('data-giftCard-target="scratch"', $component);
         $this->assertStringContainsString('data-giftCard-target="code"', $component);
     }
 
-    // A class and not a style attribute, the sites running this bundle serving a CSP with no unsafe-inline
+    // A class and not a style attribute, the sites running this bundle serving a CSP with no unsafe-inline. That the controller writes the class is a scenario's business; that anything paints it is this one's
     public function testThePanelIsRubbedOffThroughAClassTheStylesheetDeclares(): void
     {
-        $this->assertStringContainsString('classList.add("gift-card-scratched")', $this->read(self::CONTROLLER_JS));
         $this->assertStringContainsString('.gift-card-scratched .gift-card-scratch {', $this->read(self::STYLESHEET));
     }
 

@@ -44,6 +44,11 @@ interface BasketItemProviderInterface
     /**
      * Builds the array stored in Basket::$items[kind][itemId] - same shape for every kind.
      *
+     * "item" must carry an "id", which is what a basket row is keyed, drawn and added to by (see Basket:Item); "title",
+     * "description" and "media" are what that row reads, and BasketLine::normalize() fills the last two when a kind has
+     * none. "parent" names the catalogue entry the line hangs under: a "url" when its page is not reached by
+     * "<kind>_display" with a slug, and "title", "slug" and "image" otherwise.
+     *
      * @return array{item: array<string, mixed>, parent: array<string, mixed>, type: string, quantity: int, totalVat: int, total: int}
      */
     public function toBasketData(object $item, int $quantity): array;

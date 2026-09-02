@@ -26,10 +26,13 @@ class PaymentLinkMarkupTest extends TestCase
     {
         $template = $this->read('templates/components/Basket/Item.html.twig');
 
-        $this->assertStringContainsString('{% set linked = item.parent.slug is defined and item.parent.slug is not empty %}', $template);
+        $this->assertStringContainsString('{% set catalogued = item.parent.slug is defined and item.parent.slug is not empty %}', $template);
         $this->assertStringContainsString('{% if linked %}', $template);
         // The route is built inside the guard: "payment_link_display" was never declared, and asking for it is what would raise
-        $this->assertStringContainsString('{% set itemUrl = linked ? url(', $template);
+        $this->assertStringContainsString('(catalogued ? url(item.type ~ "_display"', $template);
+        // A line naming its own page is sent there instead, no route being guessed from its kind - which is how a photograph, read under its gallery and its own slug, is linked at all
+        $this->assertStringContainsString('{% set itemUrl = ownUrl ? item.parent.url :', $template);
+        $this->assertStringContainsString('{% set linked = itemUrl is not null %}', $template);
     }
 
     // An accounting document, where an empty pair of brackets is what a customer queries

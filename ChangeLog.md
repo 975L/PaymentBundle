@@ -1,5 +1,32 @@
 # Changelog
 
+## v6.7.0
+
+A bar carries the basket down every page
+
+- **This bundle's own javascript is now run rather than read**, through the harness `c975L/UiBundle` ships (`Testing\JsCase`, hence the `c975l/core-bundle` floor at `^1.21` and `chrome-php/chrome` in `require-dev`): 36 scenarios over `basket.js`, `gift-card.js` and `handlers.js`, where this bundle had none. All it declares is where its assets are (`tests/Assets/JsCase`) (02/09/2026)
+- **The amounts the basket rewrites are now checked as the customer reads them.** They are written through `Intl`, so it is the browser that decides the separator, the place of the symbol and the space before it - and these totals are recomputed beside the ones Twig rendered with `format_currency`, the two disagreeing being the one thing a shop cannot afford. A file can be read for the call; only a browser answers `55,00 €` (02/09/2026)
+- The rest of what the basket promises is held to as well: the whole document asks for the basket once however many blocks show it, a basket that could not be loaded is said and asked for again rather than the failure being handed out, a gift card worth more than the basket leaves nothing to pay instead of printing the amount the other way round, a code left in the field is applied on the way to the coordinates - and its refusal keeps the customer on the basket with the server's own sentence - a file already bought cannot be added twice, and the block that changed the basket hands the others what it got rather than sending them back to the server (02/09/2026)
+- The borrowing at the top of `handlers.js` is now a checked contract rather than a comment: `getLanguage` and `translate` are UiBundle's own, taken as they stand and given this bundle's catalogue to read, which works only because both read `this.translations`. Asking the borrowed method for a word only this catalogue holds is what says so, and it is the day either of them reaches for its own module's catalogue that this stops being true - silently (02/09/2026)
+- `gift-card.js` is held to the property the whole arrangement exists for: the code is nowhere in the markup until somebody rubs the panel off, a second press asks for nothing, and a card whose request failed keeps its panel so it can be rubbed again - a card left with neither a code nor a panel saying nothing at all (02/09/2026)
+- `GiftCardMarkupTest` was narrowed to what a scenario cannot see rather than kept alongside: the targets the controller declares and the class it writes are now proven by running it, and what stayed is the template's own `data-giftCard-*`, the barrel entry, and the stylesheet that actually paints the rubbed-off panel (02/09/2026)
+- **New `PaymentDemoFixtureProvider`**: two shipping zones and their weight brackets, the country the shop is in and everything around it at another price - a grid is what a shop decided before anyone ordered anything, and a screen showing none says nothing about how a bracket reads. The orders themselves are not here: an order copies what it holds, so it can only be written beside a catalogue (01/09/2026)
+- `PaymentAlertProvider` reads `site-role-admin` as it stands: `ConfigService` already guards that very entry against being empty, so the `ROLE_ADMIN` repeated here was a second source of truth for one setting (01/09/2026)
+- The invoice fixture no longer carries a real seller's name, postal address and e-mail: `Editions Exemple`, `1 rue Exemple, 75000 Paris` and `contact@example.com` stand in their place (01/09/2026)
+- **New `<twig:c975LPayment:Basket:Navbar/>`**, placed once in a site's layout: the bar shown at the bottom of the page as soon as the basket holds something, its count and its total kept up to date by `basket.js`, hidden while the basket is empty (02/09/2026)
+- **New `set_timezone` route** (`TimezoneController`): the browser's own timezone held in the session, so the dates this bundle prints read in the hour of whoever is reading them (02/09/2026)
+- Only a known identifier is kept in that session entry, anything else breaking every page that prints an hour until the session is emptied (02/09/2026)
+- **The back office speaks its own screens**: a `narration` on each of the five menu entries and on every guided step, 55 keys shipped in `payment_narration.{en,fr}.xlf` (02/09/2026)
+- New `NarrationCatalogueTest`, a narration being declared in an array and never drawn - nothing else sees a key missing from a catalogue, or one nothing declares any more (02/09/2026)
+- The shipping rates collection carries a `data-shipping-rates` row attribute, EasyAdmin putting no id on a collection's row for the `payment-shipping-grid` project to point at (02/09/2026)
+- `BasketItemProviderInterface::toBasketData()` states the shape it returns: what `item` must carry, and the `url` a `parent` names when its page is not reached by `<kind>_display` (02/09/2026)
+- A parent carrying no `image` no longer breaks `Basket:Item` under `strict_variables`, the key being guarded like its two neighbours (02/09/2026)
+- The demo grid gains its catch-all zone, without which the shipping health check warned on the very screen a demo shows and every other country shipped free (02/09/2026)
+- `StripeGatewayTest` hands Stripe's HTTP client back, `ApiRequestor` holding it statically (02/09/2026)
+- The invoice mentions help no longer quotes an article of the French tax code, the setting being read by shops under other regimes (02/09/2026)
+- The README states the basket bar, the `set_timezone` route and the demo grid; the three skills state the shape of a basket line, the restricted key and the bar (02/09/2026)
+- **A key restricted to Checkout alone now passes the credentials check.** `StripeGateway::verifyCredentials()` asked Stripe for the account the key belongs to, an endpoint a restricted key is refused on for lack of a permission no payment ever uses - so a site charging perfectly well was reported as broken by the health check. It lists a single Checkout Session instead, which asks for nothing the bundle does not already need to open a checkout (02/09/2026)
+
 ## v6.6.0
 
 The basket names no shop

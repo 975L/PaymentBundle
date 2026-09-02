@@ -1,5 +1,25 @@
 [
     {
+        "date": "2026-09-02",
+        "description": [
+            {
+                "en": "Your basket now follows your visitor down every page: a bar appears at the bottom of the screen as soon as they put something in it, carrying the number of items and the total, and updating itself without the page being reloaded. It stays out of the way as long as the basket is empty.",
+                "fr": "Votre panier suit désormais votre visiteur de page en page : une barre apparaît en bas de l'écran dès qu'il y met quelque chose, avec le nombre d'articles et le total, et se met à jour sans que la page soit rechargée. Elle reste invisible tant que le panier est vide.",
+                "es": "Su carrito sigue ahora a su visitante de página en página: una barra aparece en la parte inferior de la pantalla en cuanto pone algo en él, con el número de artículos y el total, y se actualiza sin recargar la página. Permanece oculta mientras el carrito esté vacío."
+            },
+            {
+                "en": "Dates now read in the hour of whoever is looking at them - an order registered, items shipped, a download that expires - rather than in the server's, so a customer abroad is no longer told an hour that is not theirs.",
+                "fr": "Les dates s'affichent désormais à l'heure de celui qui les lit - une commande enregistrée, des articles expédiés, un téléchargement qui expire - et non à celle du serveur : un client à l'étranger ne se voit donc plus annoncer une heure qui n'est pas la sienne.",
+                "es": "Las fechas se muestran ahora en la hora de quien las lee - un pedido registrado, artículos enviados, una descarga que caduca - y no en la del servidor: así, un cliente en el extranjero ya no ve una hora que no es la suya."
+            },
+            {
+                "en": "If you pay Stripe with a restricted key, your dashboard no longer reports it as broken: the key check now asks Stripe for nothing more than what taking a payment already needs.",
+                "fr": "Si vous encaissez avec une clé Stripe restreinte, votre tableau de bord ne la signale plus comme défaillante : la vérification de la clé ne demande désormais à Stripe rien de plus que ce qu'un encaissement exige déjà.",
+                "es": "Si cobra con una clave de Stripe restringida, su panel ya no la señala como defectuosa: la verificación de la clave no pide ahora a Stripe nada más de lo que ya exige un cobro."
+            }
+        ]
+    },
+    {
         "date": "2026-08-31",
         "description": [
             {

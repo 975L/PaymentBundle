@@ -60,25 +60,30 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_test_mode_open',
                     'description' => 'description.guided_step_payment_test_mode_open',
+                    'narration' => 'narration.guided_step_payment_test_mode_open',
                     'url' => $this->urlGenerator->generate('management'),
                 ],
                 [
                     'label' => 'label.guided_step_payment_test_mode_enable',
                     'description' => 'description.guided_step_payment_test_mode_enable',
+                    'narration' => 'narration.guided_step_payment_test_mode_enable',
                     'highlight' => 'form[action$="/payment/test-mode-toggle"] button',
                 ],
                 [
                     'label' => 'label.guided_step_payment_test_mode_check',
                     'description' => 'description.guided_step_payment_test_mode_check',
+                    'narration' => 'narration.guided_step_payment_test_mode_check',
                 ],
                 [
                     'label' => 'label.guided_step_payment_test_mode_disable',
                     'description' => 'description.guided_step_payment_test_mode_disable',
+                    'narration' => 'narration.guided_step_payment_test_mode_disable',
                     'highlight' => 'form[action$="/payment/test-mode-toggle"] button',
                 ],
                 [
                     'label' => 'label.guided_step_payment_test_mode_done',
                     'description' => 'description.guided_step_payment_test_mode_done',
+                    'narration' => 'narration.guided_step_payment_test_mode_done',
                 ],
             ],
         ];
@@ -99,21 +104,25 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_email_attachments_open',
                     'description' => 'description.guided_step_payment_email_attachments_open',
+                    'narration' => 'narration.guided_step_payment_email_attachments_open',
                     'url' => $this->urlGenerator->generate('management'),
                 ],
                 [
                     'label' => 'label.guided_step_payment_email_attachments_enable',
                     'description' => 'description.guided_step_payment_email_attachments_enable',
+                    'narration' => 'narration.guided_step_payment_email_attachments_enable',
                     'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
                 ],
                 [
                     'label' => 'label.guided_step_payment_email_attachments_check',
                     'description' => 'description.guided_step_payment_email_attachments_check',
+                    'narration' => 'narration.guided_step_payment_email_attachments_check',
                     'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
                 ],
                 [
                     'label' => 'label.guided_step_payment_email_attachments_done',
                     'description' => 'description.guided_step_payment_email_attachments_done',
+                    'narration' => 'narration.guided_step_payment_email_attachments_done',
                 ],
             ],
         ];
@@ -133,6 +142,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_transaction_review_open',
                     'description' => 'description.guided_step_payment_transaction_review_open',
+                    'narration' => 'narration.guided_step_payment_transaction_review_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(PaymentCrudController::class)
@@ -142,15 +152,18 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_transaction_review_detail',
                     'description' => 'description.guided_step_payment_transaction_review_detail',
+                    'narration' => 'narration.guided_step_payment_transaction_review_detail',
                     'highlight' => '.action-detail',
                 ],
                 [
                     'label' => 'label.guided_step_payment_transaction_review_provider',
                     'description' => 'description.guided_step_payment_transaction_review_provider',
+                    'narration' => 'narration.guided_step_payment_transaction_review_provider',
                 ],
                 [
                     'label' => 'label.guided_step_payment_transaction_review_basket',
                     'description' => 'description.guided_step_payment_transaction_review_basket',
+                    'narration' => 'narration.guided_step_payment_transaction_review_basket',
                 ],
             ],
         ];
@@ -170,6 +183,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_payment_link_open',
                     'description' => 'description.guided_step_payment_payment_link_open',
+                    'narration' => 'narration.guided_step_payment_payment_link_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(BasketCrudController::class)
@@ -179,26 +193,31 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_payment_link_start',
                     'description' => 'description.guided_step_payment_payment_link_start',
+                    'narration' => 'narration.guided_step_payment_payment_link_start',
                     'highlight' => '.action-paymentLink',
                 ],
                 [
                     'label' => 'label.guided_step_payment_payment_link_label',
                     'description' => 'description.guided_step_payment_payment_link_label',
+                    'narration' => 'narration.guided_step_payment_payment_link_label',
                     'highlight' => '#form_label',
                 ],
                 [
                     'label' => 'label.guided_step_payment_payment_link_amount',
                     'description' => 'description.guided_step_payment_payment_link_amount',
+                    'narration' => 'narration.guided_step_payment_payment_link_amount',
                     'highlight' => '#form_amount',
                 ],
                 [
                     'label' => 'label.guided_step_payment_payment_link_email',
                     'description' => 'description.guided_step_payment_payment_link_email',
+                    'narration' => 'narration.guided_step_payment_payment_link_email',
                     'highlight' => '#form_email',
                 ],
                 [
                     'label' => 'label.guided_step_payment_payment_link_create',
                     'description' => 'description.guided_step_payment_payment_link_create',
+                    'narration' => 'narration.guided_step_payment_payment_link_create',
                     'highlight' => '#form_create',
                 ],
             ],
@@ -219,6 +238,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_open',
                     'description' => 'description.guided_step_payment_gift_card_issue_open',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(GiftCardCrudController::class)
@@ -228,26 +248,31 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_start',
                     'description' => 'description.guided_step_payment_gift_card_issue_start',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_start',
                     'highlight' => '.action-issue',
                 ],
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_amount',
                     'description' => 'description.guided_step_payment_gift_card_issue_amount',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_amount',
                     'highlight' => '#form_amount',
                 ],
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_validity',
                     'description' => 'description.guided_step_payment_gift_card_issue_validity',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_validity',
                     'highlight' => '#form_validUntil',
                 ],
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_confirm',
                     'description' => 'description.guided_step_payment_gift_card_issue_confirm',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_confirm',
                     'highlight' => '#form_issue',
                 ],
                 [
                     'label' => 'label.guided_step_payment_gift_card_issue_code',
                     'description' => 'description.guided_step_payment_gift_card_issue_code',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_code',
                 ],
             ],
         ];
@@ -267,6 +292,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_discount_code_open',
                     'description' => 'description.guided_step_payment_discount_code_open',
+                    'narration' => 'narration.guided_step_payment_discount_code_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(DiscountCrudController::class)
@@ -276,31 +302,37 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_discount_code_new',
                     'description' => 'description.guided_step_payment_discount_code_new',
+                    'narration' => 'narration.guided_step_payment_discount_code_new',
                     'highlight' => '.action-new',
                 ],
                 [
                     'label' => 'label.guided_step_payment_discount_code_code',
                     'description' => 'description.guided_step_payment_discount_code_code',
+                    'narration' => 'narration.guided_step_payment_discount_code_code',
                     'highlight' => '#Discount_code',
                 ],
                 [
                     'label' => 'label.guided_step_payment_discount_code_kind',
                     'description' => 'description.guided_step_payment_discount_code_kind',
+                    'narration' => 'narration.guided_step_payment_discount_code_kind',
                     'highlight' => '#Discount_kind',
                 ],
                 [
                     'label' => 'label.guided_step_payment_discount_code_value',
                     'description' => 'description.guided_step_payment_discount_code_value',
+                    'narration' => 'narration.guided_step_payment_discount_code_value',
                     'highlight' => '#Discount_value',
                 ],
                 [
                     'label' => 'label.guided_step_payment_discount_code_limits',
                     'description' => 'description.guided_step_payment_discount_code_limits',
+                    'narration' => 'narration.guided_step_payment_discount_code_limits',
                     'highlight' => '#Discount_maxUses',
                 ],
                 [
                     'label' => 'label.guided_step_payment_discount_code_live',
                     'description' => 'description.guided_step_payment_discount_code_live',
+                    'narration' => 'narration.guided_step_payment_discount_code_live',
                 ],
             ],
         ];
@@ -321,6 +353,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_open',
                     'description' => 'description.guided_step_payment_shipping_grid_open',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(ShippingZoneCrudController::class)
@@ -330,32 +363,38 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_new',
                     'description' => 'description.guided_step_payment_shipping_grid_new',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_new',
                     'highlight' => '.action-new',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_name',
                     'description' => 'description.guided_step_payment_shipping_grid_name',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_name',
                     'highlight' => '#ShippingZone_name',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_countries',
                     'description' => 'description.guided_step_payment_shipping_grid_countries',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_countries',
                     'highlight' => '#ShippingZone_countries',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_rates',
                     'description' => 'description.guided_step_payment_shipping_grid_rates',
-                    'highlight' => '#ShippingZone_rates',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_rates',
+                    'highlight' => '[data-shipping-rates]',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_active',
                     'description' => 'description.guided_step_payment_shipping_grid_active',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_active',
                     'highlight' => '#ShippingZone_active',
                 ],
                 [
                     // The health check screen is another one entirely and only the opening step may carry an url, so the parcours names it rather than walking to it - see ShippingHealthCheckProvider for the three things it reports
                     'label' => 'label.guided_step_payment_shipping_grid_check',
                     'description' => 'description.guided_step_payment_shipping_grid_check',
+                    'narration' => 'narration.guided_step_payment_shipping_grid_check',
                 ],
             ],
         ];
@@ -375,6 +414,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_shipping_open',
                     'description' => 'description.guided_step_payment_shipping_open',
+                    'narration' => 'narration.guided_step_payment_shipping_open',
                     'url' => $this->adminUrlGenerator
                         ->unsetAll()
                         ->setController(BasketCrudController::class)
@@ -384,21 +424,25 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_shipping_filter',
                     'description' => 'description.guided_step_payment_shipping_filter',
+                    'narration' => 'narration.guided_step_payment_shipping_filter',
                     'highlight' => '.action-filterPaid',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_labels',
                     'description' => 'description.guided_step_payment_shipping_labels',
+                    'narration' => 'narration.guided_step_payment_shipping_labels',
                     'highlight' => '.action-shippingLabels',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_send',
                     'description' => 'description.guided_step_payment_shipping_send',
+                    'narration' => 'narration.guided_step_payment_shipping_send',
                     'highlight' => '.action-sendPhysicalItems',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_done',
                     'description' => 'description.guided_step_payment_shipping_done',
+                    'narration' => 'narration.guided_step_payment_shipping_done',
                 ],
             ],
         ];
@@ -418,33 +462,39 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_open',
                     'description' => 'description.guided_step_payment_basket_integrity_open',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_open',
                     // ConfigBundle's own screen, this bundle only filling six of its rows: the checks are the shop's, the page they land on is the site's
                     'url' => $this->urlGenerator->generate('management_health_check_index'),
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_run',
                     'description' => 'description.guided_step_payment_basket_integrity_run',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_run',
                     'highlight' => 'form[action$="/health-check/run"] button',
                 ],
                 [
                     // The rows carry their kind as a data attribute for the table's own filtering (see ConfigBundle's health-check-table controller), which is what lets a parcours point at this bundle's six among everything else the page lists
                     'label' => 'label.guided_step_payment_basket_integrity_rows',
                     'description' => 'description.guided_step_payment_basket_integrity_rows',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_rows',
                     'highlight' => 'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_offenders',
                     'description' => 'description.guided_step_payment_basket_integrity_offenders',
-                    'highlight' => '.health-check-advice-items summary',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_offenders',
+                    'highlight' => '.health-check-advice-items',
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_acknowledge',
                     'description' => 'description.guided_step_payment_basket_integrity_acknowledge',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_acknowledge',
                     'highlight' => '[data-action="health-check-table#acknowledge"]',
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_done',
                     'description' => 'description.guided_step_payment_basket_integrity_done',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_done',
                 ],
             ],
         ];

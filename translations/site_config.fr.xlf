@@ -72,7 +72,7 @@
             </trans-unit>
             <trans-unit id="80nApHW">
                 <source>description.shop_invoice_mentions</source>
-                <target>Imprimé en bas de chaque facture : SIREN, numéro de TVA, ou la mention d'exonération qui vous concerne (par exemple « TVA non applicable, art. 293 B du CGI »). Vous seul connaissez votre situation.</target>
+                <target>Imprimé en bas de chaque facture : SIREN, numéro de TVA, ou la mention d'exonération qui vous concerne. Vous seul connaissez votre situation.</target>
             </trans-unit>
             <trans-unit id="u.REqA6">
                 <source>description.shop_invoice_prefix</source>

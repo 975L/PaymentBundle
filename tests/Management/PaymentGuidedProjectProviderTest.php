@@ -224,6 +224,22 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
+    // EasyAdmin puts no id on a collection's row, so the grid step points at an attribute ShippingZoneCrudController poses itself - a rename on either side highlighting nothing at all
+    public function testTheShippingGridStepPointsAtTheAttributeTheCrudDeclares(): void
+    {
+        $highlights = [];
+
+        foreach ($this->createProvider()->getGuidedProjects() as $project) {
+            $highlights = [...$highlights, ...array_column($project['steps'], 'highlight')];
+        }
+
+        $this->assertContains('[data-shipping-rates]', $highlights);
+        $this->assertStringContainsString(
+            "'row_attr', ['data-shipping-rates' => 'true']",
+            (string) file_get_contents(__DIR__ . '/../../src/Controller/Management/ShippingZoneCrudController.php'),
+        );
+    }
+
     // A label or description with no translation reads as its own key in the panel, in whichever locale it is missing from
     public function testEveryLabelAndDescriptionIsTranslatedInEveryLocale(): void
     {

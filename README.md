@@ -51,6 +51,8 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 - **The orders check out against their own payments**, weekly and without being asked: `basket-integrity` reports
   the charge nobody was told about — money taken and no order delivered — along with five other disagreements
   nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
+- A basket bar for the whole site, `<twig:c975LPayment:Basket:Navbar/>` placed once in the layout: shown as soon
+  as the basket holds something, carrying the count and the total, and kept up to date without a page reload
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed
 - **Delivery priced on a grid written in the back office**: a zone groups the countries posted at one tariff and
@@ -210,6 +212,14 @@ renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.p
 
 ## Usage
 
+### The basket bar
+
+`<twig:c975LPayment:Basket:Navbar/>`, placed once in the site's layout, draws the bar shown at the bottom of the
+page as soon as the basket holds something — the button carrying the count and the total, kept up to date by
+`basket.js` without the page being reloaded. It is hidden while the basket is empty, so it costs nothing to leave
+in the layout of a site whose visitor buys nothing. It lives in this bundle rather than in a satellite one because
+every bundle filling the basket needs it, whether the site sells products, counterparts or prints.
+
 ### Public routes
 
 | Route | URL | Description |
@@ -237,6 +247,7 @@ renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.p
 | `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
 | `stripe_webhook` | `/shop/stripe/webhook` (POST) | The endpoint ShopBundle served up to its v1.12, kept under the same name and path so a shop upgrading does not have to touch its Stripe dashboard the same day |
+| `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
 `basket_paid` carries a security token generated with the order number: it is what lets a customer reach their
 own order page and nobody else's. **Reaching that url is never what delivers an order** — see
@@ -788,6 +799,10 @@ dashboard rather than leaving them to be found on a month of orders.
 The parcel's weight is summed from the lines whose provider implements `WeighableBasketItemProviderInterface`; a
 line that weighs nothing leaves it where it stands. `shop-shipping-free` still takes delivery off a basket above
 its threshold, and a threshold left unset is no threshold at all.
+
+`PaymentDemoFixtureProvider` writes a grid to look at rather than one to imagine: three zones — the country the
+shop is in, everything around it at another price, and the catch-all taking the rest — each with its weight tiers,
+loaded with whatever demo dataset the application installs.
 
 The country is only known once the customer gives an address, so the basket page prices the parcel on
 `shop-shipping-country` and reads as an estimate; `validate()` counts the basket again once the address is bound,

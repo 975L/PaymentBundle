@@ -1,0 +1,38 @@
+/* BASKET NAVBAR */
+// Declared on ":root, [data-theme]" and not on ":root" alone, as UiBundle's own token contract requires: the pair below reads --primary and --background, which a section opening its own ambiance redeclares
+:root, [data-theme] {
+    // Flat and ink of the basket bar fixed at the bottom of the sheet: the bar is a brand surface, so it moves with --primary instead of staying on the ecosystem's neutral dark surface, which read as a foreign band on a site that is not black-on-white
+    --payment-navbar-background: var(--primary);
+    --payment-navbar-color: var(--background);
+}
+
+.basket-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    padding: 10px 16px;
+    background-color: var(--payment-navbar-background);
+    color: var(--payment-navbar-color);
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(0);
+}
+
+.basket-navbar p {
+    margin: 0;
+}
+
+.basket-navbar.d-none {
+    transform: translateY(100%);
+}
+
+// The room the bar takes at the bottom of the viewport, published as a token rather than kept for the page's own padding: anything a site fixes to the bottom corners (SiteBundle's scroll buttons) steps over the bar by reading it, without either bundle knowing the other's classes
+body.has-basket-navbar {
+    --bottom-bar-height: 72px;
+    padding-bottom: var(--bottom-bar-height);
+}

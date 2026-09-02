@@ -16,11 +16,21 @@ use c975L\PaymentBundle\Gateway\StripeGateway;
 use c975L\PaymentBundle\Gateway\StripeSessionReader;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use PHPUnit\Framework\TestCase;
+use Stripe\ApiRequestor;
+use Stripe\HttpClient\ClientInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 // Which pair of keys Stripe is called with, and what a customer's payment links to in the back-office, both following the stated test mode alone
 class StripeGatewayTest extends TestCase
 {
+    // ApiRequestor holds its client statically, so a stub left in place would silently answer the next Stripe test rather than its own
+    protected function tearDown(): void
+    {
+        ApiRequestor::setHttpClient(null);
+
+        parent::tearDown();
+    }
+
     public function testTestModeChargesWithTheTestKeys(): void
     {
         $configService = $this->configService(['stripe-secret' => 'sk_live_1', 'stripe-secret-test' => 'sk_test_1']);
@@ -54,6 +64,37 @@ class StripeGatewayTest extends TestCase
         $this->expectException(InvalidNotificationException::class);
 
         $this->gateway($configService, false)->readNotification(new Request([], [], [], [], [], [], '{"type":"checkout.session.completed"}'));
+    }
+
+    // Without a key there is nothing to authenticate, and saying so beats letting Stripe answer a request made with an empty string
+    public function testCredentialsAreNotVerifiedWhenNoKeyIsSet(): void
+    {
+        $configService = $this->configService(['stripe-secret' => null]);
+
+        $this->assertSame('No secret key is set for the live mode', $this->gateway($configService, false)->verifyCredentials());
+    }
+
+    // A key restricted to Checkout alone is refused on the account endpoint, so verifying there would report a working key as broken: the check must ask for nothing a payment does not already need
+    public function testCredentialsAreVerifiedOnCheckoutAndNotOnTheAccount(): void
+    {
+        $client = new class implements ClientInterface {
+            public array $urls = [];
+
+            public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null)
+            {
+                $this->urls[] = $absUrl;
+
+                return ['{"object":"list","data":[],"has_more":false,"url":"/v1/checkout/sessions"}', 200, []];
+            }
+        };
+        ApiRequestor::setHttpClient($client);
+
+        $configService = $this->configService(['stripe-secret' => 'rk_live_1']);
+
+        $this->assertNull($this->gateway($configService, false)->verifyCredentials());
+        $this->assertCount(1, $client->urls);
+        $this->assertStringContainsString('/v1/checkout/sessions', $client->urls[0]);
+        $this->assertStringNotContainsString('/v1/account', $client->urls[0]);
     }
 
     private function gateway(ConfigServiceInterface $configService, bool $testMode): StripeGateway

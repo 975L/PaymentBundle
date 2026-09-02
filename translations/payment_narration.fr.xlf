@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="payment_narration.fr.xlf">
+        <body>
+            <trans-unit id="DELxlrC">
+                <source>narration.baskets</source>
+                <target>« Paniers » liste toutes les commandes validées par un client, que le paiement ait abouti ou non.</target>
+            </trans-unit>
+            <trans-unit id="8dqdQ3y">
+                <source>narration.discounts</source>
+                <target>« Codes promo » tient les codes que la boutique écrit et distribue, avec ce que chacun retire et le nombre de fois qu'il reste utilisable.</target>
+            </trans-unit>
+            <trans-unit id="wjNqjLQ">
+                <source>narration.gift_cards</source>
+                <target>« Cartes cadeaux » liste les cartes vendues ou émises à la main, leur solde restant et la commande qui les a émises.</target>
+            </trans-unit>
+            <trans-unit id="oA7_dbp">
+                <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Une fois la commande traitée, déclarez la ligne réglée plutôt que de relancer tout le contrôle : elle quitte la vue par défaut et revient d'elle-même si le problème réapparaît.</target>
+            </trans-unit>
+            <trans-unit id="bq05eov">
+                <source>narration.guided_step_payment_basket_integrity_done</source>
+                <target>Le contrôle est lu. Rien de tout cela ne déclenche d'alerte de son côté : une commande encaissée et jamais livrée n'a ni page d'erreur ni e-mail pour se signaler. Cet écran est le seul endroit où elle se voit, et il ne sert que si on l'ouvre.</target>
+            </trans-unit>
+            <trans-unit id="uc..0nj">
+                <source>narration.guided_step_payment_basket_integrity_offenders</source>
+                <target>Ouvrez la liste des commandes : un compte ne dit pas quoi faire, alors que la liste dépliée nomme les commandes derrière lui, chacune avec son lien pour l'ouvrir dans le back-office. C'est là que le travail commence.</target>
+            </trans-unit>
+            <trans-unit id="8Ea8FOp">
+                <source>narration.guided_step_payment_basket_integrity_open</source>
+                <target>Le panneau vous emmène sur le contrôle de santé, qui rassemble tout ce que le site vérifie de lui-même. Six de ces lignes portent sur vos commandes : un paiement encaissé dont la commande n'est jamais partie, une commande livrée sans paiement en face, un montant ou une devise qui ne correspond pas, une commande livrée sans numéro de facture, des lignes qui ne s'additionnent pas, un panier contenant un article retiré du catalogue.</target>
+            </trans-unit>
+            <trans-unit id="m9Wo.BI">
+                <source>narration.guided_step_payment_basket_integrity_rows</source>
+                <target>Repérez les lignes des commandes : elles portent le type « basket-integrity » et disent chacune combien de commandes elles ont trouvées. Les commandes passées en mode test en sont exclues, sans quoi une boutique qui répète sa vente les lirait toutes comme des défauts.</target>
+            </trans-unit>
+            <trans-unit id="WdfCfzm">
+                <source>narration.guided_step_payment_basket_integrity_run</source>
+                <target>Relancez la vérification. Les six contrôles tournent d'eux-mêmes chaque semaine ; ce bouton les relance tout de suite, si la page est vide ou si vous venez de corriger quelque chose.</target>
+            </trans-unit>
+            <trans-unit id="vB7DPGB">
+                <source>narration.guided_step_payment_discount_code_code</source>
+                <target>Choisissez le code lui-même, ce que le client saisit dans son panier. Il se dicte et se retape : gardez-le court et sans caractère qui se lise de deux façons.</target>
+            </trans-unit>
+            <trans-unit id="5Nq88bc">
+                <source>narration.guided_step_payment_discount_code_kind</source>
+                <target>Choisissez le type, pourcentage ou montant fixe. C'est ce choix qui donne son sens au champ suivant, les deux partageant une seule colonne.</target>
+            </trans-unit>
+            <trans-unit id="hcKLqU0">
+                <source>narration.guided_step_payment_discount_code_limits</source>
+                <target>Bornez sa portée : le nombre de commandes qui peuvent l'utiliser au plus, le minimum qu'une commande doit atteindre, et les deux dates qui l'encadrent. Chacun refuse le code de son côté, au moment où la commande est figée.</target>
+            </trans-unit>
+            <trans-unit id="gJgcUSH">
+                <source>narration.guided_step_payment_discount_code_live</source>
+                <target>Le code est en service. Son compteur n'est augmenté que par les commandes réglées, et sa colonne de mode test dit dans quel mode la boutique encaissait le jour où il a été écrit : un code né d'un essai ne sera jamais dépensable pour de vrai.</target>
+            </trans-unit>
+            <trans-unit id="dYAf9if">
+                <source>narration.guided_step_payment_discount_code_new</source>
+                <target>Ajoutez un code avec le bouton habituel. Contrairement à une carte cadeau, un code ne détient aucune somme et s'écrit directement dans le formulaire.</target>
+            </trans-unit>
+            <trans-unit id="s6v_5cl">
+                <source>narration.guided_step_payment_discount_code_open</source>
+                <target>Le panneau vous emmène sur les codes promo. Tous ceux que la boutique a écrits y sont listés, avec ce qu'ils retirent et le nombre de fois qu'ils ont été utilisés.</target>
+            </trans-unit>
+            <trans-unit id="RfZ20d6">
+                <source>narration.guided_step_payment_discount_code_value</source>
+                <target>Fixez ce qui est retiré. La valeur est lue comme un pourcentage pour le premier type, et en centimes pour le second : dix vaut soit un dixième de la commande, soit dix centimes de moins.</target>
+            </trans-unit>
+            <trans-unit id="G8P2AdP">
+                <source>narration.guided_step_payment_email_attachments_check</source>
+                <target>Vérifiez que c'est en place : la tuile n'est plus en évidence et propose maintenant de désactiver. C'est le seul signe à lire, l'envoi ne se voyant qu'à la commande suivante.</target>
+            </trans-unit>
+            <trans-unit id="f0bddE7">
+                <source>narration.guided_step_payment_email_attachments_done</source>
+                <target>Passez une commande d'essai en mode test : sa confirmation doit arriver avec les fichiers cochés sur ce modèle. S'il n'y en a aucun, l'interrupteur est bien allumé mais rien n'a été coché dans le constructeur d'e-mails.</target>
+            </trans-unit>
+            <trans-unit id="gTF4rJ6">
+                <source>narration.guided_step_payment_email_attachments_enable</source>
+                <target>Activez l'envoi. La tuile reste en évidence tant qu'il est désactivé : remettre au client les conditions qu'il a acceptées sous forme de fichier, et non par un lien vers une page réécrite ensuite, est ce que la loi appelle un support durable.</target>
+            </trans-unit>
+            <trans-unit id="Bh6jByn">
+                <source>narration.guided_step_payment_email_attachments_open</source>
+                <target>Le panneau vous emmène sur le tableau de bord, où les interrupteurs de la boutique sont en tuiles. Celui-ci décide si vos e-mails de commande emportent des fichiers ; quels fichiers, cela se coche modèle par modèle dans le constructeur d'e-mails.</target>
+            </trans-unit>
+            <trans-unit id="b7YjqKV">
+                <source>narration.guided_step_payment_gift_card_issue_amount</source>
+                <target>Fixez le montant. Il se saisit dans la devise de la boutique et devient le solde entier de la carte, que son porteur dépense sur autant de commandes qu'il faut.</target>
+            </trans-unit>
+            <trans-unit id="l0R8V4s">
+                <source>narration.guided_step_payment_gift_card_issue_code</source>
+                <target>Recopiez le code : il s'affiche une seule fois, dans le message au-dessus de la liste où vous revenez. Aucun écran ne le réimprime, alors transmettez-le avant de quitter cette page.</target>
+            </trans-unit>
+            <trans-unit id="u6DPDf_">
+                <source>narration.guided_step_payment_gift_card_issue_confirm</source>
+                <target>Émettez la carte. Le code est tiré au sort à la validation, de la même façon qu'un achat en tire un : rien n'y est saisi.</target>
+            </trans-unit>
+            <trans-unit id="h7HTo.J">
+                <source>narration.guided_step_payment_gift_card_issue_open</source>
+                <target>Le panneau vous emmène sur les cartes cadeaux. Toutes y sont listées, vendues ou émises à la main : celles écrites ici se reconnaissent à ce qu'elles ne nomment aucune commande.</target>
+            </trans-unit>
+            <trans-unit id="iMwSBIZ">
+                <source>narration.guided_step_payment_gift_card_issue_start</source>
+                <target>Ouvrez le formulaire d'émission avec le bouton au-dessus de la liste. Il n'y a pas de bouton « Nouveau » : le solde naît du montant au lieu d'être saisi, et ne se retouche pas ensuite.</target>
+            </trans-unit>
+            <trans-unit id="AZjEph1">
+                <source>narration.guided_step_payment_gift_card_issue_validity</source>
+                <target>Fixez une date de fin, ou aucune. Laissée vide, la carte n'expire jamais ; renseignée, elle cesse d'être utilisable ce jour-là, quel que soit le solde qui y reste.</target>
+            </trans-unit>
+            <trans-unit id="wj9cQ_u">
+                <source>narration.guided_step_payment_payment_link_amount</source>
+                <target>Fixez le montant. Il se saisit dans la devise de la boutique et toutes taxes comprises, comme tous les prix ici ; la TVA en est extraite au taux du réglage prévu.</target>
+            </trans-unit>
+            <trans-unit id="PR4iP94">
+                <source>narration.guided_step_payment_payment_link_create</source>
+                <target>Écrivez la commande. Elle est figée sur-le-champ, et son adresse courte s'affiche au-dessus du formulaire : envoyez-la par SMS ou par e-mail, elle se règle en ligne comme n'importe quelle autre.</target>
+            </trans-unit>
+            <trans-unit id="4WFmELg">
+                <source>narration.guided_step_payment_payment_link_email</source>
+                <target>Indiquez l'adresse du client : c'est à elle que part la confirmation une fois la commande réglée, et c'est elle qui rattachera la commande à son compte s'il en ouvre un.</target>
+            </trans-unit>
+            <trans-unit id="yLeSllg">
+                <source>narration.guided_step_payment_payment_link_label</source>
+                <target>Nommez ce qui est encaissé. C'est ce que le client lira sur sa commande, sur sa facture et dans son e-mail de confirmation : « acompte pose parquet », « réparation vélo ».</target>
+            </trans-unit>
+            <trans-unit id="9PvaycB">
+                <source>narration.guided_step_payment_payment_link_open</source>
+                <target>Le panneau vous emmène sur les paniers : un lien de paiement s'écrit depuis la liste des commandes, où celle qu'il crée vient se ranger.</target>
+            </trans-unit>
+            <trans-unit id="3spo3F_">
+                <source>narration.guided_step_payment_payment_link_start</source>
+                <target>Ouvrez le formulaire avec le bouton au-dessus de la liste. Il n'y a aucune ligne à sélectionner : la commande est écrite par le formulaire qu'il ouvre.</target>
+            </trans-unit>
+            <trans-unit id="BppffwD">
+                <source>narration.guided_step_payment_shipping_done</source>
+                <target>La tournée est close : une commande marquée quitte les commandes en attente d'expédition, si bien que la planche de demain ne portera que ce qui reste dû.</target>
+            </trans-unit>
+            <trans-unit id="0G24Fiv">
+                <source>narration.guided_step_payment_shipping_filter</source>
+                <target>Restreignez-vous aux commandes payées : c'est le seul état dans lequel un colis part. Une commande seulement validée n'a pas été réglée, et rien n'est expédié pour elle.</target>
+            </trans-unit>
+            <trans-unit id="zRghALn">
+                <source>narration.guided_step_payment_shipping_grid_active</source>
+                <target>Mettez la zone en service : seule une zone active est lue au moment de payer. Enregistrez, puis écrivez la zone suivante de la même façon.</target>
+            </trans-unit>
+            <trans-unit id="rYbzygH">
+                <source>narration.guided_step_payment_shipping_grid_check</source>
+                <target>Faites vérifier la grille : l'écran de bilan de santé signale ce qu'elle ne dit pas, aucune zone, aucune zone par défaut ou plusieurs, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
+            </trans-unit>
+            <trans-unit id="BoUVFIg">
+                <source>narration.guided_step_payment_shipping_grid_countries</source>
+                <target>Choisissez les pays livrés à ce tarif. Laissez la liste vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs : écrivez-la aussi, sans quoi une telle commande part en livraison gratuite.</target>
+            </trans-unit>
+            <trans-unit id="HZ7XxE7">
+                <source>narration.guided_step_payment_shipping_grid_name</source>
+                <target>Nommez la zone. Le nom n'est que pour vous : « France », « Union européenne », « Reste du monde ». Le client ne le lit jamais.</target>
+            </trans-unit>
+            <trans-unit id="I6s4tUw">
+                <source>narration.guided_step_payment_shipping_grid_new</source>
+                <target>Ajoutez une zone. Une zone regroupe les pays que vous livrez au même tarif, et porte avec elle ses paliers de poids.</target>
+            </trans-unit>
+            <trans-unit id="JNANHcm">
+                <source>narration.guided_step_payment_shipping_grid_open</source>
+                <target>Le panneau vous emmène sur les zones de livraison, qui listent celles déjà écrites. Une liste vide, c'est une boutique qui expédie tout gratuitement.</target>
+            </trans-unit>
+            <trans-unit id="oBcFSAW">
+                <source>narration.guided_step_payment_shipping_grid_rates</source>
+                <target>Écrivez les paliers de poids, un prix par palier, le colis étant facturé au premier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres part gratuitement.</target>
+            </trans-unit>
+            <trans-unit id="kfV1YuP">
+                <source>narration.guided_step_payment_shipping_labels</source>
+                <target>Imprimez les étiquettes : une planche pour toute la tournée, ouverte dans un autre onglet. Elle rassemble les commandes en attente d'expédition qui portent une adresse, et le dit quand il n'y en a aucune.</target>
+            </trans-unit>
+            <trans-unit id="lIOEl6Y">
+                <source>narration.guided_step_payment_shipping_open</source>
+                <target>Le panneau vous emmène sur les paniers. Toutes les commandes y sont listées, quel que soit leur état, ce qui est plus que n'en demande une tournée d'expédition.</target>
+            </trans-unit>
+            <trans-unit id="XX0EvQ6">
+                <source>narration.guided_step_payment_shipping_send</source>
+                <target>Marquez une commande expédiée, sur la ligne de celle que vous venez d'emballer. Le bouton ne s'affiche que sur une commande payée portant quelque chose à poster et pas encore marquée ; le clic enregistre l'expédition et prévient le client par e-mail.</target>
+            </trans-unit>
+            <trans-unit id="iXtYQJP">
+                <source>narration.guided_step_payment_test_mode_check</source>
+                <target>Vérifiez le tunnel côté client : le panier affiche sa bannière de paiement de test. Procédez à un paiement complet pour vérifier que la commande passe bien en payé.</target>
+            </trans-unit>
+            <trans-unit id="d03N3cT">
+                <source>narration.guided_step_payment_test_mode_disable</source>
+                <target>Désactivez le mode test avec le même raccourci, dont le libellé a changé : la boutique repasse sur les clés réelles.</target>
+            </trans-unit>
+            <trans-unit id="omKln0j">
+                <source>narration.guided_step_payment_test_mode_done</source>
+                <target>Les vrais paiements reprennent. Le paiement de test reste parmi les paiements, reconnaissable à ce que sa commande ne porte aucune facture : une répétition n'entame jamais la séquence des factures.</target>
+            </trans-unit>
+            <trans-unit id="inVtc.A">
+                <source>narration.guided_step_payment_test_mode_enable</source>
+                <target>Activez le mode test : la boutique bascule sur les clés de test du fournisseur actif, et personne n'est débité tant qu'il reste actif.</target>
+            </trans-unit>
+            <trans-unit id="7Yiqp2o">
+                <source>narration.guided_step_payment_test_mode_open</source>
+                <target>Le panneau vous emmène sur le tableau de bord : le raccourci des paiements de test s'y trouve, à côté de celui de maintenance.</target>
+            </trans-unit>
+            <trans-unit id="pHz3zc7">
+                <source>narration.guided_step_payment_transaction_review_basket</source>
+                <target>Retrouvez la commande complète : la colonne du panier renvoie à l'écran des paniers, où figurent l'adresse, le contenu et le statut de la commande.</target>
+            </trans-unit>
+            <trans-unit id="Tu9Ar9D">
+                <source>narration.guided_step_payment_transaction_review_detail</source>
+                <target>Ouvrez le détail d'un paiement : le panier d'origine, la devise et l'identifiant de transaction y sont réunis.</target>
+            </trans-unit>
+            <trans-unit id="KcWkH0i">
+                <source>narration.guided_step_payment_transaction_review_open</source>
+                <target>Le panneau vous emmène sur les paiements : chacun y est listé avec son fournisseur, son montant et son statut.</target>
+            </trans-unit>
+            <trans-unit id="wQW4ZFC">
+                <source>narration.guided_step_payment_transaction_review_provider</source>
+                <target>Consultez la transaction chez le fournisseur : l'icône l'ouvre sur le tableau de bord de Stripe, quand un identifiant a été enregistré. Revolut ne publiant aucune adresse stable pour une commande, l'icône n'y apparaît pas et seul l'identifiant est affiché.</target>
+            </trans-unit>
+            <trans-unit id="80ul_fx">
+                <source>narration.payments</source>
+                <target>« Paiements » liste ce qui a été encaissé, avec la référence de la transaction chez le prestataire.</target>
+            </trans-unit>
+            <trans-unit id="D2KYkuw">
+                <source>narration.shipping_zones</source>
+                <target>« Zones de livraison » regroupe les pays livrés au même tarif, chacun avec ses paliers de poids.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
