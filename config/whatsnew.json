@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-03",
+        "description": [
+            {
+                "en": "Open your Stripe dashboards, live and test, and check the endpoint you declared there reads \"/payment/webhook/stripe\". The older address your shop may still be using no longer answers, and a payment announced on it would leave the order unconfirmed.",
+                "fr": "Ouvrez vos tableaux de bord Stripe, en production comme en test, et vérifiez que l'adresse que vous y avez déclarée est bien « /payment/webhook/stripe ». L'ancienne adresse que votre boutique utilise peut-être encore ne répond plus, et un paiement annoncé dessus laisserait la commande non confirmée.",
+                "es": "Abra sus paneles de Stripe, en producción y en pruebas, y compruebe que la dirección declarada en ellos es «/payment/webhook/stripe». La dirección antigua que su tienda quizá siga usando ya no responde, y un pago anunciado en ella dejaría el pedido sin confirmar."
+            }
+        ]
+    },
+    {
         "date": "2026-09-02",
         "description": [
             {

@@ -36,7 +36,7 @@ services:
         arguments:
             $providers: !tagged_iterator payment.basket_download_provider
 
-    # The block saying what delivery costs, in the same "Boutique" group of the picker as the kinds ShopBundle offers - not cacheable, its threshold being read from the configuration and its starting price off the shipping grid at render time, a cached copy outliving a change made to either
+    # The block saying what delivery costs, in the same "Boutique" group of the picker as the kinds ShopBundle offers. Its threshold is read from the configuration and its starting price off the shipping grid at render time, neither of which a Block event signals - so its entry carries a tag of its own (see PaymentBlockCacheTagProvider), dropped whenever the grid or one of those two settings is saved (see PaymentCacheInvalidationListener)
     payment.block.shipping:
         class: stdClass
         tags:
@@ -49,4 +49,4 @@ services:
               form: 'c975L\PaymentBundle\Form\Block\ShippingBlockType'
               template: '@c975LPayment/blocks/Shipping.html.twig'
               pickable: true
-              cacheable: false
+              cacheable: true

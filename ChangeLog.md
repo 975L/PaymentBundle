@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.8.0
+
+The webhook answers on one url
+
+- **`/shop/stripe/webhook` no longer answers.** The url ShopBundle served up to its v1.12 was kept alongside `/payment/webhook/{gateway}` so a shop upgrading had a day to move its Stripe dashboard over; it is gone now. A dashboard still declaring it collects a 404 on every event, which Stripe retries and then drops - see UPGRADE.md. Editing the endpoint at Stripe keeps its signing secret, so `stripe-webhook-secret` has nothing to change (03/09/2026) [BC-Break]
+- **The `payment_shipping` block is now cached.** The kind was registered `cacheable: false`, its amounts being read off the shipping grid, `shop-shipping-free` and `shop-currency` at render time - none of which a `Block` event signals a change of, so a cached copy outlived it. New `PaymentBlockCacheTagProvider` puts a tag of its own on the kind's entry through UiBundle's `BlockCacheTagProviderInterface` (03/09/2026)
+- **New `PaymentCacheInvalidationListener`**, which drops that tag whenever a `ShippingZone` or a `ShippingRate` is written, or one of the two settings the block reads is saved - once per flush and not once per row, the back office saving a whole settings group at a time (03/09/2026)
+
 ## v6.7.0
 
 A bar carries the basket down every page

@@ -1,5 +1,18 @@
 # UPGRADE
 
+## v6.7 > v6.8
+
+**`/shop/stripe/webhook` is gone.** ShopBundle served that url up to its v1.12 and this bundle answered on it
+alongside `/payment/webhook/{gateway}` so a shop upgrading had time to move its dashboard over. That time is up:
+**open each of your Stripe dashboards, live and test, and check the declared endpoint reads
+`https://your-website.com/payment/webhook/stripe`.** One still pointing at the old url gets a 404 on every event,
+which Stripe retries for days and then drops - a paid basket left unconfirmed, with nothing said on the site.
+
+Editing an endpoint at Stripe does not change its signing secret, so `stripe-webhook-secret` (and
+`stripe-webhook-secret-test`) stay as they are. Declaring a *new* endpoint instead of editing the old one does
+give a new secret, which then has to be copied into that entry - the dashboard is the only place it can be read,
+Stripe's API never returning it after the creation.
+
 ## v6.5 > v6.6
 
 **Nothing to do on a site**, the basket pages simply stop crashing where ShopBundle is not installed. Two contracts
@@ -631,9 +644,9 @@ gateway before it ever reaches the basket. Both were only ever called from insid
 unless you called them yourself.
 
 **`StripeWebhookController` is now `PaymentWebhookController`, on a url per provider.** The endpoint is
-`/payment/webhook/{gateway}`, e.g. `/payment/webhook/stripe`. The historical `/shop/stripe/webhook` still answers,
-so **the endpoints declared in your Stripe dashboards keep working and there is nothing to change there** - point
-new ones at the generic url.
+`/payment/webhook/{gateway}`, e.g. `/payment/webhook/stripe`. The historical `/shop/stripe/webhook` answered
+alongside it up to v6.7.0 and is gone since v6.8.0, so **move the endpoints declared in your Stripe dashboards
+over to the generic url** - see that version's own section below.
 
 **Three configuration entries were added, which have to be loaded.** `payment-test-mode` switches the site to the
 provider's test keys, `stripe-secret-test` and `stripe-webhook-secret-test` hold them, and `payment-gateway` names

@@ -119,8 +119,8 @@ icons it draws.
 5. Copy the signing secret and store it via the ConfigBundle dashboard (`stripe-webhook-secret`)
 
 Do it twice, once in each Stripe space: the test dashboard has its own endpoint and its own signing secret, which
-goes to `stripe-webhook-secret-test`. The historical `/shop/stripe/webhook` url still answers, so an endpoint
-already declared at Stripe has nothing to change.
+goes to `stripe-webhook-secret-test`. A dashboard still pointing at ShopBundle's old `/shop/stripe/webhook` has to
+be moved over: that url is gone, and every event sent to it now collects a 404.
 
 ### Configure Revolut
 
@@ -246,7 +246,6 @@ every bundle filling the basket needs it, whether the site sells products, count
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}` | The order's invoice, linked from the customer's own order page |
 | `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
-| `stripe_webhook` | `/shop/stripe/webhook` (POST) | The endpoint ShopBundle served up to its v1.12, kept under the same name and path so a shop upgrading does not have to touch its Stripe dashboard the same day |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
 `basket_paid` carries a security token generated with the order number: it is what lets a customer reach their
@@ -276,8 +275,10 @@ ShopBundle offers.
 > **Maintenance note:** update this table whenever a kind is added, renamed, or removed in `config/services.yaml`.
 
 The block stores a heading and a free line only: the shipping grid, `shop-shipping-free` and `shop-currency` are
-read at render time, so the announced amounts follow the configuration and the kind is registered
-`cacheable: false`, a cached copy otherwise outliving a change made to them.
+read at render time, so the announced amounts follow the configuration. The kind is nonetheless registered
+`cacheable: true`: `Service\PaymentBlockCacheTagProvider` puts a tag of its own on its cache entry through
+UiBundle's `BlockCacheTagProviderInterface`, and `Listener\PaymentCacheInvalidationListener` drops that tag
+whenever a zone, a weight tier or either of those two settings is saved - none of which a `Block` event signals.
 
 `Basket:Shipping` also takes those three as optional props, each falling back to its own configuration when
 the caller hands over none. Only `GalleryShowcaseProvider` uses them: a block showcase runs on a site that

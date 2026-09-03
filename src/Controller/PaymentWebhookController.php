@@ -11,7 +11,6 @@
 namespace c975L\PaymentBundle\Controller;
 
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
-use c975L\PaymentBundle\Gateway\StripeGateway;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -30,9 +29,8 @@ class PaymentWebhookController extends AbstractController
     ) {
     }
 
-    // The legacy Stripe url is kept alongside the generic one: it is what the Stripe dashboards of the sites already running point at, and a webhook endpoint is changed at the provider, not here
+    // One url for every provider, the gateway named by the path. ShopBundle's own /shop/stripe/webhook was kept alongside it for a while so a shop upgrading had a day to move its dashboard over; it is gone now, and a site still declaring it at Stripe collects a 404 on every event until it points at this one
     #[Route('/payment/webhook/{gateway}', name: 'payment_webhook', methods: ['POST'])]
-    #[Route('/shop/stripe/webhook', name: 'stripe_webhook', methods: ['POST'], defaults: ['gateway' => StripeGateway::SLUG])]
     public function handleWebhook(Request $request, string $gateway): Response
     {
         if (!$this->gatewayRegistry->has($gateway)) {
