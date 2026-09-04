@@ -186,7 +186,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": "danger",
         "description": "description.shop_email_from"
     },
@@ -197,7 +197,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": null,
         "description": "description.shop_email_from_name"
     },
@@ -208,7 +208,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": null,
         "description": "description.shop_email_reply_to"
     },
@@ -219,7 +219,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": null,
         "description": "description.shop_email_reply_to_name"
     },
@@ -230,7 +230,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": null,
         "description": "description.shop_email_bcc"
     },
@@ -241,7 +241,7 @@
         "restricted": false,
         "value": null,
         "kind": "text",
-        "group": "email",
+        "group": "payment",
         "severity": null,
         "description": "description.shop_email_bcc_name"
     },
@@ -262,7 +262,7 @@
         "sensitive": false,
         "restricted": false,
         "value": null,
-        "kind": "string",
+        "kind": "text",
         "group": "shop",
         "severity": null,
         "description": "description.shop_shipping_country"

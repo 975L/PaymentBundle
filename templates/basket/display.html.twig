@@ -4,6 +4,8 @@
 {# Defines specific variables #}
 {% set title = 'label.basket'|trans %}
 {% set summarySocialNetwork = 'label.basket'|trans %}
+{# No indexing: a basket is one visitor's own and empty for everybody else - "follow" all the same, so the links back to the products keep passing on #}
+{% set robots = 'noindex, follow' %}
 
 {% block content %}
     <twig:c975LPayment:Basket:TestMode/>

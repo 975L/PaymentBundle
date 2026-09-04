@@ -3,6 +3,8 @@
 
 {# The customer's own page once they asked somebody else to settle their order. Reached by the security token, so it may show everything - it is the payer's page that shows nothing of the address #}
 {% set title = 'label.share_order'|trans %}
+{# No indexing: the order is shown in full here and reached by its token alone, as on shared_pay and shared_paid #}
+{% set robots = 'noindex, nofollow' %}
 
 {% block content %}
     <twig:c975LPayment:Basket:TestMode/>

@@ -4,6 +4,8 @@
 {# Defines specific variables #}
 {% set title = 'label.items_shipped'|trans %}
 {% set summarySocialNetwork = 'label.items_shipped'|trans %}
+{# No indexing: one order's own shipping page, reached by its token #}
+{% set robots = 'noindex, nofollow' %}
 
 {% block content %}
     {% if null != basket %}

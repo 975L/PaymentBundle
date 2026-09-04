@@ -77,7 +77,7 @@ class PaymentAlertProviderTest extends TestCase
         $this->assertSame('label.payment_gateway_unavailable', $alerts[0]['label']);
     }
 
-    // The entry to fill in sits in a different group for each alert, and the payment group alone needs its sensitive values shown - the email listing is not sensitive, and showing it as such would reveal keys nothing asked for
+    // Both entries to fill in sit in the payment group, and the keys alert alone needs its sensitive values shown - the bcc is not sensitive, and asking for it to be revealed would show keys nothing asked for
     public function testEachAlertLinksToTheGroupHoldingItsOwnEntry(): void
     {
         $calls = [];
@@ -95,7 +95,7 @@ class PaymentAlertProviderTest extends TestCase
         $this->provider('stripe', false, false, '', $urlGenerator)->getAlerts();
 
         $this->assertSame(
-            [['group', Config::GROUP_PAYMENT], ['showSensitive', 1], ['group', Config::GROUP_EMAIL]],
+            [['group', Config::GROUP_PAYMENT], ['showSensitive', 1], ['group', Config::GROUP_PAYMENT]],
             $calls,
         );
     }

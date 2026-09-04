@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.8.1
+
+The shop's senders move to the shop's own drawer
+
+- **The shop's six `shop-email-*` settings move from the *E-mail* drawer to the *Paiement* one**: they are the shop's own senders, where that drawer holds the site's - an editor filling one was reading fourteen entries under two prefixes. Nothing but the drawer changes, and `c975l:config:load-all` moves them (04/09/2026)
+- `PaymentAlertProvider` sent the shopkeeper to the e-mail group to fill `shop-email-bcc` in, which no longer holds it: the dashboard warning opened a listing the entry had left (04/09/2026)
+- `shop-shipping-country` declared `kind: "string"`, which is not one of `Config::TYPES`: the setting silently fell back on a plain text field. Declared `text`, which is what it is - a country code typed as `FR` (04/09/2026)
+- New `ConfigsJsonTest` guards on the kind and the severity of every entry, neither of which anything checked - which is how the `string` above was declared and drawn as something else without a word (04/09/2026)
+- **The five pages that still said nothing of the indexes now answer `noindex`**: the basket, the shared order, the shipping page and the buyer's two account pages. Each is one visitor's own, and an indexed copy is either an empty cart standing for a page of the shop or an order handed to whoever searched for it. The basket keeps `follow`, its links back to the products being worth passing on (04/09/2026)
+- New `RobotsTest`, over every template extending the site layout rather than a list kept by hand: a page added tomorrow and left out of the indexes by nobody is caught (04/09/2026)
+- New drawer guard in `ConfigsJsonTest`: a `group` is either one of `Config::GROUPS` or named by this bundle, which then ships its `label.group_*` in the `config` domain - a drawer named and not labelled reads as that raw key on the "pick a group" screen (04/09/2026)
+- The README and the checkout skill state the drawer the shop's senders sit in, and that no page of this bundle is offered to a search engine (04/09/2026)
+
 ## v6.8.0
 
 The webhook answers on one url

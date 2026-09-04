@@ -1,5 +1,20 @@
 [
     {
+        "date": "2026-09-04",
+        "description": [
+            {
+                "en": "The six settings naming who your order e-mails come from, who they answer to and who is copied on them have moved to the Payment group of your configuration, beside your shop's other settings. They used to sit in the E-mail group among the site's own addresses, where filling one in meant telling fourteen entries apart. Nothing else changed: what you had entered is still there.",
+                "fr": "Les six réglages indiquant de qui partent vos e-mails de commande, à qui ils répondent et qui en reçoit copie ont rejoint le groupe Paiement de votre configuration, auprès des autres réglages de votre boutique. Ils se trouvaient jusqu'ici dans le groupe E-mail, mêlés aux adresses du site : en remplir un demandait de distinguer quatorze entrées. Rien d'autre ne change, ce que vous aviez saisi y est toujours.",
+                "es": "Los seis ajustes que indican de quién salen sus correos de pedido, a quién responden y quién recibe copia se han trasladado al grupo Pago de su configuración, junto a los demás ajustes de su tienda. Antes estaban en el grupo Correo electrónico, mezclados con las direcciones del sitio: rellenar uno obligaba a distinguir catorce entradas. Nada más cambia, lo que ya había introducido sigue ahí."
+            },
+            {
+                "en": "Baskets and order pages are no longer offered to search engines. A visitor's basket, a shared order, a shipping page or a customer's own orders could turn up in a search result; they now stay out of the indexes, your product pages staying listed.",
+                "fr": "Les paniers et les pages de commande ne sont plus proposés aux moteurs de recherche. Le panier d'un visiteur, une commande partagée, une page d'expédition ou les commandes d'un client pouvaient apparaître dans un résultat de recherche ; elles restent désormais hors des index, vos pages de produits restant référencées.",
+                "es": "Los carritos y las páginas de pedido ya no se ofrecen a los motores de búsqueda. El carrito de un visitante, un pedido compartido, una página de envío o los pedidos de un cliente podían aparecer en un resultado de búsqueda; ahora quedan fuera de los índices, mientras que sus páginas de productos siguen indexadas."
+            }
+        ]
+    },
+    {
         "date": "2026-09-03",
         "description": [
             {

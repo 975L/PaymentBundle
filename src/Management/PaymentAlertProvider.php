@@ -85,7 +85,7 @@ class PaymentAlertProvider implements AlertProviderInterface
             'description.shop_email_bcc_missing',
             [],
             Config::SEVERITY_WARNING,
-            Config::GROUP_EMAIL,
+            Config::GROUP_PAYMENT,
             false,
         )];
     }
@@ -93,8 +93,8 @@ class PaymentAlertProvider implements AlertProviderInterface
     /**
      * Sent to the group of the config listing holding the entry to fill in.
      *
-     * "showSensitive" for the payment group alone, and the role with it: every key of that group being sensitive,
-     * the listing was empty without it - and the role is the one that may reveal them.
+     * "showSensitive" for the keys alert alone, and the role with it: the gateway keys it points at are sensitive,
+     * so the listing hid them without it - and the role is the one that may reveal them.
      *
      * @param array<string, string> $parameters
      *

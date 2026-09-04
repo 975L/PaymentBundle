@@ -248,6 +248,11 @@ every bundle filling the basket needs it, whether the site sells products, count
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
+**Every page this bundle serves a visitor answers `noindex`** — basket, shared order, gift card, shipping page,
+the buyer's account pages — each of them being one visitor's own, and an indexed copy either an empty cart
+standing for a page of the shop or an order handed to whoever searched for it. The basket and the unsubscribe
+page keep `follow`, their links back to the products being worth passing on.
+
 `basket_paid` carries a security token generated with the order number: it is what lets a customer reach their
 own order page and nobody else's. **Reaching that url is never what delivers an order** — see
 [Stripe webhook](#configure-stripe-webhook) and the [UPGRADE notes](UPGRADE.md), the payment being confirmed
@@ -460,7 +465,8 @@ e-mail comes from, who it answers to and who is copied on it; one left blank fal
 address, blank meaning trimmed so a key holding a space alone is not turned into a broken sender. `shop-email-bcc`
 is the only record the shop keeps of the confirmations and the download links that went out - nothing else stores
 them - and left empty it says nothing, the e-mail simply leaving without it. The dashboard therefore warns while it
-is empty, linking to the e-mail group of the configuration.
+is empty, linking to the payment group of the configuration, where the six keys sit: they are the shop's own
+senders and not the site's, and the *E-mail* group holds the site's.
 
 ### Documents attached to the e-mails
 

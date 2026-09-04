@@ -4,6 +4,8 @@
 {# Defines specific variables #}
 {% set title = 'label.order'|trans ~ ' ' ~ basket.number %}
 {% set summarySocialNetwork = title %}
+{# No indexing: the customer's own order, behind the firewall - said all the same, as the account pages are #}
+{% set robots = 'noindex, nofollow' %}
 
 {% block content %}
     <h1>{{ 'label.order'|trans }} {{ basket.number }}</h1>

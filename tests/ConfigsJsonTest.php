@@ -69,6 +69,26 @@ class ConfigsJsonTest extends TestCase
         }
     }
 
+    // A kind outside Config::TYPES is not refused, it is ignored: the entry falls back on a plain text field, so a date, a switch or a select silently becomes a box to type in
+    public function testKindsAreOnesConfigBundleDraws(): void
+    {
+        foreach ($this->loadConfigs() as $config) {
+            $this->assertContains($config['kind'], Config::TYPES, sprintf('Config "%s" declares the kind "%s", which is none of Config::TYPES', $config['slug'], $config['kind']));
+        }
+    }
+
+    // Same for a severity, which colours the entry in the listing and is read as none when it is not one of Config::SEVERITIES
+    public function testSeveritiesAreOnesConfigBundleReads(): void
+    {
+        foreach ($this->loadConfigs() as $config) {
+            if (null === $config['severity']) {
+                continue;
+            }
+
+            $this->assertContains($config['severity'], Config::SEVERITIES, sprintf('Config "%s" declares the severity "%s", which is none of Config::SEVERITIES', $config['slug'], $config['severity']));
+        }
+    }
+
     // A "choice" entry is only worth its kind if it says what it accepts, and if its own default is part of it - the select is built from that list alone (see ConfigCrudController::buildChoiceField)
     public function testChoiceEntriesDeclareTheValuesTheyAccept(): void
     {
@@ -109,5 +129,51 @@ class ConfigsJsonTest extends TestCase
                 }
             }
         }
+    }
+
+    // The drawer an entry is filed under either belongs to ConfigBundle - one of the shared ones an editor goes looking in (see Config::GROUPS) - or is named by this bundle, which then ships its label in the "config" domain (see ECOSYSTEM.md §15). A drawer named and not labelled shows up on the "pick a group" screen as a raw "label.group_x" string
+    public function testGroupsAreEitherSharedOrLabelledByThisBundle(): void
+    {
+        $groups = array_values(array_unique(array_filter(array_map(
+            static fn (array $config): ?string => $config['group'] ?? null,
+            $this->loadConfigs()
+        ))));
+
+        $own = array_diff($groups, Config::GROUPS);
+        if ([] === $own) {
+            $this->assertSame([], $own);
+
+            return;
+        }
+
+        foreach (self::LOCALES as $locale) {
+            $translations = $this->loadGroupLabels($locale);
+            foreach ($own as $group) {
+                $key = 'label.group_' . $group;
+                $this->assertArrayHasKey($key, $translations, sprintf('"%s" has no %s translation, its drawer would read as that key', $key, $locale));
+                $this->assertNotSame('', $translations[$key], sprintf('"%s" has an empty %s translation', $key, $locale));
+            }
+        }
+    }
+
+    /**
+     * The "config" domain of this bundle, where a drawer of its own is labelled - absent for a bundle naming none.
+     *
+     * @return array<string, string>
+     */
+    private function loadGroupLabels(string $locale): array
+    {
+        $path = __DIR__ . '/../translations/config.' . $locale . '.xlf';
+        if (!file_exists($path)) {
+            return [];
+        }
+
+        $xliff = simplexml_load_file($path);
+        $translations = [];
+        foreach ($xliff->file->body->{'trans-unit'} as $unit) {
+            $translations[(string) $unit->source] = (string) $unit->target;
+        }
+
+        return $translations;
     }
 }
