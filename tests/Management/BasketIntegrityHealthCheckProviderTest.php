@@ -156,7 +156,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
         $this->assertSame('crowdfunding (unknown kind)', $row['details']['offenders'][0]['info']);
     }
 
-    // HealthCheckRunner drops every row of a provider that throws, and no rows at all reads as "nothing to report"
+    // HealthCheckRunner drops every row of a provider that throws, and no rows at all reads as "nothing to report". The row says the verdict is missing, not that the shop is broken, so HealthCheckErrorRow makes it a warning
     public function testAFailingCheckReportsItselfWithoutTakingTheOthersDown(): void
     {
         $repository = $this->createStub(BasketRepository::class);
@@ -168,7 +168,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
         $rows = new BasketIntegrityHealthCheckProvider($repository, $this->paymentRepository([]), $this->registry(true), $this->siteUrlResolver('https://example.com/'), $this->translator())->runChecks();
 
         $this->assertCount(6, $rows);
-        $this->assertSame(HealthCheckResult::STATUS_ERROR, $this->row($rows, BasketIntegrityHealthCheckProvider::ROW_DELIVERED_UNPAID)['status']);
+        $this->assertSame(HealthCheckResult::STATUS_WARNING, $this->row($rows, BasketIntegrityHealthCheckProvider::ROW_DELIVERED_UNPAID)['status']);
         $this->assertSame('Table gone', $this->row($rows, BasketIntegrityHealthCheckProvider::ROW_DELIVERED_UNPAID)['details']['error']);
         $this->assertSame(HealthCheckResult::STATUS_OK, $this->row($rows, BasketIntegrityHealthCheckProvider::ROW_MISSING_NUMBER)['status']);
     }

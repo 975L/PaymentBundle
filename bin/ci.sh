@@ -43,20 +43,27 @@ composer update --no-interaction --no-progress
 # setup-php installs phars where this installs the same versions through Composer: same rules, different packaging
 echo "→ Outils qualité, en dernière version comme la CI"
 TOOLS="$WORK/.ci-tools"
-for Package in squizlabs/php_codesniffer phpstan/phpstan friendsofphp/php-cs-fixer rector/rector; do
+for Package in squizlabs/php_codesniffer phpstan/phpstan friendsofphp/php-cs-fixer rector/rector phpmd/phpmd; do
     Directory="$TOOLS/$(basename "$Package")"
     mkdir -p "$Directory"
     composer --working-dir="$Directory" require "$Package" --no-interaction --no-progress --quiet
     PATH="$Directory/vendor/bin:$PATH"
 done
+
+# Lizard is a Python tool, and it is pinned where the five above take their latest release: its counting changed between versions and this is the one Codacy runs, which the thresholds composer.json hands it are read against
+python3 -m venv "$TOOLS/lizard"
+"$TOOLS/lizard/bin/pip" install --quiet lizard==1.17.31
+PATH="$TOOLS/lizard/bin:$PATH"
 export PATH
 
 # Stated rather than assumed: this is the very line that was missing when a tool's release broke the CI on an unchanged repository
-printf '   phpcs %s | phpstan %s | php-cs-fixer %s | rector %s\n' \
+printf '   phpcs %s | phpstan %s | php-cs-fixer %s | rector %s | phpmd %s | lizard %s\n' \
     "$(phpcs --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(phpstan --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(php-cs-fixer --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
-    "$(rector --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    "$(rector --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
+    "$(phpmd --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
+    "$(lizard --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
 
 echo "→ Contrôles qualité"
 composer qa

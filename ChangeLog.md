@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.8.2
+
+The quality gate runs PHPMD and Lizard
+
+- **`composer qa` now chains `mess` and `lizard`**: both were configured and no script ever called them (07/09/2026)
+- `phpmd.xml.dist` excludes `NPathComplexity`, which multiplies where `CyclomaticComplexity` adds (07/09/2026)
+- `mess` says how many files PDepend could not parse, PHPMD having read nothing in them (07/09/2026)
+- `.gitignore` takes `.phpmd-report.log`, the report `mess` writes (07/09/2026)
+- `phpunit.xml.dist` fails on a notice (07/09/2026)
+- `.github/workflows/ci.yml` runs `mess` and `lizard`, the gate it mirrors having grown two checks it knew nothing of (07/09/2026)
+- `bin/ci.sh` installs `phpmd` beside its four tools and `lizard` pinned to 1.17.31, `composer qa` having taken both from the machine's own PATH (07/09/2026)
+- `scripts-descriptions` describes `rector`, `mess` and `lizard`, which `composer list` showed without a word (07/09/2026)
+
 ## v6.8.1
 
 The shop's senders move to the shop's own drawer

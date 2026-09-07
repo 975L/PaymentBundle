@@ -3,6 +3,7 @@
 .phpunit.result.cache
 .phpunit.cache
 .rector.cache
+.phpmd-report.log
 coverage
 composer.lock
 vendor
