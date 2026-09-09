@@ -202,9 +202,9 @@ embeds the provider's own script.
 Nothing to register by hand. The bundle ships `controllers.js`, the entrypoint starting its own Stimulus app for
 the `basket` controller - the one every add button, quantity control and basket bar is mounted on, in this bundle
 as in the ones plugging into it. The controller itself is imported on demand, for a document actually carrying a
-`data-controller="basket"`, so the pages holding no basket at all download nothing of it. The entrypoint is
-auto-registered through UiBundle's script registry, as long as your layout
-renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.php` entry is written by
+`data-controller="basket"` - which a layout carrying the basket bar writes on every page, a site selling nothing
+downloading none of it. The entrypoint is auto-registered through UiBundle's script registry, as long as your
+layout renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.php` entry is written by
 `ImportmapProvider` the first time you `composer update` after installing the bundle -
 `php bin/console c975l:config:check-importmap` reports it if it is missing.
 
@@ -216,9 +216,11 @@ renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `importmap.p
 
 `<twig:c975LPayment:Basket:Navbar/>`, placed once in the site's layout, draws the bar shown at the bottom of the
 page as soon as the basket holds something — the button carrying the count and the total, kept up to date by
-`basket.js` without the page being reloaded. It is hidden while the basket is empty, so it costs nothing to leave
-in the layout of a site whose visitor buys nothing. It lives in this bundle rather than in a satellite one because
-every bundle filling the basket needs it, whether the site sells products, counterparts or prints.
+`basket.js` without the page being reloaded. The bar mounts the `basket` controller itself, so it works wherever
+the layout puts it, outside every element a shop or a campaign carries one on. It is hidden while the basket is
+empty, so it costs nothing to leave in the layout of a site whose visitor buys nothing. It lives in this bundle
+rather than in a satellite one because every bundle filling the basket needs it, whether the site sells products,
+counterparts or prints.
 
 ### Public routes
 
@@ -246,7 +248,7 @@ every bundle filling the basket needs it, whether the site sells products, count
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}` | The order's invoice, linked from the customer's own order page |
 | `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
-| `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
+| `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
 **Every page this bundle serves a visitor answers `noindex`** — basket, shared order, gift card, shipping page,
 the buyer's account pages — each of them being one visitor's own, and an indexed copy either an empty cart

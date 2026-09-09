@@ -13,22 +13,47 @@ let basketDataPromise = null;
 let lastFetchTime = 0;
 let timezoneSent = false;
 const CACHE_DURATION = 5000;
+const TIMEZONE_KEY = "c975l-timezone";
 
 export default class extends Controller {
     static targets = ["quantity", "subtotal", "total", "vat", "vatRow", "shipping", "freeShipping", "submitButton", "itemTotal", "itemQuantity", "code", "codeRow", "codeAmount", "codeLabel"];
 
     connect() {
-        // Sets timezone in Symfony session, once for the browsing session however many controllers the pages carry
-        if (!timezoneSent) {
-            timezoneSent = true;
-            Handlers.sendTimezoneToServer();
-        }
+        this.sendTimezoneOnce();
 
         // The add buttons live outside this controller's element as often as inside it, so the update travels through the document rather than through the DOM tree
         this.onGlobalUpdate = this.handleGlobalUpdate.bind(this);
         document.addEventListener("basket:update", this.onGlobalUpdate);
 
         this.loadBasketData().then((data) => this.update(data));
+    }
+
+    // Sets the timezone in the Symfony session, once for the browsing session and not once per page: the post opens that session server-side, and the basket bar connects this controller on every page of a site that sells. The module flag holds the instances of one page, sessionStorage the pages of one tab - a browser refusing storage falls back on one post per page, and a timezone that moved mid-session is sent again
+    sendTimezoneOnce() {
+        if (timezoneSent) {
+            return;
+        }
+
+        timezoneSent = true;
+        let stored = null;
+
+        try {
+            stored = sessionStorage.getItem(TIMEZONE_KEY);
+        } catch {
+            // Storage refused, the page posting as it did before this guard
+        }
+
+        if (stored === Intl.DateTimeFormat().resolvedOptions().timeZone) {
+            return;
+        }
+
+        const timezone = Handlers.sendTimezoneToServer();
+
+        try {
+            sessionStorage.setItem(TIMEZONE_KEY, timezone);
+        } catch {
+            // Nothing to remember it with, the next page posting again
+        }
     }
 
     // Turbo caches the page and connects the controller again on the way back, so a listener left behind would pile up one copy per visit

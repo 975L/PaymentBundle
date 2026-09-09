@@ -317,7 +317,27 @@ class BasketBehaviourTest extends JsCase
         );
     }
 
-    private function basket(string $probe, array $basket = []): mixed
+    // The post opens a session server-side, and the basket bar connects this controller on every page of a site that sells: a tab that already sent its timezone sends it no more
+    public function testTheTimezoneIsNotPostedAgainWithinTheBrowsingSession(): void
+    {
+        $asked = $this->basket(
+            'return asked("/set-timezone");',
+            [],
+            'sessionStorage.setItem("c975l-timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);'
+        );
+
+        $this->assertSame(0, $asked, 'The timezone is posted again on a page of a tab that already sent it, opening a session on every page of the site.');
+    }
+
+    // Three controllers connect on this page, and the timezone the session has none of is still posted once
+    public function testTheTimezoneIsPostedOnceWhenTheBrowsingSessionHoldsNone(): void
+    {
+        $asked = $this->basket('return asked("/set-timezone");', [], 'sessionStorage.removeItem("c975l-timezone");');
+
+        $this->assertSame(1, $asked, 'The timezone the session holds none of is not posted exactly once.');
+    }
+
+    private function basket(string $probe, array $basket = [], string $before = ''): mixed
     {
         // Intl writes a narrow no-break space before the symbol, which is right on the page and unreadable in a failure message
         $preamble = 'const settle = () => new Promise((r) => setTimeout(r, 20));
@@ -334,7 +354,7 @@ class BasketBehaviourTest extends JsCase
             [
                 // The module holds the page's basket between its instances, so a scenario is given a copy of its own rather than whatever the previous one left in it
                 'fresh' => true,
-                'before' => $this->answers($basket),
+                'before' => $this->answers($basket) . $before,
                 'settle' => 60,
             ]
         );

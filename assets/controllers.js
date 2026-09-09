@@ -12,7 +12,7 @@ const LAZY_CONTROLLERS = {
 
 const registered = new Set();
 
-// Registers only the lazy controllers this document actually contains - the layout loads this barrel site-wide, while the basket is on the shop, basket and campaign pages alone. Stimulus connects a controller as soon as it is registered, so a late registration still picks up elements already in the DOM
+// Registers only the lazy controllers this document actually contains - the layout loads this barrel site-wide, while the gift card is on the pages showing one. The basket bar carries its own controller and so is on every page of a site that sells, which costs one basket read per page and, once for the browsing session, one timezone post. Stimulus connects a controller as soon as it is registered, so a late registration still picks up elements already in the DOM
 function registerPresentControllers() {
     for (const [identifier, load] of Object.entries(LAZY_CONTROLLERS)) {
         if (registered.has(identifier) || !document.querySelector(`[data-controller~="${identifier}"]`)) {

@@ -187,9 +187,9 @@ An order already settled, or taken back to a basket by its customer, says so and
 
 ## The basket on every page
 
-`<twig:c975LPayment:Basket:Navbar/>`, placed **once** in the site's layout, is the bar shown at the bottom of the page as soon as the basket holds something — the count and the total kept up to date by `basket.js`, which asks `basket_json` once however many blocks show the basket. It is hidden while the basket is empty, so it costs nothing on a page nobody buys from. It lives in this bundle and not in a satellite one because every bundle filling the basket needs it.
+`<twig:c975LPayment:Basket:Navbar/>`, placed **once** in the site's layout, is the bar shown at the bottom of the page as soon as the basket holds something — the count and the total kept up to date by `basket.js`, which asks `basket_json` once however many blocks show the basket. It **mounts the `basket` controller itself**, the layout placing it outside every element a shop or a campaign carries one on, so its count and its total — Stimulus targets both — belong to an instance wherever it sits. It is hidden while the basket is empty, so it costs nothing on a page nobody buys from. It lives in this bundle and not in a satellite one because every bundle filling the basket needs it.
 
-`basket.js` also posts the browser's own timezone to `set_timezone` (`TimezoneController`), held in the session as `user_timezone` so the dates this bundle prints — an order registered, items shipped, a download — read in the hour of whoever is reading them. **Only a known identifier is kept**: a session holding anything else would break every page that prints an hour, and only emptying it would get out.
+`basket.js` also posts the browser's own timezone to `set_timezone` (`TimezoneController`), held in the session as `user_timezone` so the dates this bundle prints — an order registered, items shipped, a download — read in the hour of whoever is reading them. It is posted **once for the browsing session**, `sessionStorage` holding what was sent: the bar connects this controller on every page, and the post opens a session — so a cookie — for whoever is reading, buyer or not. **Only a known identifier is kept**: a session holding anything else would break every page that prints an hour, and only emptying it would get out.
 
 ## A basket that outlives its session
 
@@ -285,4 +285,6 @@ a provider that throws, and no rows at all reads as "nothing to report".
 - **Do not price delivery anywhere but off the grid** — there is no flat-rate setting left to read.
 - **Do not make the delivery block read a new setting** without adding its slug to `PaymentCacheInvalidationListener` — the block is cached, and an unlisted slug leaves a stale price on the page.
 - **Do not treat the basket page's shipping as final**: the country arrives with the address, and `validate()` counts it again.
+- **Do not post the timezone on every page** — the bar connects the controller everywhere, and `set_timezone` opens a session for every anonymous visitor it answers.
+- **Do not take the `data-controller="basket"` off `Basket:Navbar`** in the name of the one a shop page already carries — the bar sits in the layout, outside it, and its counters then belong to no instance.
 - **Do not charge a total the customer was never shown** — a delivery or a code that moves on that last pass refuses the order.

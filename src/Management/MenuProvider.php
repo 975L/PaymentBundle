@@ -24,6 +24,7 @@ class MenuProvider implements MenuProviderInterface
         return [
             'label' => 'label.payment',
             'translation_domain' => 'payment',
+            'icon' => 'fas fa-credit-card',
         ];
     }
 

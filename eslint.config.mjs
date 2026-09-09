@@ -36,6 +36,7 @@ export default [
                 requestAnimationFrame: "readonly",
                 ResizeObserver: "readonly",
                 screen: "readonly",
+                sessionStorage: "readonly",
                 setInterval: "readonly",
                 setTimeout: "readonly",
                 Trix: "readonly",

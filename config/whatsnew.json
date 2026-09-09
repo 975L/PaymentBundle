@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-09",
+        "description": [
+            {
+                "en": "The basket bar at the bottom of your site says again how many items the basket holds and how much they come to, and it now shows on every page rather than on your shop's alone.",
+                "fr": "Le bandeau du panier, en bas de votre site, indique de nouveau combien d'articles il contient et leur montant, et il s'affiche désormais sur toutes les pages et non plus sur celles de la boutique seulement.",
+                "es": "La barra del carrito, en la parte inferior de su sitio, vuelve a indicar cuántos artículos contiene y su importe, y ahora aparece en todas las páginas y no solo en las de su tienda."
+            }
+        ]
+    },
+    {
         "date": "2026-09-04",
         "description": [
             {

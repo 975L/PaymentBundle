@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.8.3
+
+The basket bar says again what the basket holds
+
+- **The basket bar carries its own `basket` controller**: placed once in the site layout, it sits outside every element a shop, a campaign or a print offer mounts one on, so its count and its total - Stimulus targets both - stayed empty under a bar that showed (09/09/2026)
+- The bar raises itself on a page holding no shop, where a basket left filled stayed hidden (09/09/2026)
+- **The timezone is posted once for the browsing session rather than once per page**: the bar connecting the controller everywhere, `set_timezone` opened a session - and a cookie - for every anonymous visitor on every page (09/09/2026)
+- **The *Paiement* section carries a `fas fa-credit-card` icon**, its five entries having had one and the drawer above them none (09/09/2026)
+- `c975l/core-bundle` moves to `^1.26.1`, the version whose `MenuBuilder` draws a section's icon (09/09/2026)
+- `eslint.config.mjs` declares `sessionStorage`, which the timezone guard reads and the linter knew nothing about (09/09/2026)
+- New `BasketMarkupTest`, holding the shipped templates to the targets the controller writes into (09/09/2026)
+- `BasketBehaviourTest` mounted a page of its own whose bar already carried the controller the template did not, which is how the bar shipped without one (09/09/2026)
+- The README and the checkout skill state that the bar mounts its own controller, the skill refusing its removal - and the barrel's own comment no longer says the basket lives on the shop pages alone (09/09/2026)
+
 ## v6.8.2
 
 The quality gate runs PHPMD and Lizard

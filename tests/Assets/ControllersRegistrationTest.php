@@ -26,7 +26,7 @@ class ControllersRegistrationTest extends TestCase
         $this->assertStringNotContainsString('export function register', $barrel, 'The barrel still exports register(), which no consuming app calls any more.');
     }
 
-    // The identifier every template writes in its data-controller, this bundle's basket pages as much as the add buttons ShopBundle draws - registered lazily, the layout loading this barrel site-wide while the basket lives on the shop pages alone
+    // The identifier every template writes in its data-controller, this bundle's basket pages as much as the add buttons ShopBundle draws - registered lazily, the layout loading this barrel site-wide and the basket bar it carries putting a data-controller on every page of a site that sells
     public function testTheBasketControllerIsRegisteredAsALazyFrontController(): void
     {
         $this->assertStringContainsString("basket: () => import('./js/basket.js'),", $this->read());
