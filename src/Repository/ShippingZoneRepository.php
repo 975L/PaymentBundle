@@ -36,7 +36,7 @@ class ShippingZoneRepository extends ServiceEntityRepository
             ->addSelect('r')
             ->leftJoin('z.rates', 'r')
             ->andWhere('z.active = true')
-            ->orderBy('z.name', 'ASC')
+            ->orderBy('z.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult()
         ;

@@ -65,7 +65,7 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('paid', 'paid')
             ->setParameter('physical', Basket::CONTENT_FLAG_PHYSICAL)
             ->setParameter('counterparts', Basket::CONTENT_FLAG_CF_SHIPPING)
-            ->orderBy('b.creation', 'ASC')
+            ->orderBy('b.creation', \SortDirection::Ascending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -112,7 +112,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status = :status')
             ->setParameter('user', $user)
             ->setParameter('status', 'new')
-            ->orderBy('b.modification', 'DESC')
+            ->orderBy('b.modification', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -133,7 +133,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('user', $user)
             ->setParameter('statuses', ['paid', 'shipped'])
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
@@ -161,7 +161,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('email', $email)
             ->setParameter('statuses', ['paid', 'shipped'])
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
@@ -336,7 +336,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.testMode = false')
             ->setParameter('delivered', ['paid', 'shipped'])
             ->setParameter('since', $since)
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -363,7 +363,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('p.amount <> b.total + b.shipping - b.discountAmount OR LOWER(p.currency) <> LOWER(b.currency)')
             ->andWhere('b.testMode = false')
             ->setParameter('since', $since)
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -388,7 +388,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.testMode = false')
             ->setParameter('delivered', ['paid', 'shipped'])
             ->setParameter('since', $since)
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -410,7 +410,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.testMode = false')
             ->setParameter('delivered', ['paid', 'shipped'])
             ->setParameter('since', $since)
-            ->orderBy('b.creation', 'DESC')
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -430,7 +430,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.archived IS NULL')
             ->andWhere('b.testMode = false')
             ->setParameter('open', ['new', 'validated'])
-            ->orderBy('b.modification', 'DESC')
+            ->orderBy('b.modification', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

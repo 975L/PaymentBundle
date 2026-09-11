@@ -67,7 +67,7 @@ class PaymentFormFactoryTest extends TestCase
         $factory = new PaymentFormFactory($formFactory, $this->createStub(ConfigServiceInterface::class));
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown form "payment"');
+        $this->expectExceptionMessageIsOrContains('Unknown form "payment"');
 
         $factory->create('payment', new \stdClass());
     }

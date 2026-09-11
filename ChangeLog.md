@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.9.1
+
+Deprecations are caught before an upgrade turns them into errors
+
+- Sort directions are `\SortDirection` cases, Doctrine ORM 3.7 deprecating the `'ASC'`/`'DESC'` strings (11/09/2026)
+- PHPStan reports calls to deprecated code through `phpstan/phpstan-deprecation-rules` (11/09/2026)
+- PHPStan moves to `require-dev`, the CI and `bin/ci.sh` no longer installing it on their own (11/09/2026)
+- `phpunit.xml.dist` sets `DOCTRINE_DEPRECATIONS=trigger`, without which the suite sees none of Doctrine's deprecations (11/09/2026)
+- Tests call `expectExceptionMessageIsOrContains()` in place of the deprecated `expectExceptionMessage()` (11/09/2026)
+- Requires `doctrine/orm` `^3.7` (11/09/2026)
+
 ## v6.9.0
 
 The basket and the order history answer in the language they are read in

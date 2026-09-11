@@ -1,3 +1,7 @@
+includes:
+    # Reports any call to what a library marks @deprecated, which the test suite only sees when that code runs
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
 parameters:
     level: 5
 

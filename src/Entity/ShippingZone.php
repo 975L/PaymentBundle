@@ -48,7 +48,7 @@ class ShippingZone implements \Stringable
 
     /** @var Collection<int, ShippingRate> */
     #[ORM\OneToMany(targetEntity: ShippingRate::class, mappedBy: 'zone', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['maxWeight' => 'ASC'])]
+    #[ORM\OrderBy(['maxWeight' => \SortDirection::Ascending])]
     private Collection $rates;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

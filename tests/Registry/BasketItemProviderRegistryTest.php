@@ -47,7 +47,7 @@ class BasketItemProviderRegistryTest extends TestCase
         $registry = new BasketItemProviderRegistry([$this->provider('product')]);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('No BasketItemProviderInterface registered for kind "book"');
+        $this->expectExceptionMessageIsOrContains('No BasketItemProviderInterface registered for kind "book"');
 
         $registry->get('book');
     }

@@ -54,7 +54,7 @@ class BasketEmailFactoryTest extends TestCase
         $twig->method('render')->willReturn('');
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('confirm_order');
+        $this->expectExceptionMessageIsOrContains('confirm_order');
 
         new BasketEmailFactory($configService, $emailTemplateRenderer, $this->translator(), $twig)->create($this->basket(), 'label.confirm_order', 'confirm_order');
     }

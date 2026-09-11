@@ -60,7 +60,7 @@ class BasketShippingTest extends TestCase
     public function testAnUnknownNumberIsRefused(): void
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Basket not found');
+        $this->expectExceptionMessageIsOrContains('Basket not found');
 
         $this->service($this->repository('SHOP-1', null))->itemsShipped('SHOP-404', 'product');
     }

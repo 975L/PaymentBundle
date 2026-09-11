@@ -49,7 +49,7 @@ class PaymentRepository extends ServiceEntityRepository
             ->setParameter('since', $since)
             ->setParameter('before', $before)
             ->setParameter('delivered', ['paid', 'shipped'])
-            ->orderBy('p.modification', 'DESC')
+            ->orderBy('p.modification', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
