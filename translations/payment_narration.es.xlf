@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="es" datatype="plaintext" original="payment_narration.es.xlf">
+        <body>
+            <trans-unit id="DELxlrC">
+                <source>narration.baskets</source>
+                <target>«Cestas» lista todos los pedidos validados por un cliente, haya prosperado el pago o no.</target>
+            </trans-unit>
+            <trans-unit id="8dqdQ3y">
+                <source>narration.discounts</source>
+                <target>«Códigos promocionales» lleva los códigos que la tienda escribe y distribuye, con lo que cada uno descuenta y las veces que sigue siendo utilizable.</target>
+            </trans-unit>
+            <trans-unit id="wjNqjLQ">
+                <source>narration.gift_cards</source>
+                <target>«Tarjetas regalo» lista las tarjetas vendidas o emitidas a mano, su saldo restante y el pedido que las emitió.</target>
+            </trans-unit>
+            <trans-unit id="oA7_dbp">
+                <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
+                <target>Una vez tratado el pedido, declare la línea resuelta en lugar de relanzar todo el control: sale de la vista predeterminada y vuelve sola si el problema reaparece.</target>
+            </trans-unit>
+            <trans-unit id="bq05eov">
+                <source>narration.guided_step_payment_basket_integrity_done</source>
+                <target>El control está leído. Nada de esto genera un aviso por su cuenta: un pedido cobrado y nunca entregado no tiene página de error ni correo para señalarse. Esta pantalla es el único sitio donde se ve, y solo sirve si se abre.</target>
+            </trans-unit>
+            <trans-unit id="uc..0nj">
+                <source>narration.guided_step_payment_basket_integrity_offenders</source>
+                <target>Abra la lista de los pedidos: un recuento no dice qué hacer, mientras que la lista desplegada nombra los pedidos que hay detrás, cada uno con su enlace para abrirlo en el back-office. Ahí empieza el trabajo.</target>
+            </trans-unit>
+            <trans-unit id="8Ea8FOp">
+                <source>narration.guided_step_payment_basket_integrity_open</source>
+                <target>El panel le lleva al estado de salud, que reúne todo lo que el sitio comprueba por sí mismo. Seis de esas líneas tratan de sus pedidos: un pago cobrado cuyo pedido nunca salió, un pedido entregado sin pago que responda por él, un importe o una moneda que no coincide, un pedido entregado sin número de factura, líneas que no suman, una cesta con un artículo retirado del catálogo.</target>
+            </trans-unit>
+            <trans-unit id="m9Wo.BI">
+                <source>narration.guided_step_payment_basket_integrity_rows</source>
+                <target>Localice las líneas de los pedidos: llevan el tipo «basket-integrity» y cada una dice cuántos pedidos ha encontrado. Los pedidos hechos en modo de prueba quedan excluidos, si no una tienda que ensaya su venta los leería todos como defectos.</target>
+            </trans-unit>
+            <trans-unit id="WdfCfzm">
+                <source>narration.guided_step_payment_basket_integrity_run</source>
+                <target>Vuelva a lanzar la comprobación. Las seis se ejecutan solas cada semana; este botón las relanza de inmediato, si la página está vacía o si acaba de corregir algo.</target>
+            </trans-unit>
+            <trans-unit id="vB7DPGB">
+                <source>narration.guided_step_payment_discount_code_code</source>
+                <target>Elija el código en sí, lo que el cliente escribe en su cesta. Se dicta y se vuelve a teclear: manténgalo corto y sin caracteres que se lean de dos maneras.</target>
+            </trans-unit>
+            <trans-unit id="5Nq88bc">
+                <source>narration.guided_step_payment_discount_code_kind</source>
+                <target>Elija el tipo, porcentaje o importe fijo. Es esta elección la que da sentido al campo siguiente, ya que ambos comparten una sola columna.</target>
+            </trans-unit>
+            <trans-unit id="hcKLqU0">
+                <source>narration.guided_step_payment_discount_code_limits</source>
+                <target>Delimite su alcance: cuántos pedidos pueden usarlo como máximo, el mínimo que un pedido debe alcanzar, y las dos fechas que lo enmarcan. Cada uno rechaza el código por su cuenta, en el momento en que el pedido se congela.</target>
+            </trans-unit>
+            <trans-unit id="gJgcUSH">
+                <source>narration.guided_step_payment_discount_code_live</source>
+                <target>El código está en servicio. Su contador solo lo aumentan los pedidos pagados, y su columna de modo de prueba dice en qué modo cobraba la tienda el día en que se escribió: un código nacido de un ensayo nunca podrá gastarse de verdad.</target>
+            </trans-unit>
+            <trans-unit id="dYAf9if">
+                <source>narration.guided_step_payment_discount_code_new</source>
+                <target>Añada un código con el botón de siempre. A diferencia de una tarjeta regalo, un código no guarda ninguna cantidad y se escribe directamente en el formulario.</target>
+            </trans-unit>
+            <trans-unit id="s6v_5cl">
+                <source>narration.guided_step_payment_discount_code_open</source>
+                <target>El panel le lleva a los códigos promocionales. Todos los que la tienda ha escrito están listados ahí, con lo que descuentan y las veces que se han usado.</target>
+            </trans-unit>
+            <trans-unit id="RfZ20d6">
+                <source>narration.guided_step_payment_discount_code_value</source>
+                <target>Fije lo que se descuenta. El valor se lee como un porcentaje para el primer tipo, y en céntimos para el segundo: diez vale o bien una décima parte del pedido, o bien diez céntimos menos.</target>
+            </trans-unit>
+            <trans-unit id="G8P2AdP">
+                <source>narration.guided_step_payment_email_attachments_check</source>
+                <target>Compruebe que está en su sitio: el mosaico ya no está resaltado y ahora propone desactivar. Es la única señal que leer, ya que el envío solo se ve en el pedido siguiente.</target>
+            </trans-unit>
+            <trans-unit id="f0bddE7">
+                <source>narration.guided_step_payment_email_attachments_done</source>
+                <target>Haga un pedido de prueba en modo de prueba: su confirmación debe llegar con los archivos marcados en esa plantilla. Si no llega ninguno, el interruptor está bien encendido pero no se marcó nada en el constructor de correos.</target>
+            </trans-unit>
+            <trans-unit id="gTF4rJ6">
+                <source>narration.guided_step_payment_email_attachments_enable</source>
+                <target>Active el envío. El mosaico permanece resaltado mientras está desactivado: entregar al cliente las condiciones que aceptó como archivo, y no mediante un enlace a una página reescrita después, es lo que la ley llama un soporte duradero.</target>
+            </trans-unit>
+            <trans-unit id="Bh6jByn">
+                <source>narration.guided_step_payment_email_attachments_open</source>
+                <target>El panel le lleva al tablero, donde los interruptores de la tienda están en mosaicos. Este decide si sus correos de pedido llevan archivos; qué archivos se marca plantilla por plantilla en el constructor de correos.</target>
+            </trans-unit>
+            <trans-unit id="b7YjqKV">
+                <source>narration.guided_step_payment_gift_card_issue_amount</source>
+                <target>Fije el importe. Se escribe en la divisa de la tienda y se convierte en todo el saldo de la tarjeta, que su portador gasta en tantos pedidos como haga falta.</target>
+            </trans-unit>
+            <trans-unit id="l0R8V4s">
+                <source>narration.guided_step_payment_gift_card_issue_code</source>
+                <target>Copie el código: se muestra una sola vez, en el mensaje encima de la lista a la que vuelve. Ninguna pantalla lo reimprime, así que entréguelo antes de salir de esta página.</target>
+            </trans-unit>
+            <trans-unit id="u6DPDf_">
+                <source>narration.guided_step_payment_gift_card_issue_confirm</source>
+                <target>Emita la tarjeta. El código se sortea al validar, igual que lo hace una compra: nada en él se escribe.</target>
+            </trans-unit>
+            <trans-unit id="h7HTo.J">
+                <source>narration.guided_step_payment_gift_card_issue_open</source>
+                <target>El panel le lleva a las tarjetas regalo. Todas están listadas ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
+            </trans-unit>
+            <trans-unit id="iMwSBIZ">
+                <source>narration.guided_step_payment_gift_card_issue_start</source>
+                <target>Abra el formulario de emisión con el botón encima de la lista. No hay botón «Nuevo»: el saldo nace del importe en lugar de escribirse, y no se retoca después.</target>
+            </trans-unit>
+            <trans-unit id="AZjEph1">
+                <source>narration.guided_step_payment_gift_card_issue_validity</source>
+                <target>Fije una fecha de fin, o ninguna. Si se deja vacía, la tarjeta nunca caduca; si se rellena, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
+            </trans-unit>
+            <trans-unit id="wj9cQ_u">
+                <source>narration.guided_step_payment_payment_link_amount</source>
+                <target>Fije el importe. Se escribe en la divisa de la tienda e IVA incluido, como todos los precios aquí; el impuesto se extrae al tipo del ajuste previsto.</target>
+            </trans-unit>
+            <trans-unit id="PR4iP94">
+                <source>narration.guided_step_payment_payment_link_create</source>
+                <target>Escriba el pedido. Queda congelado en el acto, y su dirección corta aparece encima del formulario: envíela por SMS o por correo, se paga en línea como cualquier otro.</target>
+            </trans-unit>
+            <trans-unit id="4WFmELg">
+                <source>narration.guided_step_payment_payment_link_email</source>
+                <target>Indique la dirección del cliente: a ella se envía la confirmación una vez pagado el pedido, y es la que vinculará el pedido a su cuenta si abre una.</target>
+            </trans-unit>
+            <trans-unit id="yLeSllg">
+                <source>narration.guided_step_payment_payment_link_label</source>
+                <target>Nombre lo que se cobra. Es lo que el cliente leerá en su pedido, en su factura y en su correo de confirmación: «anticipo del parqué», «reparación de bicicleta».</target>
+            </trans-unit>
+            <trans-unit id="9PvaycB">
+                <source>narration.guided_step_payment_payment_link_open</source>
+                <target>El panel le lleva a las cestas: un enlace de pago se escribe desde la lista de pedidos, que es donde se coloca el que crea.</target>
+            </trans-unit>
+            <trans-unit id="3spo3F_">
+                <source>narration.guided_step_payment_payment_link_start</source>
+                <target>Abra el formulario con el botón encima de la lista. No hay ninguna fila que seleccionar: el pedido lo escribe el formulario que abre.</target>
+            </trans-unit>
+            <trans-unit id="BppffwD">
+                <source>narration.guided_step_payment_shipping_done</source>
+                <target>La ronda está cerrada: un pedido marcado sale de los pendientes de envío, de modo que la hoja de mañana solo llevará lo que siga debiéndose.</target>
+            </trans-unit>
+            <trans-unit id="0G24Fiv">
+                <source>narration.guided_step_payment_shipping_filter</source>
+                <target>Limítese a los pedidos pagados: es el único estado en el que sale un paquete. Un pedido solo validado no se ha abonado, y nada se envía por él.</target>
+            </trans-unit>
+            <trans-unit id="zRghALn">
+                <source>narration.guided_step_payment_shipping_grid_active</source>
+                <target>Ponga la zona en servicio: solo se lee una zona activa en el momento de pagar. Guarde y escriba la zona siguiente de la misma manera.</target>
+            </trans-unit>
+            <trans-unit id="rYbzygH">
+                <source>narration.guided_step_payment_shipping_grid_check</source>
+                <target>Haga comprobar la tabla: la pantalla de estado de salud señala lo que no dice, ninguna zona, ninguna zona por defecto o varias, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
+            </trans-unit>
+            <trans-unit id="BoUVFIg">
+                <source>narration.guided_step_payment_shipping_grid_countries</source>
+                <target>Elija los países enviados a esta tarifa. Deje la lista vacía para la zona por defecto, aquella donde cae un país no nombrado en ninguna otra: escríbala también, o un pedido así saldrá con envío gratuito.</target>
+            </trans-unit>
+            <trans-unit id="HZ7XxE7">
+                <source>narration.guided_step_payment_shipping_grid_name</source>
+                <target>Nombre la zona. El nombre es solo para usted: «España», «Unión Europea», «Resto del mundo». El cliente nunca lo lee.</target>
+            </trans-unit>
+            <trans-unit id="I6s4tUw">
+                <source>narration.guided_step_payment_shipping_grid_new</source>
+                <target>Añada una zona. Una zona agrupa los países que usted envía a la misma tarifa, y lleva consigo sus tramos de peso.</target>
+            </trans-unit>
+            <trans-unit id="JNANHcm">
+                <source>narration.guided_step_payment_shipping_grid_open</source>
+                <target>El panel le lleva a las zonas de envío, que enumeran las ya escritas. Una lista vacía es una tienda que lo envía todo gratis.</target>
+            </trans-unit>
+            <trans-unit id="oBcFSAW">
+                <source>narration.guided_step_payment_shipping_grid_rates</source>
+                <target>Escriba los tramos de peso, un precio por tramo, ya que el paquete se cobra al primero en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos los demás saldrá gratis.</target>
+            </trans-unit>
+            <trans-unit id="kfV1YuP">
+                <source>narration.guided_step_payment_shipping_labels</source>
+                <target>Imprima las etiquetas: una hoja para toda la ronda, abierta en otra pestaña. Reúne los pedidos pendientes de envío que llevan una dirección, y lo dice cuando no hay ninguno.</target>
+            </trans-unit>
+            <trans-unit id="lIOEl6Y">
+                <source>narration.guided_step_payment_shipping_open</source>
+                <target>El panel le lleva a las cestas. Todos los pedidos están listados ahí, sea cual sea su estado, que es más de lo que necesita una ronda de envíos.</target>
+            </trans-unit>
+            <trans-unit id="XX0EvQ6">
+                <source>narration.guided_step_payment_shipping_send</source>
+                <target>Marque un pedido como enviado, en la fila del que acaba de embalar. El botón solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado; el clic registra el envío y avisa al cliente por correo.</target>
+            </trans-unit>
+            <trans-unit id="iXtYQJP">
+                <source>narration.guided_step_payment_test_mode_check</source>
+                <target>Compruebe el recorrido del lado del cliente: la cesta muestra su aviso de pago de prueba. Realice un pago completo para comprobar que el pedido pasa efectivamente a pagado.</target>
+            </trans-unit>
+            <trans-unit id="d03N3cT">
+                <source>narration.guided_step_payment_test_mode_disable</source>
+                <target>Desactive el modo de prueba con el mismo acceso directo, cuya etiqueta ha cambiado: la tienda vuelve a las claves reales.</target>
+            </trans-unit>
+            <trans-unit id="omKln0j">
+                <source>narration.guided_step_payment_test_mode_done</source>
+                <target>Los pagos reales se reanudan. El pago de prueba permanece entre los pagos, reconocible porque su pedido no lleva ninguna factura: un ensayo nunca entra en la secuencia de facturas.</target>
+            </trans-unit>
+            <trans-unit id="inVtc.A">
+                <source>narration.guided_step_payment_test_mode_enable</source>
+                <target>Active el modo de prueba: la tienda pasa a las claves de prueba del proveedor activo, y nadie es cobrado mientras siga activo.</target>
+            </trans-unit>
+            <trans-unit id="7Yiqp2o">
+                <source>narration.guided_step_payment_test_mode_open</source>
+                <target>El panel le lleva al tablero: el acceso directo de los pagos de prueba está ahí, junto al de mantenimiento.</target>
+            </trans-unit>
+            <trans-unit id="pHz3zc7">
+                <source>narration.guided_step_payment_transaction_review_basket</source>
+                <target>Recupere el pedido completo: la columna de la cesta lleva de vuelta a la pantalla de cestas, donde figuran la dirección, el contenido y el estado del pedido.</target>
+            </trans-unit>
+            <trans-unit id="Tu9Ar9D">
+                <source>narration.guided_step_payment_transaction_review_detail</source>
+                <target>Abra el detalle de un pago: la cesta de origen, la divisa y el identificador de transacción se reúnen ahí.</target>
+            </trans-unit>
+            <trans-unit id="KcWkH0i">
+                <source>narration.guided_step_payment_transaction_review_open</source>
+                <target>El panel le lleva a los pagos: cada uno está listado ahí con su proveedor, su importe y su estado.</target>
+            </trans-unit>
+            <trans-unit id="wQW4ZFC">
+                <source>narration.guided_step_payment_transaction_review_provider</source>
+                <target>Consulte la transacción en el proveedor: el icono la abre en el panel de Stripe, cuando se ha registrado un identificador. Como Revolut no publica ninguna dirección estable para un pedido, ahí el icono no aparece y solo se muestra el identificador.</target>
+            </trans-unit>
+            <trans-unit id="80ul_fx">
+                <source>narration.payments</source>
+                <target>«Pagos» lista lo que se ha cobrado, con la referencia de la transacción en el proveedor.</target>
+            </trans-unit>
+            <trans-unit id="D2KYkuw">
+                <source>narration.shipping_zones</source>
+                <target>«Zonas de envío» agrupa los países enviados a la misma tarifa, cada uno con sus tramos de peso.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -15,10 +15,10 @@ use PHPUnit\Framework\TestCase;
 // A narration is never drawn, so a key missing from its catalogue shows nowhere: the films read the fallback and nobody notices until one is filmed. Nothing else checks these - TranslationDomainTest only sees keys passed to trans(), where a narration is declared in an array
 class NarrationCatalogueTest extends TestCase
 {
-    // The bundle's own narrations, resolved in its "payment" domain suffixed "_narration" - spoken and never drawn, hence the two locales the rest of the bundle does not stop at
-    private const array LOCALES = ['en', 'fr'];
+    // The bundle's own narrations, resolved in its "payment" domain suffixed "_narration" - spoken and never drawn, so held here to every locale the bundle ships
+    private const array LOCALES = ['en', 'fr', 'es'];
 
-    public function testEveryDeclaredNarrationIsShippedInBothLocales(): void
+    public function testEveryDeclaredNarrationIsShippedInEveryLocale(): void
     {
         $declared = $this->declared();
         $this->assertNotEmpty($declared, 'No narration declared in "src/", the test itself is broken.');

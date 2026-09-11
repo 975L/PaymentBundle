@@ -1,5 +1,20 @@
 [
     {
+        "date": "2026-09-11",
+        "description": [
+            {
+                "en": "On a site offered in several languages, the basket, the checkout and your customers' order pages now stay in the language the visitor is reading, rather than switching back to the site's main language at the first click.",
+                "fr": "Sur un site proposé en plusieurs langues, le panier, la validation de commande et les pages de commandes de vos clients restent désormais dans la langue du visiteur, au lieu de revenir à la langue principale du site au premier clic.",
+                "es": "En un sitio ofrecido en varios idiomas, el carrito, la validación del pedido y las páginas de pedidos de sus clientes permanecen ahora en el idioma del visitante, en lugar de volver al idioma principal del sitio al primer clic."
+            },
+            {
+                "en": "The title and the note of the delivery block can now be translated, like the rest of your pages.",
+                "fr": "Le titre et la note du bloc de livraison peuvent désormais être traduits, comme le reste de vos pages.",
+                "es": "El título y la nota del bloque de envío ahora pueden traducirse, como el resto de sus páginas."
+            }
+        ]
+    },
+    {
         "date": "2026-09-09",
         "description": [
             {

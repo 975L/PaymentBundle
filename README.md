@@ -250,6 +250,12 @@ counterparts or prints.
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
+`basket_display`, `basket_validate`, `customer_orders` and `customer_order` each have a `_localized` twin at
+`/{_locale}/...`, answering in every language the site declares: the writing language keeps its bare url, and a
+visitor who asked for another language is moved to the twin. The token urls and the invoice have none - they are read
+in the order's own language. `PaymentLinkLocalizer` rewrites a link stored in content to the basket, its validation
+or the order history into the language being read, its query string or anchor travelling with it.
+
 **Every page this bundle serves a visitor answers `noindex`** — basket, shared order, gift card, shipping page,
 the buyer's account pages — each of them being one visitor's own, and an indexed copy either an empty cart
 standing for a page of the shop or an order handed to whoever searched for it. The basket and the unsubscribe

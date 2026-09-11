@@ -47,6 +47,7 @@ services:
               translation_domain: 'payment'
               category: 'label.category_shop'
               form: 'c975L\PaymentBundle\Form\Block\ShippingBlockType'
+              translatable: 'title, note'
               template: '@c975LPayment/blocks/Shipping.html.twig'
               pickable: true
               cacheable: true

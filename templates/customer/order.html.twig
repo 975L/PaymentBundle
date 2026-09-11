@@ -9,7 +9,7 @@
 
 {% block content %}
     <h1>{{ 'label.order'|trans }} {{ basket.number }}</h1>
-    <p><a href="{{ path('customer_orders') }}">{{ 'label.back_to_orders'|trans }}</a></p>
+    <p><a href="{{ localized_path('customer_orders') }}">{{ 'label.back_to_orders'|trans }}</a></p>
 
     {# A number is drawn when the order is paid, so an order still being settled has no invoice to offer #}
     {% if basket.invoiceNumber %}

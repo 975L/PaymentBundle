@@ -11,6 +11,8 @@
 namespace c975L\PaymentBundle\Tests\Controller;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\ConfigBundle\Service\LocalizedRouteNegotiator;
+use c975L\ConfigBundle\Service\SiteLocales;
 use c975L\PaymentBundle\Controller\BasketController;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
@@ -20,7 +22,6 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
-use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -67,6 +69,22 @@ class BasketControllerTest extends TestCase
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame('/shop/basket/display', $response->getTargetUrl());
+        $this->assertSame(Response::HTTP_SEE_OTHER, $response->getStatusCode());
+    }
+
+    // A visitor checking out in English comes back to the English basket, never to the writing language halfway through their own checkout
+    public function testAVisitorReadingAnotherLanguageIsSentBackToTheBasketInThatLanguage(): void
+    {
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('get')->willReturn(null);
+
+        $request = new Request();
+        $request->attributes->set('_locale', 'en');
+
+        $response = $this->controller($basketService)->validate($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/en/shop/basket/display', $response->getTargetUrl());
         $this->assertSame(Response::HTTP_SEE_OTHER, $response->getStatusCode());
     }
 
@@ -170,7 +188,7 @@ class BasketControllerTest extends TestCase
             return '';
         });
 
-        $this->controller($basketService, null, $twig, $recommendationRegistry)->display();
+        $this->controller($basketService, null, $twig, $recommendationRegistry)->display(new Request());
 
         return $parameters;
     }
@@ -313,6 +331,23 @@ class BasketControllerTest extends TestCase
         return $repository;
     }
 
+    // A shop declaring one language, which is every shop until it says otherwise: the negotiator then redirects nowhere and varies on nothing
+    private static function createSiteLocales(): SiteLocales
+    {
+        return new SiteLocales(['fr'], 'fr');
+    }
+
+    // The real negotiator on that one language, its router naming the route and its parameters
+    private function createNegotiator(): LocalizedRouteNegotiator
+    {
+        $router = $this->createStub(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturnCallback(
+            static fn (string $name, array $parameters = []): string => '/' . $name . '?' . http_build_query($parameters)
+        );
+
+        return new LocalizedRouteNegotiator(self::createSiteLocales(), new LocaleSwitcher('fr', []), $router);
+    }
+
     private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null): BasketController
     {
         // The translator answers the key itself, so a flash is asserted on the key rather than on a wording
@@ -326,7 +361,8 @@ class BasketControllerTest extends TestCase
             $downloadRegistry ?? $this->createStub(BasketDownloadRegistry::class),
             $translator,
             $this->createStub(InvoiceService::class),
-            $this->createStub(ShippingRateResolverInterface::class),
+            $this->createNegotiator(),
+            self::createSiteLocales(),
         );
 
         $controller->setContainer($this->container($twig));
@@ -339,7 +375,11 @@ class BasketControllerTest extends TestCase
     {
         $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
-            static fn (string $name): string => 'basket_display' === $name ? '/shop/basket/display' : '/' . $name
+            static fn (string $name, array $parameters = []): string => match ($name) {
+                'basket_display' => '/shop/basket/display',
+                'basket_display_localized' => sprintf('/%s/shop/basket/display', $parameters['_locale']),
+                default => '/' . $name,
+            }
         );
 
         $request = new Request();

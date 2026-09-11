@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Management;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\ConfigBundle\Service\SiteLocales;
 use c975L\ConfigBundle\Test\ManagementTargetsTestCase;
 use c975L\PaymentBundle\Management\LinkableRouteProvider;
 use c975L\PaymentBundle\Management\MenuProvider;
@@ -29,7 +30,7 @@ class ManagementTargetsTest extends ManagementTargetsTestCase
 
         return [
             new MenuProvider(),
-            new LinkableRouteProvider(),
+            new LinkableRouteProvider(new SiteLocales(['fr'], 'fr')),
             // The guided projects generate their urls, so they take the recorders this test case reads them back from
             new PaymentGuidedProjectProvider($this->adminUrlGenerator(), $this->urlGenerator(), $configService),
             new PaymentShortcutProvider(

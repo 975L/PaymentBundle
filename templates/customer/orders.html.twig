@@ -29,7 +29,7 @@
                             <td>{{ basket.number }}</td>
                             <td>{{ basket.creation|date('d/m/Y') }}</td>
                             <td>{{ (basket.total / 100)|format_currency(basket.currency) }}</td>
-                            <td><a href="{{ path('customer_order', {'number': basket.number}) }}">{{ 'label.view_order'|trans }}</a></td>
+                            <td><a href="{{ localized_path('customer_order', {'number': basket.number}) }}">{{ 'label.view_order'|trans }}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>

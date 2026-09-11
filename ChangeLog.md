@@ -1,5 +1,27 @@
 # Changelog
 
+## v6.9.0
+
+The basket and the order history answer in the language they are read in
+
+- **Every language file of a domain is checked against the one the bundle is written in**, `CatalogueCompletenessCase` catching a missing translation, a blank one and a key renamed on one side only (10/09/2026)
+- **The shipping block says its title and its note are translatable** (10/09/2026)
+- **`/{_locale}/shop/basket/display`, `/{_locale}/shop/basket/validate`, `/{_locale}/account/orders` and `/{_locale}/account/orders/{number}`** join the four bare urls they double, on SiteBundle's own pattern (10/09/2026)
+- The four are the pages a visitor navigates to on purpose, the rest of the checkout being reached from the basket (10/09/2026)
+- **Nothing is gated on a language**: a basket and an order hold the visitor's own choices (10/09/2026)
+- **A basket names its items as they were named when they were put in** (10/09/2026)
+- The three ways out of the checkout come back to the basket in the language it was read in (10/09/2026)
+- **The token urls keep no language of their own**, read in the language the order was placed in (10/09/2026)
+- The invoice has no localised url either (10/09/2026)
+- `PaymentLinkLocalizer` reads this bundle's own links in the language the page around them is being read in (10/09/2026)
+- A stored link's query string or anchor travels with it through `PaymentLinkLocalizer` (11/09/2026)
+- The templates say `localized_path` where they said `path` (10/09/2026)
+- The two menu targets say which languages they answer in, in the `locales` a linkable route declares (10/09/2026)
+- `payment_narration.es.xlf` ships the narrations in Spanish, `NarrationCatalogueTest` checking all three locales (11/09/2026)
+- `BasketControllerTest` no longer passes a seventh argument the controller stopped taking (10/09/2026)
+- New `PaymentLinkLocalizerTest` and `CustomerAreaControllerTest`, and a test of the way back to the basket in the language being read (11/09/2026)
+- Requires `c975l/core-bundle` `^1.28.0` (10/09/2026)
+
 ## v6.8.3
 
 The basket bar says again what the basket holds

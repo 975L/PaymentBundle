@@ -11,6 +11,8 @@
 namespace c975L\PaymentBundle\Controller;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\ConfigBundle\Service\LocalizedRouteNegotiator;
+use c975L\ConfigBundle\Service\SiteLocales;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
@@ -44,7 +46,26 @@ class BasketController extends AbstractController
         private readonly BasketDownloadRegistry $basketDownloadRegistry,
         private readonly TranslatorInterface $translator,
         private readonly InvoiceService $invoiceService,
+        private readonly LocalizedRouteNegotiator $negotiator,
+        private readonly SiteLocales $siteLocales,
     ) {
+    }
+
+    // Every language the site declares, with nothing to gate on: a basket holds the visitor's own choices, not content written in one language - what is read around them is this bundle's interface, which ships as a catalogue per language, and the items name themselves as they were named when they were put in
+    /** @return list<string> */
+    private function everyLanguage(): array
+    {
+        return $this->siteLocales->all();
+    }
+
+    // Back to the basket in the language it is being read in: naming basket_display would drop an English visitor into the writing language halfway through their own checkout
+    private function backToBasket(Request $request): Response
+    {
+        $locale = $request->attributes->get('_locale');
+
+        return \is_string($locale) && '' !== $locale
+            ? $this->redirectToRoute('basket_display_localized', ['_locale' => $locale], Response::HTTP_SEE_OTHER)
+            : $this->redirectToRoute('basket_display', [], Response::HTTP_SEE_OTHER);
     }
 
     // GETS BASKET JSON
@@ -58,14 +79,25 @@ class BasketController extends AbstractController
         return new JsonResponse($this->basketService->getJson());
     }
 
-    // DISPLAY
+    // DISPLAY - the same basket, in another language: the writing language keeps "/shop/basket/display" byte for byte, the others go through "/{_locale}/shop/basket/display". The pattern holds the languages the site declares beside the one it is written in, and matches nothing while there are none (see ConfigBundle's c975LConfigBundle::declareLocalesPattern())
+    #[Route(
+        '/{_locale}/shop/basket/display',
+        name: 'basket_display_localized',
+        requirements: ['_locale' => '%c975l_config.locales_pattern%'],
+        methods: ['GET']
+    )]
     #[Route(
         '/shop/basket/display',
         name: 'basket_display',
         methods: ['GET']
     )]
-    public function display()
+    public function display(Request $request): Response
     {
+        $askedLanguage = $this->negotiator->redirectToAskedLanguage($request, $this->everyLanguage(), 'basket_display');
+        if (null !== $askedLanguage) {
+            return $this->negotiator->vary($request, $askedLanguage);
+        }
+
         $basket = $this->basketService->get();
 
         $recommendations = [];
@@ -77,15 +109,21 @@ class BasketController extends AbstractController
         }
 
         // Renders the page
-        return $this->render('@c975LPayment/basket/display.html.twig', [
+        return $this->negotiator->vary($request, $this->render('@c975LPayment/basket/display.html.twig', [
             'action' => 'display',
             'basket' => $basket,
             'recommendations' => $recommendations,
             'recommendationsTemplate' => $recommendationsTemplate,
-        ]);
+        ]));
     }
 
-    // VALIDATE
+    // VALIDATE - the step right after the basket, and the one place a language break costs an order: a visitor who filled in their address in English has no reason to be handed a French form back
+    #[Route(
+        '/{_locale}/shop/basket/validate',
+        name: 'basket_validate_localized',
+        requirements: ['_locale' => '%c975l_config.locales_pattern%'],
+        methods: ['GET', 'POST']
+    )]
     #[Route(
         '/shop/basket/validate',
         name: 'basket_validate',
@@ -93,10 +131,15 @@ class BasketController extends AbstractController
     )]
     public function validate(Request $request): Response
     {
+        $askedLanguage = $this->negotiator->redirectToAskedLanguage($request, $this->everyLanguage(), 'basket_validate');
+        if (null !== $askedLanguage) {
+            return $this->negotiator->vary($request, $askedLanguage);
+        }
+
         $basket = $this->basketService->get();
 
         if (null === $basket) {
-            return $this->redirectToRoute('basket_display', [], Response::HTTP_SEE_OTHER);
+            return $this->backToBasket($request);
         }
 
         // Defines form
@@ -110,23 +153,23 @@ class BasketController extends AbstractController
             } catch (PaymentUnavailableException) {
                 $this->addFlash('danger', $this->translator->trans('flash.payment_unavailable', [], 'payment'));
 
-                return $this->redirectToRoute('basket_display', [], Response::HTTP_SEE_OTHER);
+                return $this->backToBasket($request);
             } catch (BasketNotOrderableException $exception) {
                 // The provider's own message, already translated: only the bundle owning the item can say whether it ran out, was withdrawn or was taken offline. The basket is untouched, so the visitor comes back to it and takes out what no longer holds
                 $this->addFlash('danger', $exception->getMessage());
 
-                return $this->redirectToRoute('basket_display', [], Response::HTTP_SEE_OTHER);
+                return $this->backToBasket($request);
             }
 
             return $this->redirect($url, Response::HTTP_SEE_OTHER);
         }
 
         // Renders the page
-        return $this->render('@c975LPayment/basket/display.html.twig', [
+        return $this->negotiator->vary($request, $this->render('@c975LPayment/basket/display.html.twig', [
             'action' => 'validate',
             'form' => $form->createView(),
             'basket' => $basket,
-        ]);
+        ]));
     }
 
     // INVOICE - the order's invoice as a file, opened by the customer from their own order page

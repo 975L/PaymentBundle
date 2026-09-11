@@ -8,7 +8,7 @@
     <p class="text-center" id="basket-button">
 {% endif %}
     {# What the shops line up in their sticky bar: the basket icon, the count, the action, then the amount - one icon only, and the count as a pill rather than in parenthesis #}
-    <a href="{{ path('basket_display') }}" role="button" class="btn btn-{{ type }} basket-button">
+    <a href="{{ localized_path('basket_display') }}" role="button" class="btn btn-{{ type }} basket-button">
         <twig:c975LUi:Image:Icon src="bundles/c975lpayment/icons/basket-shopping.svg" width="24" height="24" class="{{ class }}"/>
         <span class="badge {{ badge }} badge-pill" data-basket-target="quantity"></span>
         <span class="basket-button-label">{{ 'label.see_basket'|trans({}, 'payment') }}</span>
