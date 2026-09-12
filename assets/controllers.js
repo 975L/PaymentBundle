@@ -1,7 +1,8 @@
 import { startStimulusApp } from '@symfony/stimulus-bundle';
 
-// Front-end controllers, used on public pages. Loaded as its own <script type="module"> tag (see importmap.php), starts its own Stimulus app
-const app = startStimulusApp();
+// Front-end controllers on public pages, loaded as their own <script type="module"> tag (see importmap.php), joining the one Stimulus application the other c975L bundles share
+globalThis.c975lStimulusApp ??= startStimulusApp();
+const app = globalThis.c975lStimulusApp;
 
 // Dynamic import() so AssetMapper marks these lazy: an importmap entry, but no <link rel="modulepreload">
 // Keys are the Stimulus identifiers as registered, matching what the templates write in data-controller

@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.9.3
+
+The bundle's Stimulus controllers join the one application of the page
+
+- `controllers.js` joins the page's Stimulus application instead of starting its own (12/09/2026)
+- A Live Component answers once per page, the `live` controller no longer built once per barrel loaded (12/09/2026)
+
 ## v6.9.2
 
 The quality gate keeps what phpmd watched, without phpmd

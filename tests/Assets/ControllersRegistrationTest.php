@@ -17,12 +17,13 @@ class ControllersRegistrationTest extends TestCase
 {
     private const string BARREL = 'assets/controllers.js';
 
-    // The barrel starts its own app, as every c975L bundle does since the register(app) barrels were dropped
-    public function testTheBarrelStartsItsOwnStimulusApp(): void
+    // The barrel joins the one application of the page rather than starting a second of its own
+    public function testTheBarrelJoinsTheSharedStimulusApp(): void
     {
         $barrel = $this->read();
 
         $this->assertStringContainsString('startStimulusApp()', $barrel, 'The barrel starts no Stimulus app, so nothing registers its controllers.');
+        $this->assertStringContainsString('globalThis.c975lStimulusApp ??= startStimulusApp()', $barrel, 'The barrel starts an application of its own instead of joining the page\'s.');
         $this->assertStringNotContainsString('export function register', $barrel, 'The barrel still exports register(), which no consuming app calls any more.');
     }
 
