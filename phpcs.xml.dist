@@ -5,6 +5,9 @@
     <file>src</file>
     <file>tests</file>
 
+    <!-- VariableAnalysis below is a Composer package rather than a sniff phpcs ships, and this is what puts its classes within reach of whichever phpcs binary runs - the phar on the development machine as much as vendor's own -->
+    <autoload>./vendor/autoload.php</autoload>
+
     <!-- Generated, third-party and non-PHP template files are not ours to lint -->
     <exclude-pattern>*/public/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
@@ -28,5 +31,38 @@
     <!-- A test case may pull in a fixture the tests' PSR-4 autoloader cannot reach -->
     <rule ref="PSR1.Files.SideEffects">
         <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+
+    <!-- A debug call or an exit() forgotten in the code, what phpmd reported under DevelopmentCodeFragment. Stated here rather than left to phpmd's own rule, which reads a function image together with its namespace and therefore never matched a single call in namespaced code -->
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="var_dump" value="null"/>
+                <element key="print_r" value="null"/>
+                <element key="debug_zval_dump" value="null"/>
+                <element key="debug_print_backtrace" value="null"/>
+                <element key="exit" value="null"/>
+                <element key="die" value="null"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- eval() needs its own sniff, being a construct and not a function ForbiddenFunctions could name -->
+    <rule ref="Squiz.PHP.Eval"/>
+
+    <!-- A catch left empty swallows the error it catches, and the empty block is the one place where that does not show on reading (phpmd's EmptyCatchBlock) -->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+
+    <!-- goto: nobody writes any, which is precisely why the rule costs nothing (phpmd's GotoStatement) -->
+    <rule ref="Generic.PHP.DiscourageGoto"/>
+
+    <!-- A count() in the test of a for is called again on every turn (phpmd's CountInLoopExpression) -->
+    <rule ref="Generic.CodeAnalysis.ForLoopWithTestFunctionCall"/>
+
+    <!-- A local variable assigned and never read, the last of the phpmd rules phpcs has no sniff of its own for - hence the standard in require-dev. Parameters are left out: an interface implementation and a test double both name arguments they have no use for, which is what phpmd's UnusedFormalParameter reported and this gate never did -->
+    <rule ref="./vendor/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Sniffs/CodeAnalysis/VariableAnalysisSniff.php">
+        <properties>
+            <property name="allowUnusedFunctionParameters" value="true"/>
+        </properties>
     </rule>
 </ruleset>

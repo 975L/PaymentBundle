@@ -26,12 +26,12 @@ jobs:
         steps:
             - uses: actions/checkout@v5
 
-            # pcov measures the coverage, which the development machine does not have; the quality tools are installed here rather than in require-dev, so as not to weigh the bundle down with 17 transitive packages. PHPStan aside: its deprecation rules can only come through Composer, and they bring it along
+            # pcov measures the coverage, which the development machine does not have; the quality tools are installed here rather than in require-dev, so as not to weigh the bundle down with 17 transitive packages. PHPStan and phpcs aside: PHPStan's deprecation rules and phpcs's VariableAnalysis standard can only come through Composer, and they bring their tool along - which is also why phpcs is gone from the list below, a script's vendor/bin taking precedence over anything setup-php would install here
             - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
               with:
                   php-version: '8.4'
                   coverage: pcov
-                  tools: phpcs, php-cs-fixer, rector, phpmd
+                  tools: php-cs-fixer, rector
 
             # Composer decides where it keeps the downloaded archives; asking it beats hard-coding a path that depends on the runner image
             - name: Répertoire de cache de Composer
@@ -68,8 +68,6 @@ jobs:
             - name: Modernisation
               run: composer rector
 
-            - name: Code douteux
-              run: composer mess
 
             # Lizard is a Python tool, and it is pinned where the PHP ones take their latest release: its counting changed between versions and this is the one Codacy runs, which the thresholds composer.json hands it are read against
             - uses: actions/setup-python@v5

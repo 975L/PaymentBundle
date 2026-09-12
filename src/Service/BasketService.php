@@ -165,7 +165,7 @@ class BasketService implements BasketServiceInterface
         foreach ($items as $type => $item) {
             $provider = $this->itemProviderRegistry->get($type);
 
-            foreach ($item as $id => $itemContent) {
+            foreach ($item as $itemContent) {
                 $total += $itemContent['total'];
                 $quantity += $itemContent['quantity'];
                 $flags = $provider->getContentFlags($itemContent);
@@ -977,8 +977,8 @@ class BasketService implements BasketServiceInterface
     private function buildCheckoutRequest(?string $successUrl = null): CheckoutRequest
     {
         $lines = [];
-        foreach ($this->basket->getItems() as $type => $items) {
-            foreach ($items as $id => $item) {
+        foreach ($this->basket->getItems() as $items) {
+            foreach ($items as $item) {
                 // "Parent (item)" is how a catalogue entry names its line; an item hanging under none - a payment link - is named by its own label alone rather than by an empty pair of brackets
                 $parentTitle = (string) ($item['parent']['title'] ?? '');
                 $lines[] = [

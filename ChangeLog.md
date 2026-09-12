@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.9.2
+
+The quality gate keeps what phpmd watched, without phpmd
+
+- PHP Mess Detector leaves the gate (12/09/2026)
+- `phpcs.xml.dist` takes over `EmptyCatchBlock`, `GotoStatement` and `CountInLoopExpression` through their core sniffs (12/09/2026)
+- `sirbrillig/phpcs-variable-analysis` joins `require-dev` for `UnusedLocalVariable`, which phpcs has no sniff of its own for (12/09/2026)
+- Unused function parameters stay out of the gate, an interface implementation naming arguments it has no use for (12/09/2026)
+- phpcs leaves `setup-php` and `bin/ci.sh`, Composer bringing it along with the standard (12/09/2026)
+- `BasketService` drops three `foreach` keys it never read (12/09/2026)
+
 ## v6.9.1
 
 Deprecations are caught before an upgrade turns them into errors

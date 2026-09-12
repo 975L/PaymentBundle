@@ -39,29 +39,28 @@ cd "$WORK"
 echo "→ composer update (Packagist, sans les liens symboliques du vendor local)"
 composer update --no-interaction --no-progress
 
-# The quality tools are not dependencies of the bundle - PHPStan aside, which require-dev carries for its deprecation rules and composer update has just installed: the CI installs them with setup-php, which always takes the latest release, while the development machine keeps whatever was installed the day it was installed. Replaying `composer qa` with the machine's own tools therefore proves nothing - a rule removed upstream since is still enforced here, and a rule added since is missed. They are installed fresh through Composer, the same versions setup-php installs as phars, one isolated project per tool so their own dependencies never have to agree with each other, and put ahead of everything else in the PATH
+# The quality tools are not dependencies of the bundle - PHPStan and phpcs aside, which require-dev carries for the deprecation rules and the VariableAnalysis standard and composer update has just installed: the CI installs them with setup-php, which always takes the latest release, while the development machine keeps whatever was installed the day it was installed. Replaying `composer qa` with the machine's own tools therefore proves nothing - a rule removed upstream since is still enforced here, and a rule added since is missed. They are installed fresh through Composer, the same versions setup-php installs as phars, one isolated project per tool so their own dependencies never have to agree with each other, and put ahead of everything else in the PATH
 echo "→ Outils qualité, en dernière version comme la CI"
 TOOLS="$WORK/.ci-tools"
-for Package in squizlabs/php_codesniffer friendsofphp/php-cs-fixer rector/rector phpmd/phpmd; do
+for Package in friendsofphp/php-cs-fixer rector/rector; do
     Directory="$TOOLS/$(basename "$Package")"
     mkdir -p "$Directory"
     composer --working-dir="$Directory" require "$Package" --no-interaction --no-progress --quiet
     PATH="$Directory/vendor/bin:$PATH"
 done
 
-# Lizard is a Python tool, and it is pinned where the four above take their latest release: its counting changed between versions and this is the one Codacy runs, which the thresholds composer.json hands it are read against
+# Lizard is a Python tool, and it is pinned where the tools above take their latest release: its counting changed between versions and this is the one Codacy runs, which the thresholds composer.json hands it are read against
 python3 -m venv "$TOOLS/lizard"
 "$TOOLS/lizard/bin/pip" install --quiet lizard==1.17.31
 PATH="$TOOLS/lizard/bin:$PATH"
 export PATH
 
 # Stated rather than assumed: this is the very line that was missing when a tool's release broke the CI on an unchanged repository
-printf '   phpcs %s | phpstan %s | php-cs-fixer %s | rector %s | phpmd %s | lizard %s\n' \
-    "$(phpcs --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
+printf '   phpcs %s | phpstan %s | php-cs-fixer %s | rector %s | lizard %s\n' \
+    "$(vendor/bin/phpcs --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(vendor/bin/phpstan --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(php-cs-fixer --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(rector --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
-    "$(phpmd --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)" \
     "$(lizard --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
 
 echo "→ Contrôles qualité"

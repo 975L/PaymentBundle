@@ -37,7 +37,8 @@
         "chrome-php/chrome": "^1.16",
         "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpunit/phpunit": "^13.2"
+        "phpunit/phpunit": "^13.2",
+        "sirbrillig/phpcs-variable-analysis": "^3.0"
     },
     "suggest": {
         "c975l/shop-bundle": "Plugs a product catalog into the basket - products, their items, their stock and their downloadable files become buyable through BasketItemProviderInterface",
@@ -56,6 +57,9 @@
         }
     },
     "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
         "sort-packages": true
     },
     "scripts": {
@@ -64,7 +68,6 @@
         "fixer": "php-cs-fixer check --diff",
         "stan": "phpstan analyse --no-progress",
         "rector": "rector process --dry-run",
-        "mess": "phpmd src text phpmd.xml.dist --ignore-errors-on-exit --report-file .phpmd-report.log; s=$?; grep -E \"^(/|[[:space:]]*-)\" .phpmd-report.log; n=$(grep -c \"Unexpected token\" .phpmd-report.log); if [ \"$n\" -gt 0 ]; then echo \"phpmd analysed nothing in $n file(s): PDepend cannot parse them\"; fi; exit $s",
         "lizard-ccn": "lizard -l php -C 14 -w src",
         "lizard-nloc": "find src -name '*.php' ! -name '*CrudController.php' ! -name '*Type.php' | xargs lizard -l php -T nloc=99 -C 999 -a 999 -w",
         "lizard": [
@@ -78,7 +81,6 @@
             "@fixer",
             "@stan",
             "@rector",
-            "@mess",
             "@lizard",
             "@test"
         ]
@@ -89,7 +91,6 @@
         "fixer": "Standard Symfony (php-cs-fixer)",
         "stan": "Analyse statique du bundle, level 5",
         "rector": "Modernisation du code, en simulation (rector)",
-        "mess": "Code douteux dans src/ (phpmd), le rapport entier restant dans .phpmd-report.log",
         "lizard": "Complexité et longueur des méthodes de src/, aux paliers que Codacy applique (lizard)",
         "test": "Suite PHPUnit",
         "qa": "Tous les contrôles de la CI, dans l'ordre - voir bin/ci.sh pour les rejouer sur des dépendances fraîches"

@@ -170,7 +170,6 @@ class BasketCrudController extends AbstractCrudController
     }
 
     // A declaration of actions, one block per action: its length says how many buttons the screen wears, not how much the method decides
-    /** @SuppressWarnings(PHPMD.ExcessiveMethodLength) */
     public function configureActions(Actions $actions): Actions
     {
         $role = $this->configService->get('site-role-admin');
