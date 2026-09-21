@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.9.5
+
+The basket bar is placed by UiBundle's layout
+
+- `Basket:Navbar` is placed once by UiBundle's layout, no longer by the site's (21/09/2026)
+- Requires `c975l/core-bundle` `^1.31.0`, the first layout placing it (21/09/2026)
+
 ## v6.9.4
 
 Requires symfony/validator, which the entities already rely on

@@ -51,8 +51,8 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 - **The orders check out against their own payments**, weekly and without being asked: `basket-integrity` reports
   the charge nobody was told about — money taken and no order delivered — along with five other disagreements
   nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
-- A basket bar for the whole site, `<twig:c975LPayment:Basket:Navbar/>` placed once in the layout: shown as soon
-  as the basket holds something, carrying the count and the total, and kept up to date without a page reload
+- A basket bar for the whole site, `<twig:c975LPayment:Basket:Navbar/>`, placed once by UiBundle's layout: shown
+  as soon as the basket holds something, carrying the count and the total, and kept up to date without a page reload
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed
 - **Delivery priced on a grid written in the back office**: a zone groups the countries posted at one tariff and
@@ -214,11 +214,12 @@ layout renders `{{ importmap(['app']|merge(bundle_scripts())) }}`, and its `impo
 
 ### The basket bar
 
-`<twig:c975LPayment:Basket:Navbar/>`, placed once in the site's layout, draws the bar shown at the bottom of the
-page as soon as the basket holds something — the button carrying the count and the total, kept up to date by
-`basket.js` without the page being reloaded. The bar mounts the `basket` controller itself, so it works wherever
-the layout puts it, outside every element a shop or a campaign carries one on. It is hidden while the basket is
-empty, so it costs nothing to leave in the layout of a site whose visitor buys nothing. It lives in this bundle
+`<twig:c975LPayment:Basket:Navbar/>` draws the bar shown at the bottom of the page as soon as the basket holds
+something — the button carrying the count and the total, kept up to date by `basket.js` without the page being
+reloaded. **UiBundle's layout places it once, on every page**, through an `include` with `ignore_missing`: nothing
+to add to the site's layout, and no page, block or satellite bundle should emit it again — a second bar is never
+filled. The bar mounts the `basket` controller itself, sitting outside every element a shop or a campaign carries
+one on. It is hidden while the basket is empty, so it costs nothing on a site whose visitor buys nothing. It lives in this bundle
 rather than in a satellite one because every bundle filling the basket needs it, whether the site sells products,
 counterparts or prints.
 
