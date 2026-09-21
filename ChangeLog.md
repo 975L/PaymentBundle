@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.9.4
+
+Requires symfony/validator, which the entities already rely on
+
+- Requires `symfony/validator` `^8.0`, `Basket`'s constraints using it without declaring it (21/09/2026)
+
 ## v6.9.3
 
 The bundle's Stimulus controllers join the one application of the page
