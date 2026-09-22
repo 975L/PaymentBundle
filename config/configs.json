@@ -279,6 +279,17 @@
         "description": "description.shop_shipping_free"
     },
     {
+        "label": "label.shop_return_days",
+        "slug": "shop-return-days",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "int",
+        "group": "shop",
+        "severity": null,
+        "description": "description.shop_return_days"
+    },
+    {
         "label": "label.shop_invoice_prefix",
         "slug": "shop-invoice-prefix",
         "sensitive": false,

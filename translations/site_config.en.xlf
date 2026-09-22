@@ -82,6 +82,10 @@
                 <source>description.shop_name</source>
                 <target>Name of the shop: i.e. Example Shop</target>
             </trans-unit>
+            <trans-unit id="eKUXkJx">
+                <source>description.shop_return_days</source>
+                <target>Number of days a customer has to return a posted article (14 = legal withdrawal period in France and the EU, 0 = no returns). Published to Google with the shop country; downloadable files are always declared non-returnable.</target>
+            </trans-unit>
             <trans-unit id="RTd7nAT">
                 <source>description.shop_shipping_country</source>
                 <target>The country code the basket page estimates delivery on, before the customer has given their address (e.g. FR). The final amount is recomputed at checkout.</target>
@@ -193,6 +197,10 @@
             <trans-unit id="0sQJX9Z">
                 <source>label.shop_name</source>
                 <target>Shop Name</target>
+            </trans-unit>
+            <trans-unit id="7vtIBDd">
+                <source>label.shop_return_days</source>
+                <target>Shop return window</target>
             </trans-unit>
             <trans-unit id="c95RrYu">
                 <source>label.shop_shipping_country</source>

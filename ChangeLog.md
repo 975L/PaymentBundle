@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.9.6
+
+Declares the shop's return window for ShopBundle's product snippets
+
+- Adds the `shop-return-days` config, the days a posted article can be returned in (22/09/2026)
+
 ## v6.9.5
 
 The basket bar is placed by UiBundle's layout

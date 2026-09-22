@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-22",
+        "description": [
+            {
+                "en": "You can now set, in your shop's settings, how many days your customers have to return an article sent by post, so that search engines can show it beside your products.",
+                "fr": "Vous pouvez désormais indiquer, dans les réglages de votre boutique, le nombre de jours dont vos clients disposent pour retourner un article envoyé par la poste, afin que les moteurs de recherche l'affichent à côté de vos produits.",
+                "es": "Ahora puede indicar, en los ajustes de su tienda, cuántos días tienen sus clientes para devolver un artículo enviado por correo, para que los motores de búsqueda lo muestren junto a sus productos."
+            }
+        ]
+    },
+    {
         "date": "2026-09-11",
         "description": [
             {
