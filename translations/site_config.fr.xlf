@@ -84,7 +84,7 @@
             </trans-unit>
             <trans-unit id="eKUXkJx">
                 <source>description.shop_return_days</source>
-                <target>Nombre de jours dont le client dispose pour retourner un article envoyé par la poste (14 = délai légal de rétractation en France et dans l'UE, 0 = retours refusés). Publié à Google avec le pays de la boutique ; les fichiers téléchargeables sont toujours déclarés non retournables.</target>
+                <target>Nombre de jours dont le client dispose pour retourner un article envoyé par la poste (14 = délai légal de rétractation en France et dans l'UE). Publié à Google avec le pays de la boutique ; laissé vide, rien n'est publié, et les fichiers téléchargeables sont toujours déclarés non retournables.</target>
             </trans-unit>
             <trans-unit id="RTd7nAT">
                 <source>description.shop_shipping_country</source>

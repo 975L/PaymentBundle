@@ -84,7 +84,7 @@
             </trans-unit>
             <trans-unit id="eKUXkJx">
                 <source>description.shop_return_days</source>
-                <target>Número de días de los que dispone el cliente para devolver un artículo enviado por correo (14 = plazo legal de desistimiento en Francia y la UE, 0 = sin devoluciones). Publicado en Google con el país de la tienda; los archivos descargables siempre se declaran no retornables.</target>
+                <target>Número de días de los que dispone el cliente para devolver un artículo enviado por correo (14 = plazo legal de desistimiento en Francia y la UE). Publicado en Google con el país de la tienda; si se deja vacío, no se publica nada, y los archivos descargables siempre se declaran no retornables.</target>
             </trans-unit>
             <trans-unit id="RTd7nAT">
                 <source>description.shop_shipping_country</source>

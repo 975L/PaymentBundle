@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.9.7
+
+The return window says what an unfilled setting publishes
+
+- `shop-return-days` states that it publishes nothing while left empty (23/09/2026)
+
 ## v6.9.6
 
 Declares the shop's return window for ShopBundle's product snippets

@@ -84,7 +84,7 @@
             </trans-unit>
             <trans-unit id="eKUXkJx">
                 <source>description.shop_return_days</source>
-                <target>Number of days a customer has to return a posted article (14 = legal withdrawal period in France and the EU, 0 = no returns). Published to Google with the shop country; downloadable files are always declared non-returnable.</target>
+                <target>Number of days a customer has to return a posted article (14 = legal withdrawal period in France and the EU). Published to Google with the shop country; left empty, nothing is published, and downloadable files are always declared non-returnable.</target>
             </trans-unit>
             <trans-unit id="RTd7nAT">
                 <source>description.shop_shipping_country</source>
