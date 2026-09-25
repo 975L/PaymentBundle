@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-25",
+        "description": [
+            {
+                "en": "Your customers can now have their invoice made out to their company, with its VAT number, and find those details already filled in on their next order.",
+                "fr": "Vos clients peuvent désormais faire établir leur facture au nom de leur entreprise, avec son numéro de TVA, et retrouvent ces informations déjà remplies à leur commande suivante.",
+                "es": "Sus clientes pueden ahora recibir la factura a nombre de su empresa, con su número de IVA, y encontrar esos datos ya rellenados en su siguiente pedido."
+            }
+        ]
+    },
+    {
         "date": "2026-09-22",
         "description": [
             {

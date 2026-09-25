@@ -1,5 +1,11 @@
 # UPGRADE
 
+## v6.9 > v6.10
+
+**A basket can be invoiced to a business.** `payment_basket` gains two nullable columns, `company` and `vat_number` -
+generate the migration with `doctrine:migrations:diff` and run it. Nothing to fill on the orders already taken: null
+is a private buyer.
+
 ## v6.7 > v6.8
 
 **`/shop/stripe/webhook` is gone.** ShopBundle served that url up to its v1.12 and this bundle answered on it

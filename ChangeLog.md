@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.10.0
+
+A basket can be invoiced to a business
+
+- The coordinates form asks for an optional company name and VAT number, printed on the invoice (25/09/2026)
+- A business invoice requires the business' full address, asked of a digital order too (25/09/2026)
+- A new basket is prefilled from the member's last business order (25/09/2026)
+- Emptying the company drops the VAT number, and a digital order's address (25/09/2026)
+- The back-office order page shows the company and VAT number (25/09/2026)
+- `payment_basket` gains `company` and `vat_number` columns (25/09/2026) [Needs db update] see [UPGRADE.md](UPGRADE.md)
+
 ## v6.9.10
 
 README links the bundle page and Rector uses attribute sets

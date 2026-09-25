@@ -37,11 +37,13 @@
         <td>
             <h2>{{ 'label.billed_to'|trans }}</h2>
             {# An order paid for entirely online carries no postal address at all, and the email is then the whole of what is known about the buyer #}
+            {% if basket.company %}<strong>{{ basket.company }}</strong><br>{% endif %}
             {% if basket.name %}{{ basket.name }}<br>{% endif %}
             {% if basket.address %}{{ basket.address }}<br>{% endif %}
             {% if basket.zip or basket.city %}{{ basket.zip }} {{ basket.city }}<br>{% endif %}
             {% if basket.country %}{{ basket.country|country_name|default(basket.country) }}<br>{% endif %}
             {{ basket.email }}
+            {% if basket.vatNumber %}<br>{{ 'label.vat_number'|trans }} : {{ basket.vatNumber }}{% endif %}
         </td>
     </tr>
 </table>

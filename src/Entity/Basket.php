@@ -93,6 +93,15 @@ class Basket implements \Stringable
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $country = null;
 
+    // The business the invoice is made out to, when the buyer orders for one rather than for themselves
+    #[ORM\Column(length: 128, nullable: true)]
+    #[Assert\Length(max: 128)]
+    private ?string $company = null;
+
+    // Printed on a business invoice, stored as typed once spaces and dots are dropped (FR12345678901)
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $vatNumber = null;
+
     #[ORM\Column]
     #[Assert\PositiveOrZero]
     private ?int $total = null;
@@ -378,6 +387,31 @@ class Basket implements \Stringable
     public function setCountry(?string $country): static
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?string $company): static
+    {
+        $this->company = null !== $company && '' !== trim($company) ? trim($company) : null;
+
+        return $this;
+    }
+
+    public function getVatNumber(): ?string
+    {
+        return $this->vatNumber;
+    }
+
+    public function setVatNumber(?string $vatNumber): static
+    {
+        $vatNumber = strtoupper((string) preg_replace('/[\s.\-]/', '', (string) $vatNumber));
+        $this->vatNumber = '' !== $vatNumber ? $vatNumber : null;
 
         return $this;
     }

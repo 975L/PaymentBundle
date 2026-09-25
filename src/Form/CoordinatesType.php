@@ -19,7 +19,11 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CoordinatesType extends AbstractType
 {
@@ -114,6 +118,48 @@ class CoordinatesType extends AbstractType
             ;
         }
 
+        // Invoice made out to a business, optional: the postal address a business invoice has to carry is asked here when the order is entirely digital, and required once a company is given (see validateCompany())
+        $builder
+            ->add('business', FormType::class, [
+                'label' => 'label.business_invoice',
+                'required' => false,
+                'mapped' => false,
+                'label_attr' => [
+                    'class' => 'form-section-title',
+                ],
+            ])
+            ->add('company', TextType::class, [
+                'label' => 'label.company',
+                'required' => false,
+            ])
+            ->add('vatNumber', TextType::class, [
+                'label' => 'label.vat_number',
+                'required' => false,
+                'help' => 'description.vat_number',
+            ])
+        ;
+        if (1 === $options['data']->getContentFlags()) {
+            $builder
+                ->add('address', TextType::class, [
+                    'label' => 'label.address',
+                    'required' => false,
+                ])
+                ->add('zip', TextType::class, [
+                    'label' => 'label.zip',
+                    'required' => false,
+                ])
+                ->add('city', TextType::class, [
+                    'label' => 'label.city',
+                    'required' => false,
+                ])
+                ->add('country', CountryType::class, [
+                    'label' => 'label.country',
+                    'required' => false,
+                ])
+            ;
+        }
+        $builder->addEventListener(FormEvents::SUBMIT, fn (FormEvent $event) => $this->forgetBusiness($event->getData()));
+
         // Checkboxes
         $builder
             // Terms of use
@@ -140,8 +186,50 @@ class CoordinatesType extends AbstractType
             'intention' => 'basket',
             'translation_domain' => 'payment',
             'allow_extra_fields' => true,
+            'constraints' => [new Callback($this->validateCompany(...))],
         ]);
 
         $resolver->setRequired('config');
+    }
+
+    // An emptied company takes the rest of the prefilled business details with it, so a buyer ordering for themselves this time isn't invoiced with a VAT number or, on a digital order, an address that belong to their company
+    public function forgetBusiness(Basket $basket): void
+    {
+        if (null !== $basket->getCompany()) {
+            return;
+        }
+
+        $basket->setVatNumber(null);
+        if (1 === $basket->getContentFlags()) {
+            $basket
+                ->setAddress(null)
+                ->setZip(null)
+                ->setCity(null)
+                ->setCountry(null);
+        }
+    }
+
+    // A VAT number starts with its country's two letters, and a business invoice carries the business' postal address, which a digital order doesn't otherwise ask for
+    public function validateCompany(Basket $basket, ExecutionContextInterface $context): void
+    {
+        if (null !== $basket->getVatNumber() && 1 !== preg_match('/^[A-Z]{2}[A-Z0-9+*]{2,13}$/', $basket->getVatNumber())) {
+            $context->buildViolation('text.vat_number_invalid')
+                ->setTranslationDomain('payment')
+                ->atPath('vatNumber')
+                ->addViolation();
+        }
+
+        if (null === $basket->getCompany()) {
+            return;
+        }
+
+        foreach (['address' => $basket->getAddress(), 'zip' => $basket->getZip(), 'city' => $basket->getCity(), 'country' => $basket->getCountry()] as $field => $value) {
+            if (null === $value || '' === trim($value)) {
+                $context->buildViolation('text.company_address_required')
+                    ->setTranslationDomain('payment')
+                    ->atPath($field)
+                    ->addViolation();
+            }
+        }
     }
 }

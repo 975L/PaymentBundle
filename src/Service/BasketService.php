@@ -78,6 +78,23 @@ class BasketService implements BasketServiceInterface
         $this->getUser();
     }
 
+    // Takes the business details of the user's last business order, so a company buying again types nothing - left untouched in the form, a buyer ordering for themselves this time just empties the company
+    private function prefillBusiness(Basket $basket): void
+    {
+        $last = null !== $this->user ? $this->basketRepository->findLastBusinessByUser($this->user) : null;
+        if (null === $last) {
+            return;
+        }
+
+        $basket
+            ->setCompany($last->getCompany())
+            ->setVatNumber($last->getVatNumber())
+            ->setAddress($last->getAddress())
+            ->setZip($last->getZip())
+            ->setCity($last->getCity())
+            ->setCountry($last->getCountry());
+    }
+
     // Creates basket
     public function create(): Basket
     {
@@ -90,6 +107,7 @@ class BasketService implements BasketServiceInterface
         $basket->setModification(new \DateTime());
         $basket->setStatus('new');
         $basket->setUser($this->user);
+        $this->prefillBusiness($basket);
         // Posed at creation and not at validation like the two other tokens: this one is what gets the basket back to a visitor whose session has been recycled, which happens long before they order anything
         $basket->setRecoveryToken($this->generateSecurityToken());
 

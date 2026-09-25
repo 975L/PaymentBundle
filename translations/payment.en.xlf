@@ -274,6 +274,10 @@
                 <source>description.shop_email_bcc_missing</source>
                 <target>"Shop email (blind copy)" is empty: no copy of the order confirmations and download links is kept. Fill in an address to keep a record of them.</target>
             </trans-unit>
+            <trans-unit id="Fh4ZLEx">
+                <source>description.vat_number</source>
+                <target>Intra-community VAT number, printed on the invoice (FR12345678901)</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>This code no longer applies to this order the way it did: the price has been updated</target>
@@ -530,6 +534,10 @@
                 <source>label.block_title</source>
                 <target>Title (optional)</target>
             </trans-unit>
+            <trans-unit id="Dvjcu4f">
+                <source>label.business_invoice</source>
+                <target>Invoice made out to a business (optional)</target>
+            </trans-unit>
             <trans-unit id="pVZ2WV6">
                 <source>label.category_shop</source>
                 <target>Shop</target>
@@ -557,6 +565,10 @@
             <trans-unit id="QwIPz_y">
                 <source>label.code_promotional</source>
                 <target>Code</target>
+            </trans-unit>
+            <trans-unit id="bvur5RG">
+                <source>label.company</source>
+                <target>Company name</target>
             </trans-unit>
             <trans-unit id="soKgtX1">
                 <source>label.confirm_order</source>
@@ -1622,6 +1634,10 @@
                 <source>label.vat</source>
                 <target>VAT</target>
             </trans-unit>
+            <trans-unit id="PBZG1Ru">
+                <source>label.vat_number</source>
+                <target>VAT number</target>
+            </trans-unit>
             <trans-unit id="wjSED6i">
                 <source>label.vat_rate</source>
                 <target>VAT %rate% %</target>
@@ -1637,6 +1653,10 @@
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>Done: we will not mention this order again. You can still pay for it from the link you were sent earlier.</target>
+            </trans-unit>
+            <trans-unit id="SSNnMcY">
+                <source>text.company_address_required</source>
+                <target>A business invoice needs the full address of the business</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>
@@ -1677,6 +1697,10 @@
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>
                 <target>Order registered on </target>
+            </trans-unit>
+            <trans-unit id="F_L9_hM">
+                <source>text.vat_number_invalid</source>
+                <target>This VAT number is not valid: two letters for the country, then the number</target>
             </trans-unit>
         </body>
     </file>

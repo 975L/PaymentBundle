@@ -423,8 +423,11 @@ nothing either, and fall back on the same live values they were already being dr
 | Back office | An **Invoice** action on every numbered order, opening the same file |
 | E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments), and sent only while the shop's own switch is on — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
 
-**This is a B2C invoice.** Selling to businesses is another matter entirely — a Factur-X document, PDF/A-3 with its
-XML inside, sent through an approved platform — and nothing here pretends to be one.
+**A buyer may have it made out to their business**: the coordinates form offers a company name and a VAT number,
+printed in the billed-to block, and asks a digital order for the business' postal address once a company is given.
+The next basket of that member is prefilled from their last business order; emptying the company drops the rest.
+It is still a PDF, not an e-invoice — a Factur-X document, PDF/A-3 with its XML inside, sent through an approved
+platform — and nothing here pretends to be one.
 
 ## Address labels
 

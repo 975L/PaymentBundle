@@ -118,6 +118,21 @@ class BasketRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    // The last order that user paid for on behalf of a business, whose invoice details prefill the next basket
+    public function findLastBusinessByUser(UserInterface $user): ?Basket
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.user = :user')
+            ->andWhere('b.company IS NOT NULL')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', ['paid', 'shipped'])
+            ->orderBy('b.creation', \SortDirection::Descending)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * The orders of that user the customer area lists - paid or shipped only, newest first.
      *

@@ -132,6 +132,14 @@ class BasketCrudController extends AbstractCrudController
             EmailField::new('email')
                 ->setLabel(t('label.email', [], 'payment'))
                 ->setFormTypeOption('disabled', 'disabled'),
+            TextField::new('company')
+                ->setLabel(t('label.company', [], 'payment'))
+                ->hideOnIndex()
+                ->setFormTypeOption('disabled', 'disabled'),
+            TextField::new('vatNumber')
+                ->setLabel(t('label.vat_number', [], 'payment'))
+                ->hideOnIndex()
+                ->setFormTypeOption('disabled', 'disabled'),
             TextField::new('name')
                 ->setLabel(t('label.name', [], 'payment'))
                 ->hideOnIndex()

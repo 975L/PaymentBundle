@@ -18,6 +18,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 // The orders read by address rather than by account, which is what a review is checked against (see ShopBundle's ProductReviewVerifier)
 class BasketRepositoryTest extends TestCase
@@ -97,6 +98,16 @@ class BasketRepositoryTest extends TestCase
 
         $this->assertStringContainsString('LOWER(p.currency) <> LOWER(b.currency)', $this->dql);
         $this->assertStringContainsString('p.isFinished = true', $this->dql);
+    }
+
+    // Only an order actually paid for a business prefills the next basket: an abandoned one would hand back details the buyer never confirmed
+    public function testTheLastBusinessOrderIsTheNewestPaidOneWithACompany(): void
+    {
+        $this->createRepository()->findLastBusinessByUser($this->createStub(UserInterface::class));
+
+        $this->assertStringContainsString('b.company IS NOT NULL', $this->dql);
+        $this->assertStringContainsString('ORDER BY b.creation DESC', $this->dql);
+        $this->assertSame(['paid', 'shipped'], $this->parameters['statuses']);
     }
 
     // Payable is what a customer can still be charged for: an archived order is out of current business and no longer one of them

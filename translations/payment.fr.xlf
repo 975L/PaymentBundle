@@ -274,6 +274,10 @@
                 <source>description.shop_email_bcc_missing</source>
                 <target>« Email de la boutique (copie cachée) » est vide : aucune copie des confirmations de commande et des liens de téléchargement n'est conservée. Renseignez une adresse pour en garder la trace.</target>
             </trans-unit>
+            <trans-unit id="Fh4ZLEx">
+                <source>description.vat_number</source>
+                <target>Numéro de TVA intracommunautaire, imprimé sur la facture (FR12345678901)</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Ce code n'est plus celui qui s'appliquait à cette commande : le prix a été mis à jour</target>
@@ -530,6 +534,10 @@
                 <source>label.block_title</source>
                 <target>Titre (facultatif)</target>
             </trans-unit>
+            <trans-unit id="Dvjcu4f">
+                <source>label.business_invoice</source>
+                <target>Facture au nom d'une entreprise (facultatif)</target>
+            </trans-unit>
             <trans-unit id="pVZ2WV6">
                 <source>label.category_shop</source>
                 <target>Boutique</target>
@@ -557,6 +565,10 @@
             <trans-unit id="QwIPz_y">
                 <source>label.code_promotional</source>
                 <target>Code</target>
+            </trans-unit>
+            <trans-unit id="bvur5RG">
+                <source>label.company</source>
+                <target>Raison sociale</target>
             </trans-unit>
             <trans-unit id="soKgtX1">
                 <source>label.confirm_order</source>
@@ -1622,6 +1634,10 @@
                 <source>label.vat</source>
                 <target>TVA</target>
             </trans-unit>
+            <trans-unit id="PBZG1Ru">
+                <source>label.vat_number</source>
+                <target>N° de TVA</target>
+            </trans-unit>
             <trans-unit id="wjSED6i">
                 <source>label.vat_rate</source>
                 <target>TVA %rate% %</target>
@@ -1637,6 +1653,10 @@
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>C'est fait : nous ne vous reparlerons plus de cette commande. Vous pouvez toujours la régler depuis le lien reçu précédemment.</target>
+            </trans-unit>
+            <trans-unit id="SSNnMcY">
+                <source>text.company_address_required</source>
+                <target>Une facture d'entreprise doit porter l'adresse complète de l'entreprise</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>
@@ -1677,6 +1697,10 @@
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>
                 <target>Commande enregistrée le </target>
+            </trans-unit>
+            <trans-unit id="F_L9_hM">
+                <source>text.vat_number_invalid</source>
+                <target>Ce numéro de TVA n'est pas valide : deux lettres pour le pays, puis le numéro</target>
             </trans-unit>
         </body>
     </file>

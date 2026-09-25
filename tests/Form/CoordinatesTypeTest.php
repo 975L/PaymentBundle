@@ -16,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 
 // The checkout's own form, checked on the two things a mistake here costs: an address asked of an order that has none to deliver, and a consent that is not one
 class CoordinatesTypeTest extends TestCase
@@ -42,14 +44,85 @@ class CoordinatesTypeTest extends TestCase
         return $added;
     }
 
-    // An order of files alone is delivered by email: asking for a postal address is asking for what is never used, and keeping it is keeping what nothing justifies
-    public function testAnOrderOfFilesAloneIsNeverAskedForAnAddress(): void
+    // An order of files alone is delivered by email: its postal address is only offered for a business invoice, which has to carry one, and never required of a private buyer
+    public function testAnOrderOfFilesAloneOnlyOffersAnAddressForABusinessInvoice(): void
     {
         $added = $this->build(Basket::CONTENT_FLAG_DIGITAL);
 
         $this->assertArrayHasKey('email', $added);
         $this->assertArrayNotHasKey('name', $added);
-        $this->assertArrayNotHasKey('address', $added);
+        foreach (['address', 'zip', 'city', 'country', 'company', 'vatNumber'] as $field) {
+            $this->assertFalse($added[$field]['options']['required'], $field);
+        }
+    }
+
+    // A company alone is an invoice made out to nobody's address, and a VAT number starts with its country's letters
+    public function testABusinessInvoiceNeedsTheAddressAndAValidVatNumber(): void
+    {
+        $basket = new Basket()->setCompany('ACME')->setVatNumber('12345');
+        $paths = $this->violations($basket);
+
+        $this->assertSame(['vatNumber', 'address', 'zip', 'city', 'country'], $paths);
+    }
+
+    // A private buyer is asked nothing more, and a complete business one passes
+    public function testAPrivateOrACompleteBusinessInvoicePasses(): void
+    {
+        $this->assertSame([], $this->violations(new Basket()));
+        $this->assertSame([], $this->violations(new Basket()->setCompany('ACME')->setVatNumber('fr 12.345.678.901')->setAddress('1 rue')->setZip('74000')->setCity('Annecy')->setCountry('FR')));
+    }
+
+    // The VAT number is stored as its tax office writes it, whatever spaces or dots were typed, and an empty company means no business at all
+    public function testTheBusinessDetailsAreNormalized(): void
+    {
+        $basket = new Basket()->setCompany('  ')->setVatNumber('fr 12.345-678 901');
+
+        $this->assertNull($basket->getCompany());
+        $this->assertSame('FR12345678901', $basket->getVatNumber());
+    }
+
+    // Emptying the prefilled company is all a buyer ordering for themselves has to do: the VAT number goes with it, and the address too on a digital order, where it was only asked for the business
+    public function testAnEmptiedCompanyTakesTheBusinessDetailsWithIt(): void
+    {
+        $type = new CoordinatesType();
+        $digital = new Basket()->setVatNumber('FR12345678901')->setAddress('1 rue')->setZip('74000')->setCity('Annecy')->setCountry('FR');
+        $digital->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);
+        $type->forgetBusiness($digital);
+
+        $this->assertNull($digital->getVatNumber());
+        $this->assertNull($digital->getAddress());
+        $this->assertNull($digital->getCountry());
+
+        $shipped = new Basket()->setVatNumber('FR12345678901')->setAddress('1 rue');
+        $shipped->setContentFlags(Basket::CONTENT_FLAG_PHYSICAL);
+        $type->forgetBusiness($shipped);
+
+        $this->assertNull($shipped->getVatNumber());
+        $this->assertSame('1 rue', $shipped->getAddress());
+
+        $business = new Basket()->setCompany('ACME')->setVatNumber('FR12345678901');
+        $type->forgetBusiness($business);
+
+        $this->assertSame('FR12345678901', $business->getVatNumber());
+    }
+
+    /** @return list<string> */
+    private function violations(Basket $basket): array
+    {
+        $paths = [];
+        $builder = $this->createStub(ConstraintViolationBuilderInterface::class);
+        $context = $this->createStub(ExecutionContextInterface::class);
+        $context->method('buildViolation')->willReturn($builder);
+        $builder->method('setTranslationDomain')->willReturnSelf();
+        $builder->method('atPath')->willReturnCallback(function (string $path) use (&$paths, $builder) {
+            $paths[] = $path;
+
+            return $builder;
+        });
+
+        new CoordinatesType()->validateCompany($basket, $context);
+
+        return $paths;
     }
 
     // Anything to ship needs somewhere to ship it to

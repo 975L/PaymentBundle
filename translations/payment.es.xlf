@@ -274,6 +274,10 @@
                 <source>description.shop_email_bcc_missing</source>
                 <target>«Correo de la tienda (CCO)» está vacío: no se guarda ninguna copia de las confirmaciones de pedido ni de los enlaces de descarga. Indique una dirección para conservar su registro.</target>
             </trans-unit>
+            <trans-unit id="Fh4ZLEx">
+                <source>description.vat_number</source>
+                <target>Número de IVA intracomunitario, impreso en la factura (FR12345678901)</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Este código ya no se aplica a este pedido como antes: se ha actualizado el precio</target>
@@ -530,6 +534,10 @@
                 <source>label.block_title</source>
                 <target>Título (opcional)</target>
             </trans-unit>
+            <trans-unit id="Dvjcu4f">
+                <source>label.business_invoice</source>
+                <target>Factura a nombre de una empresa (opcional)</target>
+            </trans-unit>
             <trans-unit id="pVZ2WV6">
                 <source>label.category_shop</source>
                 <target>Tienda</target>
@@ -557,6 +565,10 @@
             <trans-unit id="QwIPz_y">
                 <source>label.code_promotional</source>
                 <target>Código</target>
+            </trans-unit>
+            <trans-unit id="bvur5RG">
+                <source>label.company</source>
+                <target>Razón social</target>
             </trans-unit>
             <trans-unit id="soKgtX1">
                 <source>label.confirm_order</source>
@@ -1622,6 +1634,10 @@
                 <source>label.vat</source>
                 <target>IVA</target>
             </trans-unit>
+            <trans-unit id="PBZG1Ru">
+                <source>label.vat_number</source>
+                <target>N.º de IVA</target>
+            </trans-unit>
             <trans-unit id="wjSED6i">
                 <source>label.vat_rate</source>
                 <target>IVA %rate% %</target>
@@ -1637,6 +1653,10 @@
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>Hecho: no volveremos a hablarle de este pedido. Todavía puede pagarlo desde el enlace que recibió antes.</target>
+            </trans-unit>
+            <trans-unit id="SSNnMcY">
+                <source>text.company_address_required</source>
+                <target>Una factura de empresa debe llevar la dirección completa de la empresa</target>
             </trans-unit>
             <trans-unit id="_vo3.81">
                 <source>text.counterparts_not_shipped</source>
@@ -1677,6 +1697,10 @@
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>
                 <target>Pedido registrado el </target>
+            </trans-unit>
+            <trans-unit id="F_L9_hM">
+                <source>text.vat_number_invalid</source>
+                <target>Este número de IVA no es válido: dos letras para el país y luego el número</target>
             </trans-unit>
         </body>
     </file>
