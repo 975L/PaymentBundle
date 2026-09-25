@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.9.10
+
+README links the bundle page and Rector uses attribute sets
+
+- The README opens on its bundle page, tutorials, block kinds and live demo with its back-office (25/09/2026)
+- Rector converts Symfony, Doctrine and Sensio annotations via `withAttributesSets()` (25/09/2026)
+
 ## v6.9.9
 
 Baskets and payments no longer count as unused features when empty

@@ -7,6 +7,8 @@ Symfony bundle providing the generic basket and checkout engine plus Stripe and 
 [![PHP Version](https://img.shields.io/packagist/php-v/c975l/payment-bundle)](https://packagist.org/packages/c975l/payment-bundle)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/44b3a42b6a63445a8d9da90769659b13)](https://app.codacy.com/gh/975L/PaymentBundle/dashboard)
 
+**[Bundle page](https://bundles.975l.com/en/pages/payment-bundle) · [Tutorials](https://bundles.975l.com/en/tutoriels/payment-bundle) · [Block kinds](https://bundles.975l.com/en/pages/blocks/Payment) · [Live demo](https://bundles.975l.com/demo/) · [Demo back-office](https://bundles.975l.com/demo/login)**
+
 ---
 
 ## Why PaymentBundle
