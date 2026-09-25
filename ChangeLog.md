@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.9.8
+
+CI sets up Python with actions/setup-python v6
+
+- Bumps `actions/setup-python` to `v6` in the CI workflow (25/09/2026)
+
 ## v6.9.7
 
 The return window says what an unfilled setting publishes
