@@ -33,6 +33,8 @@ class MenuProvider implements MenuProviderInterface
         return [
             'basket' => [
                 'controller' => BasketCrudController::class,
+                // Lists what happened rather than what an admin makes: empty, it is no feature left unused (see UnusedFeatureBuilder)
+                'creatable' => false,
                 'label' => 'label.baskets',
                 'narration' => 'narration.baskets',
                 'translation_domain' => 'payment',
@@ -41,6 +43,8 @@ class MenuProvider implements MenuProviderInterface
             ],
             'payment' => [
                 'controller' => PaymentCrudController::class,
+                // Lists what happened rather than what an admin makes: empty, it is no feature left unused (see UnusedFeatureBuilder)
+                'creatable' => false,
                 'label' => 'label.payments',
                 'narration' => 'narration.payments',
                 'translation_domain' => 'payment',

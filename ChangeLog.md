@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.9.9
+
+Baskets and payments no longer count as unused features when empty
+
+- Marks the `basket` and `payment` menu entries as not `creatable` (25/09/2026)
+
 ## v6.9.8
 
 CI sets up Python with actions/setup-python v6
