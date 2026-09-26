@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.11.1
+
+A quieter label above a price
+
+- Adds the `price-label` class, the word above the figure (26/09/2026)
+- Tuned through `--price-label-color` and `--price-label-size` (26/09/2026)
+
 ## v6.11.0
 
 One price style for every bundle selling something

@@ -58,7 +58,8 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   as soon as the basket holds something, carrying the count and the total, and kept up to date without a page reload
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed, and a `price` class (with its `price--standalone`
-  modifier, tuned through `--price-*` tokens) every bundle selling something draws its prices with
+  modifier and a `price-label` for the word above the figure, tuned through `--price-*` tokens) every bundle selling
+  something draws its prices with
 - **Delivery priced on a grid written in the back office**: a zone groups the countries posted at one tariff and
   carries its weight tiers, a parcel being charged at the first tier it fits in — the weight coming from the
   bundle that sells the article, through `WeighableBasketItemProviderInterface` (see

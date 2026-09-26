@@ -417,6 +417,12 @@ body.has-basket-navbar {
   margin: var(--price-standalone-margin, 0.25em 0);
 }
 
+.price-label {
+  display: block;
+  color: var(--price-label-color, color-mix(in srgb, var(--text) 58%, var(--background)));
+  font-size: var(--price-label-size, 0.68rem);
+}
+
 /* QUANTITY */
 .quantity-controls {
   display: flex;
