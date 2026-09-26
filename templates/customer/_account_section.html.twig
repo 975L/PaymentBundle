@@ -1,0 +1,33 @@
+{# The latest orders on the member's own page (see AccountSectionProvider), a page section as a block's, given its "title" and "anchor_id" by ConfigBundle's AccountController - the same rows as the order history, which the link leads to #}
+<section class="block-section customer-orders" id="{{ anchor_id }}">
+    <div class="section-wrap">
+        {{ include('@c975LUi/components/Section/_head.html.twig') }}
+        {% if baskets is empty %}
+            <p class="text">{{ 'text.no_order_yet'|trans({}, 'payment') }}</p>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ 'label.order_number'|trans({}, 'payment') }}</th>
+                            <th scope="col">{{ 'label.date'|trans({}, 'payment') }}</th>
+                            <th scope="col">{{ 'label.total'|trans({}, 'payment') }}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for basket in baskets %}
+                            <tr>
+                                <td>{{ basket.number }}</td>
+                                <td>{{ basket.creation|date('d/m/Y') }}</td>
+                                <td>{{ (basket.total / 100)|format_currency(basket.currency) }}</td>
+                                <td><a href="{{ localized_path('customer_order', {'number': basket.number}) }}">{{ 'label.view_order'|trans({}, 'payment') }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p><a href="{{ localized_path('customer_orders') }}" class="btn btn-primary">{{ 'label.all_orders'|trans({}, 'payment') }}</a></p>
+        {% endif %}
+    </div>
+</section>

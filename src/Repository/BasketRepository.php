@@ -133,15 +133,9 @@ class BasketRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    /**
-     * The orders of that user the customer area lists - paid or shipped only, newest first.
-     *
-     * Written out rather than left to a magic findBy*: a basket still "new" or "validated" is a checkout
-     * that never completed, and showing it as an order would have the buyer chase a purchase they never made.
-     *
-     * @return Basket[]
-     */
-    public function findPaidByUser(UserInterface $user): array
+    // The orders of that user the customer area lists, paid or shipped only (an unfinished checkout is no order), newest first, the latest few when a limit is given
+    /** @return Basket[] */
+    public function findPaidByUser(UserInterface $user, ?int $limit = null): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.user = :user')
@@ -149,6 +143,7 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('statuses', ['paid', 'shipped'])
             ->orderBy('b.creation', \SortDirection::Descending)
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

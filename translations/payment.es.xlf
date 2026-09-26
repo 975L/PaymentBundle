@@ -434,6 +434,10 @@
                 <source>label.address</source>
                 <target>Dirección</target>
             </trans-unit>
+            <trans-unit id="5Pwts.H">
+                <source>label.all_orders</source>
+                <target>Todos mis pedidos</target>
+            </trans-unit>
             <trans-unit id="tz_0QiL">
                 <source>label.amount</source>
                 <target>Cantidad</target>

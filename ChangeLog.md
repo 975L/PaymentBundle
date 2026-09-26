@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.12.0
+
+The latest orders on the member's own page
+
+- New `AccountSectionProvider`: the three latest orders on ConfigBundle's `/account`, with a link to `/account/orders` (26/09/2026)
+- `BasketRepository::findPaidByUser()` takes an optional limit (26/09/2026)
+- Requires `c975l/core-bundle` ^1.44 (26/09/2026)
+
 ## v6.11.1
 
 A quieter label above a price

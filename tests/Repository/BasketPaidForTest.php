@@ -103,7 +103,7 @@ class BasketPaidForTest extends TestCase
             ) {
             }
 
-            public function findPaidByUser(UserInterface $user): array
+            public function findPaidByUser(UserInterface $user, ?int $limit = null): array
             {
                 return $this->byUser;
             }
