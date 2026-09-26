@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Registry;
 
+use c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
 
@@ -49,6 +50,19 @@ class BasketItemProviderRegistry
         }
 
         return null;
+    }
+
+    // Whether one of these kinds is sold to an account only, the checkout then asking an anonymous visitor to sign in first (see AccountBasketItemProviderInterface)
+    /** @param iterable<string> $kinds */
+    public function requiresAccount(iterable $kinds): bool
+    {
+        foreach ($kinds as $kind) {
+            if (($this->providers[$kind] ?? null) instanceof AccountBasketItemProviderInterface) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return string[] */

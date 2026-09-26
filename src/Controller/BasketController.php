@@ -17,6 +17,7 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Registry\BasketDownloadRegistry;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
@@ -48,6 +49,7 @@ class BasketController extends AbstractController
         private readonly InvoiceService $invoiceService,
         private readonly LocalizedRouteNegotiator $negotiator,
         private readonly SiteLocales $siteLocales,
+        private readonly BasketItemProviderRegistry $itemProviderRegistry,
     ) {
     }
 
@@ -140,6 +142,13 @@ class BasketController extends AbstractController
 
         if (null === $basket) {
             return $this->backToBasket($request);
+        }
+
+        // Signing in asked here and not before: the basket is filled freely, and the visitor comes back to this very page once signed in, the basket following them (see BasketRecoverySubscriber)
+        if ($this->itemProviderRegistry->requiresAccount(array_keys($basket->getItems())) && null === $this->getUser()) {
+            $this->addFlash('info', $this->translator->trans('flash.sign_in_to_order', [], 'payment'));
+
+            return $this->redirectToRoute('app_login', ['_target_path' => $request->getRequestUri()], Response::HTTP_SEE_OTHER);
         }
 
         // Defines form

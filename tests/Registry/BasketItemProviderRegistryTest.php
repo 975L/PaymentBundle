@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Tests\Registry;
 
+use c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
@@ -83,6 +84,19 @@ class BasketItemProviderRegistryTest extends TestCase
         $this->assertSame('/shop#products', $registry->getCatalogueUrl());
     }
 
+    // A basket holding one line sold to an account asks for a sign-in, whatever else it holds - and a kind nobody claims any more asks for nothing
+    public function testAnAccountIsRequiredAsSoonAsOneKindAsksForIt(): void
+    {
+        $credits = $this->createStub(AccountProviderDouble::class);
+        $credits->method('getKind')->willReturn('purchasecredits');
+
+        $registry = new BasketItemProviderRegistry([$this->provider('product'), $credits]);
+
+        $this->assertTrue($registry->requiresAccount(['product', 'purchasecredits']));
+        $this->assertFalse($registry->requiresAccount(['product', 'gone']));
+        $this->assertFalse($registry->requiresAccount([]));
+    }
+
     private function catalogueProvider(string $kind, ?string $url): BasketItemProviderInterface
     {
         $provider = $this->createStub(CatalogueProviderDouble::class);
@@ -103,5 +117,10 @@ class BasketItemProviderRegistryTest extends TestCase
 
 // A provider selling out of a listing, both contracts held at once as ShopBundle's own does
 interface CatalogueProviderDouble extends BasketItemProviderInterface, CatalogueBasketItemProviderInterface
+{
+}
+
+// A provider whose lines land on an account, both contracts held at once as PurchaseCreditsBundle's own does
+interface AccountProviderDouble extends BasketItemProviderInterface, AccountBasketItemProviderInterface
 {
 }

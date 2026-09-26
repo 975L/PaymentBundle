@@ -354,6 +354,10 @@
                 <source>flash.payment_unavailable</source>
                 <target>Payment is unavailable at the moment, your basket is kept. Please try again later or contact us.</target>
             </trans-unit>
+            <trans-unit id="PDyehaa">
+                <source>flash.sign_in_to_order</source>
+                <target>Sign in or create your account to complete your order, your basket is kept.</target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Created while the shop was in test mode: usable in test mode only, never on a real order</target>

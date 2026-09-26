@@ -354,6 +354,10 @@
                 <source>flash.payment_unavailable</source>
                 <target>Le paiement est momentanément indisponible, votre panier est conservé. Merci de réessayer plus tard ou de nous contacter.</target>
             </trans-unit>
+            <trans-unit id="PDyehaa">
+                <source>flash.sign_in_to_order</source>
+                <target>Connectez-vous ou créez votre compte pour finaliser votre commande, votre panier est conservé.</target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Créé pendant que la boutique était en mode test : utilisable en mode test seulement, et jamais sur une vraie commande</target>

@@ -18,6 +18,7 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Registry\BasketDownloadRegistry;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
@@ -34,6 +35,9 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\InMemoryUser;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -123,6 +127,29 @@ class BasketControllerTest extends TestCase
 
         $this->assertSame('/shop/basket/display', $response->getTargetUrl());
         $this->assertSame(['Only 2 left of "Mug"'], $this->session->getFlashBag()->get('danger'));
+    }
+
+    // A basket holding what lands on an account sends an anonymous visitor to sign in, and back to this very page afterwards, rather than letting them type coordinates the checkout would then refuse
+    public function testAnAnonymousVisitorIsAskedToSignInBeforeTheCoordinates(): void
+    {
+        $request = new Request(server: ['REQUEST_URI' => '/shop/basket/validate']);
+
+        $response = $this->controller($this->basketService(), accountRequired: true)->validate($request);
+
+        $this->assertSame('/app_login?_target_path=/shop/basket/validate', $response->getTargetUrl());
+        $this->assertSame(Response::HTTP_SEE_OTHER, $response->getStatusCode());
+        $this->assertSame(['flash.sign_in_to_order'], $this->session->getFlashBag()->get('info'));
+    }
+
+    // Once signed in, the same basket goes through to the payment as any other
+    public function testASignedInVisitorGoesThroughToThePayment(): void
+    {
+        $basketService = $this->basketService();
+        $basketService->method('validate')->willReturn('https://checkout.example/session-1');
+
+        $response = $this->controller($basketService, accountRequired: true, signedIn: true)->validate(new Request());
+
+        $this->assertSame('https://checkout.example/session-1', $response->getTargetUrl());
     }
 
     // The buyer lands here with their files, so a download email that never arrived leaves nobody without what they paid for
@@ -348,8 +375,11 @@ class BasketControllerTest extends TestCase
         return new LocalizedRouteNegotiator(self::createSiteLocales(), new LocaleSwitcher('fr', []), $router);
     }
 
-    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null): BasketController
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false): BasketController
     {
+        $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
+        $itemProviderRegistry->method('requiresAccount')->willReturn($accountRequired);
+
         // The translator answers the key itself, so a flash is asserted on the key rather than on a wording
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
@@ -363,21 +393,23 @@ class BasketControllerTest extends TestCase
             $this->createStub(InvoiceService::class),
             $this->createNegotiator(),
             self::createSiteLocales(),
+            $itemProviderRegistry,
         );
 
-        $controller->setContainer($this->container($twig));
+        $controller->setContainer($this->container($twig, $signedIn));
 
         return $controller;
     }
 
     // What AbstractController reaches for on these paths: the router for redirectToRoute(), the request stack for addFlash(), and twig for render()
-    private function container(?Environment $twig = null): ContainerInterface
+    private function container(?Environment $twig = null, bool $signedIn = false): ContainerInterface
     {
         $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $name, array $parameters = []): string => match ($name) {
                 'basket_display' => '/shop/basket/display',
                 'basket_display_localized' => sprintf('/%s/shop/basket/display', $parameters['_locale']),
+                'app_login' => '/app_login?_target_path=' . $parameters['_target_path'],
                 default => '/' . $name,
             }
         );
@@ -386,7 +418,13 @@ class BasketControllerTest extends TestCase
         $request->setSession($this->session);
         $requestStack = new RequestStack([$request]);
 
-        $services = ['router' => $router, 'request_stack' => $requestStack, 'twig' => $twig];
+        // The token storage getUser() reads, holding somebody only when the test says the visitor signed in
+        $tokenStorage = new TokenStorage();
+        if ($signedIn) {
+            $tokenStorage->setToken(new UsernamePasswordToken(new InMemoryUser('buyer@example.com', null), 'main'));
+        }
+
+        $services = ['router' => $router, 'request_stack' => $requestStack, 'twig' => $twig, 'security.token_storage' => $tokenStorage];
 
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => isset($services[$id]));

@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-26",
+        "description": [
+            {
+                "en": "When a basket holds something tied to a customer account, such as credits, your customers are asked to sign in at the checkout and find their basket intact once signed in.",
+                "fr": "Quand un panier contient un article lié à un compte client, comme des crédits, vos clients sont invités à se connecter au moment de commander et retrouvent leur panier intact une fois connectés.",
+                "es": "Cuando una cesta contiene un artículo vinculado a una cuenta de cliente, como créditos, se pide a sus clientes que inicien sesión al finalizar el pedido y encuentran su cesta intacta una vez conectados."
+            }
+        ]
+    },
+    {
         "date": "2026-09-25",
         "description": [
             {

@@ -40,6 +40,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   hooks), auto-collected via ConfigBundle's `TaggedInterfacePass` (no compiler pass to write in the satellite)
 - Optional `BasketRecommendationProviderInterface` for cross-sell recommendations on the basket page, the provider naming the template that draws them
 - Optional `CatalogueBasketItemProviderInterface` for the listing the "continue shopping" button goes back to — this bundle names no shop route of its own
+- Optional `AccountBasketItemProviderInterface` marker for items landing on an account (credits, a subscription): an anonymous visitor is sent to `app_login` at the checkout, and back to it once signed in
 - Customer area: a logged-in buyer reads their own order history at `/account/orders`, each order showing its
   tracking, its lines and — through the optional `BasketDownloadProviderInterface` — the files they bought,
   the very links their email carries and for exactly as long, each shown with the date it stops working
@@ -794,6 +795,13 @@ to know the parameters and the fragment its own listing takes. Null when the cat
 The first provider answering an address wins, and where nothing installed sells out of a catalogue — a site taking
 payment links alone — the button is simply not drawn. Kept apart from `BasketItemProviderInterface` for the same
 reason as the weight above: a provider selling a one-off payment link has no listing to return to.
+
+### Selling to an account only
+
+A provider whose lines land on an account rather than at an address — credits, a subscription — also implements
+the marker `c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface`. The basket is still filled freely;
+at the checkout, an anonymous visitor holding such a line is redirected to the site's `app_login` route, then back
+to the checkout once signed in. `validateCheckout()` remains the provider's own guard.
 
 ### Recommending something beside the basket
 

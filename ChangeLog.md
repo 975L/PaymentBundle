@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.10.1
+
+The checkout asks a visitor to sign in for items sold to an account
+
+- Adds `AccountBasketItemProviderInterface` marking items sold to an account only (26/09/2026)
+- Adds `BasketItemProviderRegistry::requiresAccount()` (26/09/2026)
+- The checkout redirects an anonymous visitor to `app_login` when the basket holds such an item (26/09/2026)
+
 ## v6.10.0
 
 A basket can be invoiced to a business

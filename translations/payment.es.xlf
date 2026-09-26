@@ -354,6 +354,10 @@
                 <source>flash.payment_unavailable</source>
                 <target>El pago no está disponible por el momento, su cesta se conserva. Vuelva a intentarlo más tarde o póngase en contacto con nosotros.</target>
             </trans-unit>
+            <trans-unit id="PDyehaa">
+                <source>flash.sign_in_to_order</source>
+                <target>Inicie sesión o cree su cuenta para finalizar su pedido, su cesta se conserva.</target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Creado mientras la tienda estaba en modo prueba: utilizable solo en modo prueba, nunca en un pedido real</target>
