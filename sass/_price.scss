@@ -1,0 +1,15 @@
+/* PRICE */
+
+// The figure of a price, shared by every bundle selling something so it reads the same on every page: the title font and weight, every value overridable
+.price {
+    font-family: var(--price-font-family, var(--font-family-title));
+    font-weight: var(--price-font-weight, var(--font-title-weight));
+    font-size: var(--price-size, 1.15rem);
+}
+
+// A price standing on its own under what it prices - a pack, a plan - rather than in a row beside other figures
+.price--standalone {
+    display: block;
+    text-align: center;
+    margin: var(--price-standalone-margin, 0.25em 0);
+}

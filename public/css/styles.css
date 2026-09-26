@@ -404,6 +404,19 @@ body.has-basket-navbar {
   background: var(--gift-card-plain-background);
 }
 
+/* PRICE */
+.price {
+  font-family: var(--price-font-family, var(--font-family-title));
+  font-weight: var(--price-font-weight, var(--font-title-weight));
+  font-size: var(--price-size, 1.15rem);
+}
+
+.price--standalone {
+  display: block;
+  text-align: center;
+  margin: var(--price-standalone-margin, 0.25em 0);
+}
+
 /* QUANTITY */
 .quantity-controls {
   display: flex;

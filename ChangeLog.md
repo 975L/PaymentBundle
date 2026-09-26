@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.11.0
+
+One price style for every bundle selling something
+
+- Adds the shared `price` class (26/09/2026)
+- Adds its `price--standalone` modifier (26/09/2026)
+- Both are overridable through `--price-*` tokens (26/09/2026)
+
 ## v6.10.1
 
 The checkout asks a visitor to sign in for items sold to an account

@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize, price class, price--standalone, --price-size."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -10,7 +10,7 @@ description: "Use this skill when plugging a new kind of sellable item into the 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`, `src/Contract/CatalogueBasketItemProviderInterface.php`, `src/Contract/AccountBasketItemProviderInterface.php`, `src/Twig/CatalogueExtension.php`
+`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`, `src/Contract/CatalogueBasketItemProviderInterface.php`, `src/Contract/AccountBasketItemProviderInterface.php`, `src/Twig/CatalogueExtension.php`, `sass/_price.scss`
 
 **Related skills:** `c975l-payment-checkout` and `c975l-payment-gateway` in this same bundle.
 
@@ -101,6 +101,10 @@ Answer `null` when the catalogue is not reachable for now — nothing on sale, t
 
 A provider whose lines land on an account rather than at an address — credits, a subscription — also implements `Contract\AccountBasketItemProviderInterface`, **a marker with no method**. The visitor fills the basket freely; at the checkout, `BasketItemProviderRegistry::requiresAccount()` answers true as soon as one line's kind carries the marker, and an anonymous visitor is redirected to the site's **`app_login`** route with `_target_path` set back to the checkout. The marker only asks for the sign-in: `validateCheckout()` stays your own guard.
 
+## Drawing a price
+
+A bundle showing a price of its own — a product sheet, a pack of credits — wraps the figure in the **`price`** class this bundle's stylesheet ships, adding **`price--standalone`** when the price stands alone under what it prices rather than in a row. Both are tuned through `--price-font-family`, `--price-font-weight`, `--price-size` and `--price-standalone-margin`, so a site restyles every bundle's prices at once.
+
 ## The two optional registries
 
 - **`BasketRecommendationProviderInterface`** — the cross-sell strip under the basket. `getRecommendations(Basket $basket, int $limit)` answers **your own entities**, and `getTemplate(): string` names the template drawing them, included with those entries as a `recommendations` variable **and nothing else** — no page context, so a `title` of your own is yours to set. The markup belongs to whichever bundle recommends; this one only says where the strip goes on the page. **Only one provider is asked**: the first registered wins for both, the others are never called. With none installed the strip is left out.
@@ -133,5 +137,6 @@ A page gating a whole gallery asks once per media, so keep the answer for the re
 - **Do not force a sign-in before the basket for account-only items** — implement `AccountBasketItemProviderInterface`, the checkout asks for it once.
 - **Do not add `getWeight()` to `BasketItemProviderInterface`** — it is optional, and a provider selling nothing that ships must stay valid without it.
 - **Do not answer `0` from `getWeight()` for an article you have not weighed** — `null` is the answer, and it is added up as nothing.
+- **Do not style a price in your own stylesheet** — use the `price` class and override its `--price-*` tokens.
 - **Do not make this bundle aware of your entity.** It hands you a basket and renders what comes back.
 - **Do not expect `onBasketPaid()` more than once** — nor fewer than once.
