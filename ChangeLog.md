@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.13.0
+
+An account deleted takes its never-validated baskets with it
+
+- New `AccountDeletionSubscriber`: an anonymized account's never-validated baskets are deleted at once (27/09/2026)
+- New `BasketRetentionService::deleteUnpaidOf()` and `BasketRepository::findOpenByUser()` (27/09/2026)
+- New `Management\AccountDataProvider`: the account's baskets in ConfigBundle's data export (27/09/2026)
+- The account section's empty message aligned with the section, off the centered reading measure (27/09/2026)
+- Requires `c975l/core-bundle` ^1.45 (27/09/2026)
+
 ## v6.12.0
 
 The latest orders on the member's own page

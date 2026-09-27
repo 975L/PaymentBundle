@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Service;
 
+use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,21 +73,15 @@ class BasketRetentionService
     public function deleteAbandoned(): int
     {
         $baskets = $this->basketRepository->findAbandoned(self::ABANDONED_DAYS);
-
-        foreach ($baskets as $basket) {
-            $payment = $basket->getPayment();
-            $this->logger->warning('Abandoned order removed', [
-                'number' => $basket->getNumber(),
-                'total' => $basket->getTotal(),
-                'payable' => $basket->getPayable(),
-                'currency' => $basket->getCurrency(),
-                'gateway' => $payment?->getGateway(),
-                'gatewayReference' => $payment?->getGatewayReference(),
-                'transactionId' => $payment?->getTransactionId(),
-            ]);
-        }
+        array_walk($baskets, $this->logAbandoned(...));
 
         return $this->delete($baskets);
+    }
+
+    // The baskets of an account being deleted that were never validated, right away: nothing obliges keeping them, and their owner asked for their data to go. A validated one stays for the thirty days of deleteAbandoned(), which logs it: a payment may still be on its way
+    public function deleteUnpaidOf(UserInterface $user): int
+    {
+        return $this->delete($this->basketRepository->findOpenByUser($user));
     }
 
     // Orders whose ten years are up
@@ -118,6 +113,21 @@ class BasketRetentionService
         $this->entityManager->flush();
 
         return $count;
+    }
+
+    // The figures of an order about to go, and no personal data at all
+    private function logAbandoned(Basket $basket): void
+    {
+        $payment = $basket->getPayment();
+        $this->logger->warning('Abandoned order removed', [
+            'number' => $basket->getNumber(),
+            'total' => $basket->getTotal(),
+            'payable' => $basket->getPayable(),
+            'currency' => $basket->getCurrency(),
+            'gateway' => $payment?->getGateway(),
+            'gatewayReference' => $payment?->getGatewayReference(),
+            'transactionId' => $payment?->getTransactionId(),
+        ]);
     }
 
     /**

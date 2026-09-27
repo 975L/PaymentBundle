@@ -45,6 +45,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   tracking, its lines and — through the optional `BasketDownloadProviderInterface` — the files they bought,
   the very links their email carries and for exactly as long, each shown with the date it stops working
 - The buyer's three latest orders on their account page (ConfigBundle's `/account`, through `AccountSectionProviderInterface`), with a link to the whole history
+- Every basket of the account in the member's data export (ConfigBundle's `/account/export`, through `AccountDataProviderInterface`)
 - `BasketRepository::hasPaidFor()`, the one question a paywall asks: has this buyer paid for this item, in whatever
   order and however long ago - so a bundle showing a paid photo, video or chapter gates it on the orders themselves
   rather than keeping a right of its own beside them
@@ -540,6 +541,10 @@ archived orders in the customer area, the restriction being on the shop's staff 
 
 Deleting a basket deletes the payment attached to it: the relation is a `OneToOne` without cascade, and a
 payment whose basket has gone is a row nothing points to any more.
+
+An account deleted or anonymized (ConfigBundle's `UserAnonymizedEvent`) takes its never-validated baskets with
+it at once, through `EventSubscriber\AccountDeletionSubscriber`. A validated one waits for its thirty days, a
+payment possibly still on its way, and its paid orders stay, nominative, for the ten years: an invoice names its buyer.
 
 ---
 

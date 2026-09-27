@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Tests\Service;
 
+use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Repository\BasketRepository;
@@ -106,6 +107,19 @@ class BasketRetentionServiceTest extends TestCase
         $this->assertSame(['unvalidated' => 1, 'abandoned' => 2, 'archived' => 1, 'expired' => 0], $counts);
     }
 
+    // A deleted account takes its open baskets at once and logs nothing: a validated one is left to the nightly pass, a payment possibly still on its way
+    public function testADeletedAccountTakesItsOpenBasketsAtOnce(): void
+    {
+        $open = new Basket()->setStatus('new');
+
+        $records = [];
+        $count = $this->service(['findOpenByUser' => [$open]], $records)->deleteUnpaidOf($this->createStub(UserInterface::class));
+
+        $this->assertSame(1, $count);
+        $this->assertSame([$open], $this->removed);
+        $this->assertSame([], $records);
+    }
+
     /**
      * @param array<string, Basket[]>                                        $found   what each query hands back
      * @param list<array{level: string, context: array<string, mixed>}>|null $records collected when passed, the service getting a NullLogger otherwise
@@ -113,7 +127,7 @@ class BasketRetentionServiceTest extends TestCase
     private function service(array $found, ?array &$records = null): BasketRetentionService
     {
         $repository = $this->createStub(BasketRepository::class);
-        foreach (['findUnvalidated', 'findAbandoned', 'findToArchive', 'findExpired'] as $method) {
+        foreach (['findUnvalidated', 'findAbandoned', 'findToArchive', 'findExpired', 'findOpenByUser'] as $method) {
             $repository->method($method)->willReturn($found[$method] ?? []);
         }
 

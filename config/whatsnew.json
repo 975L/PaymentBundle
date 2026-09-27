@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-09-27",
+        "description": [
+            {
+                "en": "When a member deletes their account, their never-validated baskets go with it; a validated one waits thirty days, a payment possibly still on its way, and their paid orders stay for as long as the law requires.",
+                "fr": "Quand un membre supprime son compte, ses paniers jamais validés disparaissent avec lui ; un panier validé attend ses trente jours, un paiement pouvant être encore en route, et ses commandes payées restent le temps que la loi impose.",
+                "es": "Cuando un miembro elimina su cuenta, sus cestas nunca validadas desaparecen con ella; una cesta validada espera sus treinta días, ya que un pago puede estar aún en camino, y sus pedidos pagados se conservan durante el tiempo que exige la ley."
+            }
+        ]
+    },
+    {
         "date": "2026-09-26",
         "description": [
             {

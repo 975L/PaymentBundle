@@ -3,7 +3,7 @@
     <div class="section-wrap">
         {{ include('@c975LUi/components/Section/_head.html.twig') }}
         {% if baskets is empty %}
-            <p class="text">{{ 'text.no_order_yet'|trans({}, 'payment') }}</p>
+            <p>{{ 'text.no_order_yet'|trans({}, 'payment') }}</p>
         {% else %}
             <div class="table-responsive">
                 <table class="table">

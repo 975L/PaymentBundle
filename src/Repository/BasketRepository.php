@@ -118,6 +118,19 @@ class BasketRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    // Every basket of that user never validated, which the deletion of their account takes away at once (see BasketRetentionService::deleteUnpaidOf)
+    /** @return Basket[] */
+    public function findOpenByUser(UserInterface $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.user = :user')
+            ->andWhere('b.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', 'new')
+            ->getQuery()
+            ->getResult();
+    }
+
     // The last order that user paid for on behalf of a business, whose invoice details prefill the next basket
     public function findLastBusinessByUser(UserInterface $user): ?Basket
     {
