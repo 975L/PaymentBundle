@@ -23,6 +23,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CoordinatesType extends AbstractType
@@ -168,6 +169,7 @@ class CoordinatesType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'mapped' => false,
+                'constraints' => [new IsTrue()],
             ])
             // Terms of sales
             ->add('cgv', CheckboxType::class, [
@@ -175,8 +177,19 @@ class CoordinatesType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'mapped' => false,
+                'constraints' => [new IsTrue()],
             ])
         ;
+
+        // The waiver of the right of withdrawal, where the basket holds something supplied at once (see Basket::asksWithdrawalWaiver()). Checked on the server too: the HTML attribute alone lets a replayed POST through
+        if ($options['data']->asksWithdrawalWaiver()) {
+            $builder->add('withdrawalWaiver', CheckboxType::class, [
+                'label' => 'label.withdrawal_waiver',
+                'required' => true,
+                'mapped' => false,
+                'constraints' => [new IsTrue()],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

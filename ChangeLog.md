@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.14.0
+
+The checkout asks to waive the right of withdrawal, dated on the order
+
+- The checkout asks to waive the right of withdrawal when the basket holds digital content or a service (28/09/2026)
+- A crowdfunding counterpart, supplied after the campaign, asks for no waiver (28/09/2026)
+- The terms and the waiver boxes are checked on the server, not only by the browser (28/09/2026)
+- `payment_basket` gains a `withdrawal_waived` column, dated when the waiver is ticked (28/09/2026) [Needs db update] see [UPGRADE.md](UPGRADE.md)
+- New `withdrawal_waived` e-mail slot confirming the waiver in `confirm_order` (28/09/2026)
+- A shared order asks its payer for the waiver, on the payer's page (28/09/2026)
+- New `templates/legal/privacy-policy.{fr,en,es}.html.twig`: Stripe in the "third-parties" section of UiBundle's privacy policy (28/09/2026)
+
 ## v6.13.0
 
 An account deleted takes its never-validated baskets with it

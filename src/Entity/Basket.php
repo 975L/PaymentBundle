@@ -153,6 +153,10 @@ class Basket implements \Stringable
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $downloaded = null;
 
+    // When the payer ticked the waiver of their right of withdrawal: the proof the seller keeps of an express waiver, null where none was asked
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $withdrawalWaived = null;
+
     // When the order left the back-office active list: it is still kept for the ten years the accounting obligation asks for, but it has stopped being current business once the legal warranty has run out, and setting it apart is what the CNIL asks for rather than leaving it among the orders being handled
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $archived = null;
@@ -476,6 +480,12 @@ class Basket implements \Stringable
         return $this;
     }
 
+    // Digital content or a service supplied at once is asked for before the 14-day withdrawal period ends, and that right is only waived when ticked expressly before paying (EU directive 2011/83, art. 16 - L221-28 in France). Not a crowdfunding counterpart, supplied after the campaign
+    public function asksWithdrawalWaiver(): bool
+    {
+        return 0 !== ($this->contentflags & (self::CONTENT_FLAG_DIGITAL | self::CONTENT_FLAG_SERVICE));
+    }
+
     public function getCreation(): ?\DateTimeInterface
     {
         return $this->creation;
@@ -532,6 +542,18 @@ class Basket implements \Stringable
     public function setDownloaded(?\DateTimeInterface $downloaded): static
     {
         $this->downloaded = $downloaded;
+
+        return $this;
+    }
+
+    public function getWithdrawalWaived(): ?\DateTimeInterface
+    {
+        return $this->withdrawalWaived;
+    }
+
+    public function setWithdrawalWaived(?\DateTimeInterface $withdrawalWaived): static
+    {
+        $this->withdrawalWaived = $withdrawalWaived;
 
         return $this;
     }

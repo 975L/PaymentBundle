@@ -16,6 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 
@@ -155,6 +156,23 @@ class CoordinatesTypeTest extends TestCase
             $this->assertSame(CheckboxType::class, $added[$box]['type']);
             $this->assertTrue($added[$box]['options']['required']);
             $this->assertFalse($added[$box]['options']['mapped']);
+            $this->assertInstanceOf(IsTrue::class, $added[$box]['options']['constraints'][0], $box);
+        }
+    }
+
+    // Digital content or a service supplied at once asks the buyer to waive their right of withdrawal, ticked expressly and checked on the server - an order only shipped, or a crowdfunding counterpart supplied after the campaign, asks nothing of the kind
+    public function testAnOrderSuppliedAtOnceAsksToWaiveTheWithdrawal(): void
+    {
+        foreach ([Basket::CONTENT_FLAG_SERVICE, Basket::CONTENT_FLAG_DIGITAL, Basket::CONTENT_FLAG_DIGITAL | Basket::CONTENT_FLAG_PHYSICAL] as $flags) {
+            $added = $this->build($flags);
+            $this->assertSame(CheckboxType::class, $added['withdrawalWaiver']['type'], (string) $flags);
+            $this->assertTrue($added['withdrawalWaiver']['options']['required']);
+            $this->assertFalse($added['withdrawalWaiver']['options']['mapped']);
+            $this->assertInstanceOf(IsTrue::class, $added['withdrawalWaiver']['options']['constraints'][0]);
+        }
+
+        foreach ([Basket::CONTENT_FLAG_PHYSICAL, Basket::CONTENT_FLAG_CF_DIGITAL, Basket::CONTENT_FLAG_CF_DIGITAL | Basket::CONTENT_FLAG_CF_SHIPPING] as $flags) {
+            $this->assertArrayNotHasKey('withdrawalWaiver', $this->build($flags), (string) $flags);
         }
     }
 }

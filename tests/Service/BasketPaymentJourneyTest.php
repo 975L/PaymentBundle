@@ -53,6 +53,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class BasketPaymentJourneyTest extends TestCase
 {
+    // What the items of these baskets are, as their provider says: posted by default, so the delivery is priced rather than skipped outright
+    private int $providerFlags = Basket::CONTENT_FLAG_PHYSICAL;
+
     private ?Envelope $dispatched = null;
 
     /** @var list<string> */
@@ -421,6 +424,25 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertTrue($rehearsed->isTestMode());
     }
 
+    // The waiver the checkout made the customer tick is dated on their order as the proof of it; an order they share is waived by whoever pays it, and dated then
+    public function testTheWithdrawalWaiverIsDatedOnWhoeverPays(): void
+    {
+        $this->providerFlags = Basket::CONTENT_FLAG_DIGITAL | Basket::CONTENT_FLAG_PHYSICAL;
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setStatus('new');
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
+        $this->assertNotNull($basket->getWithdrawalWaived());
+
+        $shared = $this->basket(2500, $this->payment(2500, finished: false));
+        $shared->setStatus('new');
+        $this->service($shared, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request(), true);
+        $this->assertNull($shared->getWithdrawalWaived());
+
+        $shared->setStatus('validated')->setShareToken('1111222233334444');
+        $this->service($shared, $this->returnAwareGateway(null))->payShared($shared);
+        $this->assertNotNull($shared->getWithdrawalWaived());
+    }
+
     // An order covered in full by a code or a gift card is delivered exactly like a paid one: the free path used to return before this loop, and every provider was handed an empty array when the order was delivered
     public function testWhatAProviderHandsOverIsKeptOnAnOrderWithNothingLeftToPay(): void
     {
@@ -694,8 +716,7 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $provider = $this->createStub(\c975L\PaymentBundle\Contract\BasketItemProviderInterface::class);
         $provider->method('onBasketValidated')->willReturn(['contributor' => 'Camille']);
-        // Something posted, so the delivery of these baskets is priced rather than skipped outright
-        $provider->method('getContentFlags')->willReturn(Basket::CONTENT_FLAG_PHYSICAL);
+        $provider->method('getContentFlags')->willReturnCallback(fn (): int => $this->providerFlags);
         $provider->method('onBasketPaid')->willReturnCallback(function (Basket $basket, array $items, array $checkoutData): void {
             $this->delivered[] = 'product';
             $this->handedBack = $checkoutData;

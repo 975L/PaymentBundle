@@ -462,8 +462,8 @@ There is therefore exactly one place a sentence lives. Change the default wordin
 that has not overridden it follows; change it in the back-office and that site alone does, for good.
 
 What an admin edits is the sentences. What the code fills in are the slots: `order_link`, `items`, `counterparts`,
-`customer_message`, `gift_cards`, `gift_cards_shared`, `gift_card_message`, `digital_items`, `download_links`,
-`delivery` and `account_invitation`, each rendered by a template of
+`customer_message`, `gift_cards`, `gift_cards_shared`, `gift_card_message`, `digital_items`, `withdrawal_waived`,
+`download_links`, `delivery` and `account_invitation`, each rendered by a template of
 `templates/emails/slots/` and each coming out empty when it has nothing to show - so an order carrying no gift card
 prints no blank row. Move them around and put text between them: the composition is the admin's. Taking one out is
 the one thing that is refused - an order confirmation without the order's lines confirms nothing - so a slot's kind
@@ -602,6 +602,15 @@ not refuse without giving up their order was never a consent. `Form\CoordinatesT
 terms-of-sales boxes alone, and the validation page prints the information line instead —
 `text.gdpr_information` from UiBundle's own `ui` catalog, linking to the page `url-privacy-policy` names, and
 skipped entirely while that setting is empty.
+
+**Digital content or a service asks for the waiver of the right of withdrawal** (`Basket::asksWithdrawalWaiver()`),
+a third box the buyer has to tick: the right is only waived when ticked expressly before paying. A crowdfunding
+counterpart, supplied after the campaign, asks for none. The three boxes are checked on the server, not only by the
+browser. The moment it is ticked is dated on the order (`withdrawalWaived`) and confirmed in the order e-mail by the
+`withdrawal_waived` slot. An order shared is waived by whoever pays it, on the payer's page.
+
+The privacy policy of UiBundle's `france/privacy-policy` model names Stripe in its "third-parties" section, from
+`templates/legal/privacy-policy.{fr,en,es}.html.twig`.
 
 ---
 

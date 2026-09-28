@@ -358,6 +358,10 @@
                 <source>flash.sign_in_to_order</source>
                 <target>Inicie sesión o cree su cuenta para finalizar su pedido, su cesta se conserva.</target>
             </trans-unit>
+            <trans-unit id="HeErg7y">
+                <source>flash.withdrawal_waiver_required</source>
+                <target><![CDATA[Marque la renuncia al derecho de desistimiento para pagar este pedido.]]></target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Creado mientras la tienda estaba en modo prueba: utilizable solo en modo prueba, nunca en un pedido real</target>
@@ -1654,6 +1658,10 @@
                 <source>label.view_order</source>
                 <target>Ver</target>
             </trans-unit>
+            <trans-unit id="qiwMN2y">
+                <source>label.withdrawal_waiver</source>
+                <target><![CDATA[Solicito la ejecución inmediata de mi pedido (contenido digital o servicio) y renuncio a mi derecho de desistimiento para lo que se me suministre antes de que termine el plazo de 14 días.]]></target>
+            </trans-unit>
             <trans-unit id="8Inlz5r">
                 <source>label.zip</source>
                 <target>Código postal</target>
@@ -1709,6 +1717,10 @@
             <trans-unit id="F_L9_hM">
                 <source>text.vat_number_invalid</source>
                 <target>Este número de IVA no es válido: dos letras para el país y luego el número</target>
+            </trans-unit>
+            <trans-unit id="HAZ.iPX">
+                <source>text.withdrawal_waived</source>
+                <target><![CDATA[Solicitó la ejecución inmediata de su pedido (contenido digital o servicio) y renunció a su derecho de desistimiento para lo que se le suministre antes de que termine el plazo de 14 días, el %date%.]]></target>
             </trans-unit>
         </body>
     </file>

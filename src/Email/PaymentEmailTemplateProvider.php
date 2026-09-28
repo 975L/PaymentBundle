@@ -67,6 +67,7 @@ class PaymentEmailTemplateProvider implements EmailTemplateProviderInterface
                 $this->slot('customer_message'),
                 $this->slot('gift_cards'),
                 $this->slot('digital_items'),
+                $this->slot('withdrawal_waived'),
                 $this->slot('delivery'),
                 $this->slot('account_invitation'),
             ],

@@ -288,7 +288,13 @@ class BasketController extends AbstractController
         // Already settled, or taken back to a basket by its customer: the page says so and offers nothing to pay, rather than opening a second checkout
         $payable = 'validated' === $basket->getStatus() && $basket->getPayable() > 0;
 
-        if ($request->isMethod('POST') && $payable) {
+        // The waiver the checkout asked of whoever shared the order is asked again here, of the one who pays and so contracts; a POST without it charges nothing
+        $waiverMissing = $request->isMethod('POST') && $basket->asksWithdrawalWaiver() && !$request->request->getBoolean('withdrawalWaiver');
+        if ($waiverMissing) {
+            $this->addFlash('danger', $this->translator->trans('flash.withdrawal_waiver_required', [], 'payment'));
+        }
+
+        if ($request->isMethod('POST') && $payable && !$waiverMissing) {
             try {
                 return $this->redirect($this->basketService->payShared($basket), Response::HTTP_SEE_OTHER);
             } catch (PaymentUnavailableException) {

@@ -358,6 +358,10 @@
                 <source>flash.sign_in_to_order</source>
                 <target>Sign in or create your account to complete your order, your basket is kept.</target>
             </trans-unit>
+            <trans-unit id="HeErg7y">
+                <source>flash.withdrawal_waiver_required</source>
+                <target><![CDATA[Tick the waiver of the right of withdrawal to pay for this order.]]></target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Created while the shop was in test mode: usable in test mode only, never on a real order</target>
@@ -1654,6 +1658,10 @@
                 <source>label.view_order</source>
                 <target>View</target>
             </trans-unit>
+            <trans-unit id="qiwMN2y">
+                <source>label.withdrawal_waiver</source>
+                <target><![CDATA[I ask for my order (digital content or service) to be supplied immediately and I waive my right of withdrawal for what is supplied before the 14-day period ends.]]></target>
+            </trans-unit>
             <trans-unit id="8Inlz5r">
                 <source>label.zip</source>
                 <target>Zip code</target>
@@ -1709,6 +1717,10 @@
             <trans-unit id="F_L9_hM">
                 <source>text.vat_number_invalid</source>
                 <target>This VAT number is not valid: two letters for the country, then the number</target>
+            </trans-unit>
+            <trans-unit id="HAZ.iPX">
+                <source>text.withdrawal_waived</source>
+                <target><![CDATA[You asked for your order (digital content or service) to be supplied immediately and waived your right of withdrawal for what is supplied before the 14-day period ends, on %date%.]]></target>
             </trans-unit>
         </body>
     </file>

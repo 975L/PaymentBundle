@@ -35,6 +35,7 @@ class BasketEmailFactory
         'gift_cards_shared',
         'gift_card_message',
         'digital_items',
+        'withdrawal_waived',
         'download_links',
         'delivery',
         'account_invitation',

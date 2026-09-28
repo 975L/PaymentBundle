@@ -375,6 +375,36 @@ class BasketControllerTest extends TestCase
         return new LocalizedRouteNegotiator(self::createSiteLocales(), new LocaleSwitcher('fr', []), $router);
     }
 
+    // The payer of a shared order contracts, so the waiver of the right of withdrawal is asked of them: a POST without it charges nothing and says why
+    public function testASharedOrderSuppliedAtOnceIsNotChargedWithoutThePayersWaiver(): void
+    {
+        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus('validated');
+        $basket->setTotal(2500);
+        $basket->setShipping(0);
+        $basket->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->never())->method('payShared');
+
+        $this->controller($basketService, twig: $this->createStub(Environment::class))->sharedPay($basket, new Request(server: ['REQUEST_METHOD' => 'POST']));
+
+        $this->assertSame(['flash.withdrawal_waiver_required'], $this->session->getFlashBag()->get('danger'));
+    }
+
+    // Ticked, the payer goes on to the provider
+    public function testASharedOrderWaivedByItsPayerGoesToTheProvider(): void
+    {
+        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus('validated');
+        $basket->setTotal(2500);
+        $basket->setShipping(0);
+        $basket->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('payShared')->willReturn('https://checkout.example/session-1');
+
+        $response = $this->controller($basketService)->sharedPay($basket, new Request(request: ['withdrawalWaiver' => '1'], server: ['REQUEST_METHOD' => 'POST']));
+
+        $this->assertSame('https://checkout.example/session-1', $response->getTargetUrl());
+    }
+
     private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false): BasketController
     {
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);

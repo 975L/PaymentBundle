@@ -1,5 +1,12 @@
 # UPGRADE
 
+## v6.13 > v6.14
+
+**The waiver of the right of withdrawal is dated on the order.** `payment_basket` gains one nullable column,
+`withdrawal_waived` - generate the migration with `doctrine:migrations:diff` and run it. Then run
+`c975l:ui:email-templates:ensure`: it adds the `withdrawal_waived` slot to the `confirm_order` e-mail already
+seeded, which confirms the waiver to the buyer on a durable medium. Nothing to fill on the orders already taken.
+
 ## v6.9 > v6.10
 
 **A basket can be invoiced to a business.** `payment_basket` gains two nullable columns, `company` and `vat_number` -

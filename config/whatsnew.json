@@ -1,5 +1,20 @@
 [
     {
+        "date": "2026-09-28",
+        "description": [
+            {
+                "en": "When a basket holds digital content or a service, your customers tick the waiver of their right of withdrawal before paying; the date is kept on the order and confirmed in their order e-mail, and a shared order asks it of whoever pays.",
+                "fr": "Quand un panier contient un contenu numérique ou un service, vos clients cochent la renonciation à leur droit de rétractation avant de payer ; la date est conservée sur la commande et confirmée dans leur e-mail de commande, et une commande partagée la demande à celui qui paie.",
+                "es": "Cuando una cesta contiene contenido digital o un servicio, sus clientes marcan la renuncia a su derecho de desistimiento antes de pagar; la fecha se guarda en el pedido y se confirma en su correo de pedido, y un pedido compartido se la pide a quien paga."
+            },
+            {
+                "en": "Your privacy policy names Stripe among the third parties processing your customers' payments.",
+                "fr": "Votre politique de confidentialité mentionne Stripe parmi les tiers qui traitent les paiements de vos clients.",
+                "es": "Su política de privacidad menciona a Stripe entre los terceros que tratan los pagos de sus clientes."
+            }
+        ]
+    },
+    {
         "date": "2026-09-27",
         "description": [
             {

@@ -1,0 +1,4 @@
+{# The waiver of the right of withdrawal the payer ticked, confirmed on a durable medium as the directive asks (art. 8(7)). Empty for an order that asked none #}
+{% if basket.withdrawalWaived %}
+    <p>{{ 'text.withdrawal_waived'|trans({'%date%': basket.withdrawalWaived|format_datetime('long', 'short', locale: basket.locale)}, 'payment') }}</p>
+{% endif %}

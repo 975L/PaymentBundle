@@ -401,6 +401,10 @@ class BasketService implements BasketServiceInterface
         $this->basket->setSecurityToken($this->generateSecurityToken());
         // The mode the checkout is being opened in, kept on the order: the toggle can be flipped back before this one is paid, and it is what tells a rehearsal from a sale afterwards
         $this->basket->setTestMode($this->testMode->isEnabled());
+        // The waiver the coordinates form has just made the customer tick, dated as the proof of it; an order shared is waived by whoever pays it (see payShared())
+        if (!$forSharing && $this->basket->asksWithdrawalWaiver()) {
+            $this->basket->setWithdrawalWaived(new \DateTime());
+        }
         $this->entityManager->persist($this->basket);
 
         // Written now, and flushed by whichever path this method leaves through
@@ -470,6 +474,11 @@ class BasketService implements BasketServiceInterface
         }
 
         $this->basket = $basket;
+
+        // The payer is the one contracting, so the waiver is theirs: the page asked for it before calling this (see BasketController::sharedPay())
+        if ($basket->asksWithdrawalWaiver()) {
+            $basket->setWithdrawalWaived(new \DateTime());
+        }
 
         // A link followed twice opens a second checkout, and the first is called off rather than left payable: two sessions on one order is two charges for it
         $this->expireCheckout($basket);

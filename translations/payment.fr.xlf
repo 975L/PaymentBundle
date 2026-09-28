@@ -358,6 +358,10 @@
                 <source>flash.sign_in_to_order</source>
                 <target>Connectez-vous ou créez votre compte pour finaliser votre commande, votre panier est conservé.</target>
             </trans-unit>
+            <trans-unit id="HeErg7y">
+                <source>flash.withdrawal_waiver_required</source>
+                <target><![CDATA[Cochez la renonciation au droit de rétractation pour payer cette commande.]]></target>
+            </trans-unit>
             <trans-unit id="PoSrlv.">
                 <source>help.code_test_mode</source>
                 <target>Créé pendant que la boutique était en mode test : utilisable en mode test seulement, et jamais sur une vraie commande</target>
@@ -1654,6 +1658,10 @@
                 <source>label.view_order</source>
                 <target>Voir</target>
             </trans-unit>
+            <trans-unit id="qiwMN2y">
+                <source>label.withdrawal_waiver</source>
+                <target><![CDATA[Je demande l'exécution immédiate de ma commande (contenu numérique ou service) et je renonce à mon droit de rétractation pour ce qui m'est fourni avant la fin du délai de 14 jours.]]></target>
+            </trans-unit>
             <trans-unit id="8Inlz5r">
                 <source>label.zip</source>
                 <target>Code postal</target>
@@ -1709,6 +1717,10 @@
             <trans-unit id="F_L9_hM">
                 <source>text.vat_number_invalid</source>
                 <target>Ce numéro de TVA n'est pas valide : deux lettres pour le pays, puis le numéro</target>
+            </trans-unit>
+            <trans-unit id="HAZ.iPX">
+                <source>text.withdrawal_waived</source>
+                <target><![CDATA[Vous avez demandé l'exécution immédiate de votre commande (contenu numérique ou service) et renoncé à votre droit de rétractation pour ce qui vous est fourni avant la fin du délai de 14 jours, le %date%.]]></target>
             </trans-unit>
         </body>
     </file>

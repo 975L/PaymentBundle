@@ -17,6 +17,13 @@
         {# The items and the total, and none of the components that carry the delivery details - no Delivery, no TrackOrder, and not the customer's own message either #}
         <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
         <form method="post" data-turbo="false">
+            {# The payer is the one contracting, so the waiver of the right of withdrawal is theirs to tick (see Basket::asksWithdrawalWaiver()) #}
+            {% if basket.asksWithdrawalWaiver %}
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="withdrawalWaiver" id="withdrawalWaiver" value="1" required>
+                    <label class="form-check-label" for="withdrawalWaiver">{{ 'label.withdrawal_waiver'|trans }}</label>
+                </div>
+            {% endif %}
             <p class="text-center">
                 <button type="submit" class="btn btn-large btn-primary">{{ 'label.pay'|trans }} {{ (basket.payable / 100)|format_currency(basket.currency) }}</button>
             </p>
