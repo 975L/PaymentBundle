@@ -14,6 +14,22 @@
                 <source>narration.gift_cards</source>
                 <target>"Gift cards" lists the cards sold or issued by hand, their remaining balance and the order that issued them.</target>
             </trans-unit>
+            <trans-unit id="qG3pY9k">
+                <source>narration.guided_step_payment_archived_invoice_filter</source>
+                <target>Show the archived ones: this button is the only one showing archived orders, the other filters only covering current ones.</target>
+            </trans-unit>
+            <trans-unit id="TQl1zLD">
+                <source>narration.guided_step_payment_archived_invoice_invoice</source>
+                <target>Open the invoice: it is the very PDF the customer downloads. The button only shows on an order that was given an invoice number.</target>
+            </trans-unit>
+            <trans-unit id="wPMbCeB">
+                <source>narration.guided_step_payment_archived_invoice_open</source>
+                <target>The panel takes you to the baskets. A paid or shipped order leaves this listing after two years, once the legal warranty is over. It is kept for ten years all the same.</target>
+            </trans-unit>
+            <trans-unit id="d8auclA">
+                <source>narration.guided_step_payment_archived_invoice_search</source>
+                <target>Search for the order: type its number or the customer's e-mail address, the search staying within the archived ones.</target>
+            </trans-unit>
             <trans-unit id="oA7_dbp">
                 <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Once the order is handled, declare the row dealt with rather than running the whole check again: it leaves the default view and comes back on its own if the problem reappears.</target>
@@ -24,7 +40,7 @@
             </trans-unit>
             <trans-unit id="uc..0nj">
                 <source>narration.guided_step_payment_basket_integrity_offenders</source>
-                <target>Open the list of orders: a count does not say what to do, whereas the unfolded list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
+                <target>Read the list of orders: a count does not say what to do, whereas under each row, the list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
             </trans-unit>
             <trans-unit id="8Ea8FOp">
                 <source>narration.guided_step_payment_basket_integrity_open</source>
@@ -82,21 +98,69 @@
                 <source>narration.guided_step_payment_email_attachments_open</source>
                 <target>The panel takes you to the dashboard, where the shop's switches sit as tiles. This one decides whether your order e-mails carry files at all; which files is ticked template by template in the e-mail builder.</target>
             </trans-unit>
+            <trans-unit id="0pbMj9O">
+                <source>narration.guided_step_payment_export_format</source>
+                <target>Pick the format: CSV for a spreadsheet or the accountant, JSON for another tool, SQL to load into a database. The orders' access tokens are never part of it.</target>
+            </trans-unit>
+            <trans-unit id="zD8BeQs">
+                <source>narration.guided_step_payment_export_open</source>
+                <target>The panel takes you to the baskets. The export takes every order of the table, archived ones included, whatever filter is shown.</target>
+            </trans-unit>
+            <trans-unit id="eE4hr8G">
+                <source>narration.guided_step_payment_export_payments</source>
+                <target>Payments too: the payments screen carries the same button, and that is the one giving the amounts actually charged, provider by provider.</target>
+            </trans-unit>
+            <trans-unit id="fOPTiPb">
+                <source>narration.guided_step_payment_gateway_setup_check</source>
+                <target>Check the keys answer: on the health check screen, each provider's row says whether its keys actually authenticate. A revoked or mistyped key looks just like a good one until the first customer pays.</target>
+            </trans-unit>
+            <trans-unit id="ESgIXgl">
+                <source>narration.guided_step_payment_gateway_setup_default</source>
+                <target>Choose the provider offered first: every provider whose keys are stored is offered to the customer. The payment provider, among the non-sensitive settings of the same group, only names the one the basket pre-selects.</target>
+            </trans-unit>
+            <trans-unit id="sPyNc4k">
+                <source>narration.guided_step_payment_gateway_setup_key</source>
+                <target>Edit the secret key: pick your provider's one, Stripe or Revolut. Each has a live one and a test one, fetched from its dashboard; the Revolut procedure details where.</target>
+            </trans-unit>
+            <trans-unit id="vi.skE7">
+                <source>narration.guided_step_payment_gateway_setup_open</source>
+                <target>The panel takes you to the configuration, Payment group. Keys and secrets are sensitive settings: they are listed apart there, masked, once the "Show sensitive" button is on.</target>
+            </trans-unit>
+            <trans-unit id="ePvn1er">
+                <source>narration.guided_step_payment_gateway_setup_value</source>
+                <target>Paste the key as the provider hands it over, with no space around it, then save. Do it again for the test key: that is the one the test mode uses.</target>
+            </trans-unit>
+            <trans-unit id="NoPky5P">
+                <source>narration.guided_step_payment_gateway_setup_webhook</source>
+                <target>Store the webhook secret: without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard; for Revolut, a command declares and stores it, as its procedure details.</target>
+            </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
                 <target>Set the amount. It is typed in the shop's own currency and becomes the card's whole balance, which its holder spends over as many orders as it takes.</target>
             </trans-unit>
             <trans-unit id="l0R8V4s">
                 <source>narration.guided_step_payment_gift_card_issue_code</source>
-                <target>Copy the code down: it is shown once, in the message above the listing you land back on. No screen prints it again, so hand it over before leaving that page.</target>
+                <target>Copy the code down: it shows in the message above the listing you land back on, then stays readable in the card listing. Hand it over to whoever the card is for.</target>
             </trans-unit>
             <trans-unit id="u6DPDf_">
                 <source>narration.guided_step_payment_gift_card_issue_confirm</source>
                 <target>Mint the card. The code is drawn at random on submit, the same way a purchase draws one: nothing about it is typed.</target>
             </trans-unit>
+            <trans-unit id="KROS.zz">
+                <source>narration.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Switch it off: untick Active, and the card is refused at the basket, its balance left untouched. The same switch is also in the listing.</target>
+            </trans-unit>
+            <trans-unit id="rV8FIhF">
+                <source>narration.guided_step_payment_gift_card_issue_edit</source>
+                <target>Find a lost or stolen card: the day it is reported, look it up in the listing by its code and open it for editing.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>The panel takes you to the gift cards. All of them are listed there, sold or issued by hand: the ones written here are told apart by naming no order.</target>
+            </trans-unit>
+            <trans-unit id="zaPAGJT">
+                <source>narration.guided_step_payment_gift_card_issue_save</source>
+                <target>Save. Ticked again later, the card picks up where it was, with the same code and the same balance.</target>
             </trans-unit>
             <trans-unit id="iMwSBIZ">
                 <source>narration.guided_step_payment_gift_card_issue_start</source>
@@ -200,7 +264,7 @@
             </trans-unit>
             <trans-unit id="pHz3zc7">
                 <source>narration.guided_step_payment_transaction_review_basket</source>
-                <target>Trace the full order: the basket column leads back to the baskets screen, carrying the address, the content and the order's status.</target>
+                <target>Trace the full order: the Basket field leads to the order, carrying the address, the content and the status.</target>
             </trans-unit>
             <trans-unit id="Tu9Ar9D">
                 <source>narration.guided_step_payment_transaction_review_detail</source>
@@ -212,7 +276,7 @@
             </trans-unit>
             <trans-unit id="wQW4ZFC">
                 <source>narration.guided_step_payment_transaction_review_provider</source>
-                <target>Check the transaction at the provider: the icon opens it on Stripe's dashboard, once an id has been recorded. Revolut publishes no stable address for an order, so the icon is absent there and only the id is shown.</target>
+                <target>Check the transaction at the provider: the transaction id is itself the link to Stripe's dashboard, once it has been recorded. Revolut publishes no stable address for an order, so only the id is shown there.</target>
             </trans-unit>
             <trans-unit id="80ul_fx">
                 <source>narration.payments</source>

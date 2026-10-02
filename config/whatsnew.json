@@ -1,5 +1,20 @@
 [
     {
+        "date": "2026-10-02",
+        "description": [
+            {
+                "en": "A paid order is now counted in your Matomo e-commerce reports, with its products, tax, shipping and discount, as soon as your site measures its audience with Matomo.",
+                "fr": "Une commande payée est désormais comptée dans vos rapports e-commerce Matomo, avec ses produits, la TVA, la livraison et la remise, dès que votre site mesure son audience avec Matomo.",
+                "es": "Un pedido pagado se cuenta ahora en sus informes de comercio electrónico de Matomo, con sus productos, el IVA, el envío y el descuento, en cuanto su sitio mide su audiencia con Matomo."
+            },
+            {
+                "en": "Three new guided tours walk you through connecting your payment provider, finding an old order and its invoice, and exporting your orders; the gift card tour now shows how to switch off a lost card.",
+                "fr": "Trois nouvelles visites guidées vous accompagnent pour brancher votre fournisseur de paiement, retrouver une ancienne commande et sa facture, et exporter vos commandes ; celle des cartes cadeaux montre désormais comment désactiver une carte perdue.",
+                "es": "Tres nuevas visitas guiadas le acompañan para conectar su proveedor de pago, encontrar un pedido antiguo y su factura, y exportar sus pedidos; la de las tarjetas regalo muestra ahora cómo desactivar una tarjeta perdida."
+            }
+        ]
+    },
+    {
         "date": "2026-09-28",
         "description": [
             {

@@ -30,6 +30,7 @@
             {% set confirmed = basket.status in ['paid', 'shipped'] %}
             <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ confirmed }}"/>
             {% if confirmed %}
+                <twig:c975LPayment:Basket:MatomoOrder basket="{{ basket }}"/>
                 <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
                 <twig:c975LPayment:Basket:Delivery basket="{{ basket }}"/>
                 {# The files are handed over here too, so a buyer whose email never arrived is not left without them #}

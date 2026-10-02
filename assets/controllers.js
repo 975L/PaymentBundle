@@ -9,6 +9,7 @@ const app = globalThis.c975lStimulusApp;
 const LAZY_CONTROLLERS = {
     basket: () => import('./js/basket.js'),
     giftCard: () => import('./js/gift-card.js'),
+    matomoOrder: () => import('./js/matomo-order.js'),
 };
 
 const registered = new Set();

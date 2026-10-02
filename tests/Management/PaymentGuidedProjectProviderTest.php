@@ -30,6 +30,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
             return $generator;
         });
         $generator->method('setAction')->willReturnSelf();
+        $generator->method('set')->willReturnSelf();
         $generator->method('generateUrl')->willReturn('/management/payment');
 
         return $generator;
@@ -67,11 +68,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-basket-integrity'],
+            ['payment-gateway-setup', 'payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
             array_column($projects, 'slug'),
         );
-        // 7015 and 7055 slip between two tens rather than being appended: the documents switch is set beside the test mode, before a first real order, and the delivery grid stands just before the parcel round it prices
-        $this->assertSame([7010, 7015, 7020, 7030, 7040, 7050, 7055, 7060, 7070], array_column($projects, 'order'));
+        // 7005, 7015, 7055 and 7065 slip between two tens rather than being appended: the keys come before the test mode rehearsing against them, the documents switch is set beside the test mode, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
+        $this->assertSame([7005, 7010, 7015, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -133,14 +134,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $this->assertSame(['management', 'management', 'management_health_check_index'], $routes);
     }
 
-    // Each parcours opens on the listing the task starts from, the two written from the baskets one included
+    // Each parcours opens on the listing the task starts from, the four written from the baskets one included, and the keys on ConfigBundle's own screen
     public function testEachCrudProjectOpensOnItsOwnListing(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController'], array_map(
+        $this->assertSame(['ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -192,7 +193,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
     // Both toggle steps highlight the same shortcut button PaymentShortcutController's route renders on the dashboard
     public function testTheTestModeToggleStepsHighlightTheShortcutButton(): void
     {
-        $project = $this->createProvider()->getGuidedProjects()[0];
+        $project = $this->project('payment-test-mode');
         $highlights = array_column($project['steps'], 'highlight');
 
         $this->assertSame(
@@ -204,7 +205,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
     // The same shape for the documents tile, whose route is the other half of PaymentShortcutController - a parcours pointing at a toggle no tile posts to highlights nothing
     public function testTheDocumentsToggleStepsHighlightTheOtherShortcutButton(): void
     {
-        $project = $this->createProvider()->getGuidedProjects()[1];
+        $project = $this->project('payment-email-attachments');
         $highlights = array_column($project['steps'], 'highlight');
 
         $this->assertSame(
@@ -216,7 +217,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
     // The rows this bundle fills on a screen it does not own: the parcours points at them by the very kind the provider declares, so a renamed kind fails here rather than silently highlighting nothing
     public function testTheIntegrityStepPointsAtTheKindTheProviderDeclares(): void
     {
-        $project = $this->createProvider()->getGuidedProjects()[8];
+        $project = $this->project('payment-basket-integrity');
 
         $this->assertContains(
             'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
@@ -238,6 +239,46 @@ class PaymentGuidedProjectProviderTest extends TestCase
             "'row_attr', ['data-shipping-rates' => 'true']",
             (string) file_get_contents(__DIR__ . '/../../src/Controller/Management/ShippingZoneCrudController.php'),
         );
+    }
+
+    // EasyAdmin renders a group as a dropdown carrying its name as a data attribute, which the class check above does not see - a renamed group highlighting nothing at all
+    public function testTheExportStepPointsAtTheGroupTheCrudDeclares(): void
+    {
+        $this->assertContains('[data-action-group-name="export"]', array_column($this->project('payment-export')['steps'], 'highlight'));
+        $this->assertStringContainsString(
+            "ActionGroup::new('export'",
+            (string) file_get_contents(__DIR__ . '/../../src/Controller/Management/BasketCrudController.php'),
+        );
+    }
+
+    // The keys are sensitive entries, listed by ConfigBundle's screen only once asked to: a parcours landing on the group without the toggle shows the settings around them and none of the keys
+    public function testTheGatewayProjectOpensOnTheSensitiveEntriesOfThePaymentGroup(): void
+    {
+        $parameters = [];
+        $generator = $this->createStub(AdminUrlGeneratorInterface::class);
+        $generator->method('unsetAll')->willReturnSelf();
+        $generator->method('setController')->willReturnSelf();
+        $generator->method('setAction')->willReturnSelf();
+        $generator->method('set')->willReturnCallback(function (string $name, mixed $value) use ($generator, &$parameters) {
+            $parameters[$name] = $value;
+
+            return $generator;
+        });
+        $generator->method('generateUrl')->willReturn('/management/config');
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $configService->method('get')->willReturn('ROLE_ADMIN');
+
+        new PaymentGuidedProjectProvider($generator, $this->createUrlGenerator(), $configService)->getGuidedProjects();
+
+        $this->assertSame(['group' => 'payment', 'showSensitive' => 1], $parameters);
+    }
+
+    // Read by slug rather than by position, so a parcours slipped between two others leaves the tests of its neighbours alone
+    private function project(string $slug): array
+    {
+        $projects = array_column($this->createProvider()->getGuidedProjects(), null, 'slug');
+
+        return $projects[$slug];
     }
 
     // A label or description with no translation reads as its own key in the panel, in whichever locale it is missing from

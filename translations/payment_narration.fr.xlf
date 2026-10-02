@@ -14,6 +14,22 @@
                 <source>narration.gift_cards</source>
                 <target>« Cartes cadeaux » liste les cartes vendues ou émises à la main, leur solde restant et la commande qui les a émises.</target>
             </trans-unit>
+            <trans-unit id="qG3pY9k">
+                <source>narration.guided_step_payment_archived_invoice_filter</source>
+                <target>Affichez les archivées : ce bouton est le seul à montrer les commandes archivées, les autres filtres ne portant que sur les commandes courantes.</target>
+            </trans-unit>
+            <trans-unit id="TQl1zLD">
+                <source>narration.guided_step_payment_archived_invoice_invoice</source>
+                <target>Ouvrez la facture : c'est le même PDF que celui que le client télécharge. Le bouton n'apparaît que sur une commande qui a reçu un numéro de facture.</target>
+            </trans-unit>
+            <trans-unit id="wPMbCeB">
+                <source>narration.guided_step_payment_archived_invoice_open</source>
+                <target>Le panneau vous emmène sur les paniers. Une commande payée ou expédiée quitte cette liste au bout de deux ans, à la fin de la garantie légale. Elle est pourtant gardée dix ans.</target>
+            </trans-unit>
+            <trans-unit id="d8auclA">
+                <source>narration.guided_step_payment_archived_invoice_search</source>
+                <target>Cherchez la commande : tapez son numéro ou l'adresse e-mail du client, la recherche reste dans les archivées.</target>
+            </trans-unit>
             <trans-unit id="oA7_dbp">
                 <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Une fois la commande traitée, déclarez la ligne réglée plutôt que de relancer tout le contrôle : elle quitte la vue par défaut et revient d'elle-même si le problème réapparaît.</target>
@@ -24,7 +40,7 @@
             </trans-unit>
             <trans-unit id="uc..0nj">
                 <source>narration.guided_step_payment_basket_integrity_offenders</source>
-                <target>Ouvrez la liste des commandes : un compte ne dit pas quoi faire, alors que la liste dépliée nomme les commandes derrière lui, chacune avec son lien pour l'ouvrir dans le back-office. C'est là que le travail commence.</target>
+                <target>Lisez la liste des commandes : un compte ne dit pas quoi faire, alors que sous chaque ligne, la liste nomme les commandes derrière lui, chacune avec son lien pour l'ouvrir dans le back-office. C'est là que le travail commence.</target>
             </trans-unit>
             <trans-unit id="8Ea8FOp">
                 <source>narration.guided_step_payment_basket_integrity_open</source>
@@ -82,21 +98,69 @@
                 <source>narration.guided_step_payment_email_attachments_open</source>
                 <target>Le panneau vous emmène sur le tableau de bord, où les interrupteurs de la boutique sont en tuiles. Celui-ci décide si vos e-mails de commande emportent des fichiers ; quels fichiers, cela se coche modèle par modèle dans le constructeur d'e-mails.</target>
             </trans-unit>
+            <trans-unit id="0pbMj9O">
+                <source>narration.guided_step_payment_export_format</source>
+                <target>Choisissez le format : CSV pour un tableur ou le comptable, JSON pour un autre outil, SQL pour recharger une base. Les jetons d'accès aux commandes n'en font jamais partie.</target>
+            </trans-unit>
+            <trans-unit id="zD8BeQs">
+                <source>narration.guided_step_payment_export_open</source>
+                <target>Le panneau vous emmène sur les paniers. L'export reprend toutes les commandes de la table, archivées comprises, quel que soit le filtre affiché.</target>
+            </trans-unit>
+            <trans-unit id="eE4hr8G">
+                <source>narration.guided_step_payment_export_payments</source>
+                <target>Les paiements aussi : l'écran des paiements porte le même bouton, et c'est lui qui donne les montants réellement encaissés, fournisseur par fournisseur.</target>
+            </trans-unit>
+            <trans-unit id="fOPTiPb">
+                <source>narration.guided_step_payment_gateway_setup_check</source>
+                <target>Vérifiez que les clés répondent : sur l'écran des vérifications, la ligne de chaque fournisseur dit si ses clés s'authentifient vraiment. Une clé révoquée ou mal recopiée ressemble à une bonne jusqu'au premier client qui paie.</target>
+            </trans-unit>
+            <trans-unit id="ESgIXgl">
+                <source>narration.guided_step_payment_gateway_setup_default</source>
+                <target>Choisissez le fournisseur proposé d'abord : chaque fournisseur dont les clés sont enregistrées est proposé au client. Le prestataire de paiement, parmi les réglages non sensibles du même groupe, désigne seulement celui que le panier présélectionne.</target>
+            </trans-unit>
+            <trans-unit id="sPyNc4k">
+                <source>narration.guided_step_payment_gateway_setup_key</source>
+                <target>Modifiez la clé secrète : choisissez celle de votre fournisseur, Stripe ou Revolut. Chacun en a une réelle et une de test, qui se récupèrent dans son tableau de bord ; la procédure Revolut détaille où.</target>
+            </trans-unit>
+            <trans-unit id="vi.skE7">
+                <source>narration.guided_step_payment_gateway_setup_open</source>
+                <target>Le panneau vous emmène sur la configuration, groupe Paiement. Les clés et les secrets sont des réglages sensibles : ils y sont listés à part, masqués, une fois le bouton « Afficher les sensibles » activé.</target>
+            </trans-unit>
+            <trans-unit id="ePvn1er">
+                <source>narration.guided_step_payment_gateway_setup_value</source>
+                <target>Collez la clé telle que le fournisseur la donne, sans espace autour, puis enregistrez. Recommencez pour la clé de test : c'est elle que le mode test utilise.</target>
+            </trans-unit>
+            <trans-unit id="NoPky5P">
+                <source>narration.guided_step_payment_gateway_setup_webhook</source>
+                <target>Enregistrez le secret du webhook : sans lui, le site refuse les notifications du fournisseur et aucune commande n'est marquée payée. Stripe le donne à la création du webhook dans son tableau de bord ; pour Revolut, une commande le déclare et l'enregistre, comme le détaille sa procédure.</target>
+            </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
                 <target>Fixez le montant. Il se saisit dans la devise de la boutique et devient le solde entier de la carte, que son porteur dépense sur autant de commandes qu'il faut.</target>
             </trans-unit>
             <trans-unit id="l0R8V4s">
                 <source>narration.guided_step_payment_gift_card_issue_code</source>
-                <target>Recopiez le code : il s'affiche une seule fois, dans le message au-dessus de la liste où vous revenez. Aucun écran ne le réimprime, alors transmettez-le avant de quitter cette page.</target>
+                <target>Recopiez le code : il s'affiche dans le message au-dessus de la liste où vous revenez, puis reste lisible dans la liste des cartes. Transmettez-le à qui la carte est destinée.</target>
             </trans-unit>
             <trans-unit id="u6DPDf_">
                 <source>narration.guided_step_payment_gift_card_issue_confirm</source>
                 <target>Émettez la carte. Le code est tiré au sort à la validation, de la même façon qu'un achat en tire un : rien n'y est saisi.</target>
             </trans-unit>
+            <trans-unit id="KROS.zz">
+                <source>narration.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Désactivez-la : décochez Active, et la carte est refusée au panier, son solde restant intact. Le même interrupteur figure aussi dans la liste.</target>
+            </trans-unit>
+            <trans-unit id="rV8FIhF">
+                <source>narration.guided_step_payment_gift_card_issue_edit</source>
+                <target>Retrouvez une carte perdue ou volée : le jour où elle est déclarée, cherchez-la dans la liste par son code et ouvrez-la en modification.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>Le panneau vous emmène sur les cartes cadeaux. Toutes y sont listées, vendues ou émises à la main : celles écrites ici se reconnaissent à ce qu'elles ne nomment aucune commande.</target>
+            </trans-unit>
+            <trans-unit id="zaPAGJT">
+                <source>narration.guided_step_payment_gift_card_issue_save</source>
+                <target>Enregistrez. Recochée plus tard, la carte reprend là où elle en était, avec le même code et le même solde.</target>
             </trans-unit>
             <trans-unit id="iMwSBIZ">
                 <source>narration.guided_step_payment_gift_card_issue_start</source>
@@ -200,7 +264,7 @@
             </trans-unit>
             <trans-unit id="pHz3zc7">
                 <source>narration.guided_step_payment_transaction_review_basket</source>
-                <target>Retrouvez la commande complète : la colonne du panier renvoie à l'écran des paniers, où figurent l'adresse, le contenu et le statut de la commande.</target>
+                <target>Retrouvez la commande complète : le champ Panier renvoie à la commande, où figurent l'adresse, le contenu et le statut.</target>
             </trans-unit>
             <trans-unit id="Tu9Ar9D">
                 <source>narration.guided_step_payment_transaction_review_detail</source>
@@ -212,7 +276,7 @@
             </trans-unit>
             <trans-unit id="wQW4ZFC">
                 <source>narration.guided_step_payment_transaction_review_provider</source>
-                <target>Consultez la transaction chez le fournisseur : l'icône l'ouvre sur le tableau de bord de Stripe, quand un identifiant a été enregistré. Revolut ne publiant aucune adresse stable pour une commande, l'icône n'y apparaît pas et seul l'identifiant est affiché.</target>
+                <target>Consultez la transaction chez le fournisseur : l'identifiant de transaction est lui-même le lien vers le tableau de bord de Stripe, quand il a été enregistré. Revolut ne publiant aucune adresse stable pour une commande, seul l'identifiant y est affiché.</target>
             </trans-unit>
             <trans-unit id="80ul_fx">
                 <source>narration.payments</source>

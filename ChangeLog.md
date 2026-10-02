@@ -1,5 +1,20 @@
 # Changelog
 
+## v6.15.0
+
+A paid order is measured by Matomo's e-commerce tracking
+
+- New `Basket:MatomoOrder` component pushing a confirmed order to Matomo's e-commerce tracking (02/10/2026)
+- New `payment_matomo_order()` Twig function giving an order's figures in Matomo's terms (02/10/2026)
+- The order page and the payer's page track a confirmed order when Matomo is enabled (02/10/2026)
+- Requires `c975l/core-bundle` ^1.49.3 for `matomo_enabled()` (02/10/2026)
+- New guided project connecting the payment provider (02/10/2026)
+- New guided project finding an archived order and its invoice (02/10/2026)
+- New guided project exporting the orders (02/10/2026)
+- The gift card guided project ends on switching off a lost or stolen card (02/10/2026)
+- Guided steps reworded where they no longer matched the screen: integrity offenders, gift card code, transaction detail (02/10/2026)
+- The gift card screen's help mentions the cards issued by hand (02/10/2026)
+
 ## v6.14.0
 
 The checkout asks to waive the right of withdrawal, dated on the order

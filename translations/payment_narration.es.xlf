@@ -14,6 +14,22 @@
                 <source>narration.gift_cards</source>
                 <target>«Tarjetas regalo» lista las tarjetas vendidas o emitidas a mano, su saldo restante y el pedido que las emitió.</target>
             </trans-unit>
+            <trans-unit id="qG3pY9k">
+                <source>narration.guided_step_payment_archived_invoice_filter</source>
+                <target>Muestre los archivados: este botón es el único que muestra los pedidos archivados, ya que los demás filtros solo abarcan los pedidos en curso.</target>
+            </trans-unit>
+            <trans-unit id="TQl1zLD">
+                <source>narration.guided_step_payment_archived_invoice_invoice</source>
+                <target>Abra la factura: es el mismo PDF que descarga el cliente. El botón solo aparece en un pedido que ha recibido un número de factura.</target>
+            </trans-unit>
+            <trans-unit id="wPMbCeB">
+                <source>narration.guided_step_payment_archived_invoice_open</source>
+                <target>El panel le lleva a las cestas. Un pedido pagado o enviado sale de esta lista al cabo de dos años, al terminar la garantía legal. Sin embargo, se conserva diez años.</target>
+            </trans-unit>
+            <trans-unit id="d8auclA">
+                <source>narration.guided_step_payment_archived_invoice_search</source>
+                <target>Busque el pedido: escriba su número o la dirección de correo del cliente, la búsqueda se queda en los archivados.</target>
+            </trans-unit>
             <trans-unit id="oA7_dbp">
                 <source>narration.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Una vez tratado el pedido, declare la línea resuelta en lugar de relanzar todo el control: sale de la vista predeterminada y vuelve sola si el problema reaparece.</target>
@@ -24,7 +40,7 @@
             </trans-unit>
             <trans-unit id="uc..0nj">
                 <source>narration.guided_step_payment_basket_integrity_offenders</source>
-                <target>Abra la lista de los pedidos: un recuento no dice qué hacer, mientras que la lista desplegada nombra los pedidos que hay detrás, cada uno con su enlace para abrirlo en el back-office. Ahí empieza el trabajo.</target>
+                <target>Lea la lista de pedidos: un recuento no dice qué hacer, mientras que bajo cada línea, la lista nombra los pedidos que hay detrás, cada uno con su enlace para abrirlo en el back-office. Ahí empieza el trabajo.</target>
             </trans-unit>
             <trans-unit id="8Ea8FOp">
                 <source>narration.guided_step_payment_basket_integrity_open</source>
@@ -82,21 +98,69 @@
                 <source>narration.guided_step_payment_email_attachments_open</source>
                 <target>El panel le lleva al tablero, donde los interruptores de la tienda están en mosaicos. Este decide si sus correos de pedido llevan archivos; qué archivos se marca plantilla por plantilla en el constructor de correos.</target>
             </trans-unit>
+            <trans-unit id="0pbMj9O">
+                <source>narration.guided_step_payment_export_format</source>
+                <target>Elija el formato: CSV para una hoja de cálculo o el contable, JSON para otra herramienta, SQL para cargar una base de datos. Los tokens de acceso a los pedidos nunca forman parte de él.</target>
+            </trans-unit>
+            <trans-unit id="zD8BeQs">
+                <source>narration.guided_step_payment_export_open</source>
+                <target>El panel le lleva a las cestas. La exportación recoge todos los pedidos de la tabla, archivados incluidos, sea cual sea el filtro mostrado.</target>
+            </trans-unit>
+            <trans-unit id="eE4hr8G">
+                <source>narration.guided_step_payment_export_payments</source>
+                <target>También los pagos: la pantalla de pagos lleva el mismo botón, y es la que da los importes realmente cobrados, proveedor por proveedor.</target>
+            </trans-unit>
+            <trans-unit id="fOPTiPb">
+                <source>narration.guided_step_payment_gateway_setup_check</source>
+                <target>Compruebe que las claves responden: en la pantalla de comprobaciones, la línea de cada proveedor dice si sus claves se autentican de verdad. Una clave revocada o mal copiada parece buena hasta el primer cliente que paga.</target>
+            </trans-unit>
+            <trans-unit id="ESgIXgl">
+                <source>narration.guided_step_payment_gateway_setup_default</source>
+                <target>Elija el proveedor propuesto primero: cada proveedor cuyas claves están guardadas se ofrece al cliente. El proveedor de pago, entre los ajustes no sensibles del mismo grupo, solo indica el que la cesta preselecciona.</target>
+            </trans-unit>
+            <trans-unit id="sPyNc4k">
+                <source>narration.guided_step_payment_gateway_setup_key</source>
+                <target>Modifique la clave secreta: elija la de su proveedor, Stripe o Revolut. Cada uno tiene una real y una de prueba, que se recuperan en su panel; el procedimiento de Revolut detalla dónde.</target>
+            </trans-unit>
+            <trans-unit id="vi.skE7">
+                <source>narration.guided_step_payment_gateway_setup_open</source>
+                <target>El panel le lleva a la configuración, grupo Pago. Las claves y los secretos son ajustes sensibles: se listan aparte, ocultos, una vez activado el botón «Mostrar los sensibles».</target>
+            </trans-unit>
+            <trans-unit id="ePvn1er">
+                <source>narration.guided_step_payment_gateway_setup_value</source>
+                <target>Pegue la clave tal como la da el proveedor, sin espacios alrededor, y guarde. Repita con la clave de prueba: es la que usa el modo de prueba.</target>
+            </trans-unit>
+            <trans-unit id="NoPky5P">
+                <source>narration.guided_step_payment_gateway_setup_webhook</source>
+                <target>Guarde el secreto del webhook: sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel; para Revolut, un comando lo declara y lo guarda, como detalla su procedimiento.</target>
+            </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
                 <target>Fije el importe. Se escribe en la divisa de la tienda y se convierte en todo el saldo de la tarjeta, que su portador gasta en tantos pedidos como haga falta.</target>
             </trans-unit>
             <trans-unit id="l0R8V4s">
                 <source>narration.guided_step_payment_gift_card_issue_code</source>
-                <target>Copie el código: se muestra una sola vez, en el mensaje encima de la lista a la que vuelve. Ninguna pantalla lo reimprime, así que entréguelo antes de salir de esta página.</target>
+                <target>Copie el código: se muestra en el mensaje encima de la lista a la que vuelve, y sigue legible después en la lista de tarjetas. Entréguelo a quien vaya destinada la tarjeta.</target>
             </trans-unit>
             <trans-unit id="u6DPDf_">
                 <source>narration.guided_step_payment_gift_card_issue_confirm</source>
                 <target>Emita la tarjeta. El código se sortea al validar, igual que lo hace una compra: nada en él se escribe.</target>
             </trans-unit>
+            <trans-unit id="KROS.zz">
+                <source>narration.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Desactívela: desmarque Activa, y la tarjeta se rechaza en la cesta, con su saldo intacto. El mismo interruptor figura también en la lista.</target>
+            </trans-unit>
+            <trans-unit id="rV8FIhF">
+                <source>narration.guided_step_payment_gift_card_issue_edit</source>
+                <target>Encuentre una tarjeta perdida o robada: el día en que se declara, búsquela en la lista por su código y ábrala para modificarla.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>El panel le lleva a las tarjetas regalo. Todas están listadas ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
+            </trans-unit>
+            <trans-unit id="zaPAGJT">
+                <source>narration.guided_step_payment_gift_card_issue_save</source>
+                <target>Guarde. Si se vuelve a marcar más tarde, la tarjeta sigue donde estaba, con el mismo código y el mismo saldo.</target>
             </trans-unit>
             <trans-unit id="iMwSBIZ">
                 <source>narration.guided_step_payment_gift_card_issue_start</source>
@@ -200,7 +264,7 @@
             </trans-unit>
             <trans-unit id="pHz3zc7">
                 <source>narration.guided_step_payment_transaction_review_basket</source>
-                <target>Recupere el pedido completo: la columna de la cesta lleva de vuelta a la pantalla de cestas, donde figuran la dirección, el contenido y el estado del pedido.</target>
+                <target>Recupere el pedido completo: el campo Cesta lleva al pedido, donde figuran la dirección, el contenido y el estado.</target>
             </trans-unit>
             <trans-unit id="Tu9Ar9D">
                 <source>narration.guided_step_payment_transaction_review_detail</source>
@@ -212,7 +276,7 @@
             </trans-unit>
             <trans-unit id="wQW4ZFC">
                 <source>narration.guided_step_payment_transaction_review_provider</source>
-                <target>Consulte la transacción en el proveedor: el icono la abre en el panel de Stripe, cuando se ha registrado un identificador. Como Revolut no publica ninguna dirección estable para un pedido, ahí el icono no aparece y solo se muestra el identificador.</target>
+                <target>Consulte la transacción en el proveedor: el identificador de la transacción es en sí el enlace al panel de Stripe, cuando se ha registrado. Como Revolut no publica ninguna dirección estable para un pedido, ahí solo se muestra el identificador.</target>
             </trans-unit>
             <trans-unit id="80ul_fx">
                 <source>narration.payments</source>

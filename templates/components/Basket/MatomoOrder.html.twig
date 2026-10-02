@@ -1,0 +1,5 @@
+{# <twig:c975LPayment:Basket:MatomoOrder basket="{{ basket }}"/> #}
+{# Rendered on a confirmed order only, by the page the buyer or the payer lands on once the provider is done with them. Guarded by the same check as the tracker snippet itself, so a site not measuring its audience gets nothing pushed #}
+{% if matomo_enabled() %}
+    <div data-controller="matomoOrder" data-matomo-order="{{ payment_matomo_order(basket)|json_encode }}" hidden></div>
+{% endif %}

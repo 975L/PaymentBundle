@@ -8,7 +8,7 @@
             </trans-unit>
             <trans-unit id="v3WXbYt">
                 <source>description.gift_card_issue</source>
-                <target>Para los casos en que ninguna venta crea la tarjeta: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes. El código se sortea y se muestra una vez, al validar.</target>
+                <target>Para los casos en que ninguna venta crea la tarjeta: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes. El código se sortea, se muestra al validar y sigue legible después en la lista de tarjetas.</target>
             </trans-unit>
             <trans-unit id="K8fkUSx">
                 <source>description.gift_card_pdf</source>
@@ -17,6 +17,10 @@
             <trans-unit id="GznHAbM">
                 <source>description.gift_card_recipient_email</source>
                 <target>Opcional. La tarjeta se le envía directamente; déjelo vacío para recibirla usted y entregarla.</target>
+            </trans-unit>
+            <trans-unit id="4eRk939">
+                <source>description.guided_project_payment_archived_invoice</source>
+                <target>Recuperar un pedido archivado, dos años después, para volver a dar su factura al cliente</target>
             </trans-unit>
             <trans-unit id="ZqyUp7y">
                 <source>description.guided_project_payment_basket_integrity</source>
@@ -29,6 +33,14 @@
             <trans-unit id="2EJgWak">
                 <source>description.guided_project_payment_email_attachments</source>
                 <target>Dejar que cada pedido salga con su factura y las condiciones que el cliente acaba de aceptar</target>
+            </trans-unit>
+            <trans-unit id="gTxUji1">
+                <source>description.guided_project_payment_export</source>
+                <target>Sacar los pedidos del sitio en una tabla, para el contable u otra herramienta</target>
+            </trans-unit>
+            <trans-unit id="QI_5IB6">
+                <source>description.guided_project_payment_gateway_setup</source>
+                <target>Guardar las claves de Stripe o de Revolut, sin las cuales no se cobra ningún pedido</target>
             </trans-unit>
             <trans-unit id="3KSFe5s">
                 <source>description.guided_project_payment_gift_card_issue</source>
@@ -54,6 +66,22 @@
                 <source>description.guided_project_payment_transaction_review</source>
                 <target>Conciliar un pago registrado aquí con su asiento real en Stripe u otro proveedor</target>
             </trans-unit>
+            <trans-unit id="i6Hno6p">
+                <source>description.guided_step_payment_archived_invoice_filter</source>
+                <target>Este botón es el único que muestra los pedidos archivados; los demás filtros solo abarcan los pedidos en curso.</target>
+            </trans-unit>
+            <trans-unit id="D10EUwv">
+                <source>description.guided_step_payment_archived_invoice_invoice</source>
+                <target>El mismo PDF que descarga el cliente. El botón solo aparece en un pedido que ha recibido un número de factura.</target>
+            </trans-unit>
+            <trans-unit id="5ktjblP">
+                <source>description.guided_step_payment_archived_invoice_open</source>
+                <target>Un pedido pagado o enviado sale de esta lista al cabo de dos años, al terminar la garantía legal. Sin embargo, se conserva diez años.</target>
+            </trans-unit>
+            <trans-unit id="iOb_Ujr">
+                <source>description.guided_step_payment_archived_invoice_search</source>
+                <target>Escriba su número o la dirección de correo del cliente: la búsqueda se queda en los archivados.</target>
+            </trans-unit>
             <trans-unit id="0n9FexF">
                 <source>description.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Una vez tratado el pedido, marque la línea en lugar de relanzar todo el control: sale de la vista predeterminada y vuelve sola si el problema reaparece.</target>
@@ -64,7 +92,7 @@
             </trans-unit>
             <trans-unit id="GSYB1xh">
                 <source>description.guided_step_payment_basket_integrity_offenders</source>
-                <target>Un recuento no dice qué hacer: la lista desplegada nombra los pedidos que hay detrás, cada uno con su enlace para abrirlo en el back-office. Ahí empieza el trabajo.</target>
+                <target>Un recuento no dice qué hacer: bajo cada línea, la lista nombra los pedidos que hay detrás, cada uno con su enlace para abrirlo en el back-office. Ahí empieza el trabajo.</target>
             </trans-unit>
             <trans-unit id="eiduuiL">
                 <source>description.guided_step_payment_basket_integrity_open</source>
@@ -122,21 +150,69 @@
                 <source>description.guided_step_payment_email_attachments_open</source>
                 <target>Los interruptores de la tienda están aquí, en mosaicos. Este decide si sus correos de pedido llevan archivos; qué archivos se marca plantilla por plantilla en el constructor de correos, que muestra el recorrido «Personalizar un correo».</target>
             </trans-unit>
+            <trans-unit id="_U.pt07">
+                <source>description.guided_step_payment_export_format</source>
+                <target>CSV para una hoja de cálculo o el contable, JSON para otra herramienta, SQL para cargar una base de datos. Los tokens de acceso a los pedidos nunca forman parte de él.</target>
+            </trans-unit>
+            <trans-unit id="4mR90Wq">
+                <source>description.guided_step_payment_export_open</source>
+                <target>La exportación recoge todos los pedidos de la tabla, archivados incluidos, sea cual sea el filtro mostrado.</target>
+            </trans-unit>
+            <trans-unit id="6N_bGCl">
+                <source>description.guided_step_payment_export_payments</source>
+                <target>La pantalla de pagos lleva el mismo botón: es la que da los importes realmente cobrados, proveedor por proveedor.</target>
+            </trans-unit>
+            <trans-unit id="Vc7NPEr">
+                <source>description.guided_step_payment_gateway_setup_check</source>
+                <target>En la pantalla de comprobaciones, la línea de cada proveedor dice si sus claves se autentican de verdad: una clave revocada o mal copiada parece buena hasta el primer cliente que paga.</target>
+            </trans-unit>
+            <trans-unit id="huatacW">
+                <source>description.guided_step_payment_gateway_setup_default</source>
+                <target>Cada proveedor cuyas claves están guardadas se ofrece al cliente. «Proveedor de pago», entre los ajustes no sensibles del mismo grupo, solo indica el que la cesta preselecciona.</target>
+            </trans-unit>
+            <trans-unit id=".RLNiBx">
+                <source>description.guided_step_payment_gateway_setup_key</source>
+                <target>Elija la clave secreta de su proveedor, Stripe o Revolut: cada uno tiene una real y una de prueba. Se recuperan en su panel; el procedimiento de Revolut detalla dónde.</target>
+            </trans-unit>
+            <trans-unit id="y3PeFng">
+                <source>description.guided_step_payment_gateway_setup_open</source>
+                <target>Las claves y los secretos son ajustes sensibles: la configuración los lista aparte, ocultos, una vez activado el botón «Mostrar los sensibles».</target>
+            </trans-unit>
+            <trans-unit id="wP0C.Pt">
+                <source>description.guided_step_payment_gateway_setup_value</source>
+                <target>Péguela tal como la da el proveedor, sin espacios alrededor, y guarde. Repita con la clave de prueba: es la que usa el modo de prueba.</target>
+            </trans-unit>
+            <trans-unit id="NCe._ZM">
+                <source>description.guided_step_payment_gateway_setup_webhook</source>
+                <target>Sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel; para Revolut, un comando lo declara y lo guarda (vea su procedimiento).</target>
+            </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
                 <target>Se escribe en la divisa de la tienda y se convierte en todo el saldo de la tarjeta, que su portador gasta en tantos pedidos como haga falta.</target>
             </trans-unit>
             <trans-unit id="MV_WBZ1">
                 <source>description.guided_step_payment_gift_card_issue_code</source>
-                <target>Se muestra una sola vez, en el mensaje encima de la lista a la que vuelve. Ninguna pantalla lo reimprime: entréguelo antes de salir de esa página.</target>
+                <target>Se muestra en el mensaje encima de la lista a la que vuelve, y sigue legible después en la lista de tarjetas: entréguelo a quien vaya destinada la tarjeta.</target>
             </trans-unit>
             <trans-unit id=".kCwiia">
                 <source>description.guided_step_payment_gift_card_issue_confirm</source>
                 <target>El código se sortea al validar, igual que lo hace una compra: nada en él se escribe.</target>
             </trans-unit>
+            <trans-unit id="Zbn3t9N">
+                <source>description.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Desmarque Activa: la tarjeta se rechaza en la cesta, con su saldo intacto. El mismo interruptor figura también en la lista.</target>
+            </trans-unit>
+            <trans-unit id="7YRGF83">
+                <source>description.guided_step_payment_gift_card_issue_edit</source>
+                <target>El día en que se declara una tarjeta perdida o robada, búsquela en la lista por su código y ábrala para modificarla.</target>
+            </trans-unit>
             <trans-unit id="bR0j8lt">
                 <source>description.guided_step_payment_gift_card_issue_open</source>
                 <target>Todas las tarjetas aparecen ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
+            </trans-unit>
+            <trans-unit id="BCtiTRp">
+                <source>description.guided_step_payment_gift_card_issue_save</source>
+                <target>Si se vuelve a marcar más tarde, la tarjeta sigue donde estaba, con el mismo código y el mismo saldo.</target>
             </trans-unit>
             <trans-unit id="3Uhjrrk">
                 <source>description.guided_step_payment_gift_card_issue_start</source>
@@ -240,7 +316,7 @@
             </trans-unit>
             <trans-unit id="phQo4Nv">
                 <source>description.guided_step_payment_transaction_review_basket</source>
-                <target>La columna Cesta lleva de vuelta a la pantalla de cestas, con la dirección, el contenido y el estado del pedido.</target>
+                <target>El campo Cesta lleva al pedido, donde figuran la dirección, el contenido y el estado.</target>
             </trans-unit>
             <trans-unit id="jAHoQn_">
                 <source>description.guided_step_payment_transaction_review_detail</source>
@@ -252,7 +328,7 @@
             </trans-unit>
             <trans-unit id="BkNaLjq">
                 <source>description.guided_step_payment_transaction_review_provider</source>
-                <target>El icono Transacción la abre en el panel de Stripe, cuando se ha registrado un identificador. Revolut no publica ninguna dirección estable para un pedido, así que ahí el icono no aparece y solo se muestra el identificador.</target>
+                <target>El identificador de la transacción es en sí el enlace al panel de Stripe, cuando se ha registrado. Como Revolut no publica ninguna dirección estable para un pedido, ahí solo se muestra el identificador.</target>
             </trans-unit>
             <trans-unit id="bedYlU5">
                 <source>description.payment_gateway_unavailable</source>
@@ -324,7 +400,7 @@
             </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
-                <target>Tarjeta regalo emitida. Su código es %code%: anótalo, no se vuelve a mostrar.</target>
+                <target>Tarjeta regalo emitida. Su código es %code%.</target>
             </trans-unit>
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
@@ -862,6 +938,10 @@
                 <source>label.gift_cards_bought</source>
                 <target>Tus tarjetas regalo</target>
             </trans-unit>
+            <trans-unit id="k4WpwOT">
+                <source>label.guided_project_payment_archived_invoice</source>
+                <target>Encontrar un pedido antiguo y su factura</target>
+            </trans-unit>
             <trans-unit id="uDn2cDu">
                 <source>label.guided_project_payment_basket_integrity</source>
                 <target>Leer el control de los pedidos</target>
@@ -873,6 +953,14 @@
             <trans-unit id="N99aoIk">
                 <source>label.guided_project_payment_email_attachments</source>
                 <target>Enviar las facturas y las condiciones de venta</target>
+            </trans-unit>
+            <trans-unit id="MzgGLAW">
+                <source>label.guided_project_payment_export</source>
+                <target>Exportar los pedidos</target>
+            </trans-unit>
+            <trans-unit id="FV6Btn0">
+                <source>label.guided_project_payment_gateway_setup</source>
+                <target>Conectar el proveedor de pago</target>
             </trans-unit>
             <trans-unit id="mXJ10rx">
                 <source>label.guided_project_payment_gift_card_issue</source>
@@ -898,6 +986,22 @@
                 <source>label.guided_project_payment_transaction_review</source>
                 <target>Localizar una transacción en su proveedor</target>
             </trans-unit>
+            <trans-unit id=".C8dpnr">
+                <source>label.guided_step_payment_archived_invoice_filter</source>
+                <target>Mostrar los archivados</target>
+            </trans-unit>
+            <trans-unit id="WWjGhAh">
+                <source>label.guided_step_payment_archived_invoice_invoice</source>
+                <target>Abrir la factura</target>
+            </trans-unit>
+            <trans-unit id="25c9MCP">
+                <source>label.guided_step_payment_archived_invoice_open</source>
+                <target>Abrir las cestas</target>
+            </trans-unit>
+            <trans-unit id="n3nGlfH">
+                <source>label.guided_step_payment_archived_invoice_search</source>
+                <target>Buscar el pedido</target>
+            </trans-unit>
             <trans-unit id="xppHcLR">
                 <source>label.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Declarar una línea resuelta</target>
@@ -908,7 +1012,7 @@
             </trans-unit>
             <trans-unit id="YiZA_an">
                 <source>label.guided_step_payment_basket_integrity_offenders</source>
-                <target>Abrir la lista de pedidos</target>
+                <target>Leer la lista de pedidos</target>
             </trans-unit>
             <trans-unit id="jgAek_O">
                 <source>label.guided_step_payment_basket_integrity_open</source>
@@ -966,6 +1070,42 @@
                 <source>label.guided_step_payment_email_attachments_open</source>
                 <target>Abrir el panel</target>
             </trans-unit>
+            <trans-unit id="fZraFlM">
+                <source>label.guided_step_payment_export_format</source>
+                <target>Elegir el formato</target>
+            </trans-unit>
+            <trans-unit id="d1IQ_I5">
+                <source>label.guided_step_payment_export_open</source>
+                <target>Abrir las cestas</target>
+            </trans-unit>
+            <trans-unit id="Q82Y98D">
+                <source>label.guided_step_payment_export_payments</source>
+                <target>También los pagos</target>
+            </trans-unit>
+            <trans-unit id="26tqXwn">
+                <source>label.guided_step_payment_gateway_setup_check</source>
+                <target>Comprobar que las claves responden</target>
+            </trans-unit>
+            <trans-unit id="6w8mo5W">
+                <source>label.guided_step_payment_gateway_setup_default</source>
+                <target>Elegir el proveedor propuesto primero</target>
+            </trans-unit>
+            <trans-unit id="eWJ7500">
+                <source>label.guided_step_payment_gateway_setup_key</source>
+                <target>Modificar la clave secreta</target>
+            </trans-unit>
+            <trans-unit id="oZdzY_i">
+                <source>label.guided_step_payment_gateway_setup_open</source>
+                <target>Abrir las claves del grupo Pago</target>
+            </trans-unit>
+            <trans-unit id="jmrL0Z4">
+                <source>label.guided_step_payment_gateway_setup_value</source>
+                <target>Pegar la clave</target>
+            </trans-unit>
+            <trans-unit id="mgS4mHP">
+                <source>label.guided_step_payment_gateway_setup_webhook</source>
+                <target>Guardar el secreto del webhook</target>
+            </trans-unit>
             <trans-unit id="RTgQnIQ">
                 <source>label.guided_step_payment_gift_card_issue_amount</source>
                 <target>Fijar el importe</target>
@@ -978,9 +1118,21 @@
                 <source>label.guided_step_payment_gift_card_issue_confirm</source>
                 <target>Emitir la tarjeta</target>
             </trans-unit>
+            <trans-unit id="TDAYJJM">
+                <source>label.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Desactivarla</target>
+            </trans-unit>
+            <trans-unit id="IPVJL.w">
+                <source>label.guided_step_payment_gift_card_issue_edit</source>
+                <target>Encontrar una tarjeta perdida o robada</target>
+            </trans-unit>
             <trans-unit id="yKwKXwN">
                 <source>label.guided_step_payment_gift_card_issue_open</source>
                 <target>Abrir las tarjetas regalo</target>
+            </trans-unit>
+            <trans-unit id="v82mhFM">
+                <source>label.guided_step_payment_gift_card_issue_save</source>
+                <target>Guardar</target>
             </trans-unit>
             <trans-unit id="P1ibJDX">
                 <source>label.guided_step_payment_gift_card_issue_start</source>
@@ -1240,7 +1392,7 @@
             </trans-unit>
             <trans-unit id="JS_tnVE">
                 <source>label.info_gift_card</source>
-                <target>Las tarjetas regalo vendidas, su saldo restante y el pedido que las emitió.</target>
+                <target>Las tarjetas regalo vendidas, su saldo restante y el pedido que las emitió, o emitidas a mano desde esta pantalla.</target>
             </trans-unit>
             <trans-unit id="V9kI0CJ">
                 <source>label.info_payment</source>

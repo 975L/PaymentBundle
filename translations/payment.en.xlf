@@ -8,7 +8,7 @@
             </trans-unit>
             <trans-unit id="v3WXbYt">
                 <source>description.gift_card_issue</source>
-                <target>For the cases where no sale creates the card: a gesture after an incident, a card sold face to face, cards the shop already had. The code is drawn at random and shown once, on submit.</target>
+                <target>For the cases where no sale creates the card: a gesture after an incident, a card sold face to face, cards the shop already had. The code is drawn at random, shown on submit, then stays readable in the card listing.</target>
             </trans-unit>
             <trans-unit id="K8fkUSx">
                 <source>description.gift_card_pdf</source>
@@ -17,6 +17,10 @@
             <trans-unit id="GznHAbM">
                 <source>description.gift_card_recipient_email</source>
                 <target>Optional. The card is sent straight to them; leave it empty to get it yourself and pass it on.</target>
+            </trans-unit>
+            <trans-unit id="4eRk939">
+                <source>description.guided_project_payment_archived_invoice</source>
+                <target>Bring back an archived order, two years on, to hand its invoice to the customer again</target>
             </trans-unit>
             <trans-unit id="ZqyUp7y">
                 <source>description.guided_project_payment_basket_integrity</source>
@@ -29,6 +33,14 @@
             <trans-unit id="2EJgWak">
                 <source>description.guided_project_payment_email_attachments</source>
                 <target>Let every order leave with its invoice and the terms the customer has just accepted</target>
+            </trans-unit>
+            <trans-unit id="gTxUji1">
+                <source>description.guided_project_payment_export</source>
+                <target>Take the orders out of the site as a table, for the accountant or another tool</target>
+            </trans-unit>
+            <trans-unit id="QI_5IB6">
+                <source>description.guided_project_payment_gateway_setup</source>
+                <target>Store the Stripe or Revolut keys, without which no order is ever charged</target>
             </trans-unit>
             <trans-unit id="3KSFe5s">
                 <source>description.guided_project_payment_gift_card_issue</source>
@@ -54,6 +66,22 @@
                 <source>description.guided_project_payment_transaction_review</source>
                 <target>Reconcile a payment recorded here against its real entry at Stripe or another provider</target>
             </trans-unit>
+            <trans-unit id="i6Hno6p">
+                <source>description.guided_step_payment_archived_invoice_filter</source>
+                <target>This button is the only one showing archived orders; the other filters only cover current ones.</target>
+            </trans-unit>
+            <trans-unit id="D10EUwv">
+                <source>description.guided_step_payment_archived_invoice_invoice</source>
+                <target>The very PDF the customer downloads. The button only shows on an order that was given an invoice number.</target>
+            </trans-unit>
+            <trans-unit id="5ktjblP">
+                <source>description.guided_step_payment_archived_invoice_open</source>
+                <target>A paid or shipped order leaves this listing after two years, once the legal warranty is over. It is kept for ten years all the same.</target>
+            </trans-unit>
+            <trans-unit id="iOb_Ujr">
+                <source>description.guided_step_payment_archived_invoice_search</source>
+                <target>Type its number or the customer's e-mail address: the search stays within the archived ones.</target>
+            </trans-unit>
             <trans-unit id="0n9FexF">
                 <source>description.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Once the order is handled, mark the row rather than running the whole check again: it leaves the default view and comes back on its own if the problem reappears.</target>
@@ -64,7 +92,7 @@
             </trans-unit>
             <trans-unit id="GSYB1xh">
                 <source>description.guided_step_payment_basket_integrity_offenders</source>
-                <target>A count does not say what to do: the unfolded list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
+                <target>A count does not say what to do: under each row, the list names the orders behind it, each with its link to open it in the back office. That is where the work starts.</target>
             </trans-unit>
             <trans-unit id="eiduuiL">
                 <source>description.guided_step_payment_basket_integrity_open</source>
@@ -122,21 +150,69 @@
                 <source>description.guided_step_payment_email_attachments_open</source>
                 <target>The shop's switches are here, as tiles. This one decides whether your order emails carry files at all; which files is ticked template by template in the email builder, which the "Tailor an e-mail" project walks through.</target>
             </trans-unit>
+            <trans-unit id="_U.pt07">
+                <source>description.guided_step_payment_export_format</source>
+                <target>CSV for a spreadsheet or the accountant, JSON for another tool, SQL to load into a database. The orders' access tokens are never part of it.</target>
+            </trans-unit>
+            <trans-unit id="4mR90Wq">
+                <source>description.guided_step_payment_export_open</source>
+                <target>The export takes every order of the table, archived ones included, whatever filter is shown.</target>
+            </trans-unit>
+            <trans-unit id="6N_bGCl">
+                <source>description.guided_step_payment_export_payments</source>
+                <target>The payments screen carries the same button: that is the one giving the amounts actually charged, provider by provider.</target>
+            </trans-unit>
+            <trans-unit id="Vc7NPEr">
+                <source>description.guided_step_payment_gateway_setup_check</source>
+                <target>On the health check screen, each provider's row says whether its keys actually authenticate: a revoked or mistyped key looks just like a good one until the first customer pays.</target>
+            </trans-unit>
+            <trans-unit id="huatacW">
+                <source>description.guided_step_payment_gateway_setup_default</source>
+                <target>Every provider whose keys are stored is offered to the customer. "Payment provider", among the non-sensitive settings of the same group, only names the one the basket pre-selects.</target>
+            </trans-unit>
+            <trans-unit id=".RLNiBx">
+                <source>description.guided_step_payment_gateway_setup_key</source>
+                <target>Pick your provider's secret key, Stripe or Revolut: each has a live one and a test one. They are fetched from its dashboard, the Revolut procedure detailing where.</target>
+            </trans-unit>
+            <trans-unit id="y3PeFng">
+                <source>description.guided_step_payment_gateway_setup_open</source>
+                <target>Keys and secrets are sensitive settings: the configuration lists them apart, masked, once the "Show sensitive" button is on.</target>
+            </trans-unit>
+            <trans-unit id="wP0C.Pt">
+                <source>description.guided_step_payment_gateway_setup_value</source>
+                <target>Paste it as the provider hands it over, with no space around it, then save. Do it again for the test key: that is the one the test mode uses.</target>
+            </trans-unit>
+            <trans-unit id="NCe._ZM">
+                <source>description.guided_step_payment_gateway_setup_webhook</source>
+                <target>Without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard; for Revolut, a command declares and stores it (see its procedure).</target>
+            </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
                 <target>It is typed in the shop's own currency and becomes the card's whole balance, which its holder spends over as many orders as it takes.</target>
             </trans-unit>
             <trans-unit id="MV_WBZ1">
                 <source>description.guided_step_payment_gift_card_issue_code</source>
-                <target>It is shown once, in the message above the listing you land back on. No screen prints it again, so hand it over before leaving that page.</target>
+                <target>It shows in the message above the listing you land back on, then stays readable in the card listing: hand it over to whoever the card is for.</target>
             </trans-unit>
             <trans-unit id=".kCwiia">
                 <source>description.guided_step_payment_gift_card_issue_confirm</source>
                 <target>The code is drawn at random on submit, the same way a purchase draws one - nothing about it is typed.</target>
             </trans-unit>
+            <trans-unit id="Zbn3t9N">
+                <source>description.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Untick Active: the card is refused at the basket, its balance left untouched. The same switch is also in the listing.</target>
+            </trans-unit>
+            <trans-unit id="7YRGF83">
+                <source>description.guided_step_payment_gift_card_issue_edit</source>
+                <target>The day a card is reported lost or stolen, find it in the listing by its code and open it for editing.</target>
+            </trans-unit>
             <trans-unit id="bR0j8lt">
                 <source>description.guided_step_payment_gift_card_issue_open</source>
                 <target>Every card is listed there, sold or issued by hand: the ones written here are told apart by naming no order.</target>
+            </trans-unit>
+            <trans-unit id="BCtiTRp">
+                <source>description.guided_step_payment_gift_card_issue_save</source>
+                <target>Ticked again later, the card picks up where it was, with the same code and the same balance.</target>
             </trans-unit>
             <trans-unit id="3Uhjrrk">
                 <source>description.guided_step_payment_gift_card_issue_start</source>
@@ -240,7 +316,7 @@
             </trans-unit>
             <trans-unit id="phQo4Nv">
                 <source>description.guided_step_payment_transaction_review_basket</source>
-                <target>The Basket column leads back to the baskets screen, carrying the address, the content and the order's status.</target>
+                <target>The Basket field leads to the order, carrying the address, the content and the status.</target>
             </trans-unit>
             <trans-unit id="jAHoQn_">
                 <source>description.guided_step_payment_transaction_review_detail</source>
@@ -252,7 +328,7 @@
             </trans-unit>
             <trans-unit id="BkNaLjq">
                 <source>description.guided_step_payment_transaction_review_provider</source>
-                <target>The Transaction icon opens it on Stripe's dashboard, once an id has been recorded. Revolut publishes no stable address for an order, so the icon is absent there and only the id is shown.</target>
+                <target>The transaction id is itself the link to Stripe's dashboard, once it has been recorded. Revolut publishes no stable address for an order, so only the id is shown there.</target>
             </trans-unit>
             <trans-unit id="bedYlU5">
                 <source>description.payment_gateway_unavailable</source>
@@ -324,7 +400,7 @@
             </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
-                <target>Gift card issued. Its code is %code% — write it down, it is not shown again.</target>
+                <target>Gift card issued. Its code is %code%.</target>
             </trans-unit>
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
@@ -862,6 +938,10 @@
                 <source>label.gift_cards_bought</source>
                 <target>Your gift cards</target>
             </trans-unit>
+            <trans-unit id="k4WpwOT">
+                <source>label.guided_project_payment_archived_invoice</source>
+                <target>Find an old order and its invoice</target>
+            </trans-unit>
             <trans-unit id="uDn2cDu">
                 <source>label.guided_project_payment_basket_integrity</source>
                 <target>Read the order checks</target>
@@ -873,6 +953,14 @@
             <trans-unit id="N99aoIk">
                 <source>label.guided_project_payment_email_attachments</source>
                 <target>Send the invoices and the terms of sale</target>
+            </trans-unit>
+            <trans-unit id="MzgGLAW">
+                <source>label.guided_project_payment_export</source>
+                <target>Export the orders</target>
+            </trans-unit>
+            <trans-unit id="FV6Btn0">
+                <source>label.guided_project_payment_gateway_setup</source>
+                <target>Connect the payment provider</target>
             </trans-unit>
             <trans-unit id="mXJ10rx">
                 <source>label.guided_project_payment_gift_card_issue</source>
@@ -898,6 +986,22 @@
                 <source>label.guided_project_payment_transaction_review</source>
                 <target>Trace a transaction back to its provider</target>
             </trans-unit>
+            <trans-unit id=".C8dpnr">
+                <source>label.guided_step_payment_archived_invoice_filter</source>
+                <target>Show the archived ones</target>
+            </trans-unit>
+            <trans-unit id="WWjGhAh">
+                <source>label.guided_step_payment_archived_invoice_invoice</source>
+                <target>Open the invoice</target>
+            </trans-unit>
+            <trans-unit id="25c9MCP">
+                <source>label.guided_step_payment_archived_invoice_open</source>
+                <target>Open the baskets</target>
+            </trans-unit>
+            <trans-unit id="n3nGlfH">
+                <source>label.guided_step_payment_archived_invoice_search</source>
+                <target>Search for the order</target>
+            </trans-unit>
             <trans-unit id="xppHcLR">
                 <source>label.guided_step_payment_basket_integrity_acknowledge</source>
                 <target>Declare a row dealt with</target>
@@ -908,7 +1012,7 @@
             </trans-unit>
             <trans-unit id="YiZA_an">
                 <source>label.guided_step_payment_basket_integrity_offenders</source>
-                <target>Open the list of orders</target>
+                <target>Read the list of orders</target>
             </trans-unit>
             <trans-unit id="jgAek_O">
                 <source>label.guided_step_payment_basket_integrity_open</source>
@@ -966,6 +1070,42 @@
                 <source>label.guided_step_payment_email_attachments_open</source>
                 <target>Open the dashboard</target>
             </trans-unit>
+            <trans-unit id="fZraFlM">
+                <source>label.guided_step_payment_export_format</source>
+                <target>Pick the format</target>
+            </trans-unit>
+            <trans-unit id="d1IQ_I5">
+                <source>label.guided_step_payment_export_open</source>
+                <target>Open the baskets</target>
+            </trans-unit>
+            <trans-unit id="Q82Y98D">
+                <source>label.guided_step_payment_export_payments</source>
+                <target>Payments too</target>
+            </trans-unit>
+            <trans-unit id="26tqXwn">
+                <source>label.guided_step_payment_gateway_setup_check</source>
+                <target>Check the keys answer</target>
+            </trans-unit>
+            <trans-unit id="6w8mo5W">
+                <source>label.guided_step_payment_gateway_setup_default</source>
+                <target>Choose the provider offered first</target>
+            </trans-unit>
+            <trans-unit id="eWJ7500">
+                <source>label.guided_step_payment_gateway_setup_key</source>
+                <target>Edit the secret key</target>
+            </trans-unit>
+            <trans-unit id="oZdzY_i">
+                <source>label.guided_step_payment_gateway_setup_open</source>
+                <target>Open the keys of the Payment group</target>
+            </trans-unit>
+            <trans-unit id="jmrL0Z4">
+                <source>label.guided_step_payment_gateway_setup_value</source>
+                <target>Paste the key</target>
+            </trans-unit>
+            <trans-unit id="mgS4mHP">
+                <source>label.guided_step_payment_gateway_setup_webhook</source>
+                <target>Store the webhook secret</target>
+            </trans-unit>
             <trans-unit id="RTgQnIQ">
                 <source>label.guided_step_payment_gift_card_issue_amount</source>
                 <target>Set the amount</target>
@@ -978,9 +1118,21 @@
                 <source>label.guided_step_payment_gift_card_issue_confirm</source>
                 <target>Mint the card</target>
             </trans-unit>
+            <trans-unit id="TDAYJJM">
+                <source>label.guided_step_payment_gift_card_issue_deactivate</source>
+                <target>Switch it off</target>
+            </trans-unit>
+            <trans-unit id="IPVJL.w">
+                <source>label.guided_step_payment_gift_card_issue_edit</source>
+                <target>Find a lost or stolen card</target>
+            </trans-unit>
             <trans-unit id="yKwKXwN">
                 <source>label.guided_step_payment_gift_card_issue_open</source>
                 <target>Open the gift cards</target>
+            </trans-unit>
+            <trans-unit id="v82mhFM">
+                <source>label.guided_step_payment_gift_card_issue_save</source>
+                <target>Save</target>
             </trans-unit>
             <trans-unit id="P1ibJDX">
                 <source>label.guided_step_payment_gift_card_issue_start</source>
@@ -1240,7 +1392,7 @@
             </trans-unit>
             <trans-unit id="JS_tnVE">
                 <source>label.info_gift_card</source>
-                <target>The gift cards sold, their remaining balance and the order that issued them.</target>
+                <target>The gift cards sold, their remaining balance and the order that issued them, or issued by hand from this screen.</target>
             </trans-unit>
             <trans-unit id="V9kI0CJ">
                 <source>label.info_payment</source>

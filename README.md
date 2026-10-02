@@ -58,6 +58,9 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   nothing else in a shop ever puts side by side (see [what the orders are checked for](#what-the-orders-are-checked-for))
 - A basket bar for the whole site, `<twig:c975LPayment:Basket:Navbar/>`, placed once by UiBundle's layout: shown
   as soon as the basket holds something, carrying the count and the total, and kept up to date without a page reload
+- **A paid order is measured by Matomo's e-commerce tracking** on the page the buyer or the payer lands on - its
+  lines, tax, shipping and discount, each selling bundle as its own category - whenever the site measures its
+  audience with Matomo (UiBundle's `matomo_enabled()`), with nothing for a satellite bundle to add
 - Its own stylesheet and icons, auto-registered through UiBundle's `BundleStylesheetProviderInterface` — the
   basket renders the same with or without ShopBundle installed, and a `price` class (with its `price--standalone`
   modifier and a `price-label` for the word above the figure, tuned through `--price-*` tokens) every bundle selling

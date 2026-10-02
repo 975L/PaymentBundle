@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Management;
 
+use c975L\ConfigBundle\Controller\Management\ConfigCrudController;
 use c975L\ConfigBundle\Management\GuidedProjectProviderInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Controller\Management\BasketCrudController;
@@ -34,6 +35,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     public function getGuidedProjects(): array
     {
         return [
+            $this->gatewaySetupProject(),
             $this->testModeProject(),
             $this->emailAttachmentsProject(),
             $this->transactionReviewProject(),
@@ -42,7 +44,66 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             $this->discountCodeProject(),
             $this->shippingGridProject(),
             $this->shippingProject(),
+            $this->archivedInvoiceProject(),
             $this->basketIntegrityProject(),
+            $this->exportProject(),
+        ];
+    }
+
+    // The very first gesture of a shop: nothing is charged until a provider's keys are stored, and they live among the sensitive entries of ConfigBundle's own screen rather than on any screen of this bundle
+    private function gatewaySetupProject(): array
+    {
+        return [
+            'slug' => 'payment-gateway-setup',
+            'label' => 'label.guided_project_payment_gateway_setup',
+            'description' => 'description.guided_project_payment_gateway_setup',
+            'translation_domain' => 'payment',
+            // Ahead of the test mode, which rehearses against keys this parcours is the one storing
+            'order' => 7005,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_gateway_setup_open',
+                    'description' => 'description.guided_step_payment_gateway_setup_open',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_open',
+                    // The keys are sensitive entries, which ConfigCrudController lists apart from the rest of their group and only once asked to (see its showSensitive toggle)
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(ConfigCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('group', 'payment')
+                        ->set('showSensitive', 1)
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gateway_setup_key',
+                    'description' => 'description.guided_step_payment_gateway_setup_key',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_key',
+                    'highlight' => '.action-edit',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gateway_setup_value',
+                    'description' => 'description.guided_step_payment_gateway_setup_value',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_value',
+                    'highlight' => '[data-guided-config-value]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gateway_setup_webhook',
+                    'description' => 'description.guided_step_payment_gateway_setup_webhook',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_webhook',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gateway_setup_default',
+                    'description' => 'description.guided_step_payment_gateway_setup_default',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_default',
+                ],
+                [
+                    // The health check screen is another one entirely, so the parcours names it rather than walking to it - see GatewayHealthCheckProvider
+                    'label' => 'label.guided_step_payment_gateway_setup_check',
+                    'description' => 'description.guided_step_payment_gateway_setup_check',
+                    'narration' => 'narration.guided_step_payment_gateway_setup_check',
+                ],
+            ],
         ];
     }
 
@@ -224,7 +285,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
         ];
     }
 
-    // Minting a card outside any sale, which is the one moment its code is ever shown - no screen prints it again afterwards
+    // Minting a card outside any sale, its code shown in the flash it lands back on and kept in the card listing, then switching one off once it is reported lost or stolen
     private function giftCardIssueProject(): array
     {
         return [
@@ -273,6 +334,24 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_gift_card_issue_code',
                     'description' => 'description.guided_step_payment_gift_card_issue_code',
                     'narration' => 'narration.guided_step_payment_gift_card_issue_code',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gift_card_issue_edit',
+                    'description' => 'description.guided_step_payment_gift_card_issue_edit',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_edit',
+                    'highlight' => '.action-edit',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gift_card_issue_deactivate',
+                    'description' => 'description.guided_step_payment_gift_card_issue_deactivate',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_deactivate',
+                    'highlight' => '#GiftCard_active',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_gift_card_issue_save',
+                    'description' => 'description.guided_step_payment_gift_card_issue_save',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_save',
+                    'highlight' => '.action-saveAndReturn',
                 ],
             ],
         ];
@@ -448,6 +527,50 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
         ];
     }
 
+    // An order two years old has left the list without leaving the shop: kept for its ten years, it is asked for again the day a customer needs their invoice back
+    private function archivedInvoiceProject(): array
+    {
+        return [
+            'slug' => 'payment-archived-invoice',
+            'label' => 'label.guided_project_payment_archived_invoice',
+            'description' => 'description.guided_project_payment_archived_invoice',
+            'translation_domain' => 'payment',
+            // After the parcel round: an order is archived once paid or shipped, which is where the life of an order ends on the back office
+            'order' => 7065,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_archived_invoice_open',
+                    'description' => 'description.guided_step_payment_archived_invoice_open',
+                    'narration' => 'narration.guided_step_payment_archived_invoice_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(BasketCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_archived_invoice_filter',
+                    'description' => 'description.guided_step_payment_archived_invoice_filter',
+                    'narration' => 'narration.guided_step_payment_archived_invoice_filter',
+                    'highlight' => '.action-filterArchived',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_archived_invoice_search',
+                    'description' => 'description.guided_step_payment_archived_invoice_search',
+                    'narration' => 'narration.guided_step_payment_archived_invoice_search',
+                    'highlight' => '.form-action-search',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_archived_invoice_invoice',
+                    'description' => 'description.guided_step_payment_archived_invoice_invoice',
+                    'narration' => 'narration.guided_step_payment_archived_invoice_invoice',
+                    'highlight' => '.action-invoice',
+                ],
+            ],
+        ];
+    }
+
     // The six weekly checks are run by a scheduler nobody watches - what is missing is the habit of reading what they found, and of following each count to the orders behind it
     private function basketIntegrityProject(): array
     {
@@ -495,6 +618,43 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_basket_integrity_done',
                     'description' => 'description.guided_step_payment_basket_integrity_done',
                     'narration' => 'narration.guided_step_payment_basket_integrity_done',
+                ],
+            ],
+        ];
+    }
+
+    // The orders leaving the site as a flat table, for the accountant or another tool - never as an archive to re-import (see BasketCrudController's export group)
+    private function exportProject(): array
+    {
+        return [
+            'slug' => 'payment-export',
+            'label' => 'label.guided_project_payment_export',
+            'description' => 'description.guided_project_payment_export',
+            'translation_domain' => 'payment',
+            'order' => 7080,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_export_open',
+                    'description' => 'description.guided_step_payment_export_open',
+                    'narration' => 'narration.guided_step_payment_export_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(BasketCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->generateUrl(),
+                ],
+                [
+                    // EasyAdmin renders a group as a dropdown carrying its name as a data attribute, not as an `action-<name>` class
+                    'label' => 'label.guided_step_payment_export_format',
+                    'description' => 'description.guided_step_payment_export_format',
+                    'narration' => 'narration.guided_step_payment_export_format',
+                    'highlight' => '[data-action-group-name="export"]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_export_payments',
+                    'description' => 'description.guided_step_payment_export_payments',
+                    'narration' => 'narration.guided_step_payment_export_payments',
                 ],
             ],
         ];
