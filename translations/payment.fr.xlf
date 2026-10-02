@@ -30,10 +30,6 @@
                 <source>description.guided_project_payment_discount_code</source>
                 <target>Retirer un pourcentage ou une somme fixe d'une commande, dans les limites que le code porte lui-même</target>
             </trans-unit>
-            <trans-unit id="2EJgWak">
-                <source>description.guided_project_payment_email_attachments</source>
-                <target>Laisser partir avec chaque commande la facture et les conditions que le client vient d'accepter</target>
-            </trans-unit>
             <trans-unit id="gTxUji1">
                 <source>description.guided_project_payment_export</source>
                 <target>Sortir les commandes du site en tableau, pour le comptable ou un autre outil</target>
@@ -133,22 +129,6 @@
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
                 <target>Lu comme un pourcentage pour le premier type, et en centimes pour le second : 10 vaut soit un dixième de la commande, soit dix centimes de moins.</target>
-            </trans-unit>
-            <trans-unit id="36OccY.">
-                <source>description.guided_step_payment_email_attachments_check</source>
-                <target>La tuile n'est plus en évidence et propose maintenant de désactiver : c'est le seul signe à lire, l'envoi ne se voit qu'à la commande suivante.</target>
-            </trans-unit>
-            <trans-unit id="Fd0XLW7">
-                <source>description.guided_step_payment_email_attachments_done</source>
-                <target>Passez une commande d'essai en mode test : sa confirmation doit arriver avec les fichiers cochés sur ce modèle. S'il n'y en a aucun, l'interrupteur est bien allumé mais rien n'a été coché dans le constructeur d'emails.</target>
-            </trans-unit>
-            <trans-unit id=".3CFVoz">
-                <source>description.guided_step_payment_email_attachments_enable</source>
-                <target>La tuile reste en évidence tant que l'envoi est désactivé : remettre au client les conditions qu'il a acceptées sous forme de fichier, et non par un lien vers une page réécrite ensuite, est ce que la loi appelle un support durable.</target>
-            </trans-unit>
-            <trans-unit id="nugIkMQ">
-                <source>description.guided_step_payment_email_attachments_open</source>
-                <target>Les interrupteurs de la boutique sont ici, en tuiles. Celui-ci décide si vos emails de commande emportent des fichiers ; quels fichiers, cela se coche modèle par modèle dans le constructeur d'emails, ce que montre le parcours « Personnaliser un e-mail ».</target>
             </trans-unit>
             <trans-unit id="_U.pt07">
                 <source>description.guided_step_payment_export_format</source>
@@ -405,14 +385,6 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>Aucune commande en attente d'expédition avec une adresse à imprimer.</target>
-            </trans-unit>
-            <trans-unit id="dzI5V2T">
-                <source>flash.payment_email_attachments_disabled</source>
-                <target>Les emails de commande partent sans pièce jointe : ni facture, ni CGV.</target>
-            </trans-unit>
-            <trans-unit id="vMtJyZa">
-                <source>flash.payment_email_attachments_enabled</source>
-                <target>Les emails de commande partent désormais avec les documents cochés sur eux : facture et CGV.</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -950,10 +922,6 @@
                 <source>label.guided_project_payment_discount_code</source>
                 <target>Écrire un code promo</target>
             </trans-unit>
-            <trans-unit id="N99aoIk">
-                <source>label.guided_project_payment_email_attachments</source>
-                <target>Envoyer les factures et les CGV</target>
-            </trans-unit>
             <trans-unit id="MzgGLAW">
                 <source>label.guided_project_payment_export</source>
                 <target>Exporter les commandes</target>
@@ -1053,22 +1021,6 @@
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
                 <target>Fixer ce qui est retiré</target>
-            </trans-unit>
-            <trans-unit id="uAFGPZE">
-                <source>label.guided_step_payment_email_attachments_check</source>
-                <target>Vérifier que c'est en place</target>
-            </trans-unit>
-            <trans-unit id="LLaLwY.">
-                <source>label.guided_step_payment_email_attachments_done</source>
-                <target>Les documents partent</target>
-            </trans-unit>
-            <trans-unit id="6bQZ9q8">
-                <source>label.guided_step_payment_email_attachments_enable</source>
-                <target>Activer l'envoi</target>
-            </trans-unit>
-            <trans-unit id="CnN8RYt">
-                <source>label.guided_step_payment_email_attachments_open</source>
-                <target>Ouvrir le tableau de bord</target>
             </trans-unit>
             <trans-unit id="fZraFlM">
                 <source>label.guided_step_payment_export_format</source>
@@ -1489,14 +1441,6 @@
             <trans-unit id="QqBUjYP">
                 <source>label.payment_confirming_info</source>
                 <target>Votre paiement est en cours de vérification auprès de notre prestataire. Dès qu'il est confirmé, votre commande est enregistrée et vous recevez un e-mail de confirmation. Rien d'autre ne vous est demandé.</target>
-            </trans-unit>
-            <trans-unit id="rBtrbhw">
-                <source>label.payment_email_attachments_disable</source>
-                <target>Désactiver l'envoi des factures et CGV</target>
-            </trans-unit>
-            <trans-unit id="bQx3h2v">
-                <source>label.payment_email_attachments_enable</source>
-                <target>Activer l'envoi des factures et CGV</target>
             </trans-unit>
             <trans-unit id="ma8Bmbh">
                 <source>label.payment_gateway_unavailable</source>

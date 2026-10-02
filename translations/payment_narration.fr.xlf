@@ -82,22 +82,6 @@
                 <source>narration.guided_step_payment_discount_code_value</source>
                 <target>Fixez ce qui est retiré. La valeur est lue comme un pourcentage pour le premier type, et en centimes pour le second : dix vaut soit un dixième de la commande, soit dix centimes de moins.</target>
             </trans-unit>
-            <trans-unit id="G8P2AdP">
-                <source>narration.guided_step_payment_email_attachments_check</source>
-                <target>Vérifiez que c'est en place : la tuile n'est plus en évidence et propose maintenant de désactiver. C'est le seul signe à lire, l'envoi ne se voyant qu'à la commande suivante.</target>
-            </trans-unit>
-            <trans-unit id="f0bddE7">
-                <source>narration.guided_step_payment_email_attachments_done</source>
-                <target>Passez une commande d'essai en mode test : sa confirmation doit arriver avec les fichiers cochés sur ce modèle. S'il n'y en a aucun, l'interrupteur est bien allumé mais rien n'a été coché dans le constructeur d'e-mails.</target>
-            </trans-unit>
-            <trans-unit id="gTF4rJ6">
-                <source>narration.guided_step_payment_email_attachments_enable</source>
-                <target>Activez l'envoi. La tuile reste en évidence tant qu'il est désactivé : remettre au client les conditions qu'il a acceptées sous forme de fichier, et non par un lien vers une page réécrite ensuite, est ce que la loi appelle un support durable.</target>
-            </trans-unit>
-            <trans-unit id="Bh6jByn">
-                <source>narration.guided_step_payment_email_attachments_open</source>
-                <target>Le panneau vous emmène sur le tableau de bord, où les interrupteurs de la boutique sont en tuiles. Celui-ci décide si vos e-mails de commande emportent des fichiers ; quels fichiers, cela se coche modèle par modèle dans le constructeur d'e-mails.</target>
-            </trans-unit>
             <trans-unit id="0pbMj9O">
                 <source>narration.guided_step_payment_export_format</source>
                 <target>Choisissez le format : CSV pour un tableur ou le comptable, JSON pour un autre outil, SQL pour recharger une base. Les jetons d'accès aux commandes n'en font jamais partie.</target>

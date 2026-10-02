@@ -1,5 +1,13 @@
 # UPGRADE
 
+## v6.15 > v6.16
+
+**`payment-email-attachments` is gone: an order email carries the documents ticked on its template, and nothing
+else decides.** A site whose templates had the invoice or the terms of sale ticked while the switch was off
+**starts attaching them the day it upgrades** - open the email builder and untick what is not ready yet
+(`shop-invoice-mentions`, terms of sale not written). The dashboard tile is gone with it. The stored row is now
+undeclared: remove it with `c975l:config:prune` (or from ConfigBundle's prune screen).
+
 ## v6.13 > v6.14
 
 **The waiver of the right of withdrawal is dated on the order.** `payment_basket` gains one nullable column,

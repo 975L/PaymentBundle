@@ -82,22 +82,6 @@
                 <source>narration.guided_step_payment_discount_code_value</source>
                 <target>Fije lo que se descuenta. El valor se lee como un porcentaje para el primer tipo, y en céntimos para el segundo: diez vale o bien una décima parte del pedido, o bien diez céntimos menos.</target>
             </trans-unit>
-            <trans-unit id="G8P2AdP">
-                <source>narration.guided_step_payment_email_attachments_check</source>
-                <target>Compruebe que está en su sitio: el mosaico ya no está resaltado y ahora propone desactivar. Es la única señal que leer, ya que el envío solo se ve en el pedido siguiente.</target>
-            </trans-unit>
-            <trans-unit id="f0bddE7">
-                <source>narration.guided_step_payment_email_attachments_done</source>
-                <target>Haga un pedido de prueba en modo de prueba: su confirmación debe llegar con los archivos marcados en esa plantilla. Si no llega ninguno, el interruptor está bien encendido pero no se marcó nada en el constructor de correos.</target>
-            </trans-unit>
-            <trans-unit id="gTF4rJ6">
-                <source>narration.guided_step_payment_email_attachments_enable</source>
-                <target>Active el envío. El mosaico permanece resaltado mientras está desactivado: entregar al cliente las condiciones que aceptó como archivo, y no mediante un enlace a una página reescrita después, es lo que la ley llama un soporte duradero.</target>
-            </trans-unit>
-            <trans-unit id="Bh6jByn">
-                <source>narration.guided_step_payment_email_attachments_open</source>
-                <target>El panel le lleva al tablero, donde los interruptores de la tienda están en mosaicos. Este decide si sus correos de pedido llevan archivos; qué archivos se marca plantilla por plantilla en el constructor de correos.</target>
-            </trans-unit>
             <trans-unit id="0pbMj9O">
                 <source>narration.guided_step_payment_export_format</source>
                 <target>Elija el formato: CSV para una hoja de cálculo o el contable, JSON para otra herramienta, SQL para cargar una base de datos. Los tokens de acceso a los pedidos nunca forman parte de él.</target>

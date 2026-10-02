@@ -82,22 +82,6 @@
                 <source>narration.guided_step_payment_discount_code_value</source>
                 <target>Set what it takes off. The value is read as a percentage for the first kind, and in cents for the second: ten is either a tenth of the order or ten cents off it.</target>
             </trans-unit>
-            <trans-unit id="G8P2AdP">
-                <source>narration.guided_step_payment_email_attachments_check</source>
-                <target>Check that it is in place: the tile is no longer highlighted and now offers to turn it off. That is the only sign to read, the sending itself only showing on the next order.</target>
-            </trans-unit>
-            <trans-unit id="f0bddE7">
-                <source>narration.guided_step_payment_email_attachments_done</source>
-                <target>Place a rehearsal order in test mode: its confirmation should arrive with the files ticked on that template. If none comes, the switch is on but nothing was ticked in the e-mail builder.</target>
-            </trans-unit>
-            <trans-unit id="gTF4rJ6">
-                <source>narration.guided_step_payment_email_attachments_enable</source>
-                <target>Turn the sending on. The tile stays highlighted while it is off: handing the customer the terms they accepted as a file, rather than as a link to a page rewritten afterwards, is what the law calls a durable medium.</target>
-            </trans-unit>
-            <trans-unit id="Bh6jByn">
-                <source>narration.guided_step_payment_email_attachments_open</source>
-                <target>The panel takes you to the dashboard, where the shop's switches sit as tiles. This one decides whether your order e-mails carry files at all; which files is ticked template by template in the e-mail builder.</target>
-            </trans-unit>
             <trans-unit id="0pbMj9O">
                 <source>narration.guided_step_payment_export_format</source>
                 <target>Pick the format: CSV for a spreadsheet or the accountant, JSON for another tool, SQL to load into a database. The orders' access tokens are never part of it.</target>

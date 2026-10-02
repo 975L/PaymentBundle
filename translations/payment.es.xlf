@@ -30,10 +30,6 @@
                 <source>description.guided_project_payment_discount_code</source>
                 <target>Descontar un porcentaje o una suma fija de un pedido, dentro de los límites que el propio código lleva</target>
             </trans-unit>
-            <trans-unit id="2EJgWak">
-                <source>description.guided_project_payment_email_attachments</source>
-                <target>Dejar que cada pedido salga con su factura y las condiciones que el cliente acaba de aceptar</target>
-            </trans-unit>
             <trans-unit id="gTxUji1">
                 <source>description.guided_project_payment_export</source>
                 <target>Sacar los pedidos del sitio en una tabla, para el contable u otra herramienta</target>
@@ -133,22 +129,6 @@
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
                 <target>Se lee como un porcentaje para el primer tipo y en céntimos para el segundo: 10 es o bien una décima parte del pedido, o bien diez céntimos menos.</target>
-            </trans-unit>
-            <trans-unit id="36OccY.">
-                <source>description.guided_step_payment_email_attachments_check</source>
-                <target>El mosaico ya no está resaltado y ahora propone desactivar: es la única señal que leer, el envío solo se ve en el pedido siguiente.</target>
-            </trans-unit>
-            <trans-unit id="Fd0XLW7">
-                <source>description.guided_step_payment_email_attachments_done</source>
-                <target>Haga un pedido de prueba en modo de prueba: su confirmación debe llegar con los archivos marcados en esa plantilla. Si no llega ninguno, el interruptor está encendido pero no se marcó nada en el constructor de correos.</target>
-            </trans-unit>
-            <trans-unit id=".3CFVoz">
-                <source>description.guided_step_payment_email_attachments_enable</source>
-                <target>El mosaico permanece resaltado mientras el envío está desactivado: entregar al cliente las condiciones que aceptó como archivo, y no mediante un enlace a una página reescrita después, es lo que la ley llama un soporte duradero.</target>
-            </trans-unit>
-            <trans-unit id="nugIkMQ">
-                <source>description.guided_step_payment_email_attachments_open</source>
-                <target>Los interruptores de la tienda están aquí, en mosaicos. Este decide si sus correos de pedido llevan archivos; qué archivos se marca plantilla por plantilla en el constructor de correos, que muestra el recorrido «Personalizar un correo».</target>
             </trans-unit>
             <trans-unit id="_U.pt07">
                 <source>description.guided_step_payment_export_format</source>
@@ -405,14 +385,6 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>Ningún pedido pendiente de envío tiene una dirección que imprimir.</target>
-            </trans-unit>
-            <trans-unit id="dzI5V2T">
-                <source>flash.payment_email_attachments_disabled</source>
-                <target>Los correos de pedido se envían sin archivo adjunto: ni factura ni condiciones de venta.</target>
-            </trans-unit>
-            <trans-unit id="vMtJyZa">
-                <source>flash.payment_email_attachments_enabled</source>
-                <target>Los correos de pedido se envían ahora con los documentos marcados: factura y condiciones de venta.</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -950,10 +922,6 @@
                 <source>label.guided_project_payment_discount_code</source>
                 <target>Escribir un código promocional</target>
             </trans-unit>
-            <trans-unit id="N99aoIk">
-                <source>label.guided_project_payment_email_attachments</source>
-                <target>Enviar las facturas y las condiciones de venta</target>
-            </trans-unit>
             <trans-unit id="MzgGLAW">
                 <source>label.guided_project_payment_export</source>
                 <target>Exportar los pedidos</target>
@@ -1053,22 +1021,6 @@
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
                 <target>Fijar lo que se descuenta</target>
-            </trans-unit>
-            <trans-unit id="uAFGPZE">
-                <source>label.guided_step_payment_email_attachments_check</source>
-                <target>Comprobar que está en marcha</target>
-            </trans-unit>
-            <trans-unit id="LLaLwY.">
-                <source>label.guided_step_payment_email_attachments_done</source>
-                <target>Los documentos salen</target>
-            </trans-unit>
-            <trans-unit id="6bQZ9q8">
-                <source>label.guided_step_payment_email_attachments_enable</source>
-                <target>Activar el envío</target>
-            </trans-unit>
-            <trans-unit id="CnN8RYt">
-                <source>label.guided_step_payment_email_attachments_open</source>
-                <target>Abrir el panel</target>
             </trans-unit>
             <trans-unit id="fZraFlM">
                 <source>label.guided_step_payment_export_format</source>
@@ -1489,14 +1441,6 @@
             <trans-unit id="QqBUjYP">
                 <source>label.payment_confirming_info</source>
                 <target>Su pago está siendo verificado con nuestro proveedor. En cuanto se confirme, su pedido queda registrado y recibirá un correo de confirmación. No se le pide nada más.</target>
-            </trans-unit>
-            <trans-unit id="rBtrbhw">
-                <source>label.payment_email_attachments_disable</source>
-                <target>Desactivar el envío de facturas y condiciones de venta</target>
-            </trans-unit>
-            <trans-unit id="bQx3h2v">
-                <source>label.payment_email_attachments_enable</source>
-                <target>Activar el envío de facturas y condiciones de venta</target>
             </trans-unit>
             <trans-unit id="ma8Bmbh">
                 <source>label.payment_gateway_unavailable</source>

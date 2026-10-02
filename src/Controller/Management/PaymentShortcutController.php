@@ -23,7 +23,6 @@ class PaymentShortcutController extends AbstractController
 {
     // EasyAdmin prefixes these with the Dashboard's own route name, giving management_payment_test_mode_toggle
     public const string TOGGLE_ROUTE_TEST_MODE = 'management_payment_test_mode_toggle';
-    public const string TOGGLE_ROUTE_EMAIL_ATTACHMENTS = 'management_payment_email_attachments_toggle';
 
     public function __construct(
         private readonly ConfigRepository $configRepository,
@@ -42,17 +41,6 @@ class PaymentShortcutController extends AbstractController
     public function toggleTestMode(Request $request): RedirectResponse
     {
         return $this->toggle($request, 'payment-test-mode', self::TOGGLE_ROUTE_TEST_MODE, 'flash.payment_test_mode');
-    }
-
-    // Flips the 'payment-email-attachments' config value; which documents each e-mail then carries stays ticked template by template in the e-mail builder, and BasketEmailFactory reads this switch before asking for any of them
-    #[AdminRoute(
-        path: '/payment/email-attachments-toggle',
-        name: 'payment_email_attachments_toggle',
-        options: ['methods' => ['POST']]
-    )]
-    public function toggleEmailAttachments(Request $request): RedirectResponse
-    {
-        return $this->toggle($request, 'payment-email-attachments', self::TOGGLE_ROUTE_EMAIL_ATTACHMENTS, 'flash.payment_email_attachments');
     }
 
     /**

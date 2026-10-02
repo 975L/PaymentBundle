@@ -37,7 +37,6 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
         return [
             $this->gatewaySetupProject(),
             $this->testModeProject(),
-            $this->emailAttachmentsProject(),
             $this->transactionReviewProject(),
             $this->paymentLinkProject(),
             $this->giftCardIssueProject(),
@@ -145,45 +144,6 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_test_mode_done',
                     'description' => 'description.guided_step_payment_test_mode_done',
                     'narration' => 'narration.guided_step_payment_test_mode_done',
-                ],
-            ],
-        ];
-    }
-
-    // The one switch deciding whether an order leaves with its invoice and the terms the customer accepted, rather than with its sentences alone
-    private function emailAttachmentsProject(): array
-    {
-        return [
-            'slug' => 'payment-email-attachments',
-            'label' => 'label.guided_project_payment_email_attachments',
-            'description' => 'description.guided_project_payment_email_attachments',
-            'translation_domain' => 'payment',
-            // Slipped between the test-mode parcours and the transaction one: both this and the test mode are switches to set before a first real order, not a task carried out on the orders already taken
-            'order' => 7015,
-            'role' => $this->roleNeeded(),
-            'steps' => [
-                [
-                    'label' => 'label.guided_step_payment_email_attachments_open',
-                    'description' => 'description.guided_step_payment_email_attachments_open',
-                    'narration' => 'narration.guided_step_payment_email_attachments_open',
-                    'url' => $this->urlGenerator->generate('management'),
-                ],
-                [
-                    'label' => 'label.guided_step_payment_email_attachments_enable',
-                    'description' => 'description.guided_step_payment_email_attachments_enable',
-                    'narration' => 'narration.guided_step_payment_email_attachments_enable',
-                    'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
-                ],
-                [
-                    'label' => 'label.guided_step_payment_email_attachments_check',
-                    'description' => 'description.guided_step_payment_email_attachments_check',
-                    'narration' => 'narration.guided_step_payment_email_attachments_check',
-                    'highlight' => 'form[action$="/payment/email-attachments-toggle"] button',
-                ],
-                [
-                    'label' => 'label.guided_step_payment_email_attachments_done',
-                    'description' => 'description.guided_step_payment_email_attachments_done',
-                    'narration' => 'narration.guided_step_payment_email_attachments_done',
                 ],
             ],
         ];

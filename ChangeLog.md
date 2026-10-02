@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.16.0
+
+An order email carries exactly the documents ticked on its template
+
+- Removed the `payment-email-attachments` config: the template's ticked documents are always attached (02/10/2026) [BC-Break] see [UPGRADE.md](UPGRADE.md)
+- Removed the documents dashboard tile and `PaymentShortcutController::TOGGLE_ROUTE_EMAIL_ATTACHMENTS` (02/10/2026) [BC-Break]
+- Removed the `payment-email-attachments` guided project (02/10/2026)
+
 ## v6.15.0
 
 A paid order is measured by Matomo's e-commerce tracking

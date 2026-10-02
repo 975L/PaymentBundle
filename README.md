@@ -429,7 +429,7 @@ nothing either, and fall back on the same live values they were already being dr
 | --- | --- |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}`, linked from the customer's own order page |
 | Back office | An **Invoice** action on every numbered order, opening the same file |
-| E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments), and sent only while the shop's own switch is on — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
+| E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments) — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
 
 **A buyer may have it made out to their business**: the coordinates form offers a company name and a VAT number,
 printed in the billed-to block, and asks a digital order for the business' postal address once a company is given.
@@ -495,18 +495,14 @@ senders and not the site's, and the *E-mail* group holds the site's.
 An order e-mail can travel with files: its **invoice** (`payment:invoice`, this bundle's own
 `InvoiceAttachmentProvider`) and the site's **terms of sale** (`legal:*`, UiBundle's
 `LegalDocumentAttachmentProvider`). Which template carries which is ticked in the e-mail builder, one template at a
-time; whether any of them is sent at all is one switch for the whole shop, **`payment-email-attachments`**, flipped
-from the dashboard's tile rather than edited by hand.
+time - UiBundle's *ui-email-template* guided project walks through it - and that is the only decision:
+`BasketEmailFactory` attaches what the template ticks, and a template with nothing ticked goes out with its body
+alone. Tick them once `shop-invoice-mentions` and the terms of sale are written, not before.
 
-It is **off by default**, and deliberately: a site whose `shop-invoice-mentions` or whose terms of sale are not
-written yet would otherwise attach them to its very first order. While it is off `BasketEmailFactory` asks for
-nothing, so no invoice PDF is drawn only to be thrown away.
-
-Turning it on is worth doing once the documents are ready. Where the law asks for a **durable medium** — the terms
+Ticking the terms of sale on `confirm_order` is worth doing. Where the law asks for a **durable medium** — the terms
 a customer accepted, handed to them at the moment of the sale — a link to a page is not one, the page being
 rewritable afterwards (art. L221-13 of the Code de la consommation, and CJEU C-49/11 on the hyperlink); a file in
-their mailbox is. That is why the tile is painted as a warning while the sending is off, which is the opposite of
-the test-mode tile beside it.
+their mailbox is.
 
 ---
 

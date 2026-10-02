@@ -3,6 +3,11 @@
         "date": "2026-10-02",
         "description": [
             {
+                "en": "Your order emails now carry exactly the documents ticked on each of their templates in the email builder - the dashboard tile that switched them all on or off is gone. Untick the invoice or the terms of sale wherever they are not ready yet.",
+                "fr": "Vos e-mails de commande emportent désormais exactement les documents cochés sur chacun de leurs modèles dans le constructeur d'e-mails - la tuile du tableau de bord qui les activait tous d'un coup disparaît. Décochez la facture ou les CGV là où elles ne sont pas encore prêtes.",
+                "es": "Sus correos de pedido llevan ahora exactamente los documentos marcados en cada una de sus plantillas en el editor de correos: desaparece el mosaico del panel que los activaba todos a la vez. Desmarque la factura o las condiciones de venta allí donde aún no estén listas."
+            },
+            {
                 "en": "A paid order is now counted in your Matomo e-commerce reports, with its products, tax, shipping and discount, as soon as your site measures its audience with Matomo.",
                 "fr": "Une commande payée est désormais comptée dans vos rapports e-commerce Matomo, avec ses produits, la TVA, la livraison et la remise, dès que votre site mesure son audience avec Matomo.",
                 "es": "Un pedido pagado se cuenta ahora en sus informes de comercio electrónico de Matomo, con sus productos, el IVA, el envío y el descuento, en cuanto su sitio mide su audiencia con Matomo."

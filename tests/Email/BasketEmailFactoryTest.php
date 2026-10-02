@@ -103,33 +103,21 @@ class BasketEmailFactoryTest extends TestCase
     }
 
     // The documents that email's row says it travels with - the invoice and the terms of sale a shop attaches to its confirmations, ticked in the builder one template at a time
-    public function testItCarriesWhatItsTemplateSaysItTravelsWithOnceTheShopSendsDocuments(): void
+    public function testItCarriesTheDocumentsTickedOnItsTemplate(): void
     {
         $attachment = new EmailAttachment('conditions-generales-de-vente.pdf', '%PDF-1.7');
 
-        $request = $this->factory($this->rendererCarrying($attachment))->create($this->basket(), 'label.confirm_order', 'confirm_order');
+        $request = $this->factory($this->rendererCarrying([$attachment]))->create($this->basket(), 'label.confirm_order', 'confirm_order');
 
         $this->assertSame([$attachment], $request->attachments);
     }
 
-    // The shop's own switch, off by default: a site whose invoice mentions or terms of sale are not written yet does not attach them to its first order, whatever its templates have ticked
-    public function testItSendsNoDocumentAtAllWhileTheShopSwitchIsOff(): void
+    // A template with nothing ticked goes out with its body alone, no shop-wide switch adding or withholding anything
+    public function testItCarriesNoDocumentWhenItsTemplateTicksNone(): void
     {
-        $renderer = $this->rendererCarrying(new EmailAttachment('conditions-generales-de-vente.pdf', '%PDF-1.7'));
-
-        $request = $this->factory($renderer, 'false')->create($this->basket(), 'label.confirm_order', 'confirm_order');
+        $request = $this->factory($this->rendererCarrying([]))->create($this->basket(), 'label.confirm_order', 'confirm_order');
 
         $this->assertSame([], $request->attachments);
-    }
-
-    // Nothing is even drawn while the switch is off - the invoice PDF is rendered on demand, and rendering one to throw it away is the cost this guards against
-    public function testTheDocumentsAreNotEvenDrawnWhileTheSwitchIsOff(): void
-    {
-        $emailTemplateRenderer = $this->createMock(EmailTemplateRenderer::class);
-        $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
-        $emailTemplateRenderer->expects($this->never())->method('attachmentsFor');
-
-        $this->factory($emailTemplateRenderer, 'false')->create($this->basket(), 'label.confirm_order', 'confirm_order');
     }
 
     // The order and the language it was placed in, so a document is drawn about that sale and written to that customer
@@ -147,31 +135,28 @@ class BasketEmailFactoryTest extends TestCase
         $this->factory($emailTemplateRenderer)->create($basket, 'label.confirm_order', 'confirm_order', ['downloadLinks' => ['a-link']]);
     }
 
-    /**
-     * A config stub answering that map, and reading a boolean exactly as ConfigService does - the switch is stored
-     * as the string "true" or "false", which a plain cast would both read as true.
-     *
-     * @param list<array{0: string, 1: mixed}> $map
-     */
+    // A config stub answering that map
+    /** @param list<array{0: string, 1: mixed}> $map */
     private function configService(array $map): ConfigServiceInterface
     {
         $configService = $this->createStub(ConfigServiceInterface::class);
         $configService->method('get')->willReturnMap($map);
-        $configService->method('getBool')->willReturnCallback(static fn ($value): bool => filter_var($value, \FILTER_VALIDATE_BOOLEAN));
 
         return $configService;
     }
 
-    private function rendererCarrying(EmailAttachment $attachment): EmailTemplateRenderer
+    // A renderer whose template is ticked with those documents, none being a template with nothing ticked
+    /** @param list<EmailAttachment> $attachments */
+    private function rendererCarrying(array $attachments): EmailTemplateRenderer
     {
         $emailTemplateRenderer = $this->createStub(EmailTemplateRenderer::class);
         $emailTemplateRenderer->method('renderNamed')->willReturn('<html>composed</html>');
-        $emailTemplateRenderer->method('attachmentsFor')->willReturn([$attachment]);
+        $emailTemplateRenderer->method('attachmentsFor')->willReturn($attachments);
 
         return $emailTemplateRenderer;
     }
 
-    private function factory(?EmailTemplateRenderer $emailTemplateRenderer = null, string $attachments = 'true'): BasketEmailFactory
+    private function factory(?EmailTemplateRenderer $emailTemplateRenderer = null): BasketEmailFactory
     {
         $configService = $this->configService([
             ['shop-name', 'My shop'],
@@ -180,7 +165,6 @@ class BasketEmailFactoryTest extends TestCase
             ['shop-email-reply-to', 'contact@shop.test'],
             ['shop-email-reply-to-name', 'Shop contact'],
             ['shop-email-bcc', 'archive@shop.test'],
-            ['payment-email-attachments', $attachments],
         ]);
 
         // Where the body comes from - the site's own row or the wording this bundle declares - is EmailTemplateRenderer's affair; these tests are about the envelope around it

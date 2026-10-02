@@ -68,11 +68,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-gateway-setup', 'payment-test-mode', 'payment-email-attachments', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
+            ['payment-gateway-setup', 'payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
             array_column($projects, 'slug'),
         );
-        // 7005, 7015, 7055 and 7065 slip between two tens rather than being appended: the keys come before the test mode rehearsing against them, the documents switch is set beside the test mode, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
-        $this->assertSame([7005, 7010, 7015, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
+        // 7005, 7055 and 7065 slip between two tens rather than being appended: the keys come before the test mode rehearsing against them, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
+        $this->assertSame([7005, 7010, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -124,14 +124,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         }
     }
 
-    // The two toggles live on the dashboard and the order checks on ConfigBundle's health check screen, none of them on a CRUD one
+    // The test-mode toggle lives on the dashboard and the order checks on ConfigBundle's health check screen, neither of them on a CRUD one
     public function testTheProjectsOpeningOnAPlainRouteNameIt(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['management', 'management', 'management_health_check_index'], $routes);
+        $this->assertSame(['management', 'management_health_check_index'], $routes);
     }
 
     // Each parcours opens on the listing the task starts from, the four written from the baskets one included, and the keys on ConfigBundle's own screen
@@ -198,18 +198,6 @@ class PaymentGuidedProjectProviderTest extends TestCase
 
         $this->assertSame(
             ['form[action$="/payment/test-mode-toggle"] button', 'form[action$="/payment/test-mode-toggle"] button'],
-            array_values(array_filter($highlights)),
-        );
-    }
-
-    // The same shape for the documents tile, whose route is the other half of PaymentShortcutController - a parcours pointing at a toggle no tile posts to highlights nothing
-    public function testTheDocumentsToggleStepsHighlightTheOtherShortcutButton(): void
-    {
-        $project = $this->project('payment-email-attachments');
-        $highlights = array_column($project['steps'], 'highlight');
-
-        $this->assertSame(
-            ['form[action$="/payment/email-attachments-toggle"] button', 'form[action$="/payment/email-attachments-toggle"] button'],
             array_values(array_filter($highlights)),
         );
     }
