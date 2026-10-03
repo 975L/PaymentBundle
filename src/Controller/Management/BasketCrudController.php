@@ -388,6 +388,8 @@ class BasketCrudController extends AbstractCrudController
             ->add('description', TextareaType::class, [
                 'label' => t('label.description', [], 'payment'),
                 'required' => false,
+                // Opt-in marker read by the block form theme, which is what puts Donovan under a plain textarea
+                'attr' => ['data-ai-rephrase' => true],
             ])
             // Part of the form rather than written in the template: EasyAdmin's own form theme is what gives it the dashboard's button
             ->add('create', SubmitType::class, [

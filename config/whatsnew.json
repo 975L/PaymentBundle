@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-10-03",
+        "description": [
+            {
+                "en": "The description of a payment link is rephrased by Donovan, the button sitting under the field like everywhere else in the back office.",
+                "fr": "La description d'un lien de paiement se fait reformuler par Donovan, le bouton se trouvant sous le champ comme partout ailleurs dans le back-office.",
+                "es": "La descripción de un enlace de pago la reformula Donovan, con el botón bajo el campo como en todo el back-office."
+            }
+        ]
+    },
+    {
         "date": "2026-10-02",
         "description": [
             {

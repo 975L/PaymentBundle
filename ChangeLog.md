@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.16.1
+
+Donovan rephrases a payment link's description
+
+- The payment link's description gets Donovan's rephrase button (03/10/2026)
+
 ## v6.16.0
 
 An order email carries exactly the documents ticked on its template
