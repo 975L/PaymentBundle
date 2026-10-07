@@ -54,6 +54,10 @@
                 <source>description.guided_project_payment_shipping_grid</source>
                 <target>Dire ce que coûte l'envoi d'un colis, zone par zone et palier de poids par palier de poids. Tant que rien n'est écrit, toutes les livraisons sont gratuites.</target>
             </trans-unit>
+            <trans-unit id="ZVhKaMB">
+                <source>description.guided_project_payment_shop_identity</source>
+                <target>Nommer la boutique, choisir sa devise et écrire ce que portent ses factures, avant la première commande</target>
+            </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
                 <target>Vérifier tout le tunnel de paiement sans débiter un client réel</target>
@@ -210,6 +214,10 @@
                 <source>description.guided_step_payment_payment_link_create</source>
                 <target>La commande est figée sur-le-champ, et son adresse courte s'affiche au-dessus du formulaire : envoyez-la par SMS ou par e-mail, elle se règle en ligne comme n'importe quelle autre.</target>
             </trans-unit>
+            <trans-unit id="uzYpq.J">
+                <source>description.guided_step_payment_payment_link_description</source>
+                <target>Facultatif : quelques lignes que le client lira sur sa commande. Donovan peut les reformuler pour vous.</target>
+            </trans-unit>
             <trans-unit id="xIPcgv8">
                 <source>description.guided_step_payment_payment_link_email</source>
                 <target>C'est à elle que part la confirmation une fois la commande réglée, et c'est elle qui rattachera la commande à son compte s'il en ouvre un.</target>
@@ -240,7 +248,7 @@
             </trans-unit>
             <trans-unit id="EFVqAIn">
                 <source>description.guided_step_payment_shipping_grid_check</source>
-                <target>L'écran de bilan de santé signale ce que la grille ne dit pas : aucune zone, aucune zone par défaut ou plusieurs, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
+                <target>L'écran de bilan de santé signale ce que la grille ne dit pas : aucune zone alors que la boutique vend des colis, aucune zone par défaut ou plusieurs, une zone sans aucun palier, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
@@ -273,6 +281,22 @@
             <trans-unit id="yH9irXB">
                 <source>description.guided_step_payment_shipping_send</source>
                 <target>Sur la ligne de la commande que vous venez d'emballer. Elle ne s'affiche que sur une commande payée portant quelque chose à poster et pas encore marquée, et le clic enregistre l'expédition et prévient le client par e-mail.</target>
+            </trans-unit>
+            <trans-unit id="FS8I.i.">
+                <source>description.guided_step_payment_shop_identity_invoice</source>
+                <target>Le préfixe précède l'année et le rang de chaque numéro, FA2026-0001 par exemple. Les mentions s'impriment en bas de chaque facture : SIREN, numéro de TVA ou mention d'exonération. Tant qu'elles sont vides, ne cochez pas la facture sur les modèles d'e-mail de commande.</target>
+            </trans-unit>
+            <trans-unit id="g5O.uL4">
+                <source>description.guided_step_payment_shop_identity_key</source>
+                <target>Commencez par le nom et la devise : le nom apparaît sur les e-mails envoyés au client, et la devise, un code à trois lettres comme EUR, est celle dans laquelle chaque commande est écrite.</target>
+            </trans-unit>
+            <trans-unit id="6eG0g0F">
+                <source>description.guided_step_payment_shop_identity_open</source>
+                <target>Nom, devise, pays d'estimation du port, seuil de livraison offerte, délai de retour, préfixe et mentions des factures : tout ce qui présente la boutique au client se règle ici.</target>
+            </trans-unit>
+            <trans-unit id="jEIxymA">
+                <source>description.guided_step_payment_shop_identity_value</source>
+                <target>Écrivez la valeur puis enregistrez. Les montants, comme le seuil de livraison offerte, s'écrivent en centimes.</target>
             </trans-unit>
             <trans-unit id="LQKFQtI">
                 <source>description.guided_step_payment_test_mode_check</source>
@@ -950,6 +974,10 @@
                 <source>label.guided_project_payment_shipping_grid</source>
                 <target>Écrire la grille de livraison</target>
             </trans-unit>
+            <trans-unit id="lPGr4yv">
+                <source>label.guided_project_payment_shop_identity</source>
+                <target>Présenter la boutique et ses factures</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Activer les paiements de test</target>
@@ -1106,6 +1134,10 @@
                 <source>label.guided_step_payment_payment_link_create</source>
                 <target>Écrire la commande</target>
             </trans-unit>
+            <trans-unit id="kjy71J_">
+                <source>label.guided_step_payment_payment_link_description</source>
+                <target>Préciser ce qui est réglé</target>
+            </trans-unit>
             <trans-unit id="Ba3GYYX">
                 <source>label.guided_step_payment_payment_link_email</source>
                 <target>Indiquer l'adresse du client</target>
@@ -1169,6 +1201,22 @@
             <trans-unit id="LAsA5aU">
                 <source>label.guided_step_payment_shipping_send</source>
                 <target>Marquer une commande expédiée</target>
+            </trans-unit>
+            <trans-unit id="44Wiu9j">
+                <source>label.guided_step_payment_shop_identity_invoice</source>
+                <target>Écrire les mentions des factures</target>
+            </trans-unit>
+            <trans-unit id="2BnWpMa">
+                <source>label.guided_step_payment_shop_identity_key</source>
+                <target>Modifier un réglage</target>
+            </trans-unit>
+            <trans-unit id="kkZT_vt">
+                <source>label.guided_step_payment_shop_identity_open</source>
+                <target>Ouvrir les réglages du groupe Boutique</target>
+            </trans-unit>
+            <trans-unit id="WpbIKDN">
+                <source>label.guided_step_payment_shop_identity_value</source>
+                <target>Saisir la valeur</target>
             </trans-unit>
             <trans-unit id="CxOYCi2">
                 <source>label.guided_step_payment_test_mode_check</source>
@@ -1313,6 +1361,10 @@
             <trans-unit id="6dcoFSH">
                 <source>label.health_check_shipping_grid_empty</source>
                 <target>Aucune zone de livraison active : tous les colis partent en port gratuit</target>
+            </trans-unit>
+            <trans-unit id="1pUxt_T">
+                <source>label.health_check_shipping_grid_unneeded</source>
+                <target>Aucune zone de livraison, rien d'expédié n'étant en vente</target>
             </trans-unit>
             <trans-unit id="hS9TSSs">
                 <source>label.health_check_shipping_zones</source>

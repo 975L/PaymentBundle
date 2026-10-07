@@ -54,6 +54,10 @@
                 <source>description.guided_project_payment_shipping_grid</source>
                 <target>State what posting a parcel costs, zone by zone and weight tier by weight tier. As long as nothing is written, every delivery is free of charge.</target>
             </trans-unit>
+            <trans-unit id="ZVhKaMB">
+                <source>description.guided_project_payment_shop_identity</source>
+                <target>Name the shop, choose its currency and write what its invoices carry, before the first order</target>
+            </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
                 <target>Walk the whole checkout tunnel without charging a real customer</target>
@@ -210,6 +214,10 @@
                 <source>description.guided_step_payment_payment_link_create</source>
                 <target>The order is frozen there and then, and its short address appears above the form: send it by text message or by e-mail, and it is settled online like any other.</target>
             </trans-unit>
+            <trans-unit id="uzYpq.J">
+                <source>description.guided_step_payment_payment_link_description</source>
+                <target>Optional: a few lines the customer reads on their order. Donovan can rephrase them for you.</target>
+            </trans-unit>
             <trans-unit id="xIPcgv8">
                 <source>description.guided_step_payment_payment_link_email</source>
                 <target>The confirmation goes there once the order is settled, and it is what attaches the order to their account should they open one.</target>
@@ -240,7 +248,7 @@
             </trans-unit>
             <trans-unit id="EFVqAIn">
                 <source>description.guided_step_payment_shipping_grid_check</source>
-                <target>The health check screen reports what the grid does not say: no zone at all, no default zone or several of them, a zone without a boundless tier. Read it once the grid is written rather than on a month of orders.</target>
+                <target>The health check screen reports what the grid does not say: no zone while the shop sells parcels, no default zone or several of them, a zone with no tier at all, a zone without a boundless tier. Read it once the grid is written rather than on a month of orders.</target>
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
@@ -273,6 +281,22 @@
             <trans-unit id="yH9irXB">
                 <source>description.guided_step_payment_shipping_send</source>
                 <target>On the row of the order just packed. It only shows on a paid order carrying something to post and not yet marked, and the click both records the shipping and e-mails the customer.</target>
+            </trans-unit>
+            <trans-unit id="FS8I.i.">
+                <source>description.guided_step_payment_shop_identity_invoice</source>
+                <target>The prefix comes before the year and the rank of every number, FA2026-0001 for instance. The mentions are printed at the foot of every invoice: company number, VAT number or exemption statement. As long as they are empty, do not tick the invoice on the order e-mail templates.</target>
+            </trans-unit>
+            <trans-unit id="g5O.uL4">
+                <source>description.guided_step_payment_shop_identity_key</source>
+                <target>Start with the name and the currency: the name appears on the e-mails sent to the customer, and the currency, a three-letter code such as EUR, is the one every order is written in.</target>
+            </trans-unit>
+            <trans-unit id="6eG0g0F">
+                <source>description.guided_step_payment_shop_identity_open</source>
+                <target>Name, currency, country the postage is estimated on, free delivery threshold, return period, invoice prefix and mentions: everything that introduces the shop to the customer is set here.</target>
+            </trans-unit>
+            <trans-unit id="jEIxymA">
+                <source>description.guided_step_payment_shop_identity_value</source>
+                <target>Write the value, then save. Amounts, such as the free delivery threshold, are written in cents.</target>
             </trans-unit>
             <trans-unit id="LQKFQtI">
                 <source>description.guided_step_payment_test_mode_check</source>
@@ -950,6 +974,10 @@
                 <source>label.guided_project_payment_shipping_grid</source>
                 <target>Write the delivery grid</target>
             </trans-unit>
+            <trans-unit id="lPGr4yv">
+                <source>label.guided_project_payment_shop_identity</source>
+                <target>Introduce the shop and its invoices</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Enable test payments</target>
@@ -1106,6 +1134,10 @@
                 <source>label.guided_step_payment_payment_link_create</source>
                 <target>Write the order</target>
             </trans-unit>
+            <trans-unit id="kjy71J_">
+                <source>label.guided_step_payment_payment_link_description</source>
+                <target>Explain what is being paid for</target>
+            </trans-unit>
             <trans-unit id="Ba3GYYX">
                 <source>label.guided_step_payment_payment_link_email</source>
                 <target>Give the customer's address</target>
@@ -1169,6 +1201,22 @@
             <trans-unit id="LAsA5aU">
                 <source>label.guided_step_payment_shipping_send</source>
                 <target>Mark one order sent</target>
+            </trans-unit>
+            <trans-unit id="44Wiu9j">
+                <source>label.guided_step_payment_shop_identity_invoice</source>
+                <target>Write the invoice mentions</target>
+            </trans-unit>
+            <trans-unit id="2BnWpMa">
+                <source>label.guided_step_payment_shop_identity_key</source>
+                <target>Edit a setting</target>
+            </trans-unit>
+            <trans-unit id="kkZT_vt">
+                <source>label.guided_step_payment_shop_identity_open</source>
+                <target>Open the Shop group's settings</target>
+            </trans-unit>
+            <trans-unit id="WpbIKDN">
+                <source>label.guided_step_payment_shop_identity_value</source>
+                <target>Enter the value</target>
             </trans-unit>
             <trans-unit id="CxOYCi2">
                 <source>label.guided_step_payment_test_mode_check</source>
@@ -1313,6 +1361,10 @@
             <trans-unit id="6dcoFSH">
                 <source>label.health_check_shipping_grid_empty</source>
                 <target>No active shipping zone: every parcel is posted free of charge</target>
+            </trans-unit>
+            <trans-unit id="1pUxt_T">
+                <source>label.health_check_shipping_grid_unneeded</source>
+                <target>No shipping zone, nothing posted being on sale</target>
             </trans-unit>
             <trans-unit id="hS9TSSs">
                 <source>label.health_check_shipping_zones</source>

@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Registry;
 use c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
+use c975L\PaymentBundle\Contract\ShippingBasketItemProviderInterface;
 
 class BasketItemProviderRegistry
 {
@@ -50,6 +51,15 @@ class BasketItemProviderRegistry
         }
 
         return null;
+    }
+
+    // Whether anything installed currently sells what is posted (see ShippingBasketItemProviderInterface)
+    public function shipsParcels(): bool
+    {
+        return array_any(
+            $this->providers,
+            static fn (BasketItemProviderInterface $provider): bool => $provider instanceof ShippingBasketItemProviderInterface && $provider->shipsParcels(),
+        );
     }
 
     // Whether one of these kinds is sold to an account only, the checkout then asking an anonymous visitor to sign in first (see AccountBasketItemProviderInterface)

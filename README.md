@@ -40,6 +40,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   hooks), auto-collected via ConfigBundle's `TaggedInterfacePass` (no compiler pass to write in the satellite)
 - Optional `BasketRecommendationProviderInterface` for cross-sell recommendations on the basket page, the provider naming the template that draws them
 - Optional `CatalogueBasketItemProviderInterface` for the listing the "continue shopping" button goes back to — this bundle names no shop route of its own
+- Optional `ShippingBasketItemProviderInterface` for a provider whose lines can be posted — required as soon as it sells anything posted, the empty-grid warning being raised only then
 - Optional `AccountBasketItemProviderInterface` marker for items landing on an account (credits, a subscription): an anonymous visitor is sent to `app_login` at the checkout, and back to it once signed in
 - Customer area: a logged-in buyer reads their own order history at `/account/orders`, each order showing its
   tracking, its lines and — through the optional `BasketDownloadProviderInterface` — the files they bought,
@@ -801,6 +802,15 @@ provider selling nothing that ships, or one whose catalogue is not weighed yet, 
 What the interface settles is where the fact lives — with the bundle that sells the article, never with the
 checkout, which owns the grid it is priced on (see below).
 
+### Saying that something is posted
+
+A provider selling anything posted also implements
+`c975L\PaymentBundle\Contract\ShippingBasketItemProviderInterface`, whose single `shipsParcels(): bool` says
+whether it currently offers something posted — false for a print service switched off. **It is opt-in**: a
+provider not implementing it is taken for posting nothing, so the dashboard reports an empty shipping grid only
+where some installed provider answers true, a site selling credits or payment links alone not being told to fill a
+grid it does not need.
+
 ### Saying where the catalogue is
 
 The basket's "continue shopping" button goes back to a listing this bundle knows nothing about, so the provider
@@ -839,7 +849,7 @@ named in no other falls — a shop posting everywhere at one tariff writes that 
 
 **Nothing written is nothing charged.** No zone, no default zone, or a zone holding no tier, and delivery is
 free. That is deliberate and it is silent, so `ShippingHealthCheckProvider` reports each of those cases on the
-dashboard rather than leaving them to be found on a month of orders, every row linking to the zone list. A parcel
+dashboard - an empty grid only where something posted is on sale (see above) - rather than leaving them to be found on a month of orders, every row linking to the zone list. A parcel
 heavier than every tier of its zone is the exception: the shop never said what it costs, so `validate()` refuses
 the order rather than posting it free - above `shop-shipping-free` too, and the basket page says so beforehand
 (`shippingTooHeavy` in its json). The dashboard names the zones holding no tier and the zones stopping short on two

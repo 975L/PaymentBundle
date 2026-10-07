@@ -68,11 +68,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-gateway-setup', 'payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
+            ['payment-gateway-setup', 'payment-shop-identity', 'payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
             array_column($projects, 'slug'),
         );
-        // 7005, 7055 and 7065 slip between two tens rather than being appended: the keys come before the test mode rehearsing against them, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
-        $this->assertSame([7005, 7010, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
+        // 7005, 7007, 7055 and 7065 slip between two tens rather than being appended: the keys and the shop's identity come before the test mode rehearsing against them, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
+        $this->assertSame([7005, 7007, 7010, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -134,14 +134,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $this->assertSame(['management', 'management_health_check_index'], $routes);
     }
 
-    // Each parcours opens on the listing the task starts from, the four written from the baskets one included, and the keys on ConfigBundle's own screen
+    // Each parcours opens on the listing the task starts from, the four written from the baskets one included, and the keys and the shop's settings on ConfigBundle's own screen
     public function testEachCrudProjectOpensOnItsOwnListing(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
+        $this->assertSame(['ConfigCrudController', 'ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -239,7 +239,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
-    // The keys are sensitive entries, listed by ConfigBundle's screen only once asked to: a parcours landing on the group without the toggle shows the settings around them and none of the keys
+    // The keys are sensitive entries, listed by ConfigBundle's screen only once asked to: a parcours landing on the group without the toggle shows the settings around them and none of the keys - the shop's settings, none of them sensitive, being opened without it
     public function testTheGatewayProjectOpensOnTheSensitiveEntriesOfThePaymentGroup(): void
     {
         $parameters = [];
@@ -248,7 +248,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $generator->method('setController')->willReturnSelf();
         $generator->method('setAction')->willReturnSelf();
         $generator->method('set')->willReturnCallback(function (string $name, mixed $value) use ($generator, &$parameters) {
-            $parameters[$name] = $value;
+            $parameters[] = [$name, $value];
 
             return $generator;
         });
@@ -258,7 +258,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
 
         new PaymentGuidedProjectProvider($generator, $this->createUrlGenerator(), $configService)->getGuidedProjects();
 
-        $this->assertSame(['group' => 'payment', 'showSensitive' => 1], $parameters);
+        $this->assertSame([['group', 'payment'], ['showSensitive', 1], ['group', 'shop']], $parameters);
     }
 
     // Read by slug rather than by position, so a parcours slipped between two others leaves the tests of its neighbours alone

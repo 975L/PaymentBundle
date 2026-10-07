@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Tests\Registry;
 use c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\CatalogueBasketItemProviderInterface;
+use c975L\PaymentBundle\Contract\ShippingBasketItemProviderInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -97,6 +98,24 @@ class BasketItemProviderRegistryTest extends TestCase
         $this->assertFalse($registry->requiresAccount([]));
     }
 
+    // One provider posting something is enough, and a provider not implementing the contract is taken for posting nothing (opt-in, see ShippingBasketItemProviderInterface)
+    public function testParcelsAreShippedAsSoonAsOneProviderPostsSomething(): void
+    {
+        $this->assertFalse(new BasketItemProviderRegistry([])->shipsParcels());
+        $this->assertFalse(new BasketItemProviderRegistry([$this->provider('payment_link')])->shipsParcels());
+        $this->assertFalse(new BasketItemProviderRegistry([$this->shippingProvider('book', false)])->shipsParcels());
+        $this->assertTrue(new BasketItemProviderRegistry([$this->provider('payment_link'), $this->shippingProvider('book', false), $this->shippingProvider('product', true)])->shipsParcels());
+    }
+
+    private function shippingProvider(string $kind, bool $shipsParcels): BasketItemProviderInterface
+    {
+        $provider = $this->createStub(ShippingProviderDouble::class);
+        $provider->method('getKind')->willReturn($kind);
+        $provider->method('shipsParcels')->willReturn($shipsParcels);
+
+        return $provider;
+    }
+
     private function catalogueProvider(string $kind, ?string $url): BasketItemProviderInterface
     {
         $provider = $this->createStub(CatalogueProviderDouble::class);
@@ -122,5 +141,10 @@ interface CatalogueProviderDouble extends BasketItemProviderInterface, Catalogue
 
 // A provider whose lines land on an account, both contracts held at once as PurchaseCreditsBundle's own does
 interface AccountProviderDouble extends BasketItemProviderInterface, AccountBasketItemProviderInterface
+{
+}
+
+// A provider whose lines can be posted, both contracts held at once as ShopBundle's own does
+interface ShippingProviderDouble extends BasketItemProviderInterface, ShippingBasketItemProviderInterface
 {
 }

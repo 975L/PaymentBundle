@@ -162,6 +162,10 @@
                 <source>narration.guided_step_payment_payment_link_create</source>
                 <target>Écrivez la commande. Elle est figée sur-le-champ, et son adresse courte s'affiche au-dessus du formulaire : envoyez-la par SMS ou par e-mail, elle se règle en ligne comme n'importe quelle autre.</target>
             </trans-unit>
+            <trans-unit id="9L7lvfV">
+                <source>narration.guided_step_payment_payment_link_description</source>
+                <target>Si vous le souhaitez, précisez en quelques lignes ce qui est réglé ; Donovan peut les reformuler pour vous.</target>
+            </trans-unit>
             <trans-unit id="4WFmELg">
                 <source>narration.guided_step_payment_payment_link_email</source>
                 <target>Indiquez l'adresse du client : c'est à elle que part la confirmation une fois la commande réglée, et c'est elle qui rattachera la commande à son compte s'il en ouvre un.</target>
@@ -192,7 +196,7 @@
             </trans-unit>
             <trans-unit id="rYbzygH">
                 <source>narration.guided_step_payment_shipping_grid_check</source>
-                <target>Faites vérifier la grille : l'écran de bilan de santé signale ce qu'elle ne dit pas, aucune zone, aucune zone par défaut ou plusieurs, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
+                <target>Faites vérifier la grille : l'écran de bilan de santé signale ce qu'elle ne dit pas, aucune zone alors que la boutique vend des colis, aucune zone par défaut ou plusieurs, une zone sans aucun palier, une zone sans palier sans plafond. À lire une fois la grille écrite, plutôt que sur un mois de commandes.</target>
             </trans-unit>
             <trans-unit id="BoUVFIg">
                 <source>narration.guided_step_payment_shipping_grid_countries</source>
@@ -212,7 +216,7 @@
             </trans-unit>
             <trans-unit id="oBcFSAW">
                 <source>narration.guided_step_payment_shipping_grid_rates</source>
-                <target>Écrivez les paliers de poids, un prix par palier, le colis étant facturé au premier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres part gratuitement.</target>
+                <target>Écrivez les paliers de poids, un prix par palier, le colis étant facturé au premier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres ne peut pas être commandé.</target>
             </trans-unit>
             <trans-unit id="kfV1YuP">
                 <source>narration.guided_step_payment_shipping_labels</source>
@@ -225,6 +229,22 @@
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
                 <target>Marquez une commande expédiée, sur la ligne de celle que vous venez d'emballer. Le bouton ne s'affiche que sur une commande payée portant quelque chose à poster et pas encore marquée ; le clic enregistre l'expédition et prévient le client par e-mail.</target>
+            </trans-unit>
+            <trans-unit id="mxkzgZi">
+                <source>narration.guided_step_payment_shop_identity_invoice</source>
+                <target>Écrivez les mentions des factures. Le préfixe précède l'année et le rang de chaque numéro, FA2026-0001 par exemple ; les mentions s'impriment en bas de chaque facture : SIREN, numéro de TVA ou mention d'exonération. Tant qu'elles sont vides, ne cochez pas la facture sur les modèles d'e-mail de commande.</target>
+            </trans-unit>
+            <trans-unit id="ApvRggm">
+                <source>narration.guided_step_payment_shop_identity_key</source>
+                <target>Modifiez un réglage, en commençant par le nom et la devise : le nom apparaît sur les e-mails envoyés au client, et la devise, un code à trois lettres comme EUR, est celle dans laquelle chaque commande est écrite.</target>
+            </trans-unit>
+            <trans-unit id="BJYjpg8">
+                <source>narration.guided_step_payment_shop_identity_open</source>
+                <target>Le panneau vous emmène sur la configuration, groupe Boutique. Nom, devise, pays d'estimation du port, seuil de livraison offerte, délai de retour, préfixe et mentions des factures : tout ce qui présente la boutique au client se règle ici.</target>
+            </trans-unit>
+            <trans-unit id="ZgcVVMI">
+                <source>narration.guided_step_payment_shop_identity_value</source>
+                <target>Saisissez la valeur puis enregistrez. Les montants, comme le seuil de livraison offerte, s'écrivent en centimes.</target>
             </trans-unit>
             <trans-unit id="iXtYQJP">
                 <source>narration.guided_step_payment_test_mode_check</source>

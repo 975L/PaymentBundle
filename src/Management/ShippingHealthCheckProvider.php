@@ -16,6 +16,7 @@ use c975L\ConfigBundle\Management\HealthCheckSiteWideInterface;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
 use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
 use c975L\PaymentBundle\Entity\ShippingZone;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\ShippingZoneRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -37,6 +38,7 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface, Healt
         private readonly SiteUrlResolver $siteUrlResolver,
         private readonly TranslatorInterface $translator,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly BasketItemProviderRegistry $basketItemProviderRegistry,
     ) {
     }
 
@@ -56,11 +58,14 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface, Healt
         $zones = $this->shippingZoneRepository->findActive();
 
         if ([] === $zones) {
+            // No parcel to price on a site that sells nothing posted: the empty grid is then a choice, not a leak
+            $shipsParcels = $this->basketItemProviderRegistry->shipsParcels();
+
             return [[
                 'url' => $siteRoot . self::ROW_GRID,
                 'label' => $this->trans('label.health_check_shipping_grid'),
-                'status' => HealthCheckResult::STATUS_WARNING,
-                'summary' => $this->trans('label.health_check_shipping_grid_empty'),
+                'status' => $shipsParcels ? HealthCheckResult::STATUS_WARNING : HealthCheckResult::STATUS_OK,
+                'summary' => $this->trans($shipsParcels ? 'label.health_check_shipping_grid_empty' : 'label.health_check_shipping_grid_unneeded'),
                 'details' => ['zones' => 0],
                 'editUrl' => $this->editUrl(),
             ]];

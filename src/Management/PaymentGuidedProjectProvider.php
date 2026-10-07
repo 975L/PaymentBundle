@@ -25,6 +25,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 // This bundle's guided projects, running the 7000 block GuidedProjectProviderInterface reserves them - the same docblock stating every other bundle's, so a range is read there rather than recopied here. Only the opening step of each carries an url: from there the parcours walks the screen the user has been sent to, highlighting the button or the field they are meant to use next - one they click themselves, which brings the panel back on that very step (see ConfigBundle's assets/js/guided-project.js)
 class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
 {
+    // The configuration group the shop's settings are declared in (see configs.json), not a translation domain
+    private const string SHOP_GROUP = 'shop';
+
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -36,6 +39,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     {
         return [
             $this->gatewaySetupProject(),
+            $this->shopIdentityProject(),
             $this->testModeProject(),
             $this->transactionReviewProject(),
             $this->paymentLinkProject(),
@@ -101,6 +105,50 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_gateway_setup_check',
                     'description' => 'description.guided_step_payment_gateway_setup_check',
                     'narration' => 'narration.guided_step_payment_gateway_setup_check',
+                ],
+            ],
+        ];
+    }
+
+    // What the shop calls itself, charges in and prints on its invoices, written before the first order rather than read off an invoice already sent
+    private function shopIdentityProject(): array
+    {
+        return [
+            'slug' => 'payment-shop-identity',
+            'label' => 'label.guided_project_payment_shop_identity',
+            'description' => 'description.guided_project_payment_shop_identity',
+            'translation_domain' => 'payment',
+            // Next to the keys, ahead of the test mode, the rehearsal order being written in this currency and numbered with this prefix
+            'order' => 7007,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_shop_identity_open',
+                    'description' => 'description.guided_step_payment_shop_identity_open',
+                    'narration' => 'narration.guided_step_payment_shop_identity_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(ConfigCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('group', self::SHOP_GROUP)
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shop_identity_key',
+                    'description' => 'description.guided_step_payment_shop_identity_key',
+                    'narration' => 'narration.guided_step_payment_shop_identity_key',
+                    'highlight' => '.action-edit',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shop_identity_value',
+                    'description' => 'description.guided_step_payment_shop_identity_value',
+                    'narration' => 'narration.guided_step_payment_shop_identity_value',
+                    'highlight' => '[data-guided-config-value]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_shop_identity_invoice',
+                    'description' => 'description.guided_step_payment_shop_identity_invoice',
+                    'narration' => 'narration.guided_step_payment_shop_identity_invoice',
                 ],
             ],
         ];
@@ -234,6 +282,12 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'description' => 'description.guided_step_payment_payment_link_email',
                     'narration' => 'narration.guided_step_payment_payment_link_email',
                     'highlight' => '#form_email',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_payment_link_description',
+                    'description' => 'description.guided_step_payment_payment_link_description',
+                    'narration' => 'narration.guided_step_payment_payment_link_description',
+                    'highlight' => '#form_description',
                 ],
                 [
                     'label' => 'label.guided_step_payment_payment_link_create',
@@ -430,7 +484,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'highlight' => '#ShippingZone_active',
                 ],
                 [
-                    // The health check screen is another one entirely and only the opening step may carry an url, so the parcours names it rather than walking to it - see ShippingHealthCheckProvider for the three things it reports
+                    // The health check screen is another one entirely and only the opening step may carry an url, so the parcours names it rather than walking to it - see ShippingHealthCheckProvider for what it reports
                     'label' => 'label.guided_step_payment_shipping_grid_check',
                     'description' => 'description.guided_step_payment_shipping_grid_check',
                     'narration' => 'narration.guided_step_payment_shipping_grid_check',

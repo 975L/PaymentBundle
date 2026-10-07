@@ -162,6 +162,10 @@
                 <source>narration.guided_step_payment_payment_link_create</source>
                 <target>Escriba el pedido. Queda congelado en el acto, y su dirección corta aparece encima del formulario: envíela por SMS o por correo, se paga en línea como cualquier otro.</target>
             </trans-unit>
+            <trans-unit id="9L7lvfV">
+                <source>narration.guided_step_payment_payment_link_description</source>
+                <target>Si lo desea, precise en unas líneas lo que se paga; Donovan puede reformularlas por usted.</target>
+            </trans-unit>
             <trans-unit id="4WFmELg">
                 <source>narration.guided_step_payment_payment_link_email</source>
                 <target>Indique la dirección del cliente: a ella se envía la confirmación una vez pagado el pedido, y es la que vinculará el pedido a su cuenta si abre una.</target>
@@ -192,7 +196,7 @@
             </trans-unit>
             <trans-unit id="rYbzygH">
                 <source>narration.guided_step_payment_shipping_grid_check</source>
-                <target>Haga comprobar la tabla: la pantalla de estado de salud señala lo que no dice, ninguna zona, ninguna zona por defecto o varias, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
+                <target>Haga comprobar la tabla: la pantalla de estado de salud señala lo que no dice, ninguna zona mientras la tienda vende paquetes, ninguna zona por defecto o varias, una zona sin ningún tramo, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
             </trans-unit>
             <trans-unit id="BoUVFIg">
                 <source>narration.guided_step_payment_shipping_grid_countries</source>
@@ -212,7 +216,7 @@
             </trans-unit>
             <trans-unit id="oBcFSAW">
                 <source>narration.guided_step_payment_shipping_grid_rates</source>
-                <target>Escriba los tramos de peso, un precio por tramo, ya que el paquete se cobra al primero en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos los demás saldrá gratis.</target>
+                <target>Escriba los tramos de peso, un precio por tramo, ya que el paquete se cobra al primero en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos los demás no podrá pedirse.</target>
             </trans-unit>
             <trans-unit id="kfV1YuP">
                 <source>narration.guided_step_payment_shipping_labels</source>
@@ -225,6 +229,22 @@
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
                 <target>Marque un pedido como enviado, en la fila del que acaba de embalar. El botón solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado; el clic registra el envío y avisa al cliente por correo.</target>
+            </trans-unit>
+            <trans-unit id="mxkzgZi">
+                <source>narration.guided_step_payment_shop_identity_invoice</source>
+                <target>Escriba las menciones de las facturas. El prefijo precede al año y al rango de cada número, FA2026-0001 por ejemplo; las menciones se imprimen al pie de cada factura: número de empresa, número de IVA o mención de exención. Mientras estén vacías, no marque la factura en las plantillas de correo de pedido.</target>
+            </trans-unit>
+            <trans-unit id="ApvRggm">
+                <source>narration.guided_step_payment_shop_identity_key</source>
+                <target>Modifique un ajuste, empezando por el nombre y la moneda: el nombre aparece en los correos enviados al cliente, y la moneda, un código de tres letras como EUR, es aquella en la que se escribe cada pedido.</target>
+            </trans-unit>
+            <trans-unit id="BJYjpg8">
+                <source>narration.guided_step_payment_shop_identity_open</source>
+                <target>El panel le lleva a la configuración, grupo Tienda. Nombre, moneda, país en el que se estima el envío, umbral de envío gratuito, plazo de devolución, prefijo y menciones de las facturas: todo lo que presenta la tienda al cliente se ajusta aquí.</target>
+            </trans-unit>
+            <trans-unit id="ZgcVVMI">
+                <source>narration.guided_step_payment_shop_identity_value</source>
+                <target>Introduzca el valor y guarde. Los importes, como el umbral de envío gratuito, se escriben en céntimos.</target>
             </trans-unit>
             <trans-unit id="iXtYQJP">
                 <source>narration.guided_step_payment_test_mode_check</source>

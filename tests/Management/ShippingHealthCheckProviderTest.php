@@ -12,9 +12,12 @@ namespace c975L\PaymentBundle\Tests\Management;
 
 use c975L\ConfigBundle\Entity\HealthCheckResult;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
+use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
+use c975L\PaymentBundle\Contract\ShippingBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\ShippingRate;
 use c975L\PaymentBundle\Entity\ShippingZone;
 use c975L\PaymentBundle\Management\ShippingHealthCheckProvider;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\ShippingZoneRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +36,15 @@ class ShippingHealthCheckProviderTest extends TestCase
         $this->assertCount(1, $results);
         $this->assertSame(HealthCheckResult::STATUS_WARNING, $results[0]['status']);
         $this->assertSame('label.health_check_shipping_grid_empty', $results[0]['summary']);
+    }
+
+    // An empty grid is a choice where nothing posted is on sale
+    public function testAnEmptyGridIsCleanWhereNoParcelIsSold(): void
+    {
+        $results = $this->checks([], self::SITE_ROOT, false);
+
+        $this->assertSame(HealthCheckResult::STATUS_OK, $results[0]['status']);
+        $this->assertSame('label.health_check_shipping_grid_unneeded', $results[0]['summary']);
     }
 
     public function testAGridWithADefaultZoneAndABoundlessTierIsClean(): void
@@ -126,7 +138,7 @@ class ShippingHealthCheckProviderTest extends TestCase
      *
      * @return list<array<string, mixed>>
      */
-    private function checks(array $zones, ?string $siteRoot = self::SITE_ROOT): array
+    private function checks(array $zones, ?string $siteRoot = self::SITE_ROOT, bool $shipsParcels = true): array
     {
         $repository = $this->createStub(ShippingZoneRepository::class);
         $repository->method('findActive')->willReturn($zones);
@@ -140,7 +152,17 @@ class ShippingHealthCheckProviderTest extends TestCase
         $adminUrlGenerator->method('setAction')->willReturnSelf();
         $adminUrlGenerator->method('generateUrl')->willReturn('http://localhost' . self::EDIT_URL);
 
-        return new ShippingHealthCheckProvider($repository, $resolver, $this->translator(), $adminUrlGenerator)->runChecks();
+        $provider = $this->createStubForIntersectionOfInterfaces([BasketItemProviderInterface::class, ShippingBasketItemProviderInterface::class]);
+        $provider->method('getKind')->willReturn('product');
+        $provider->method('shipsParcels')->willReturn($shipsParcels);
+
+        return new ShippingHealthCheckProvider(
+            $repository,
+            $resolver,
+            $this->translator(),
+            $adminUrlGenerator,
+            new BasketItemProviderRegistry([$provider]),
+        )->runChecks();
     }
 
     // The translation ids themselves, so the assertions read what the provider asked for rather than what a catalog answers

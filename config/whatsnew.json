@@ -21,6 +21,21 @@
                 "en": "The health check now tells apart the zones with no tariff, which ship for free, from the zones whose tariffs stop short, which refuse heavier parcels.",
                 "fr": "Le bilan de santé distingue désormais les zones sans tarif, qui expédient gratuitement, des zones dont les tarifs s'arrêtent trop tôt, qui refusent les colis plus lourds.",
                 "es": "El control de salud distingue ahora las zonas sin tarifa, que envían gratis, de las zonas cuyas tarifas se quedan cortas, que rechazan los paquetes más pesados."
+            },
+            {
+                "en": "A site selling nothing that is posted is no longer warned about an empty delivery grid.",
+                "fr": "Un site qui ne vend rien d'expédié n'est plus averti que sa grille de livraison est vide.",
+                "es": "Un sitio que no vende nada que se envíe ya no recibe el aviso de una tabla de envío vacía."
+            },
+            {
+                "en": "A new guided tour helps you name your shop, choose its currency and write what your invoices carry.",
+                "fr": "Un nouveau parcours guidé vous aide à nommer votre boutique, choisir sa devise et écrire ce que portent vos factures.",
+                "es": "Un nuevo recorrido guiado le ayuda a nombrar su tienda, elegir su moneda y escribir lo que llevan sus facturas."
+            },
+            {
+                "en": "The payment link guided tour now shows the description field, which Donovan can rephrase for you.",
+                "fr": "Le parcours guidé du lien de paiement montre désormais le champ de description, que Donovan peut reformuler pour vous.",
+                "es": "El recorrido guiado del enlace de pago muestra ahora el campo de descripción, que Donovan puede reformular por usted."
             }
         ]
     },

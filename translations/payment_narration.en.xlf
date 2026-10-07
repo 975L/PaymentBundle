@@ -162,6 +162,10 @@
                 <source>narration.guided_step_payment_payment_link_create</source>
                 <target>Write the order. It is frozen there and then, and its short address appears above the form: send it by text message or by e-mail, and it is settled online like any other.</target>
             </trans-unit>
+            <trans-unit id="9L7lvfV">
+                <source>narration.guided_step_payment_payment_link_description</source>
+                <target>If you wish, explain what is being paid for in a few lines; Donovan can rephrase them for you.</target>
+            </trans-unit>
             <trans-unit id="4WFmELg">
                 <source>narration.guided_step_payment_payment_link_email</source>
                 <target>Give the customer's address: the confirmation goes there once the order is settled, and it is what attaches the order to their account should they open one.</target>
@@ -192,7 +196,7 @@
             </trans-unit>
             <trans-unit id="rYbzygH">
                 <source>narration.guided_step_payment_shipping_grid_check</source>
-                <target>Have the grid checked: the health check screen reports what it does not say, no zone at all, no default zone or several of them, a zone without a boundless tier. Read it once the grid is written, rather than on a month of orders.</target>
+                <target>Have the grid checked: the health check screen reports what it does not say, no zone while the shop sells parcels, no default zone or several of them, a zone with no tier at all, a zone without a boundless tier. Read it once the grid is written, rather than on a month of orders.</target>
             </trans-unit>
             <trans-unit id="BoUVFIg">
                 <source>narration.guided_step_payment_shipping_grid_countries</source>
@@ -212,7 +216,7 @@
             </trans-unit>
             <trans-unit id="oBcFSAW">
                 <source>narration.guided_step_payment_shipping_grid_rates</source>
-                <target>Write the weight tiers, one price per tier, the parcel charged at the first it fits in. End with a tier left without a ceiling, otherwise a parcel heavier than any of them is posted free of charge.</target>
+                <target>Write the weight tiers, one price per tier, the parcel charged at the first it fits in. End with a tier left without a ceiling, otherwise a parcel heavier than any of them cannot be ordered.</target>
             </trans-unit>
             <trans-unit id="kfV1YuP">
                 <source>narration.guided_step_payment_shipping_labels</source>
@@ -225,6 +229,22 @@
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
                 <target>Mark one order sent, on the row of the one you have just packed. The button only shows on a paid order carrying something to post and not yet marked; the click records the shipping and e-mails the customer.</target>
+            </trans-unit>
+            <trans-unit id="mxkzgZi">
+                <source>narration.guided_step_payment_shop_identity_invoice</source>
+                <target>Write the invoice mentions. The prefix comes before the year and the rank of every number, FA2026-0001 for instance; the mentions are printed at the foot of every invoice: company number, VAT number or exemption statement. As long as they are empty, do not tick the invoice on the order e-mail templates.</target>
+            </trans-unit>
+            <trans-unit id="ApvRggm">
+                <source>narration.guided_step_payment_shop_identity_key</source>
+                <target>Edit a setting, starting with the name and the currency: the name appears on the e-mails sent to the customer, and the currency, a three-letter code such as EUR, is the one every order is written in.</target>
+            </trans-unit>
+            <trans-unit id="BJYjpg8">
+                <source>narration.guided_step_payment_shop_identity_open</source>
+                <target>The panel takes you to the configuration, Shop group. Name, currency, country the postage is estimated on, free delivery threshold, return period, invoice prefix and mentions: everything that introduces the shop to the customer is set here.</target>
+            </trans-unit>
+            <trans-unit id="ZgcVVMI">
+                <source>narration.guided_step_payment_shop_identity_value</source>
+                <target>Enter the value, then save. Amounts, such as the free delivery threshold, are written in cents.</target>
             </trans-unit>
             <trans-unit id="iXtYQJP">
                 <source>narration.guided_step_payment_test_mode_check</source>

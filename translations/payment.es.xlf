@@ -54,6 +54,10 @@
                 <source>description.guided_project_payment_shipping_grid</source>
                 <target>Decir lo que cuesta enviar un paquete, zona por zona y tramo de peso por tramo de peso. Mientras no haya nada escrito, todos los envíos son gratuitos.</target>
             </trans-unit>
+            <trans-unit id="ZVhKaMB">
+                <source>description.guided_project_payment_shop_identity</source>
+                <target>Nombrar la tienda, elegir su moneda y escribir lo que llevan sus facturas, antes del primer pedido</target>
+            </trans-unit>
             <trans-unit id="wpVNuWZ">
                 <source>description.guided_project_payment_test_mode</source>
                 <target>Recorrer todo el túnel de pago sin cobrar a un cliente real</target>
@@ -210,6 +214,10 @@
                 <source>description.guided_step_payment_payment_link_create</source>
                 <target>El pedido queda congelado en el acto, y su dirección corta aparece encima del formulario: envíela por SMS o por correo, se paga en línea como cualquier otro.</target>
             </trans-unit>
+            <trans-unit id="uzYpq.J">
+                <source>description.guided_step_payment_payment_link_description</source>
+                <target>Opcional: unas líneas que el cliente leerá en su pedido. Donovan puede reformularlas por usted.</target>
+            </trans-unit>
             <trans-unit id="xIPcgv8">
                 <source>description.guided_step_payment_payment_link_email</source>
                 <target>A ella se envía la confirmación una vez pagado el pedido, y es la que vincula el pedido a su cuenta si abre una.</target>
@@ -240,7 +248,7 @@
             </trans-unit>
             <trans-unit id="EFVqAIn">
                 <source>description.guided_step_payment_shipping_grid_check</source>
-                <target>La pantalla de estado de salud señala lo que la tabla no dice: ninguna zona, ninguna zona por defecto o varias, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
+                <target>La pantalla de estado de salud señala lo que la tabla no dice: ninguna zona mientras la tienda vende paquetes, ninguna zona por defecto o varias, una zona sin ningún tramo, una zona sin tramo sin tope. Léala una vez escrita la tabla, y no sobre un mes de pedidos.</target>
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
@@ -273,6 +281,22 @@
             <trans-unit id="yH9irXB">
                 <source>description.guided_step_payment_shipping_send</source>
                 <target>En la fila del pedido que acaba de embalar. Solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado, y el clic registra el envío y avisa al cliente por correo.</target>
+            </trans-unit>
+            <trans-unit id="FS8I.i.">
+                <source>description.guided_step_payment_shop_identity_invoice</source>
+                <target>El prefijo precede al año y al rango de cada número, FA2026-0001 por ejemplo. Las menciones se imprimen al pie de cada factura: número de empresa, número de IVA o mención de exención. Mientras estén vacías, no marque la factura en las plantillas de correo de pedido.</target>
+            </trans-unit>
+            <trans-unit id="g5O.uL4">
+                <source>description.guided_step_payment_shop_identity_key</source>
+                <target>Empiece por el nombre y la moneda: el nombre aparece en los correos enviados al cliente, y la moneda, un código de tres letras como EUR, es aquella en la que se escribe cada pedido.</target>
+            </trans-unit>
+            <trans-unit id="6eG0g0F">
+                <source>description.guided_step_payment_shop_identity_open</source>
+                <target>Nombre, moneda, país en el que se estima el envío, umbral de envío gratuito, plazo de devolución, prefijo y menciones de las facturas: todo lo que presenta la tienda al cliente se ajusta aquí.</target>
+            </trans-unit>
+            <trans-unit id="jEIxymA">
+                <source>description.guided_step_payment_shop_identity_value</source>
+                <target>Escriba el valor y guarde. Los importes, como el umbral de envío gratuito, se escriben en céntimos.</target>
             </trans-unit>
             <trans-unit id="LQKFQtI">
                 <source>description.guided_step_payment_test_mode_check</source>
@@ -950,6 +974,10 @@
                 <source>label.guided_project_payment_shipping_grid</source>
                 <target>Escribir la tabla de envíos</target>
             </trans-unit>
+            <trans-unit id="lPGr4yv">
+                <source>label.guided_project_payment_shop_identity</source>
+                <target>Presentar la tienda y sus facturas</target>
+            </trans-unit>
             <trans-unit id="j0f9aZ6">
                 <source>label.guided_project_payment_test_mode</source>
                 <target>Activar los pagos de prueba</target>
@@ -1106,6 +1134,10 @@
                 <source>label.guided_step_payment_payment_link_create</source>
                 <target>Escribir el pedido</target>
             </trans-unit>
+            <trans-unit id="kjy71J_">
+                <source>label.guided_step_payment_payment_link_description</source>
+                <target>Precisar lo que se paga</target>
+            </trans-unit>
             <trans-unit id="Ba3GYYX">
                 <source>label.guided_step_payment_payment_link_email</source>
                 <target>Indicar la dirección del cliente</target>
@@ -1169,6 +1201,22 @@
             <trans-unit id="LAsA5aU">
                 <source>label.guided_step_payment_shipping_send</source>
                 <target>Marcar un pedido como enviado</target>
+            </trans-unit>
+            <trans-unit id="44Wiu9j">
+                <source>label.guided_step_payment_shop_identity_invoice</source>
+                <target>Escribir las menciones de las facturas</target>
+            </trans-unit>
+            <trans-unit id="2BnWpMa">
+                <source>label.guided_step_payment_shop_identity_key</source>
+                <target>Modificar un ajuste</target>
+            </trans-unit>
+            <trans-unit id="kkZT_vt">
+                <source>label.guided_step_payment_shop_identity_open</source>
+                <target>Abrir los ajustes del grupo Tienda</target>
+            </trans-unit>
+            <trans-unit id="WpbIKDN">
+                <source>label.guided_step_payment_shop_identity_value</source>
+                <target>Introducir el valor</target>
             </trans-unit>
             <trans-unit id="CxOYCi2">
                 <source>label.guided_step_payment_test_mode_check</source>
@@ -1313,6 +1361,10 @@
             <trans-unit id="6dcoFSH">
                 <source>label.health_check_shipping_grid_empty</source>
                 <target>Ninguna zona de envío activa: todos los paquetes se envían sin gastos</target>
+            </trans-unit>
+            <trans-unit id="1pUxt_T">
+                <source>label.health_check_shipping_grid_unneeded</source>
+                <target>Ninguna zona de envío, al no haber nada enviado a la venta</target>
             </trans-unit>
             <trans-unit id="hS9TSSs">
                 <source>label.health_check_shipping_zones</source>

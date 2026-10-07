@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize, price class, price--standalone, --price-size, price-label."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, ShippingBasketItemProviderInterface, shipsParcels, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize, price class, price--standalone, --price-size, price-label."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -10,7 +10,7 @@ description: "Use this skill when plugging a new kind of sellable item into the 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`, `src/Contract/CatalogueBasketItemProviderInterface.php`, `src/Contract/AccountBasketItemProviderInterface.php`, `src/Twig/CatalogueExtension.php`, `sass/_price.scss`
+`src/Contract/BasketItemProviderInterface.php`, `src/Contract/BasketRecommendationProviderInterface.php`, `src/Contract/BasketDownloadProviderInterface.php`, `src/Registry/BasketItemProviderRegistry.php`, `src/Registry/BasketRecommendationRegistry.php`, `src/Registry/BasketDownloadRegistry.php`, `src/Repository/BasketRepository.php`, `src/Exception/BasketNotOrderableException.php`, `src/Contract/WeighableBasketItemProviderInterface.php`, `src/Contract/CatalogueBasketItemProviderInterface.php`, `src/Contract/ShippingBasketItemProviderInterface.php`, `src/Contract/AccountBasketItemProviderInterface.php`, `src/Twig/CatalogueExtension.php`, `sass/_price.scss`
 
 **Related skills:** `c975l-payment-checkout` and `c975l-payment-gateway` in this same bundle.
 
@@ -89,6 +89,12 @@ Read the entry **with defaults rather than as a guaranteed shape**. An order's i
 
 What the interface settles is where the fact lives: the weight belongs to the bundle that sells the article, the tariff grid and the zones to the checkout that posts the parcel (see `c975l-payment-checkout`).
 
+## Saying that something is posted
+
+A provider selling anything posted also implements `Contract\ShippingBasketItemProviderInterface`, whose single `shipsParcels(): bool` answers whether it **currently** offers something posted — `true` for a shop or for crowdfunding counterparts, short of reading the whole catalogue; `false` for a print service switched off.
+
+**It is opt-in, and forgetting it is silent**: `BasketItemProviderRegistry::shipsParcels()` takes a provider not implementing it for posting nothing, and `ShippingHealthCheckProvider` then reports an empty delivery grid as OK rather than as a warning — every parcel posted free without anyone being told. A provider selling only credits, links or downloads leaves it out.
+
 ## Saying where the catalogue is
 
 The basket's "continue shopping" button goes back to a listing this bundle knows nothing about, so a provider selling out of one also implements `Contract\CatalogueBasketItemProviderInterface`, whose single `getCatalogueUrl(): ?string` answers its address — **a path you generate yourself**, being the only one to know the parameters and the fragment your own listing takes, never a route name for this bundle to resolve.
@@ -134,6 +140,7 @@ A page gating a whole gallery asks once per media, so keep the answer for the re
 - **Do not add `getCatalogueUrl()` to `BasketItemProviderInterface`** — it is optional, and a provider selling a one-off payment link must stay valid without it.
 - **Do not answer an address from `getCatalogueUrl()` for a catalogue nobody can browse** — `null` is the answer, and the button is then not drawn.
 - **Do not draw the recommendation strip's heading in the basket page** — `getTemplate()` names your markup, headings included, and it is included without the page's context.
+- **Do not sell anything posted without implementing `ShippingBasketItemProviderInterface`** — the empty-grid warning is then never raised.
 - **Do not force a sign-in before the basket for account-only items** — implement `AccountBasketItemProviderInterface`, the checkout asks for it once.
 - **Do not add `getWeight()` to `BasketItemProviderInterface`** — it is optional, and a provider selling nothing that ships must stay valid without it.
 - **Do not answer `0` from `getWeight()` for an article you have not weighed** — `null` is the answer, and it is added up as nothing.

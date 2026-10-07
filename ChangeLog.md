@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.18.0
+
+An empty shipping grid is only reported where something posted is sold
+
+- Added `ShippingBasketItemProviderInterface`, opt-in for a provider whose lines can be posted (07/10/2026) [BC-Break] a provider selling anything posted must implement it
+- Added `BasketItemProviderRegistry::shipsParcels()` (07/10/2026)
+- The empty-grid shipping row is OK when nothing posted is on sale (07/10/2026)
+- Added the `label.health_check_shipping_grid_unneeded` translation (07/10/2026)
+- Added the `payment-shop-identity` guided project (07/10/2026)
+- Added the description step to the `payment-payment-link` guided project (07/10/2026)
+- The shipping grid guided steps name the zone with no tier and no longer promise a free parcel over the last tier (07/10/2026)
+- Added `shipsParcels()` cases to `BasketItemProviderRegistryTest` and `ShippingHealthCheckProviderTest` (07/10/2026)
+
 ## v6.17.0
 
 A parcel heavier than its zone's last tier takes no order
