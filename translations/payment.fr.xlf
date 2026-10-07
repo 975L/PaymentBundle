@@ -260,7 +260,7 @@
             </trans-unit>
             <trans-unit id="Q1Hw.jN">
                 <source>description.guided_step_payment_shipping_grid_rates</source>
-                <target>Un prix par palier de poids, le colis étant facturé au premier palier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres part gratuitement.</target>
+                <target>Un prix par palier de poids, le colis étant facturé au premier palier dans lequel il entre. Terminez par un palier laissé sans plafond, sinon un colis plus lourd que tous les autres ne peut pas être commandé.</target>
             </trans-unit>
             <trans-unit id="m6GSizM">
                 <source>description.guided_step_payment_shipping_labels</source>
@@ -378,6 +378,10 @@
                 <source>error.shipping_changed</source>
                 <target>La livraison à l’adresse indiquée ne coûte pas ce que le panier estimait : le prix a été mis à jour</target>
             </trans-unit>
+            <trans-unit id="z1oPU0i">
+                <source>error.shipping_too_heavy</source>
+                <target>Ce colis dépasse le poids que la boutique expédie vers cette destination : contactez-nous pour finaliser la commande</target>
+            </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
                 <target>Carte cadeau émise. Son code est %code%.</target>
@@ -460,7 +464,7 @@
             </trans-unit>
             <trans-unit id="N2PtoAX">
                 <source>help.shipping_rates</source>
-                <target>Un tarif par palier de poids. Le colis est facturé au premier palier dans lequel il entre. Sans palier couvrant son poids, la livraison est gratuite.</target>
+                <target>Un tarif par palier de poids. Le colis est facturé au premier palier dans lequel il entre. Sans palier couvrant son poids, la commande est refusée : terminez par un palier sans plafond.</target>
             </trans-unit>
             <trans-unit id="e4OF92e">
                 <source>help.shipping_zone_name</source>
@@ -1314,9 +1318,21 @@
                 <source>label.health_check_shipping_zones</source>
                 <target>Zones de livraison comparées à ce qu’elles couvrent</target>
             </trans-unit>
+            <trans-unit id="yTZr5Yt">
+                <source>label.health_check_shipping_zones_empty</source>
+                <target>Zones de livraison sans tarif</target>
+            </trans-unit>
+            <trans-unit id="g_tfMtU">
+                <source>label.health_check_shipping_zones_empty_ko</source>
+                <target>%count% zone(s) sans aucun palier, d’où tout colis part en port gratuit : %names%</target>
+            </trans-unit>
+            <trans-unit id="94Ci8Jn">
+                <source>label.health_check_shipping_zones_empty_ok</source>
+                <target>%count% zone(s), chacune avec au moins un palier</target>
+            </trans-unit>
             <trans-unit id="yHTHjr8">
                 <source>label.health_check_shipping_zones_ko</source>
-                <target>%count% zone(s) d’où un colis peut partir en port gratuit : %names%</target>
+                <target>%count% zone(s) qui refusent un colis plus lourd que leur dernier palier : %names%</target>
             </trans-unit>
             <trans-unit id="MDuGLOR">
                 <source>label.health_check_shipping_zones_ok</source>

@@ -260,7 +260,7 @@
             </trans-unit>
             <trans-unit id="Q1Hw.jN">
                 <source>description.guided_step_payment_shipping_grid_rates</source>
-                <target>Un precio por tramo de peso; el paquete se cobra al primer tramo en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos ellos saldrá gratis.</target>
+                <target>Un precio por tramo de peso; el paquete se cobra al primer tramo en el que entra. Termine con un tramo dejado sin tope, o un paquete más pesado que todos ellos no podrá pedirse.</target>
             </trans-unit>
             <trans-unit id="m6GSizM">
                 <source>description.guided_step_payment_shipping_labels</source>
@@ -378,6 +378,10 @@
                 <source>error.shipping_changed</source>
                 <target>El envío a la dirección indicada no cuesta lo que estimaba la cesta: se ha actualizado el precio</target>
             </trans-unit>
+            <trans-unit id="z1oPU0i">
+                <source>error.shipping_too_heavy</source>
+                <target>Este paquete supera el peso que la tienda envía a este destino: contáctenos para completar el pedido</target>
+            </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
                 <target>Tarjeta regalo emitida. Su código es %code%.</target>
@@ -460,7 +464,7 @@
             </trans-unit>
             <trans-unit id="N2PtoAX">
                 <source>help.shipping_rates</source>
-                <target>Una tarifa por tramo de peso. El paquete se factura al primer tramo en el que entra. Sin tramo que cubra su peso, el envío es gratuito.</target>
+                <target>Una tarifa por tramo de peso. El paquete se factura al primer tramo en el que entra. Sin tramo que cubra su peso, el pedido se rechaza: termine con un tramo sin tope.</target>
             </trans-unit>
             <trans-unit id="e4OF92e">
                 <source>help.shipping_zone_name</source>
@@ -1314,9 +1318,21 @@
                 <source>label.health_check_shipping_zones</source>
                 <target>Zonas de envío frente a lo que cubren</target>
             </trans-unit>
+            <trans-unit id="yTZr5Yt">
+                <source>label.health_check_shipping_zones_empty</source>
+                <target>Zonas de envío sin tarifa</target>
+            </trans-unit>
+            <trans-unit id="g_tfMtU">
+                <source>label.health_check_shipping_zones_empty_ko</source>
+                <target>%count% zona(s) sin ningún tramo, desde las que todo paquete sale sin gastos: %names%</target>
+            </trans-unit>
+            <trans-unit id="94Ci8Jn">
+                <source>label.health_check_shipping_zones_empty_ok</source>
+                <target>%count% zona(s), cada una con al menos un tramo</target>
+            </trans-unit>
             <trans-unit id="yHTHjr8">
                 <source>label.health_check_shipping_zones_ko</source>
-                <target>%count% zona(s) desde las que un paquete puede salir sin gastos: %names%</target>
+                <target>%count% zona(s) que rechazan un paquete más pesado que su último tramo: %names%</target>
             </trans-unit>
             <trans-unit id="MDuGLOR">
                 <source>label.health_check_shipping_zones_ok</source>

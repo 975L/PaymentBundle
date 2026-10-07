@@ -13,10 +13,15 @@ namespace c975L\PaymentBundle\Service;
 use c975L\PaymentBundle\Entity\ShippingRate;
 use c975L\PaymentBundle\Entity\ShippingZone;
 use c975L\PaymentBundle\Repository\ShippingZoneRepository;
+use Symfony\Contracts\Service\ResetInterface;
 
 // What a parcel of that weight costs to that country, read off the grid a shop wrote in the back office (see ShippingZone). Nothing written is nothing charged: a shop that has posted no zone posts free, which is what it was already doing when "shop-shipping" was left empty
-class ShippingRateResolver implements ShippingRateResolverInterface
+class ShippingRateResolver implements ShippingRateResolverInterface, ResetInterface
 {
+    // Read once per run: the basket asks for a price and whether the parcel exceeds the grid on every change, and the grid does not move in between
+    /** @var list<ShippingZone>|null */
+    private ?array $zones = null;
+
     public function __construct(
         private readonly ShippingZoneRepository $zoneRepository,
     ) {
@@ -47,6 +52,16 @@ class ShippingRateResolver implements ShippingRateResolverInterface
         return null;
     }
 
+    public function exceeds(?string $country, int $weight): bool
+    {
+        $rates = $this->zoneFor($country)?->getRates();
+        if (null === $rates || $rates->isEmpty()) {
+            return false;
+        }
+
+        return !$rates->exists(static fn (int $key, ShippingRate $rate): bool => $rate->covers($weight));
+    }
+
     public function cheapest(): ?int
     {
         $prices = [];
@@ -60,12 +75,18 @@ class ShippingRateResolver implements ShippingRateResolverInterface
         return [] === $prices ? null : min($prices);
     }
 
+    // Forgets the grid between two messages of a worker, which lives longer than the edit of a zone (autoconfigured on kernel.reset)
+    public function reset(): void
+    {
+        $this->zones = null;
+    }
+
     // The zone that names this country, failing which the one naming none - the catch-all a shop writes when it posts everywhere at one tariff
     private function zoneFor(?string $country): ?ShippingZone
     {
         $catchAll = null;
 
-        foreach ($this->zoneRepository->findActive() as $zone) {
+        foreach ($this->zones ??= $this->zoneRepository->findActive() as $zone) {
             if ($zone->holdsCountry($country)) {
                 return $zone;
             }

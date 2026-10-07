@@ -56,6 +56,10 @@ class BasketPaymentJourneyTest extends TestCase
     // What the items of these baskets are, as their provider says: posted by default, so the delivery is priced rather than skipped outright
     private int $providerFlags = Basket::CONTENT_FLAG_PHYSICAL;
 
+    // What the shop's configuration says beyond its currency, read as unset (0) when a test does not set it
+    /** @var array<string, mixed> */
+    private array $config = [];
+
     private ?Envelope $dispatched = null;
 
     /** @var list<string> */
@@ -591,7 +595,79 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame('validated', $basket->getStatus());
     }
 
+    // A parcel heavier than its zone's last tier takes no order rather than posting free, the shop never having said what it costs - and the zone is the address's, not the shop's default one
+    public function testAParcelHeavierThanTheZoneOfItsAddressIsRefused(): void
+    {
+        $this->config = ['shop-shipping-country' => 'FR'];
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setCountry('DE');
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $this->germanyStopsShort())
+                ->validate(new Request());
+            $this->fail('A parcel no tier takes was posted free');
+        } catch (BasketNotOrderableException) {
+            $this->addToAssertionCount(1);
+        }
+
+        $this->assertSame('new', $basket->getStatus());
+    }
+
+    // The same parcel goes through to a country whose zone takes it, the default one stopping short being only an estimate
+    public function testAParcelTheZoneOfItsAddressTakesGoesThrough(): void
+    {
+        $this->config = ['shop-shipping-country' => 'DE'];
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setShipping(490);
+        $basket->setCountry('FR');
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $this->germanyStopsShort())
+            ->validate(new Request());
+
+        $this->assertSame('validated', $basket->getStatus());
+    }
+
+    // Free shipping does not lift the carrier's limit: a large basket does not make a parcel no tier takes any lighter
+    public function testAParcelAboveTheFreeShippingThresholdIsRefusedAllTheSame(): void
+    {
+        $this->config = ['shop-shipping-free' => 1000];
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setCountry('DE');
+
+        $this->expectException(BasketNotOrderableException::class);
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $this->germanyStopsShort())
+            ->validate(new Request());
+    }
+
+    // The basket page is told before the checkout, from the json it loads with and not only after a change
+    public function testTheBasketPageIsToldTheParcelIsTooHeavy(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus('new');
+        $basket->setContentFlags(Basket::CONTENT_FLAG_PHYSICAL);
+        $basket->setCountry('DE');
+
+        $json = $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $this->germanyStopsShort())
+            ->getJson();
+
+        $this->assertTrue($json['basket']['shippingTooHeavy']);
+    }
+
     // ------------------------------------------------------------------ setup
+
+    // A grid whose German zone stops short of every parcel, the other countries pricing it at 490
+    private function germanyStopsShort(): ShippingRateResolverInterface
+    {
+        $resolver = $this->createStub(ShippingRateResolverInterface::class);
+        $resolver->method('resolve')->willReturnCallback(static fn (?string $country): ?int => 'DE' === $country ? null : 490);
+        $resolver->method('exceeds')->willReturnCallback(static fn (?string $country): bool => 'DE' === $country);
+
+        return $resolver;
+    }
 
     private function sessionNaming(int $id): Session
     {
@@ -769,7 +845,7 @@ class BasketPaymentJourneyTest extends TestCase
     private function configService(): ConfigServiceInterface
     {
         $configService = $this->createStub(ConfigServiceInterface::class);
-        $configService->method('get')->willReturnCallback(fn (string $slug) => 'shop-currency' === $slug ? 'EUR' : 0);
+        $configService->method('get')->willReturnCallback(fn (string $slug) => $this->config[$slug] ?? ('shop-currency' === $slug ? 'EUR' : 0));
 
         return $configService;
     }

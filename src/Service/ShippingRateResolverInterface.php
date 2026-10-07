@@ -27,6 +27,9 @@ interface ShippingRateResolverInterface
      */
     public function resolve(?string $country, int $weight): ?int;
 
+    // Whether the grid prices this country but no tier of its zone takes a parcel that heavy, the one silence an order is refused on - no zone or no tier at all is never exceeded
+    public function exceeds(?string $country, int $weight): bool;
+
     /**
      * The lowest price the grid holds, whatever the zone and the weight - what a page states delivery starts at,
      * a grid having no single rate to name any more.

@@ -11,16 +11,18 @@
 namespace c975L\PaymentBundle\Management;
 
 use c975L\ConfigBundle\Entity\HealthCheckResult;
+use c975L\ConfigBundle\Management\HealthCheckExhaustiveInterface;
 use c975L\ConfigBundle\Management\HealthCheckSiteWideInterface;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
+use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
 use c975L\PaymentBundle\Entity\ShippingZone;
 use c975L\PaymentBundle\Repository\ShippingZoneRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-// What the delivery grid does not say, and would cost the shop in silence. An empty grid posts every parcel free - which is deliberate, nothing written being nothing charged - so it has to be said out loud somewhere rather than discovered on a month of orders
-//
-// Site-wide, the grid being written once for the whole shop: its rows belong in the "Site" section rather than under "Pages", where their keys would be rendered as page urls
-class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
+// What the delivery grid does not say and would cost the shop in silence, an empty grid posting every parcel free. Site-wide, the grid being written once for the whole shop. Exhaustive, an empty grid and a filled one keying their rows differently
+class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface, HealthCheckExhaustiveInterface
 {
     public const string KIND = 'payment-shipping';
 
@@ -28,11 +30,13 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
     public const string ROW_GRID = '#shipping-grid';
     public const string ROW_CATCH_ALL = '#shipping-catch-all';
     public const string ROW_ZONES = '#shipping-zones';
+    public const string ROW_ZONES_EMPTY = '#shipping-zones-empty';
 
     public function __construct(
         private readonly ShippingZoneRepository $shippingZoneRepository,
         private readonly SiteUrlResolver $siteUrlResolver,
         private readonly TranslatorInterface $translator,
+        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
     ) {
     }
 
@@ -43,10 +47,10 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
 
     public function runChecks(): array
     {
-        // Same guard as every site-wide check: without a site url there is nothing to key a row on
+        // Thrown rather than an empty run: the provider being exhaustive, an empty run would have the runner delete every row it wrote before, where a provider that throws is skipped and its rows left as they were (see HealthCheckRunner::runProvider())
         $siteRoot = $this->siteUrlResolver->siteRoot();
         if (null === $siteRoot) {
-            return [];
+            throw new \RuntimeException('No site url to key the shipping health check rows on.');
         }
 
         $zones = $this->shippingZoneRepository->findActive();
@@ -58,12 +62,14 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
                 'status' => HealthCheckResult::STATUS_WARNING,
                 'summary' => $this->trans('label.health_check_shipping_grid_empty'),
                 'details' => ['zones' => 0],
+                'editUrl' => $this->editUrl(),
             ]];
         }
 
         return [
             $this->checkCatchAll($siteRoot, $zones),
             $this->checkZones($siteRoot, $zones),
+            $this->checkEmptyZones($siteRoot, $zones),
         ];
     }
 
@@ -95,15 +101,12 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
                 default => $this->trans('label.health_check_shipping_default_zone_several', ['%zones%' => implode(', ', $names)]),
             },
             'details' => ['zones' => $names],
+            'editUrl' => $this->editUrl(),
         ];
     }
 
+    // The zones whose tiers all stop short, a heavier parcel being refused at checkout (see BasketService::validate()), named on one row: a row keyed on a zone's id would outlive the zone, results being stored per url
     /**
-     * The zones a parcel can leave free of charge, named on one row rather than one row per zone.
-     *
-     * One row per zone would key itself on the zone's id, and a zone deleted afterwards would leave its row behind
-     * for good - results being stored per url, nothing ever comes back to say the zone is gone.
-     *
      * @param list<ShippingZone> $zones
      *
      * @return array<string, mixed>
@@ -115,11 +118,11 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
 
         foreach ($zones as $zone) {
             $rates = $zone->getRates();
-            // A zone whose tiers all stop short posts a heavier parcel free, which is exactly what a carrier does not do
             $boundless = $rates->exists(static fn (int $key, $rate): bool => null === $rate->getMaxWeight());
             $name = (string) $zone->getName();
 
-            if ($rates->isEmpty() || !$boundless) {
+            // A zone with no tier at all is the other row's, posting free rather than refusing
+            if (!$rates->isEmpty() && !$boundless) {
                 $offenders[] = $name;
             }
 
@@ -134,7 +137,46 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface
                 ? $this->trans('label.health_check_shipping_zones_ok', ['%count%' => \count($zones)])
                 : $this->trans('label.health_check_shipping_zones_ko', ['%count%' => \count($offenders), '%names%' => implode(', ', $offenders)]),
             'details' => ['zones' => $details],
+            'editUrl' => $this->editUrl(),
         ];
+    }
+
+    // The zones with no tier at all, which post every parcel free - a risk on the margin, where the capped ones are a risk on the sale
+    /**
+     * @param list<ShippingZone> $zones
+     *
+     * @return array<string, mixed>
+     */
+    private function checkEmptyZones(string $siteRoot, array $zones): array
+    {
+        $offenders = array_values(array_map(
+            static fn (ShippingZone $zone): string => (string) $zone->getName(),
+            array_filter($zones, static fn (ShippingZone $zone): bool => $zone->getRates()->isEmpty()),
+        ));
+
+        return [
+            'url' => $siteRoot . self::ROW_ZONES_EMPTY,
+            'label' => $this->trans('label.health_check_shipping_zones_empty'),
+            'status' => [] === $offenders ? HealthCheckResult::STATUS_OK : HealthCheckResult::STATUS_WARNING,
+            'summary' => [] === $offenders
+                ? $this->trans('label.health_check_shipping_zones_empty_ok', ['%count%' => \count($zones)])
+                : $this->trans('label.health_check_shipping_zones_empty_ko', ['%count%' => \count($offenders), '%names%' => implode(', ', $offenders)]),
+            'details' => ['zones' => $offenders],
+            'editUrl' => $this->editUrl(),
+        ];
+    }
+
+    // The zone list in the back office, the rows' own urls being keys rather than pages. Kept relative: from the console, with no admin context, EasyAdmin hands an absolute url on whatever host the request context holds
+    private function editUrl(): string
+    {
+        $url = $this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(ShippingZoneCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl()
+        ;
+
+        return (string) preg_replace('#^https?://[^/]+#', '', $url);
     }
 
     /**

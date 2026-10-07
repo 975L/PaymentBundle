@@ -16,7 +16,7 @@ const CACHE_DURATION = 5000;
 const TIMEZONE_KEY = "c975l-timezone";
 
 export default class extends Controller {
-    static targets = ["quantity", "subtotal", "total", "vat", "vatRow", "shipping", "freeShipping", "submitButton", "itemTotal", "itemQuantity", "code", "codeRow", "codeAmount", "codeLabel"];
+    static targets = ["quantity", "subtotal", "total", "vat", "vatRow", "shipping", "shippingTooHeavy", "freeShipping", "submitButton", "itemTotal", "itemQuantity", "code", "codeRow", "codeAmount", "codeLabel"];
 
     connect() {
         this.sendTimezoneOnce();
@@ -394,6 +394,10 @@ export default class extends Controller {
         this.shippingTarget.textContent = data.basket.shipping > 0
             ? Handlers.formatAmount(data.basket.shipping, data.basket.currency)
             : Handlers.translate("basket.offered");
+
+        if (this.hasShippingTooHeavyTarget) {
+            this.shippingTooHeavyTarget.hidden = !data.basket.shippingTooHeavy;
+        }
     }
 
     // Updates the submit button

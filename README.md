@@ -837,9 +837,13 @@ the same screen. A parcel is charged at the **first tier it fits in**, that tier
 no ceiling catches everything above the others. The zone naming **no country** is the default one, where a country
 named in no other falls — a shop posting everywhere at one tariff writes that zone and nothing else.
 
-**Nothing written is nothing charged.** No zone, no default zone, or no tier covering the parcel, and delivery is
+**Nothing written is nothing charged.** No zone, no default zone, or a zone holding no tier, and delivery is
 free. That is deliberate and it is silent, so `ShippingHealthCheckProvider` reports each of those cases on the
-dashboard rather than leaving them to be found on a month of orders.
+dashboard rather than leaving them to be found on a month of orders, every row linking to the zone list. A parcel
+heavier than every tier of its zone is the exception: the shop never said what it costs, so `validate()` refuses
+the order rather than posting it free - above `shop-shipping-free` too, and the basket page says so beforehand
+(`shippingTooHeavy` in its json). The dashboard names the zones holding no tier and the zones stopping short on two
+separate rows, the first posting free and the second refusing.
 
 The parcel's weight is summed from the lines whose provider implements `WeighableBasketItemProviderInterface`; a
 line that weighs nothing leaves it where it stands. `shop-shipping-free` still takes delivery off a basket above

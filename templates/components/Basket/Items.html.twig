@@ -39,6 +39,12 @@
                 <th scope="row" colspan="3">{{ 'label.shipping'|trans }}</th>
                 <td><span data-basket-target="shipping">{{ basket.shipping > 0 ? (basket.shipping / 100)|format_currency(basket.currency) : 'label.offered'|trans }}</span></td>
             </tr>
+            {% if editable %}
+                {# Shown by the controller when the grid stops short of the parcel: the delivery reads "offered" there, and the order would only be refused at the checkout (see BasketService::tooHeavy()) #}
+                <tr class="basket-shipping-too-heavy" data-basket-target="shippingTooHeavy" hidden>
+                    <td colspan="4">{{ 'error.shipping_too_heavy'|trans }}</td>
+                </tr>
+            {% endif %}
             {# What a code took off - one line whichever of the two it is, the customer holding a code and not a category #}
             <tr class="basket-code" data-basket-target="codeRow"{% if basket.discountAmount <= 0 %} hidden{% endif %}>
                 <th scope="row" colspan="3">

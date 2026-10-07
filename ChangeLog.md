@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.17.0
+
+A parcel heavier than its zone's last tier takes no order
+
+- New `ShippingRateResolverInterface::exceeds()`, see [UPGRADE.md](UPGRADE.md) (07/10/2026) [BC-Break]
+- The checkout refuses a parcel heavier than every tier of its zone instead of posting it free (07/10/2026)
+- Free shipping no longer lifts that refusal (07/10/2026)
+- The basket page warns about a parcel too heavy for the grid (07/10/2026)
+- The empty-grid shipping warning leaves once a zone is written (07/10/2026)
+- Every shipping health check row links to the zone list, by a relative url (07/10/2026)
+- The health check reports zones with no tier and zones stopping short on separate rows (07/10/2026)
+- The shipping health check throws rather than wiping its rows without a site url (07/10/2026)
+- `ShippingRateResolver` reads the active zones once per run (07/10/2026)
+
 ## v6.16.1
 
 Donovan rephrases a payment link's description

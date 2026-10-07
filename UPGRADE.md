@@ -1,5 +1,11 @@
 # UPGRADE
 
+## v6.16 > v6.17
+
+**`ShippingRateResolverInterface` gains `exceeds(?string $country, int $weight): bool`.** Only a site that decorates
+or replaces the resolver with its own class is concerned: add the method, true when the zone of that country has tiers
+and none of them takes a parcel that heavy - the checkout refuses the order on it. Nothing to do otherwise.
+
 ## v6.15 > v6.16
 
 **`payment-email-attachments` is gone: an order email carries the documents ticked on its template, and nothing

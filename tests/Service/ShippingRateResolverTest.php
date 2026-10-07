@@ -88,6 +88,24 @@ class ShippingRateResolverTest extends TestCase
         $this->assertNull($resolver->resolve('FR', 8000));
     }
 
+    // Refused at the checkout rather than posted free (see BasketService::validate())
+    public function testAParcelHeavierThanEveryTierExceedsItsZone(): void
+    {
+        $resolver = $this->createResolver([$this->zone('France', ['FR'], [[1000, 490], [2000, 790]])]);
+
+        $this->assertTrue($resolver->exceeds('FR', 2001));
+        $this->assertFalse($resolver->exceeds('FR', 2000));
+    }
+
+    // Only a zone that says something can be exceeded: no zone, no tier or a boundless one leave the parcel free or priced as before
+    public function testNothingIsExceededWhereTheGridSaysNothingOrHasNoCeiling(): void
+    {
+        $this->assertFalse($this->createResolver([])->exceeds('FR', 50000));
+        $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [])])->exceeds('FR', 50000));
+        $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [[1000, 490], [null, 1290]])])->exceeds('FR', 50000));
+        $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [[1000, 490]])])->exceeds('JP', 50000));
+    }
+
     // The country is compared on the code and never on what was typed, the order carrying an ISO code either way
     public function testTheCountryIsMatchedWhateverCaseItComesIn(): void
     {
@@ -107,6 +125,19 @@ class ShippingRateResolverTest extends TestCase
 
         $this->assertSame(490, $resolver->cheapest());
         $this->assertNull($this->createResolver([])->cheapest());
+    }
+
+    // The basket asks for a price and whether the parcel exceeds the grid on every change: one query for both, read again only once the service is reset
+    public function testTheGridIsReadOncePerRun(): void
+    {
+        $repository = $this->createMock(ShippingZoneRepository::class);
+        $repository->expects($this->exactly(2))->method('findActive')->willReturn([$this->zone('France', ['FR'], [[1000, 490]])]);
+        $resolver = new ShippingRateResolver($repository);
+
+        $resolver->resolve('FR', 300);
+        $resolver->exceeds('FR', 300);
+        $resolver->reset();
+        $resolver->resolve('FR', 300);
     }
 
     /**

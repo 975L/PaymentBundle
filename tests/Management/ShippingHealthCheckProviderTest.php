@@ -16,6 +16,7 @@ use c975L\PaymentBundle\Entity\ShippingRate;
 use c975L\PaymentBundle\Entity\ShippingZone;
 use c975L\PaymentBundle\Management\ShippingHealthCheckProvider;
 use c975L\PaymentBundle\Repository\ShippingZoneRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -23,6 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ShippingHealthCheckProviderTest extends TestCase
 {
     private const string SITE_ROOT = 'https://example.com/';
+    private const string EDIT_URL = '/management/shipping-zone';
 
     public function testAnEmptyGridIsReportedRatherThanLeftSilent(): void
     {
@@ -49,6 +51,17 @@ class ShippingHealthCheckProviderTest extends TestCase
 
         $this->assertSame(self::SITE_ROOT . '#shipping-catch-all', $results[0]['url']);
         $this->assertSame(self::SITE_ROOT . '#shipping-zones', $results[1]['url']);
+        $this->assertSame(self::SITE_ROOT . '#shipping-zones-empty', $results[2]['url']);
+    }
+
+    // The keys lead nowhere, so every row points at the zone list instead - an empty grid included, it being where the first zone is written. Relative, the cron handing EasyAdmin no host of its own
+    public function testEveryRowLinksToTheZoneList(): void
+    {
+        $rows = [...$this->checks([]), ...$this->checks([$this->zone('Monde', [], [[null, 1990]])])];
+
+        foreach ($rows as $row) {
+            $this->assertSame(self::EDIT_URL, $row['editUrl']);
+        }
     }
 
     // A country named in no zone is posted free, which a shop selling abroad wants to know about
@@ -69,7 +82,7 @@ class ShippingHealthCheckProviderTest extends TestCase
         $this->assertSame('label.health_check_shipping_default_zone_several', $row['summary']);
     }
 
-    // A zone whose tiers all stop short posts a heavier parcel free, which is exactly what a carrier does not do
+    // A zone whose tiers all stop short refuses a heavier parcel at checkout, a sale lost rather than a margin
     public function testAZoneWithoutABoundlessTierIsReported(): void
     {
         $row = $this->of($this->checks([$this->zone('Monde', [], [[1000, 490]])]), ShippingHealthCheckProvider::ROW_ZONES);
@@ -79,12 +92,16 @@ class ShippingHealthCheckProviderTest extends TestCase
         $this->assertFalse($row['details']['zones'][0]['boundless']);
     }
 
-    public function testAZoneWithNoTariffAtAllIsReported(): void
+    // A zone with no tier at all posts every parcel free, said on a row of its own rather than mixed with the capped ones, which refuse
+    public function testAZoneWithNoTariffAtAllIsReportedOnItsOwnRow(): void
     {
-        $row = $this->of($this->checks([$this->zone('Monde', [], [])]), ShippingHealthCheckProvider::ROW_ZONES);
+        $results = $this->checks([$this->zone('Monde', [], [])]);
+        $row = $this->of($results, ShippingHealthCheckProvider::ROW_ZONES_EMPTY);
 
         $this->assertSame(HealthCheckResult::STATUS_WARNING, $row['status']);
-        $this->assertSame(0, $row['details']['zones'][0]['rates']);
+        $this->assertSame('label.health_check_shipping_zones_empty_ko', $row['summary']);
+        $this->assertSame(['Monde'], $row['details']['zones']);
+        $this->assertSame(HealthCheckResult::STATUS_OK, $this->of($results, ShippingHealthCheckProvider::ROW_ZONES)['status']);
     }
 
     // One row for the whole grid rather than one per zone: a row keyed on a zone's id would outlive the zone it names, results being stored per url
@@ -92,14 +109,16 @@ class ShippingHealthCheckProviderTest extends TestCase
     {
         $results = $this->checks([$this->zone('Monde', [], [[1000, 490]]), $this->zone('Europe', ['FR'], [])]);
 
-        $this->assertCount(2, $results);
+        $this->assertCount(3, $results);
         $this->assertCount(2, $this->of($results, ShippingHealthCheckProvider::ROW_ZONES)['details']['zones']);
     }
 
-    // Same guard as every site-wide check: without a site url there is nothing to key a row on
+    // Without a site url there is nothing to key a row on, and an empty run would have the runner delete the rows of the last one: thrown, the runner skips the provider and leaves them
     public function testNothingIsCheckedWithoutASiteUrl(): void
     {
-        $this->assertSame([], $this->checks([$this->zone('Monde', [], [[null, 1990]])], null));
+        $this->expectException(\RuntimeException::class);
+
+        $this->checks([$this->zone('Monde', [], [[null, 1990]])], null);
     }
 
     /**
@@ -115,7 +134,13 @@ class ShippingHealthCheckProviderTest extends TestCase
         $resolver = $this->createStub(SiteUrlResolver::class);
         $resolver->method('siteRoot')->willReturn($siteRoot);
 
-        return new ShippingHealthCheckProvider($repository, $resolver, $this->translator())->runChecks();
+        $adminUrlGenerator = $this->createStub(AdminUrlGeneratorInterface::class);
+        $adminUrlGenerator->method('unsetAll')->willReturnSelf();
+        $adminUrlGenerator->method('setController')->willReturnSelf();
+        $adminUrlGenerator->method('setAction')->willReturnSelf();
+        $adminUrlGenerator->method('generateUrl')->willReturn('http://localhost' . self::EDIT_URL);
+
+        return new ShippingHealthCheckProvider($repository, $resolver, $this->translator(), $adminUrlGenerator)->runChecks();
     }
 
     // The translation ids themselves, so the assertions read what the provider asked for rather than what a catalog answers

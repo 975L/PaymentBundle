@@ -1,5 +1,30 @@
 [
     {
+        "date": "2026-10-07",
+        "description": [
+            {
+                "en": "A parcel heavier than anything your delivery grid prices for its destination is no longer shipped for free: the customer is asked to contact you instead.",
+                "fr": "Un colis plus lourd que tout ce que votre grille de livraison tarife pour sa destination n'est plus expédié gratuitement : le client est invité à vous contacter.",
+                "es": "Un paquete más pesado que todo lo que su tabla de envío tarifica para su destino ya no se envía gratis: se invita al cliente a contactarle."
+            },
+            {
+                "en": "The basket warns the customer as soon as a parcel is too heavy for the delivery grid, before they fill in their address.",
+                "fr": "Le panier prévient le client dès qu'un colis est trop lourd pour la grille de livraison, avant qu'il ne remplisse son adresse.",
+                "es": "La cesta avisa al cliente en cuanto un paquete es demasiado pesado para la tabla de envío, antes de que rellene su dirección."
+            },
+            {
+                "en": "The delivery warnings of the health check now open the shipping zones directly, and the empty-grid warning goes away as soon as a zone is written.",
+                "fr": "Les alertes de livraison du bilan de santé ouvrent désormais directement les zones de livraison, et l'alerte de grille vide disparaît dès qu'une zone est écrite.",
+                "es": "Las alertas de envío del control de salud abren ahora directamente las zonas de envío, y la alerta de tabla vacía desaparece en cuanto se escribe una zona."
+            },
+            {
+                "en": "The health check now tells apart the zones with no tariff, which ship for free, from the zones whose tariffs stop short, which refuse heavier parcels.",
+                "fr": "Le bilan de santé distingue désormais les zones sans tarif, qui expédient gratuitement, des zones dont les tarifs s'arrêtent trop tôt, qui refusent les colis plus lourds.",
+                "es": "El control de salud distingue ahora las zonas sin tarifa, que envían gratis, de las zonas cuyas tarifas se quedan cortas, que rechazan los paquetes más pesados."
+            }
+        ]
+    },
+    {
         "date": "2026-10-03",
         "description": [
             {

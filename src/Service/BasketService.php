@@ -159,7 +159,10 @@ class BasketService implements BasketServiceInterface
      */
     private function payload(): array
     {
-        return ['basket' => $this->basket->toArray() + ['vat' => $this->vatCalculator->breakdown($this->basket)['amount']]];
+        return ['basket' => $this->basket->toArray() + [
+            'vat' => $this->vatCalculator->breakdown($this->basket)['amount'],
+            'shippingTooHeavy' => $this->tooHeavy(),
+        ]];
     }
 
     // Updates total
@@ -177,8 +180,6 @@ class BasketService implements BasketServiceInterface
         $contentFlags = 0;
         // What of the basket is money bought in advance, which a promotional code is never taken off (see Basket::CONTENT_FLAG_GIFT_CARD)
         $giftCardTotal = 0;
-        // What the parcel weighs, in grams - only the providers that say so contribute, the others leaving it where it stands (see WeighableBasketItemProviderInterface)
-        $weight = 0;
 
         foreach ($items as $type => $item) {
             $provider = $this->itemProviderRegistry->get($type);
@@ -192,10 +193,6 @@ class BasketService implements BasketServiceInterface
                 if (($flags & Basket::CONTENT_FLAG_GIFT_CARD) > 0) {
                     $giftCardTotal += $itemContent['total'];
                 }
-
-                if ($provider instanceof WeighableBasketItemProviderInterface) {
-                    $weight += $provider->getWeight($itemContent) ?? 0;
-                }
             }
         }
 
@@ -207,26 +204,51 @@ class BasketService implements BasketServiceInterface
         $requiresShipping = ($contentFlags & Basket::FLAG_NEEDS_SHIPPING) > 0;
         $freeFrom = (int) $shippingFree;
         $applyShipping = $requiresShipping && (0 === $freeFrom || $total < $freeFrom);
-        $this->basket->setShipping($applyShipping ? $this->shipping($weight) : 0);
+        $this->basket->setShipping($applyShipping ? $this->shipping($this->weight()) : 0);
         $this->basket->setQuantity($quantity);
 
         // Read again on every change of the basket rather than kept as it was resolved: removing an article can take the basket under a code's minimum, and a card is worth what is left on it today
         $this->refreshCode($giftCardTotal);
     }
 
-    /**
-     * What the grid charges to post this parcel - nothing when it says nothing, which is what a shop that has
-     * written no zone charges (see ShippingRateResolver).
-     *
-     * The country is the one the order carries, and it is only given at the checkout: before that the basket page
-     * shows what "shop-shipping-country" says the shop posts to by default, which is an estimate and reads as one.
-     * The real one is charged because validate() runs this pass again once the address is bound.
-     */
+    // What the grid charges to post this parcel, nothing when it says nothing: priced on the shop's default country until validate() runs again with the address bound
     private function shipping(int $weight): int
+    {
+        return $this->shippingRateResolver->resolve($this->country(), $weight) ?? 0;
+    }
+
+    // What the parcel weighs, in grams - only the providers that say so contribute, the others leaving it where it stands (see WeighableBasketItemProviderInterface)
+    private function weight(): int
+    {
+        $weight = 0;
+
+        foreach ($this->basket->getItems() as $type => $item) {
+            $provider = $this->itemProviderRegistry->get($type);
+            if (!$provider instanceof WeighableBasketItemProviderInterface) {
+                continue;
+            }
+
+            foreach ($item as $itemContent) {
+                $weight += $provider->getWeight($itemContent) ?? 0;
+            }
+        }
+
+        return $weight;
+    }
+
+    // Whether the grid stops short of this parcel, free shipping or not: a carrier that does not take it does not take it because the basket is large. Read on the basket page as on validate(), the json the page loads with never running updateTotals()
+    private function tooHeavy(): bool
+    {
+        return ($this->basket->getContentFlags() & Basket::FLAG_NEEDS_SHIPPING) > 0
+            && $this->shippingRateResolver->exceeds($this->country(), $this->weight());
+    }
+
+    // The country the parcel goes to, the shop's default one until the address is given
+    private function country(): ?string
     {
         $country = $this->basket->getCountry() ?: $this->configService->get('shop-shipping-country');
 
-        return $this->shippingRateResolver->resolve(\is_string($country) ? $country : null, $weight) ?? 0;
+        return \is_string($country) ? $country : null;
     }
 
     /**
@@ -381,6 +403,13 @@ class BasketService implements BasketServiceInterface
 
         // Counted again now that the address is bound, and this is the last pass: the coordinates form has just written the country on the basket, and until it did, the delivery was priced on the zone the shop posts to by default. What is charged has to be what the parcel actually costs to where it goes - the status turns to "validated" three lines below, after which refreshItems() lets nothing move again
         $this->updateTotals();
+
+        // Refused rather than posted free: the grid stops short of this parcel, and only the shop can say what it costs. Flushed before it refuses, so the basket they come back to shows the delivery of the country it was refused for - the same rule as assertUnchanged()
+        if ($this->tooHeavy()) {
+            $this->entityManager->flush();
+
+            throw new BasketNotOrderableException($this->translator->trans('error.shipping_too_heavy', [], 'payment'));
+        }
 
         // Refused rather than charged silently: the total the customer clicked "pay" on was the one estimated on the shop's default country, and no page of the site ever showed them this one
         $this->assertUnchanged($displayedShipping, $this->basket->getShipping(), 'error.shipping_changed');
@@ -1101,6 +1130,6 @@ class BasketService implements BasketServiceInterface
     private function getUser(): void
     {
         $token = $this->tokenStorage->getToken();
-        $this->user = null !== $token ? $token->getUser() : null;
+        $this->user = $token?->getUser();
     }
 }

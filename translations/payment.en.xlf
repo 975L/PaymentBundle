@@ -260,7 +260,7 @@
             </trans-unit>
             <trans-unit id="Q1Hw.jN">
                 <source>description.guided_step_payment_shipping_grid_rates</source>
-                <target>One price per weight tier, the parcel charged at the first tier it fits in. End with a tier left without a ceiling, otherwise a heavier parcel than any of them is posted free of charge.</target>
+                <target>One price per weight tier, the parcel charged at the first tier it fits in. End with a tier left without a ceiling, otherwise a parcel heavier than any of them cannot be ordered.</target>
             </trans-unit>
             <trans-unit id="m6GSizM">
                 <source>description.guided_step_payment_shipping_labels</source>
@@ -378,6 +378,10 @@
                 <source>error.shipping_changed</source>
                 <target>Delivery to the address you gave does not cost what the basket estimated: the price has been updated</target>
             </trans-unit>
+            <trans-unit id="z1oPU0i">
+                <source>error.shipping_too_heavy</source>
+                <target>This parcel exceeds the weight the shop ships to this destination: contact us to complete the order</target>
+            </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
                 <target>Gift card issued. Its code is %code%.</target>
@@ -460,7 +464,7 @@
             </trans-unit>
             <trans-unit id="N2PtoAX">
                 <source>help.shipping_rates</source>
-                <target>One tariff per weight tier. A parcel is charged at the first tier it fits in. With no tier covering its weight, delivery is free.</target>
+                <target>One tariff per weight tier. A parcel is charged at the first tier it fits in. With no tier covering its weight, the order is refused: end with a tier without a ceiling.</target>
             </trans-unit>
             <trans-unit id="e4OF92e">
                 <source>help.shipping_zone_name</source>
@@ -1314,9 +1318,21 @@
                 <source>label.health_check_shipping_zones</source>
                 <target>Delivery zones against what they cover</target>
             </trans-unit>
+            <trans-unit id="yTZr5Yt">
+                <source>label.health_check_shipping_zones_empty</source>
+                <target>Delivery zones without a tariff</target>
+            </trans-unit>
+            <trans-unit id="g_tfMtU">
+                <source>label.health_check_shipping_zones_empty_ko</source>
+                <target>%count% zone(s) with no tier at all, posting every parcel free of charge: %names%</target>
+            </trans-unit>
+            <trans-unit id="94Ci8Jn">
+                <source>label.health_check_shipping_zones_empty_ok</source>
+                <target>%count% zone(s), each with at least one tier</target>
+            </trans-unit>
             <trans-unit id="yHTHjr8">
                 <source>label.health_check_shipping_zones_ko</source>
-                <target>%count% zone(s) a parcel can leave free of charge: %names%</target>
+                <target>%count% zone(s) refusing a parcel heavier than their last tier: %names%</target>
             </trans-unit>
             <trans-unit id="MDuGLOR">
                 <source>label.health_check_shipping_zones_ok</source>
