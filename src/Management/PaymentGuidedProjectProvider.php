@@ -28,6 +28,9 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     // The configuration group the shop's settings are declared in (see configs.json), not a translation domain
     private const string SHOP_GROUP = 'shop';
 
+    // A visible row of this bundle's checks on ConfigBundle's health check screen, the table's own filter hiding rows rather than removing them
+    private const string INTEGRITY_ROW = 'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]:not([hidden])';
+
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -40,6 +43,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
         return [
             $this->gatewaySetupProject(),
             $this->shopIdentityProject(),
+            $this->orderEmailsProject(),
             $this->testModeProject(),
             $this->transactionReviewProject(),
             $this->paymentLinkProject(),
@@ -99,6 +103,8 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_gateway_setup_default',
                     'description' => 'description.guided_step_payment_gateway_setup_default',
                     'narration' => 'narration.guided_step_payment_gateway_setup_default',
+                    // The parcours opened on the sensitive entries, so the setting it names is one toggle away - an attribute ConfigBundle poses on that button for this very step
+                    'highlight' => '[data-config-sensitive-toggle]',
                 ],
                 [
                     // The health check screen is another one entirely, so the parcours names it rather than walking to it - see GatewayHealthCheckProvider
@@ -149,6 +155,50 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_shop_identity_invoice',
                     'description' => 'description.guided_step_payment_shop_identity_invoice',
                     'narration' => 'narration.guided_step_payment_shop_identity_invoice',
+                ],
+            ],
+        ];
+    }
+
+    // Who the order emails come from: the sender is required for any of them to leave, and it sits among the non-sensitive entries of the payment group, which the keys' parcours only opens with the sensitive ones showing
+    private function orderEmailsProject(): array
+    {
+        return [
+            'slug' => 'payment-order-emails',
+            'label' => 'label.guided_project_payment_order_emails',
+            'description' => 'description.guided_project_payment_order_emails',
+            'translation_domain' => 'payment',
+            // Next to the shop's identity, ahead of the test mode, whose rehearsal order sends its confirmation from this address
+            'order' => 7008,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_order_emails_open',
+                    'description' => 'description.guided_step_payment_order_emails_open',
+                    'narration' => 'narration.guided_step_payment_order_emails_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(ConfigCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('group', 'payment')
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_order_emails_key',
+                    'description' => 'description.guided_step_payment_order_emails_key',
+                    'narration' => 'narration.guided_step_payment_order_emails_key',
+                    'highlight' => '.action-edit',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_order_emails_value',
+                    'description' => 'description.guided_step_payment_order_emails_value',
+                    'narration' => 'narration.guided_step_payment_order_emails_value',
+                    'highlight' => '[data-guided-config-value]',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_order_emails_done',
+                    'description' => 'description.guided_step_payment_order_emails_done',
+                    'narration' => 'narration.guided_step_payment_order_emails_done',
                 ],
             ],
         ];
@@ -350,6 +400,13 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'narration' => 'narration.guided_step_payment_gift_card_issue_code',
                 ],
                 [
+                    // The card's address shows on its detail page only, the one support is asked for the day a customer loses the message it was sent in
+                    'label' => 'label.guided_step_payment_gift_card_issue_link',
+                    'description' => 'description.guided_step_payment_gift_card_issue_link',
+                    'narration' => 'narration.guided_step_payment_gift_card_issue_link',
+                    'highlight' => '.action-detail',
+                ],
+                [
                     'label' => 'label.guided_step_payment_gift_card_issue_edit',
                     'description' => 'description.guided_step_payment_gift_card_issue_edit',
                     'narration' => 'narration.guided_step_payment_gift_card_issue_edit',
@@ -423,6 +480,18 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'highlight' => '#Discount_maxUses',
                 ],
                 [
+                    'label' => 'label.guided_step_payment_discount_code_active',
+                    'description' => 'description.guided_step_payment_discount_code_active',
+                    'narration' => 'narration.guided_step_payment_discount_code_active',
+                    'highlight' => '#Discount_active',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_discount_code_save',
+                    'description' => 'description.guided_step_payment_discount_code_save',
+                    'narration' => 'narration.guided_step_payment_discount_code_save',
+                    'highlight' => '.action-saveAndReturn',
+                ],
+                [
                     'label' => 'label.guided_step_payment_discount_code_live',
                     'description' => 'description.guided_step_payment_discount_code_live',
                     'narration' => 'narration.guided_step_payment_discount_code_live',
@@ -469,7 +538,8 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_shipping_grid_countries',
                     'description' => 'description.guided_step_payment_shipping_grid_countries',
                     'narration' => 'narration.guided_step_payment_shipping_grid_countries',
-                    'highlight' => '#ShippingZone_countries',
+                    // A multiple ChoiceField is drawn by TomSelect, which hides the original select: the highlight goes to the widget drawn next to it
+                    'highlight' => '#ShippingZone_countries + .ts-wrapper',
                 ],
                 [
                     'label' => 'label.guided_step_payment_shipping_grid_rates',
@@ -610,23 +680,31 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'highlight' => 'form[action$="/health-check/run"] button',
                 ],
                 [
+                    // The table opens on what is left to handle (see ConfigBundle's health-check-table controller), so on a healthy shop every row of this bundle starts hidden
+                    'label' => 'label.guided_step_payment_basket_integrity_status',
+                    'description' => 'description.guided_step_payment_basket_integrity_status',
+                    'narration' => 'narration.guided_step_payment_basket_integrity_status',
+                    'highlight' => '[data-health-check-table-target="status"]',
+                ],
+                [
                     // The rows carry their kind as a data attribute for the table's own filtering (see ConfigBundle's health-check-table controller), which is what lets a parcours point at this bundle's six among everything else the page lists
                     'label' => 'label.guided_step_payment_basket_integrity_rows',
                     'description' => 'description.guided_step_payment_basket_integrity_rows',
                     'narration' => 'narration.guided_step_payment_basket_integrity_rows',
-                    'highlight' => 'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
+                    'highlight' => self::INTEGRITY_ROW,
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_offenders',
                     'description' => 'description.guided_step_payment_basket_integrity_offenders',
                     'narration' => 'narration.guided_step_payment_basket_integrity_offenders',
-                    'highlight' => '.health-check-advice-items',
+                    // Every row of the page carries these, whatever its kind: scoped to this bundle's visible rows, or the first check of the page would be the one highlighted
+                    'highlight' => self::INTEGRITY_ROW . ' .health-check-advice-items',
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_acknowledge',
                     'description' => 'description.guided_step_payment_basket_integrity_acknowledge',
                     'narration' => 'narration.guided_step_payment_basket_integrity_acknowledge',
-                    'highlight' => '[data-action="health-check-table#acknowledge"]',
+                    'highlight' => self::INTEGRITY_ROW . ' [data-health-check-acknowledge]',
                 ],
                 [
                     'label' => 'label.guided_step_payment_basket_integrity_done',

@@ -79,6 +79,12 @@ class GiftCardCrudController extends AbstractCrudController
         return $actions
             ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, $issue)
+            // The detail page is the one screen showing the card's address, which support sends back to a customer who lost it
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->update(Crud::PAGE_INDEX, Action::DETAIL, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
+                $action,
+                $this->translator->trans('action.detail', [], 'EasyAdminBundle'),
+            ))
             // Icon-only row buttons, as everywhere else in the back office: worded ones widen a table that already carries nine columns
             ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
                 $action,

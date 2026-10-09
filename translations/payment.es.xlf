@@ -42,6 +42,10 @@
                 <source>description.guided_project_payment_gift_card_issue</source>
                 <target>Crear una tarjeta que ninguna venta ha generado: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes</target>
             </trans-unit>
+            <trans-unit id="gFRB9ZQ">
+                <source>description.guided_project_payment_order_emails</source>
+                <target>Elegir la dirección desde la que salen los correos de pedido, la que recibe las respuestas y quién guarda copia</target>
+            </trans-unit>
             <trans-unit id="u3MnZZK">
                 <source>description.guided_project_payment_payment_link</source>
                 <target>Escribir un pedido para un anticipo, una reparación o una factura, y dar su dirección a quien lo pague</target>
@@ -106,6 +110,14 @@
                 <source>description.guided_step_payment_basket_integrity_run</source>
                 <target>Las seis comprobaciones se ejecutan solas cada semana. Este botón las relanza de inmediato, si la página está vacía o si acaba de corregir algo.</target>
             </trans-unit>
+            <trans-unit id="YQe2I9y">
+                <source>description.guided_step_payment_basket_integrity_status</source>
+                <target>La tabla se abre en lo que queda por tratar: elija «Todos los estados» para ver también los controles que no encontraron nada.</target>
+            </trans-unit>
+            <trans-unit id="oJE4bm6">
+                <source>description.guided_step_payment_discount_code_active</source>
+                <target>Desmarcada, la casilla suspende el código sin borrarlo ni reiniciar su contador.</target>
+            </trans-unit>
             <trans-unit id="849UuDC">
                 <source>description.guided_step_payment_discount_code_code</source>
                 <target>Lo que el cliente escribe en su cesta. Se dicta y se vuelve a teclear: manténgalo corto y sin caracteres que se lean de dos maneras.</target>
@@ -129,6 +141,10 @@
             <trans-unit id="paLRBJR">
                 <source>description.guided_step_payment_discount_code_open</source>
                 <target>Todos los códigos escritos por la tienda aparecen ahí, con lo que descuentan y las veces que se han usado.</target>
+            </trans-unit>
+            <trans-unit id="wnKo.BR">
+                <source>description.guided_step_payment_discount_code_save</source>
+                <target>El código se puede usar en cuanto se guarda, dentro de los límites fijados arriba.</target>
             </trans-unit>
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
@@ -190,6 +206,10 @@
                 <source>description.guided_step_payment_gift_card_issue_edit</source>
                 <target>El día en que se declara una tarjeta perdida o robada, búsquela en la lista por su código y ábrala para modificarla.</target>
             </trans-unit>
+            <trans-unit id="hTHiGYg">
+                <source>description.guided_step_payment_gift_card_issue_link</source>
+                <target>El botón de consulta muestra la dirección de la tarjeta, la que recibió su destinatario: es la que reenvía al cliente que perdió su mensaje.</target>
+            </trans-unit>
             <trans-unit id="bR0j8lt">
                 <source>description.guided_step_payment_gift_card_issue_open</source>
                 <target>Todas las tarjetas aparecen ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
@@ -205,6 +225,22 @@
             <trans-unit id="tOpIhxB">
                 <source>description.guided_step_payment_gift_card_issue_validity</source>
                 <target>En blanco, la tarjeta nunca caduca. Rellenada, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
+            </trans-unit>
+            <trans-unit id="D9HAEMH">
+                <source>description.guided_step_payment_order_emails_done</source>
+                <target>La próxima confirmación de pedido saldrá de esta dirección y las respuestas del cliente llegarán a la elegida.</target>
+            </trans-unit>
+            <trans-unit id="_oh2Ttp">
+                <source>description.guided_step_payment_order_emails_key</source>
+                <target>Sin ella no sale ningún correo de pedido: es el único de estos ajustes obligatorio.</target>
+            </trans-unit>
+            <trans-unit id="WM7T53v">
+                <source>description.guided_step_payment_order_emails_open</source>
+                <target>Los ajustes no sensibles del grupo: el remitente de los correos figura ahí, junto al proveedor propuesto por defecto.</target>
+            </trans-unit>
+            <trans-unit id="DlnJWWF">
+                <source>description.guided_step_payment_order_emails_value</source>
+                <target>Una dirección del dominio del sitio, que su servidor de envío esté autorizado a usar, y guarde. El nombre mostrado, la respuesta y la copia oculta se ajustan igual.</target>
             </trans-unit>
             <trans-unit id="AN5Mf_f">
                 <source>description.guided_step_payment_payment_link_amount</source>
@@ -962,6 +998,10 @@
                 <source>label.guided_project_payment_gift_card_issue</source>
                 <target>Emitir una tarjeta regalo a mano</target>
             </trans-unit>
+            <trans-unit id="WrdSa1C">
+                <source>label.guided_project_payment_order_emails</source>
+                <target>Firmar los correos de pedido</target>
+            </trans-unit>
             <trans-unit id="svPZPHX">
                 <source>label.guided_project_payment_payment_link</source>
                 <target>Cobrar fuera del catálogo</target>
@@ -1026,6 +1066,14 @@
                 <source>label.guided_step_payment_basket_integrity_run</source>
                 <target>Relanzar la comprobación</target>
             </trans-unit>
+            <trans-unit id="DJ0QFB2">
+                <source>label.guided_step_payment_basket_integrity_status</source>
+                <target>Mostrar todas las filas</target>
+            </trans-unit>
+            <trans-unit id="liDibkq">
+                <source>label.guided_step_payment_discount_code_active</source>
+                <target>Dejarlo activo</target>
+            </trans-unit>
             <trans-unit id="UfV9AOP">
                 <source>label.guided_step_payment_discount_code_code</source>
                 <target>Elegir el código en sí</target>
@@ -1049,6 +1097,10 @@
             <trans-unit id="bNC5f.Z">
                 <source>label.guided_step_payment_discount_code_open</source>
                 <target>Abrir los códigos promocionales</target>
+            </trans-unit>
+            <trans-unit id="s3NTGko">
+                <source>label.guided_step_payment_discount_code_save</source>
+                <target>Guardar</target>
             </trans-unit>
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
@@ -1110,6 +1162,10 @@
                 <source>label.guided_step_payment_gift_card_issue_edit</source>
                 <target>Encontrar una tarjeta perdida o robada</target>
             </trans-unit>
+            <trans-unit id="3y0wVwC">
+                <source>label.guided_step_payment_gift_card_issue_link</source>
+                <target>Encontrar el enlace de la tarjeta</target>
+            </trans-unit>
             <trans-unit id="yKwKXwN">
                 <source>label.guided_step_payment_gift_card_issue_open</source>
                 <target>Abrir las tarjetas regalo</target>
@@ -1125,6 +1181,22 @@
             <trans-unit id="_bNlvel">
                 <source>label.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fijar una fecha de fin, o ninguna</target>
+            </trans-unit>
+            <trans-unit id="TgrvbnF">
+                <source>label.guided_step_payment_order_emails_done</source>
+                <target>Los correos están firmados</target>
+            </trans-unit>
+            <trans-unit id="itqMApB">
+                <source>label.guided_step_payment_order_emails_key</source>
+                <target>Modificar la dirección de envío</target>
+            </trans-unit>
+            <trans-unit id="a58rpcv">
+                <source>label.guided_step_payment_order_emails_open</source>
+                <target>Abrir los ajustes del grupo Pago</target>
+            </trans-unit>
+            <trans-unit id="mnPLB2e">
+                <source>label.guided_step_payment_order_emails_value</source>
+                <target>Escribir la dirección</target>
             </trans-unit>
             <trans-unit id="_7abQeC">
                 <source>label.guided_step_payment_payment_link_amount</source>
@@ -1420,7 +1492,7 @@
             </trans-unit>
             <trans-unit id="vfgwC1x">
                 <source>label.info_shipping_zone</source>
-                <target>Gestionar las zonas de envío y sus tarifas por peso</target>
+                <target>Las zonas de envío y sus tarifas por peso, leídas al pagar para cada paquete.</target>
             </trans-unit>
             <trans-unit id="xsfKfLg">
                 <source>label.initial_amount</source>

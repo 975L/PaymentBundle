@@ -90,6 +90,8 @@ class DiscountCrudController extends AbstractCrudController
                 ->setHelp(t('help.discount_code', [], 'payment')),
             ChoiceField::new('kind')
                 ->setLabel(t('label.discount_kind', [], 'payment'))
+                // Two choices: a native select is enough, and unlike TomSelect it keeps the #Discount_kind the guided project highlights visible
+                ->renderAsNativeWidget()
                 // setTranslatableChoices(), not setChoices(): a plain choice key is resolved in the CRUD's own translation domain, which is the dashboard's ("config"), never "payment" - a t() object carries its domain with it, on the form as on the index
                 ->setTranslatableChoices([
                     Discount::KIND_PERCENTAGE => t('label.discount_percentage', [], 'payment'),

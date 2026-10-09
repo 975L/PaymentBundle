@@ -54,6 +54,14 @@
                 <source>narration.guided_step_payment_basket_integrity_run</source>
                 <target>Relancez la vérification. Les six contrôles tournent d'eux-mêmes chaque semaine ; ce bouton les relance tout de suite, si la page est vide ou si vous venez de corriger quelque chose.</target>
             </trans-unit>
+            <trans-unit id="Nu8RGKW">
+                <source>narration.guided_step_payment_basket_integrity_status</source>
+                <target>Affichez toutes les lignes : le tableau s'ouvre sur ce qui reste à traiter, choisissez « Tous les statuts » pour voir aussi les contrôles qui n'ont rien trouvé.</target>
+            </trans-unit>
+            <trans-unit id="YDh6NB0">
+                <source>narration.guided_step_payment_discount_code_active</source>
+                <target>Laissez-le actif : décochée, la case suspend le code sans l'effacer ni remettre son compteur à zéro.</target>
+            </trans-unit>
             <trans-unit id="vB7DPGB">
                 <source>narration.guided_step_payment_discount_code_code</source>
                 <target>Choisissez le code lui-même, ce que le client saisit dans son panier. Il se dicte et se retape : gardez-le court et sans caractère qui se lise de deux façons.</target>
@@ -77,6 +85,10 @@
             <trans-unit id="s6v_5cl">
                 <source>narration.guided_step_payment_discount_code_open</source>
                 <target>Le panneau vous emmène sur les codes promo. Tous ceux que la boutique a écrits y sont listés, avec ce qu'ils retirent et le nombre de fois qu'ils ont été utilisés.</target>
+            </trans-unit>
+            <trans-unit id="QmCvfON">
+                <source>narration.guided_step_payment_discount_code_save</source>
+                <target>Enregistrez : le code est utilisable dès l'enregistrement, dans les limites fixées plus haut.</target>
             </trans-unit>
             <trans-unit id="RfZ20d6">
                 <source>narration.guided_step_payment_discount_code_value</source>
@@ -138,6 +150,10 @@
                 <source>narration.guided_step_payment_gift_card_issue_edit</source>
                 <target>Retrouvez une carte perdue ou volée : le jour où elle est déclarée, cherchez-la dans la liste par son code et ouvrez-la en modification.</target>
             </trans-unit>
+            <trans-unit id="ARZtkDx">
+                <source>narration.guided_step_payment_gift_card_issue_link</source>
+                <target>Retrouvez le lien de la carte : le bouton de consultation montre l'adresse qu'a reçue son destinataire, celle à renvoyer au client qui a perdu son message.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>Le panneau vous emmène sur les cartes cadeaux. Toutes y sont listées, vendues ou émises à la main : celles écrites ici se reconnaissent à ce qu'elles ne nomment aucune commande.</target>
@@ -153,6 +169,22 @@
             <trans-unit id="AZjEph1">
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fixez une date de fin, ou aucune. Laissée vide, la carte n'expire jamais ; renseignée, elle cesse d'être utilisable ce jour-là, quel que soit le solde qui y reste.</target>
+            </trans-unit>
+            <trans-unit id="vsfIz4q">
+                <source>narration.guided_step_payment_order_emails_done</source>
+                <target>Les e-mails sont signés : la prochaine confirmation de commande partira de cette adresse, et les réponses du client arriveront à celle choisie.</target>
+            </trans-unit>
+            <trans-unit id="h7yFRcO">
+                <source>narration.guided_step_payment_order_emails_key</source>
+                <target>Modifiez l'adresse d'expédition : sans elle, aucun e-mail de commande ne part, c'est le seul de ces réglages qui soit obligatoire.</target>
+            </trans-unit>
+            <trans-unit id="OOEoGbb">
+                <source>narration.guided_step_payment_order_emails_open</source>
+                <target>Ouvrez les réglages du groupe Paiement : ses réglages non sensibles, où l'expéditeur des e-mails figure à côté du prestataire proposé par défaut.</target>
+            </trans-unit>
+            <trans-unit id="ZA0yfJG">
+                <source>narration.guided_step_payment_order_emails_value</source>
+                <target>Saisissez une adresse du domaine du site, que son serveur d'envoi est autorisé à utiliser, puis enregistrez. Le nom affiché, la réponse et la copie cachée se règlent de la même façon.</target>
             </trans-unit>
             <trans-unit id="wj9cQ_u">
                 <source>narration.guided_step_payment_payment_link_amount</source>

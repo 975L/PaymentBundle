@@ -1,5 +1,25 @@
 [
     {
+        "date": "2026-10-09",
+        "description": [
+            {
+                "en": "Deleting a customer account is no longer blocked by their orders: paid orders are kept, detached from the account.",
+                "fr": "Supprimer le compte d'un client n'est plus bloqué par ses commandes : les commandes payées sont conservées, détachées du compte.",
+                "es": "Eliminar la cuenta de un cliente ya no queda bloqueado por sus pedidos: los pedidos pagados se conservan, separados de la cuenta."
+            },
+            {
+                "en": "A new guided tour helps you choose the address your order emails are sent from.",
+                "fr": "Une nouvelle visite guidée vous aide à choisir l'adresse d'où partent vos e-mails de commande.",
+                "es": "Una nueva visita guiada le ayuda a elegir la dirección desde la que salen sus correos de pedido."
+            },
+            {
+                "en": "The link of a gift card can be found again from its detail page, to send it back to a customer who lost it.",
+                "fr": "Le lien d'une carte cadeau se retrouve depuis sa fiche, pour le renvoyer au client qui l'a perdu.",
+                "es": "El enlace de una tarjeta regalo se encuentra desde su ficha, para reenviarlo al cliente que lo perdió."
+            }
+        ]
+    },
+    {
         "date": "2026-10-07",
         "description": [
             {

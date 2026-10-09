@@ -42,6 +42,10 @@
                 <source>description.guided_project_payment_gift_card_issue</source>
                 <target>Mint a card no sale created - a gesture after an incident, a card sold face to face, the cards the shop already had</target>
             </trans-unit>
+            <trans-unit id="gFRB9ZQ">
+                <source>description.guided_project_payment_order_emails</source>
+                <target>Choose the address order emails leave from, the one replies reach, and who keeps a copy</target>
+            </trans-unit>
             <trans-unit id="u3MnZZK">
                 <source>description.guided_project_payment_payment_link</source>
                 <target>Write an order for a deposit, a repair or an invoice, and hand its address to whoever settles it</target>
@@ -106,6 +110,14 @@
                 <source>description.guided_step_payment_basket_integrity_run</source>
                 <target>The six checks run on their own every week. This button runs them straight away, if the page is empty or if you have just fixed something.</target>
             </trans-unit>
+            <trans-unit id="YQe2I9y">
+                <source>description.guided_step_payment_basket_integrity_status</source>
+                <target>The table opens on what is left to handle: pick "All statuses" to also see the checks that found nothing.</target>
+            </trans-unit>
+            <trans-unit id="oJE4bm6">
+                <source>description.guided_step_payment_discount_code_active</source>
+                <target>Unticked, the box suspends the code without erasing it or resetting its counter.</target>
+            </trans-unit>
             <trans-unit id="849UuDC">
                 <source>description.guided_step_payment_discount_code_code</source>
                 <target>What the customer types in their basket. It is dictated and retyped, so keep it short and free of anything read two ways.</target>
@@ -129,6 +141,10 @@
             <trans-unit id="paLRBJR">
                 <source>description.guided_step_payment_discount_code_open</source>
                 <target>Every code the shop wrote is listed there, with what it takes off and how often it has been spent.</target>
+            </trans-unit>
+            <trans-unit id="wnKo.BR">
+                <source>description.guided_step_payment_discount_code_save</source>
+                <target>The code can be used as soon as it is saved, within the limits set above.</target>
             </trans-unit>
             <trans-unit id="kvKGuT6">
                 <source>description.guided_step_payment_discount_code_value</source>
@@ -190,6 +206,10 @@
                 <source>description.guided_step_payment_gift_card_issue_edit</source>
                 <target>The day a card is reported lost or stolen, find it in the listing by its code and open it for editing.</target>
             </trans-unit>
+            <trans-unit id="hTHiGYg">
+                <source>description.guided_step_payment_gift_card_issue_link</source>
+                <target>The view button shows the card's address, the one its holder was sent: that is what you send back to a customer who lost their message.</target>
+            </trans-unit>
             <trans-unit id="bR0j8lt">
                 <source>description.guided_step_payment_gift_card_issue_open</source>
                 <target>Every card is listed there, sold or issued by hand: the ones written here are told apart by naming no order.</target>
@@ -205,6 +225,22 @@
             <trans-unit id="tOpIhxB">
                 <source>description.guided_step_payment_gift_card_issue_validity</source>
                 <target>Left empty, the card never expires. Filled in, it stops being spendable that day, whatever balance is left on it.</target>
+            </trans-unit>
+            <trans-unit id="D9HAEMH">
+                <source>description.guided_step_payment_order_emails_done</source>
+                <target>The next order confirmation leaves from this address, and the customer's replies reach the one chosen.</target>
+            </trans-unit>
+            <trans-unit id="_oh2Ttp">
+                <source>description.guided_step_payment_order_emails_key</source>
+                <target>Without it no order email leaves: it is the only one of these settings that is required.</target>
+            </trans-unit>
+            <trans-unit id="WM7T53v">
+                <source>description.guided_step_payment_order_emails_open</source>
+                <target>The group's non-sensitive settings: the email sender sits there, next to the provider offered first.</target>
+            </trans-unit>
+            <trans-unit id="DlnJWWF">
+                <source>description.guided_step_payment_order_emails_value</source>
+                <target>An address on the site's domain, one its mail server is allowed to send from, then save. The display name, reply-to and blind copy are set the same way.</target>
             </trans-unit>
             <trans-unit id="AN5Mf_f">
                 <source>description.guided_step_payment_payment_link_amount</source>
@@ -962,6 +998,10 @@
                 <source>label.guided_project_payment_gift_card_issue</source>
                 <target>Issue a gift card by hand</target>
             </trans-unit>
+            <trans-unit id="WrdSa1C">
+                <source>label.guided_project_payment_order_emails</source>
+                <target>Sign the order emails</target>
+            </trans-unit>
             <trans-unit id="svPZPHX">
                 <source>label.guided_project_payment_payment_link</source>
                 <target>Charge for something outside the catalogue</target>
@@ -1026,6 +1066,14 @@
                 <source>label.guided_step_payment_basket_integrity_run</source>
                 <target>Run the check again</target>
             </trans-unit>
+            <trans-unit id="DJ0QFB2">
+                <source>label.guided_step_payment_basket_integrity_status</source>
+                <target>Show every row</target>
+            </trans-unit>
+            <trans-unit id="liDibkq">
+                <source>label.guided_step_payment_discount_code_active</source>
+                <target>Leave it active</target>
+            </trans-unit>
             <trans-unit id="UfV9AOP">
                 <source>label.guided_step_payment_discount_code_code</source>
                 <target>Choose the code itself</target>
@@ -1049,6 +1097,10 @@
             <trans-unit id="bNC5f.Z">
                 <source>label.guided_step_payment_discount_code_open</source>
                 <target>Open the promotional codes</target>
+            </trans-unit>
+            <trans-unit id="s3NTGko">
+                <source>label.guided_step_payment_discount_code_save</source>
+                <target>Save</target>
             </trans-unit>
             <trans-unit id="QUv74i3">
                 <source>label.guided_step_payment_discount_code_value</source>
@@ -1110,6 +1162,10 @@
                 <source>label.guided_step_payment_gift_card_issue_edit</source>
                 <target>Find a lost or stolen card</target>
             </trans-unit>
+            <trans-unit id="3y0wVwC">
+                <source>label.guided_step_payment_gift_card_issue_link</source>
+                <target>Find the card's link</target>
+            </trans-unit>
             <trans-unit id="yKwKXwN">
                 <source>label.guided_step_payment_gift_card_issue_open</source>
                 <target>Open the gift cards</target>
@@ -1125,6 +1181,22 @@
             <trans-unit id="_bNlvel">
                 <source>label.guided_step_payment_gift_card_issue_validity</source>
                 <target>Set an end date, or none</target>
+            </trans-unit>
+            <trans-unit id="TgrvbnF">
+                <source>label.guided_step_payment_order_emails_done</source>
+                <target>The emails are signed</target>
+            </trans-unit>
+            <trans-unit id="itqMApB">
+                <source>label.guided_step_payment_order_emails_key</source>
+                <target>Edit the sender address</target>
+            </trans-unit>
+            <trans-unit id="a58rpcv">
+                <source>label.guided_step_payment_order_emails_open</source>
+                <target>Open the Payment group settings</target>
+            </trans-unit>
+            <trans-unit id="mnPLB2e">
+                <source>label.guided_step_payment_order_emails_value</source>
+                <target>Type the address</target>
             </trans-unit>
             <trans-unit id="_7abQeC">
                 <source>label.guided_step_payment_payment_link_amount</source>
@@ -1420,7 +1492,7 @@
             </trans-unit>
             <trans-unit id="vfgwC1x">
                 <source>label.info_shipping_zone</source>
-                <target>Manage the shipping zones and their weight tariffs</target>
+                <target>The shipping zones and their weight tariffs, read at checkout for every parcel.</target>
             </trans-unit>
             <trans-unit id="xsfKfLg">
                 <source>label.initial_amount</source>

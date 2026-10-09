@@ -68,11 +68,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-gateway-setup', 'payment-shop-identity', 'payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
+            ['payment-gateway-setup', 'payment-shop-identity', 'payment-order-emails', 'payment-test-mode', 'payment-transaction-review', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
             array_column($projects, 'slug'),
         );
-        // 7005, 7007, 7055 and 7065 slip between two tens rather than being appended: the keys and the shop's identity come before the test mode rehearsing against them, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
-        $this->assertSame([7005, 7007, 7010, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
+        // 7005, 7007, 7008, 7055 and 7065 slip between two tens rather than being appended: the keys, the shop's identity and its email sender come before the test mode rehearsing against them, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
+        $this->assertSame([7005, 7007, 7008, 7010, 7020, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -141,7 +141,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['ConfigCrudController', 'ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
+        $this->assertSame(['ConfigCrudController', 'ConfigCrudController', 'ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -202,14 +202,65 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
-    // The rows this bundle fills on a screen it does not own: the parcours points at them by the very kind the provider declares, so a renamed kind fails here rather than silently highlighting nothing
+    // The rows this bundle fills on a screen it does not own: the parcours points at them, and at what each of them carries, by the very kind the provider declares, so a renamed kind fails here rather than silently highlighting nothing - or the first row of another check
     public function testTheIntegrityStepPointsAtTheKindTheProviderDeclares(): void
     {
-        $project = $this->project('payment-basket-integrity');
+        $row = 'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]:not([hidden])';
 
-        $this->assertContains(
-            'tr[data-kind="' . BasketIntegrityHealthCheckProvider::KIND . '"]',
-            array_column($project['steps'], 'highlight'),
+        $this->assertSame(
+            ['form[action$="/health-check/run"] button', '[data-health-check-table-target="status"]', $row, $row . ' .health-check-advice-items', $row . ' [data-health-check-acknowledge]'],
+            array_values(array_filter(array_column($this->project('payment-basket-integrity')['steps'], 'highlight'))),
+        );
+    }
+
+    // The table opens on what is left to handle, hiding every row a healthy shop has: the status select comes before the rows, or they highlight nothing
+    public function testTheStatusStepComesBeforeTheIntegrityRows(): void
+    {
+        $steps = array_column($this->project('payment-basket-integrity')['steps'], 'label');
+
+        $this->assertLessThan(
+            array_search('label.guided_step_payment_basket_integrity_rows', $steps, true),
+            array_search('label.guided_step_payment_basket_integrity_status', $steps, true),
+        );
+    }
+
+    // ConfigBundle draws the sensitive toggle itself, the attribute it carries being what the gateway parcours points at
+    public function testTheGatewayDefaultStepHighlightsTheSensitiveToggle(): void
+    {
+        $this->assertContains('[data-config-sensitive-toggle]', array_column($this->project('payment-gateway-setup')['steps'], 'highlight'));
+    }
+
+    // TomSelect hides a multiple select behind a widget of its own, so the step points at that widget
+    public function testTheShippingCountriesStepPointsAtTheTomSelectWidget(): void
+    {
+        $this->assertContains('#ShippingZone_countries + .ts-wrapper', array_column($this->project('payment-shipping-grid')['steps'], 'highlight'));
+    }
+
+    // The kind keeps its own id only as a native select, TomSelect hiding it otherwise - the step highlighting a 1px element
+    public function testTheDiscountKindStepPointsAtANativeSelect(): void
+    {
+        $this->assertContains('#Discount_kind', array_column($this->project('payment-discount-code')['steps'], 'highlight'));
+        $this->assertMatchesRegularExpression(
+            "/ChoiceField::new\\('kind'\\)(?:(?!ChoiceField::new|Field::new).)*->renderAsNativeWidget\\(\\)/s",
+            (string) file_get_contents(__DIR__ . '/../../src/Controller/Management/DiscountCrudController.php'),
+        );
+    }
+
+    // A discount is only live once saved: the parcours walks to the button rather than stopping on the last field
+    public function testTheDiscountProjectEndsOnTheSaveButton(): void
+    {
+        $highlights = array_values(array_filter(array_column($this->project('payment-discount-code')['steps'], 'highlight')));
+
+        $this->assertSame(['#Discount_active', '.action-saveAndReturn'], array_slice($highlights, -2));
+    }
+
+    // The card's address shows on its detail page only, which the listing has to offer for the step to point at anything
+    public function testTheGiftCardLinkStepPointsAtTheDetailAction(): void
+    {
+        $this->assertContains('.action-detail', array_column($this->project('payment-gift-card-issue')['steps'], 'highlight'));
+        $this->assertStringContainsString(
+            '->add(Crud::PAGE_INDEX, Action::DETAIL)',
+            (string) file_get_contents(__DIR__ . '/../../src/Controller/Management/GiftCardCrudController.php'),
         );
     }
 
@@ -239,7 +290,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         );
     }
 
-    // The keys are sensitive entries, listed by ConfigBundle's screen only once asked to: a parcours landing on the group without the toggle shows the settings around them and none of the keys - the shop's settings, none of them sensitive, being opened without it
+    // The keys are sensitive entries, listed by ConfigBundle's screen only once asked to: a parcours landing on the group without the toggle shows the settings around them and none of the keys - the shop's settings and the email sender, none of them sensitive, being opened without it
     public function testTheGatewayProjectOpensOnTheSensitiveEntriesOfThePaymentGroup(): void
     {
         $parameters = [];
@@ -258,7 +309,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
 
         new PaymentGuidedProjectProvider($generator, $this->createUrlGenerator(), $configService)->getGuidedProjects();
 
-        $this->assertSame([['group', 'payment'], ['showSensitive', 1], ['group', 'shop']], $parameters);
+        $this->assertSame([['group', 'payment'], ['showSensitive', 1], ['group', 'shop'], ['group', 'payment']], $parameters);
     }
 
     // Read by slug rather than by position, so a parcours slipped between two others leaves the tests of its neighbours alone

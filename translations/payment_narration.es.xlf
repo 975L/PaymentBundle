@@ -54,6 +54,14 @@
                 <source>narration.guided_step_payment_basket_integrity_run</source>
                 <target>Vuelva a lanzar la comprobación. Las seis se ejecutan solas cada semana; este botón las relanza de inmediato, si la página está vacía o si acaba de corregir algo.</target>
             </trans-unit>
+            <trans-unit id="Nu8RGKW">
+                <source>narration.guided_step_payment_basket_integrity_status</source>
+                <target>Muestre todas las filas: la tabla se abre en lo que queda por tratar, elija «Todos los estados» para ver también los controles que no encontraron nada.</target>
+            </trans-unit>
+            <trans-unit id="YDh6NB0">
+                <source>narration.guided_step_payment_discount_code_active</source>
+                <target>Déjelo activo: desmarcada, la casilla suspende el código sin borrarlo ni reiniciar su contador.</target>
+            </trans-unit>
             <trans-unit id="vB7DPGB">
                 <source>narration.guided_step_payment_discount_code_code</source>
                 <target>Elija el código en sí, lo que el cliente escribe en su cesta. Se dicta y se vuelve a teclear: manténgalo corto y sin caracteres que se lean de dos maneras.</target>
@@ -77,6 +85,10 @@
             <trans-unit id="s6v_5cl">
                 <source>narration.guided_step_payment_discount_code_open</source>
                 <target>El panel le lleva a los códigos promocionales. Todos los que la tienda ha escrito están listados ahí, con lo que descuentan y las veces que se han usado.</target>
+            </trans-unit>
+            <trans-unit id="QmCvfON">
+                <source>narration.guided_step_payment_discount_code_save</source>
+                <target>Guarde: el código se puede usar en cuanto se guarda, dentro de los límites fijados arriba.</target>
             </trans-unit>
             <trans-unit id="RfZ20d6">
                 <source>narration.guided_step_payment_discount_code_value</source>
@@ -138,6 +150,10 @@
                 <source>narration.guided_step_payment_gift_card_issue_edit</source>
                 <target>Encuentre una tarjeta perdida o robada: el día en que se declara, búsquela en la lista por su código y ábrala para modificarla.</target>
             </trans-unit>
+            <trans-unit id="ARZtkDx">
+                <source>narration.guided_step_payment_gift_card_issue_link</source>
+                <target>Encuentre el enlace de la tarjeta: el botón de consulta muestra la dirección que recibió su destinatario, la que hay que reenviar al cliente que perdió su mensaje.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>El panel le lleva a las tarjetas regalo. Todas están listadas ahí, vendidas o emitidas a mano: las escritas aquí se reconocen porque no nombran ningún pedido.</target>
@@ -153,6 +169,22 @@
             <trans-unit id="AZjEph1">
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fije una fecha de fin, o ninguna. Si se deja vacía, la tarjeta nunca caduca; si se rellena, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
+            </trans-unit>
+            <trans-unit id="vsfIz4q">
+                <source>narration.guided_step_payment_order_emails_done</source>
+                <target>Los correos están firmados: la próxima confirmación de pedido saldrá de esta dirección y las respuestas del cliente llegarán a la elegida.</target>
+            </trans-unit>
+            <trans-unit id="h7yFRcO">
+                <source>narration.guided_step_payment_order_emails_key</source>
+                <target>Modifique la dirección de envío: sin ella no sale ningún correo de pedido, es el único de estos ajustes obligatorio.</target>
+            </trans-unit>
+            <trans-unit id="OOEoGbb">
+                <source>narration.guided_step_payment_order_emails_open</source>
+                <target>Abra los ajustes del grupo Pago: sus ajustes no sensibles, donde el remitente de los correos figura junto al proveedor propuesto por defecto.</target>
+            </trans-unit>
+            <trans-unit id="ZA0yfJG">
+                <source>narration.guided_step_payment_order_emails_value</source>
+                <target>Escriba una dirección del dominio del sitio, que su servidor de envío esté autorizado a usar, y guarde. El nombre mostrado, la respuesta y la copia oculta se ajustan igual.</target>
             </trans-unit>
             <trans-unit id="wj9cQ_u">
                 <source>narration.guided_step_payment_payment_link_amount</source>

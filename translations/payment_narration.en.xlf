@@ -54,6 +54,14 @@
                 <source>narration.guided_step_payment_basket_integrity_run</source>
                 <target>Run the check again. The six checks run on their own every week; this button runs them straight away, if the page is empty or if you have just fixed something.</target>
             </trans-unit>
+            <trans-unit id="Nu8RGKW">
+                <source>narration.guided_step_payment_basket_integrity_status</source>
+                <target>Show every row: the table opens on what is left to handle, pick "All statuses" to also see the checks that found nothing.</target>
+            </trans-unit>
+            <trans-unit id="YDh6NB0">
+                <source>narration.guided_step_payment_discount_code_active</source>
+                <target>Leave it active: unticked, the box suspends the code without erasing it or resetting its counter.</target>
+            </trans-unit>
             <trans-unit id="vB7DPGB">
                 <source>narration.guided_step_payment_discount_code_code</source>
                 <target>Choose the code itself, what the customer types in their basket. It is dictated and retyped: keep it short and free of anything read two ways.</target>
@@ -77,6 +85,10 @@
             <trans-unit id="s6v_5cl">
                 <source>narration.guided_step_payment_discount_code_open</source>
                 <target>The panel takes you to the promotional codes. Every one the shop wrote is listed there, with what it takes off and how often it has been spent.</target>
+            </trans-unit>
+            <trans-unit id="QmCvfON">
+                <source>narration.guided_step_payment_discount_code_save</source>
+                <target>Save: the code can be used as soon as it is saved, within the limits set above.</target>
             </trans-unit>
             <trans-unit id="RfZ20d6">
                 <source>narration.guided_step_payment_discount_code_value</source>
@@ -138,6 +150,10 @@
                 <source>narration.guided_step_payment_gift_card_issue_edit</source>
                 <target>Find a lost or stolen card: the day it is reported, look it up in the listing by its code and open it for editing.</target>
             </trans-unit>
+            <trans-unit id="ARZtkDx">
+                <source>narration.guided_step_payment_gift_card_issue_link</source>
+                <target>Find the card's link: the view button shows the address its holder was sent, the one to send back to a customer who lost their message.</target>
+            </trans-unit>
             <trans-unit id="h7HTo.J">
                 <source>narration.guided_step_payment_gift_card_issue_open</source>
                 <target>The panel takes you to the gift cards. All of them are listed there, sold or issued by hand: the ones written here are told apart by naming no order.</target>
@@ -153,6 +169,22 @@
             <trans-unit id="AZjEph1">
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Set an end date, or none. Left empty, the card never expires; filled in, it stops being spendable that day, whatever balance is left on it.</target>
+            </trans-unit>
+            <trans-unit id="vsfIz4q">
+                <source>narration.guided_step_payment_order_emails_done</source>
+                <target>The emails are signed: the next order confirmation leaves from this address, and the customer's replies reach the one chosen.</target>
+            </trans-unit>
+            <trans-unit id="h7yFRcO">
+                <source>narration.guided_step_payment_order_emails_key</source>
+                <target>Edit the sender address: without it no order email leaves, it is the only one of these settings that is required.</target>
+            </trans-unit>
+            <trans-unit id="OOEoGbb">
+                <source>narration.guided_step_payment_order_emails_open</source>
+                <target>Open the Payment group settings: its non-sensitive settings, where the email sender sits next to the provider offered first.</target>
+            </trans-unit>
+            <trans-unit id="ZA0yfJG">
+                <source>narration.guided_step_payment_order_emails_value</source>
+                <target>Type an address on the site's domain, one its mail server is allowed to send from, then save. The display name, reply-to and blind copy are set the same way.</target>
             </trans-unit>
             <trans-unit id="wj9cQ_u">
                 <source>narration.guided_step_payment_payment_link_amount</source>

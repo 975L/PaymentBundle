@@ -1,5 +1,11 @@
 # UPGRADE
 
+## v6.18 > v6.19
+
+**Deleting an account no longer stumbles on its orders.** The foreign keys `payment_basket.user_id` and
+`payment_payment.user_id` move to `ON DELETE SET NULL` - generate the migration with `doctrine:migrations:diff` and
+run it. The paid orders and their payments stay, for the accounting retention, detached from the deleted account.
+
 ## v6.16 > v6.17
 
 **`ShippingRateResolverInterface` gains `exceeds(?string $country, int $weight): bool`.** Only a site that decorates

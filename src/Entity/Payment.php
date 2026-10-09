@@ -56,7 +56,9 @@ class Payment implements \Stringable
     #[ORM\OneToOne(mappedBy: 'payment')]
     private ?Basket $basket = null;
 
+    // SET NULL: a payment stays for the accounting retention, and must not block deleting the account that placed it
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?UserInterface $user = null;
 
     public function __toString(): string

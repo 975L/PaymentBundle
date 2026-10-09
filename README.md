@@ -352,7 +352,7 @@ A card is bought for somebody else, who has no account on the site — so each c
 `/gift-card/{shareToken}` is the page they open. The token is never the code: an address travels through browser
 histories, referrers, chat servers and link previews. That page is answered `noindex`, `Referrer-Policy:
 no-referrer` and `no-store`, the confirmation email prints its URL beside the code, and the back-office register
-shows it for the day a customer loses the message it was sent in.
+shows it on the card's detail page for the day a customer loses the message it was sent in.
 
 **The code is not in that page.** With the scratch panel on (the default), the markup holds no code at all: it is
 asked for by `/gift-card/{shareToken}/code` once the panel is rubbed off — a link pasted into a chat is fetched by

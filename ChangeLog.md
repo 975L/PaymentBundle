@@ -1,5 +1,23 @@
 # Changelog
 
+## v6.19.0
+
+Deleting an account no longer stumbles on its orders
+
+- `Basket::$user` and `Payment::$user` are `onDelete: 'SET NULL'` (09/10/2026) [Needs db update] see [UPGRADE.md](UPGRADE.md)
+- Added `UserForeignKeyTest` (09/10/2026)
+- Added the `payment-order-emails` guided project (09/10/2026)
+- Added the status step to the `payment-basket-integrity` guided project (09/10/2026)
+- The integrity offenders and acknowledge steps only highlight this bundle's visible rows (09/10/2026)
+- Added the active and save steps to the `payment-discount-code` guided project (09/10/2026)
+- Added the link step to the `payment-gift-card-issue` guided project (09/10/2026)
+- The gateway default step highlights ConfigBundle's sensitive toggle (09/10/2026)
+- The shipping countries step highlights the TomSelect widget (09/10/2026)
+- The discount kind is a native select (09/10/2026)
+- Added the detail action to the gift card listing (09/10/2026)
+- `label.info_shipping_zone` is descriptive rather than imperative (09/10/2026)
+- Requires `c975l/core-bundle` ^1.61 for the event before a hard delete and the sensitive toggle attribute (09/10/2026)
+
 ## v6.18.0
 
 An empty shipping grid is only reported where something posted is sold

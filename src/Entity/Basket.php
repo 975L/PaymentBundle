@@ -208,7 +208,9 @@ class Basket implements \Stringable
     #[Assert\Length(max: 255)]
     private ?string $giftCardRecipientMessage = null;
 
+    // SET NULL: a paid order stays for the accounting retention, and must not block deleting the account that placed it
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?UserInterface $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]
