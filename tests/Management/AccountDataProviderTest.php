@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\Management;
 
 use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Management\AccountDataProvider;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,7 @@ class AccountDataProviderTest extends TestCase
     // Each basket of the account, with what it holds and where it went
     public function testExportsTheBasketsOfTheAccount(): void
     {
-        $basket = new Basket()->setNumber('2026-000123')->setStatus('paid')->setCurrency('EUR')->setName('Laurent')->setCity('Annecy');
+        $basket = new Basket()->setNumber('2026-000123')->setStatus(BasketStatus::Paid)->setCurrency('EUR')->setName('Laurent')->setCity('Annecy');
         $basket->setTotal(4500);
 
         $data = $this->provider([$basket])->getAccountData($this->createStub(UserInterface::class));

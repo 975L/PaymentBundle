@@ -70,7 +70,7 @@ class CustomerAreaController extends AbstractController
         $basket = $this->basketRepository->findOneBy(['number' => $number]);
 
         // Order numbers run in sequence, so one is guessed from the next: a basket that is not this user's own is answered as missing rather than as forbidden, which would confirm it exists
-        if (!$basket instanceof Basket || $basket->getUser() !== $this->getUser() || !\in_array($basket->getStatus(), ['paid', 'shipped'], true)) {
+        if (!$basket instanceof Basket || $basket->getUser() !== $this->getUser() || !$basket->getStatus()->isSettled()) {
             throw new NotFoundHttpException();
         }
 

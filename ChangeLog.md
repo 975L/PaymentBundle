@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.20.0
+
+The basket status is an enum
+
+- Added `BasketStatus`, `Basket::getStatus()` and `setStatus()` take it instead of a string (14/10/2026) [BC-Break] see [UPGRADE.md](UPGRADE.md)
+- The basket listing shows the status translated and filters on its cases (14/10/2026)
+- Added `BasketStatusTest` (14/10/2026)
+- The `c975l-payment-checkout` skill describes `BasketStatus` (14/10/2026)
+
 ## v6.19.0
 
 Deleting an account no longer stumbles on its orders

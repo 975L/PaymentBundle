@@ -16,6 +16,7 @@ use c975L\PaymentBundle\Contract\CheckoutSession;
 use c975L\PaymentBundle\Contract\PaymentGatewayInterface;
 use c975L\PaymentBundle\Contract\PaymentLinkItem;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Provider\PaymentLinkItemProvider;
@@ -56,7 +57,7 @@ class PaymentLinkTest extends TestCase
         $this->service()->createPaymentLink('Acompte chantier', 25000, 'marie@example.org');
 
         $this->assertNotNull($this->persisted);
-        $this->assertSame('validated', $this->persisted->getStatus());
+        $this->assertSame(BasketStatus::Validated, $this->persisted->getStatus());
         $this->assertSame(25000, $this->persisted->getTotal());
         $this->assertSame(25000, $this->persisted->getPayable());
         $this->assertSame(1, $this->persisted->getQuantity());

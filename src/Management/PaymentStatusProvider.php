@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Management;
 use c975L\ConfigBundle\Management\StatusProviderInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -60,7 +61,7 @@ class PaymentStatusProvider implements StatusProviderInterface
             ->andWhere('b.number IS NOT NULL')
             ->andWhere('BIT_AND(b.contentflags, :physical) > 0')
             ->andWhere('b.itemsShipped IS NULL')
-            ->setParameter('paid', 'paid')
+            ->setParameter('paid', BasketStatus::Paid)
             ->setParameter('physical', Basket::CONTENT_FLAG_PHYSICAL);
     }
 
@@ -89,7 +90,7 @@ class PaymentStatusProvider implements StatusProviderInterface
             ->select('COUNT(b.id)')
             ->where('b.status = :validated')
             ->andWhere('b.modification < :before')
-            ->setParameter('validated', 'validated')
+            ->setParameter('validated', BasketStatus::Validated)
             ->setParameter('before', new \DateTime('-' . self::STALLED_PAYMENT_HOURS . ' hours'))
             ->getQuery()
             ->getSingleScalarResult();

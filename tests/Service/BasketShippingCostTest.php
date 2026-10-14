@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\WeighableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
@@ -106,7 +107,7 @@ class BasketShippingCostTest extends TestCase
         }
 
         return new Basket()
-            ->setStatus('validated')
+            ->setStatus(BasketStatus::Validated)
             ->setCurrency('EUR')
             ->setCountry($country)
             ->setItems($items)

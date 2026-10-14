@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\EventSubscriber;
 
 use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\EventSubscriber\BasketRecoverySubscriber;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use PHPUnit\Framework\TestCase;
@@ -115,7 +116,7 @@ class BasketRecoverySubscriberTest extends TestCase
     public function testAFinishedBasketTakesTheCookieAway(): void
     {
         $repository = $this->createStub(BasketRepository::class);
-        $repository->method('find')->willReturn($this->basket()->setStatus('paid'));
+        $repository->method('find')->willReturn($this->basket()->setStatus(BasketStatus::Paid));
 
         $request = $this->request(self::TOKEN);
         $request->getSession()->set('basket', 42);
@@ -144,7 +145,7 @@ class BasketRecoverySubscriberTest extends TestCase
     private function basket(?UserInterface $user = null): Basket
     {
         $basket = new Basket()
-            ->setStatus('new')
+            ->setStatus(BasketStatus::New)
             ->setRecoveryToken(self::TOKEN)
             ->setUser($user)
         ;

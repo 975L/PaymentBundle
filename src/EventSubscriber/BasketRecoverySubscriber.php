@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\EventSubscriber;
 
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketRetentionService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -107,7 +108,7 @@ class BasketRecoverySubscriber implements EventSubscriberInterface
         $basket = $this->getSessionBasket($request);
         $token = $request->cookies->get(self::COOKIE_NAME);
 
-        if (null !== $basket && 'new' === $basket->getStatus() && null !== $basket->getRecoveryToken()) {
+        if (null !== $basket && BasketStatus::New === $basket->getStatus() && null !== $basket->getRecoveryToken()) {
             // Posed again on every response rather than only when it changes: the cookie then lives as long from the visitor's last page as the basket does from its last change, and a shopper coming back every week never has it expire under them
             $event->getResponse()->headers->setCookie($this->createCookie($request, $basket->getRecoveryToken()));
 

@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 
 use c975L\PaymentBundle\Email\BasketEmailSender;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketReminderService;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
@@ -105,7 +106,7 @@ class BasketReminderServiceTest extends TestCase
     private function basket(): Basket
     {
         return new Basket()
-            ->setStatus('validated')
+            ->setStatus(BasketStatus::Validated)
             ->setEmail('someone@example.org')
             ->setModification(new \DateTime('-2 days'))
         ;

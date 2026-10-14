@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Repository;
 
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -37,10 +38,10 @@ class BasketRepository extends ServiceEntityRepository
     {
         $updated = $this->getEntityManager()
             ->createQuery('UPDATE ' . Basket::class . ' b SET b.status = :paid, b.modification = :now WHERE b.id = :id AND b.status = :validated')
-            ->setParameter('paid', 'paid')
+            ->setParameter('paid', BasketStatus::Paid)
             ->setParameter('now', new \DateTime())
             ->setParameter('id', $basket->getId())
-            ->setParameter('validated', 'validated')
+            ->setParameter('validated', BasketStatus::Validated)
             ->execute();
 
         return 1 === $updated;
@@ -62,7 +63,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status = :paid')
             ->andWhere('(BIT_AND(b.contentflags, :physical) > 0 AND b.itemsShipped IS NULL)
                 OR (BIT_AND(b.contentflags, :counterparts) > 0 AND b.counterpartsShipped IS NULL)')
-            ->setParameter('paid', 'paid')
+            ->setParameter('paid', BasketStatus::Paid)
             ->setParameter('physical', Basket::CONTENT_FLAG_PHYSICAL)
             ->setParameter('counterparts', Basket::CONTENT_FLAG_CF_SHIPPING)
             ->orderBy('b.creation', \SortDirection::Ascending)
@@ -82,7 +83,7 @@ class BasketRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
             ->andWhere('b.status = :status')
             ->andWhere('b.modification < :date')
-            ->setParameter('status', 'new')
+            ->setParameter('status', BasketStatus::New)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
@@ -96,7 +97,7 @@ class BasketRepository extends ServiceEntityRepository
      */
     public function findRecoverable(string $token): ?Basket
     {
-        return $this->findOneBy(['recoveryToken' => $token, 'status' => 'new']);
+        return $this->findOneBy(['recoveryToken' => $token, 'status' => BasketStatus::New]);
     }
 
     /**
@@ -111,7 +112,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.user = :user')
             ->andWhere('b.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', 'new')
+            ->setParameter('status', BasketStatus::New)
             ->orderBy('b.modification', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
@@ -126,7 +127,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.user = :user')
             ->andWhere('b.status = :status')
             ->setParameter('user', $user)
-            ->setParameter('status', 'new')
+            ->setParameter('status', BasketStatus::New)
             ->getQuery()
             ->getResult();
     }
@@ -139,7 +140,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.company IS NOT NULL')
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('user', $user)
-            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('statuses', BasketStatus::SETTLED)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
@@ -154,7 +155,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.user = :user')
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('user', $user)
-            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('statuses', BasketStatus::SETTLED)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
@@ -183,7 +184,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('LOWER(b.email) = :email')
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('email', $email)
-            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('statuses', BasketStatus::SETTLED)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->getQuery()
             ->getResult();
@@ -222,7 +223,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('user', $user)
             ->setParameter('email', $email)
-            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('statuses', BasketStatus::SETTLED)
             ->getQuery()
             ->execute();
     }
@@ -262,7 +263,7 @@ class BasketRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
             ->andWhere('b.status = :status')
             ->andWhere('b.modification < :date')
-            ->setParameter('status', 'validated')
+            ->setParameter('status', BasketStatus::Validated)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
@@ -289,7 +290,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.email IS NOT NULL')
             ->andWhere('b.remindersSent = :sent')
             ->andWhere('b.modification < :date')
-            ->setParameter('status', 'validated')
+            ->setParameter('status', BasketStatus::Validated)
             ->setParameter('service', Basket::CONTENT_FLAG_SERVICE)
             ->setParameter('sent', $alreadySent)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
@@ -311,7 +312,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:statuses)')
             ->andWhere('b.archived IS NULL')
             ->andWhere('b.creation < :date')
-            ->setParameter('statuses', ['paid', 'shipped'])
+            ->setParameter('statuses', BasketStatus::SETTLED)
             ->setParameter('date', new \DateTime('-' . $years . ' years'))
             ->getQuery()
             ->getResult();
@@ -357,7 +358,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.total + b.shipping - b.discountAmount > 0')
             ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('delivered', BasketStatus::SETTLED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -409,7 +410,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.creation >= :since')
             ->andWhere('b.number IS NULL')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('delivered', BasketStatus::SETTLED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -431,7 +432,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:delivered)')
             ->andWhere('b.creation >= :since')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('delivered', BasketStatus::SETTLED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -452,7 +453,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:open)')
             ->andWhere('b.archived IS NULL')
             ->andWhere('b.testMode = false')
-            ->setParameter('open', ['new', 'validated'])
+            ->setParameter('open', BasketStatus::OPEN)
             ->orderBy('b.modification', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()

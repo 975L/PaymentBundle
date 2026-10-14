@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
@@ -98,7 +99,7 @@ class BasketItemRefreshTest extends TestCase
     {
         $line = ['quantity' => 1, 'total' => 1000, 'totalVat' => 0, 'type' => 'product', 'item' => ['id' => 7, 'title' => 'Yesterday', 'price' => 1000, 'vat' => 0.0], 'parent' => []];
         $basket = $this->basketHolding($line);
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
 
         $service = $this->service($basket, new RefreshableItem(7, 1200, 'Today'));
         // Asked from outside the basket's own paths, which is the only way an order ever reaches this
@@ -130,7 +131,7 @@ class BasketItemRefreshTest extends TestCase
         }
 
         $this->assertSame(200, $basket->getDiscountAmount(), 'The basket carries what the code is worth today');
-        $this->assertSame('new', $basket->getStatus(), 'Nothing was frozen: the customer validates again on the total the basket now says');
+        $this->assertSame(BasketStatus::New, $basket->getStatus(), 'Nothing was frozen: the customer validates again on the total the basket now says');
     }
 
     private function percentageDiscount(string $code, int $percentage): Discount
@@ -146,7 +147,7 @@ class BasketItemRefreshTest extends TestCase
     private function basketHolding(array $line, string $kind = 'product', int | string $id = 7): Basket
     {
         $basket = new Basket();
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setCurrency('EUR');
         $basket->setTotal($line['total']);
         $basket->setShipping(0);

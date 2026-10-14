@@ -90,12 +90,7 @@ class BasketRetentionService
         return $this->delete($this->basketRepository->findExpired(self::RETENTION_YEARS));
     }
 
-    /**
-     * Moves the orders that are no longer current business to the intermediate archive.
-     *
-     * A date and not a status: the checkout reads the status as a string in half a dozen places, and an
-     * "archived" value there would have an order stop being recognised as the paid one it still is.
-     */
+    // Moves the orders no longer current business to the intermediate archive. A date and not a status: an archived order is still paid or shipped, and every check reading BasketStatus::SETTLED would stop recognising it
     public function archiveDelivered(): int
     {
         $count = 0;

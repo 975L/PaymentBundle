@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Repository;
 
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -48,7 +49,7 @@ class PaymentRepository extends ServiceEntityRepository
             ->andWhere('b.id IS NULL OR b.testMode = false')
             ->setParameter('since', $since)
             ->setParameter('before', $before)
-            ->setParameter('delivered', ['paid', 'shipped'])
+            ->setParameter('delivered', BasketStatus::SETTLED)
             ->orderBy('p.modification', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()

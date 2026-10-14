@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Repository;
 
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\PaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -49,7 +50,7 @@ class PaymentRepositoryTest extends TestCase
 
         $this->assertStringContainsString('b.id IS NULL OR b.status NOT IN (:delivered)', $this->dql);
         $this->assertStringContainsString('p.isFinished = true', $this->dql);
-        $this->assertSame(['paid', 'shipped'], $this->parameters['delivered']);
+        $this->assertSame(BasketStatus::SETTLED, $this->parameters['delivered']);
     }
 
     // The query the repository builds is read back through the DQL the entity manager is handed, the rest of it being Doctrine's own

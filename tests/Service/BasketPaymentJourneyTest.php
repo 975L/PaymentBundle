@@ -17,6 +17,7 @@ use c975L\PaymentBundle\Contract\PaymentNotification;
 use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Message\ConfirmOrderMessage;
@@ -83,7 +84,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service()->paid($basket);
 
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
         $this->assertNull($this->dispatched);
     }
 
@@ -95,7 +96,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service()->paid($basket);
 
         $this->assertSame(['product'], $this->delivered);
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
         $this->assertInstanceOf(ConfirmOrderMessage::class, $this->dispatched?->getMessage());
     }
 
@@ -107,7 +108,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service()->paid($basket);
 
         $this->assertSame(['product'], $this->delivered);
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
     }
 
     // The webhook and the customer's return land within the same second; the database hands the basket to one of them, and the loser delivers nothing
@@ -149,7 +150,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testAnAlreadyPaidBasketIsNotDeliveredAgain(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: true));
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
 
         $this->service()->paid($basket);
 
@@ -170,7 +171,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame('pi_1', $payment->getTransactionId());
         $this->assertSame('card', $payment->getPaymentMethod());
         $this->assertSame(['product'], $this->delivered);
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
     }
 
     // The checkout is opened for what is left to pay, so the charge is compared to that and not to the undiscounted total - an order settled with a code or a gift card would otherwise be refused every time
@@ -185,7 +186,7 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertTrue($payment->isFinished());
         $this->assertSame(['product'], $this->delivered);
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
     }
 
     // A basket can still be added to once it has been validated, and the checkout the customer paid was priced before that
@@ -198,7 +199,7 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertFalse($payment->isFinished());
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // The attack the check is there for: the basket is added to after it was validated, and the customer pays the checkout priced before that. Both the payment row and the charge read the old price and agree with each other - only what the basket holds now tells them apart
@@ -218,7 +219,7 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertFalse($payment->isFinished());
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // Raising here would have the provider replay the same notification for days over a basket that is not coming back
@@ -241,7 +242,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, $gateway)->confirmReturn($basket, new Request(['session_id' => 'cs_1']));
 
         $this->assertSame(['product'], $this->delivered);
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
     }
 
     // The provider answering about another basket confirms nothing on this one
@@ -253,7 +254,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, $gateway)->confirmReturn($basket, new Request(['session_id' => 'cs_1']));
 
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // The provider says the money has not arrived: the page shows the order as it stands and the webhook settles it later
@@ -265,7 +266,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, $gateway)->confirmReturn($basket, new Request());
 
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // Stripe being unreachable must not turn the customer's return into an error page: its webhook confirms the same payment on its own
@@ -278,14 +279,14 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, $gateway)->confirmReturn($basket, new Request(['session_id' => 'cs_1']));
 
         $this->assertSame([], $this->delivered);
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // The webhook may have delivered the basket before the customer got back; the order is no longer their current basket either way
     public function testAnOrderIsTakenOutOfTheVisitorsSession(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: true));
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
         $session = new Session(new MockArraySessionStorage());
         $session->set('basket', 42);
 
@@ -310,7 +311,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testTheOrderOfSomebodyElseLeavesThePayersOwnBasketAlone(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: true));
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
 
         $session = $this->sessionNaming(77);
 
@@ -329,14 +330,14 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, null, $this->sessionNaming(42))
             ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
 
-        $this->assertSame('new', $basket->getStatus());
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
     // ... and the payment that arrives for that abandoned checkout delivers nothing, the basket no longer being one anybody validated
     public function testTheCheckoutLeftOpenOnAnEditedBasketDeliversNothing(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: true));
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket)->paid($basket);
 
@@ -347,7 +348,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testAnOrderIsNotEditedByTheSessionThatStillNamesIt(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: true));
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
         $ordered = $basket->getItems();
 
         $this->service($basket, null, $this->sessionNaming(42))
@@ -355,7 +356,7 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertSame($ordered, $basket->getItems());
 
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
         $this->assertArrayHasKey(1, $basket->getItems()['product']);
     }
 
@@ -381,7 +382,7 @@ class BasketPaymentJourneyTest extends TestCase
         $this->service($basket, $gateway, $this->sessionNaming(42))
             ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
 
-        $this->assertSame('new', $basket->getStatus());
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
     // A payment already settled is no longer a checkout to call off
@@ -399,7 +400,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testWhatAProviderHandsOverAtValidationIsKeptOnTheBasket(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: false));
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
 
@@ -416,13 +417,13 @@ class BasketPaymentJourneyTest extends TestCase
     public function testAnOrderRemembersTheModeItsCheckoutWasOpenedIn(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: false));
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
         $this->assertFalse($basket->isTestMode());
 
         $rehearsed = $this->basket(2500, $this->payment(2500, finished: false));
-        $rehearsed->setStatus('new');
+        $rehearsed->setStatus(BasketStatus::New);
 
         $this->service($rehearsed, $this->returnAwareGateway(null), $this->sessionNaming(42), testMode: true)->validate(new Request());
         $this->assertTrue($rehearsed->isTestMode());
@@ -433,16 +434,16 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $this->providerFlags = Basket::CONTENT_FLAG_DIGITAL | Basket::CONTENT_FLAG_PHYSICAL;
         $basket = $this->basket(2500, $this->payment(2500, finished: false));
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
         $this->assertNotNull($basket->getWithdrawalWaived());
 
         $shared = $this->basket(2500, $this->payment(2500, finished: false));
-        $shared->setStatus('new');
+        $shared->setStatus(BasketStatus::New);
         $this->service($shared, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request(), true);
         $this->assertNull($shared->getWithdrawalWaived());
 
-        $shared->setStatus('validated')->setShareToken('1111222233334444');
+        $shared->setStatus(BasketStatus::Validated)->setShareToken('1111222233334444');
         $this->service($shared, $this->returnAwareGateway(null))->payShared($shared);
         $this->assertNotNull($shared->getWithdrawalWaived());
     }
@@ -451,7 +452,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testWhatAProviderHandsOverIsKeptOnAnOrderWithNothingLeftToPay(): void
     {
         $basket = $this->basket(0, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket, null, $this->sessionNaming(42))->validate(new Request());
 
@@ -462,7 +463,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testACodeThatStoppedApplyingRefusesTheOrderAndLeavesTheBasket(): void
     {
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setDiscountCode('SOLDES')->setDiscountKind('percentage')->setDiscountAmount(500);
 
         try {
@@ -474,14 +475,14 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertNull($basket->getDiscountCode(), 'The code goes, or the same refusal comes back forever');
         $this->assertSame(0, $basket->getDiscountAmount());
-        $this->assertSame('new', $basket->getStatus(), 'Nothing was frozen: the basket is the one the customer left');
+        $this->assertSame(BasketStatus::New, $basket->getStatus(), 'Nothing was frozen: the basket is the one the customer left');
     }
 
     // The slug arrives off a form: one naming a provider the shop does not offer - keys cleared since the page was drawn, or simply typed in - would open a checkout the shop cannot be paid through
     public function testAGatewayNamedButNotOfferedFallsBackOnTheShopsOwn(): void
     {
         $basket = $this->basket(2500, $this->payment(2500, finished: false));
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))
             ->validate(new Request([], ['gateway' => 'paypal']));
@@ -543,7 +544,7 @@ class BasketPaymentJourneyTest extends TestCase
         // The basket holds 9900 where its open checkout was opened at 2500: validate() counts it again before numbering it, so what the row carries is what the customer is charged
         $payment = $this->payment(2500, finished: false);
         $basket = $this->basket(9900, $payment);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate(new Request());
 
@@ -557,7 +558,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testDeliveryCostingMoreToTheAddressGivenIsWrittenAndRefused(): void
     {
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         // What CoordinatesType has just written on it, the basket page having priced the parcel on "shop-shipping-country" before that
         $basket->setCountry('JP');
 
@@ -574,14 +575,14 @@ class BasketPaymentJourneyTest extends TestCase
 
         $this->assertSame(2990, $basket->getShipping());
         // Nothing validated, nothing charged: the customer validates again on the total the basket now says
-        $this->assertSame('new', $basket->getStatus());
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
     // The estimate holding is the ordinary case, and it must not be refused: the basket page priced the parcel on the country the address turns out to name
     public function testDeliveryCostingWhatWasEstimatedGoesThrough(): void
     {
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setShipping(490);
         $basket->setCountry('FR');
 
@@ -592,7 +593,7 @@ class BasketPaymentJourneyTest extends TestCase
             ->validate(new Request());
 
         $this->assertSame(490, $basket->getShipping());
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // A parcel heavier than its zone's last tier takes no order rather than posting free, the shop never having said what it costs - and the zone is the address's, not the shop's default one
@@ -600,7 +601,7 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $this->config = ['shop-shipping-country' => 'FR'];
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setCountry('DE');
 
         try {
@@ -611,7 +612,7 @@ class BasketPaymentJourneyTest extends TestCase
             $this->addToAssertionCount(1);
         }
 
-        $this->assertSame('new', $basket->getStatus());
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
     // The same parcel goes through to a country whose zone takes it, the default one stopping short being only an estimate
@@ -619,14 +620,14 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $this->config = ['shop-shipping-country' => 'DE'];
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setShipping(490);
         $basket->setCountry('FR');
 
         $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $this->germanyStopsShort())
             ->validate(new Request());
 
-        $this->assertSame('validated', $basket->getStatus());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
     }
 
     // Free shipping does not lift the carrier's limit: a large basket does not make a parcel no tier takes any lighter
@@ -634,7 +635,7 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $this->config = ['shop-shipping-free' => 1000];
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setCountry('DE');
 
         $this->expectException(BasketNotOrderableException::class);
@@ -647,7 +648,7 @@ class BasketPaymentJourneyTest extends TestCase
     public function testTheBasketPageIsToldTheParcelIsTooHeavy(): void
     {
         $basket = $this->basket(2500, null);
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setContentFlags(Basket::CONTENT_FLAG_PHYSICAL);
         $basket->setCountry('DE');
 
@@ -680,7 +681,7 @@ class BasketPaymentJourneyTest extends TestCase
     private function basket(int $total, ?Payment $payment): Basket
     {
         $basket = new Basket();
-        $basket->setStatus('validated');
+        $basket->setStatus(BasketStatus::Validated);
         $basket->setTotal($total);
         $basket->setShipping(0);
         $basket->setCurrency('EUR');
@@ -778,7 +779,7 @@ class BasketPaymentJourneyTest extends TestCase
         $basketRepository->method('claimPaid')->willReturnCallback(function (Basket $claimed): bool {
             // The database moves the row, or answers that somebody else already did
             if ($this->claimAnswers) {
-                $claimed->setStatus('paid');
+                $claimed->setStatus(BasketStatus::Paid);
             }
 
             return $this->claimAnswers;

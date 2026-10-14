@@ -20,6 +20,7 @@ use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
 use c975L\PaymentBundle\Contract\WeighableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
@@ -105,7 +106,7 @@ class BasketService implements BasketServiceInterface
         $basket->setShipping(0);
         $basket->setCreation(new \DateTime());
         $basket->setModification(new \DateTime());
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setUser($this->user);
         $this->prefillBusiness($basket);
         // Posed at creation and not at validation like the two other tokens: this one is what gets the basket back to a visitor whose session has been recycled, which happens long before they order anything
@@ -263,7 +264,7 @@ class BasketService implements BasketServiceInterface
     private function refreshItems(): void
     {
         // Nothing is read again once the order is numbered: what it holds is what was sold, and what its invoice and its emails still read years later
-        if ('new' !== $this->basket->getStatus()) {
+        if (BasketStatus::New !== $this->basket->getStatus()) {
             return;
         }
 
@@ -423,7 +424,7 @@ class BasketService implements BasketServiceInterface
             throw new PaymentUnavailableException('No payment gateway holds a key');
         }
 
-        $this->basket->setStatus('validated');
+        $this->basket->setStatus(BasketStatus::Validated);
         // The one moment the customer's own request is here to be asked: everything sent afterwards is sent from somewhere else
         $this->basket->setLocale($this->requestStack->getCurrentRequest()?->getLocale());
         $this->basket->setNumber($this->generateOrderNumber());
@@ -492,7 +493,7 @@ class BasketService implements BasketServiceInterface
     public function payShared(Basket $basket): string
     {
         // Only an order still waiting for its money: one already settled, or one the customer took back to a basket, has nothing to charge
-        if ('validated' !== $basket->getStatus() || null === $basket->getShareToken() || $basket->getPayable() <= 0) {
+        if (BasketStatus::Validated !== $basket->getStatus() || null === $basket->getShareToken() || $basket->getPayable() <= 0) {
             throw new PaymentUnavailableException('This order is not waiting for a payment');
         }
 
@@ -563,7 +564,7 @@ class BasketService implements BasketServiceInterface
             ->setCurrency((string) $this->configService->get('shop-currency'))
             ->setContentFlags(Basket::CONTENT_FLAG_SERVICE)
             // Already validated: this order is never a basket somebody browses with, and no session names it
-            ->setStatus('validated')
+            ->setStatus(BasketStatus::Validated)
             ->setNumber($this->generateOrderNumber())
             ->setSecurityToken($this->generateSecurityToken())
             ->setShareToken($this->generateSecurityToken())
@@ -592,7 +593,7 @@ class BasketService implements BasketServiceInterface
     // Delivers a basket whose payment is settled - stock, tickets, downloads and the confirmation email. Reached from the provider's webhook and from the customer's own return, never from a url alone
     public function paid(Basket $basket): void
     {
-        if ('validated' !== $basket->getStatus()) {
+        if (BasketStatus::Validated !== $basket->getStatus()) {
             return;
         }
 
@@ -607,7 +608,7 @@ class BasketService implements BasketServiceInterface
         }
 
         // The claim went round the unit of work, which still holds the basket as it was read
-        $basket->setStatus('paid');
+        $basket->setStatus(BasketStatus::Paid);
         $basket->setModification(new \DateTime());
 
         // The code is spent here and nowhere else, an abandoned basket burning neither quota nor balance; a refusal means it ran out since the last check, and the order being paid nothing is undone but the log
@@ -640,7 +641,7 @@ class BasketService implements BasketServiceInterface
     // The customer's own return to the site, which asks the provider whether that payment went through rather than trusting the url it arrived on. The webhook confirms the same payment on its own, so this is a shortcut, never the only path
     public function confirmReturn(Basket $basket, Request $request): void
     {
-        if ('validated' === $basket->getStatus()) {
+        if (BasketStatus::Validated === $basket->getStatus()) {
             // A basket with nothing to pay has no provider to ask
             if (0 === $basket->getPayable()) {
                 $this->paid($basket);
@@ -650,7 +651,7 @@ class BasketService implements BasketServiceInterface
         }
 
         // Whichever path numbered it, an order is no longer the visitor's current basket - but only when the session names this one: on a shared order the visitor here is the payer, and their own basket is none of this order's business
-        if (in_array($basket->getStatus(), ['paid', 'shipped'], true) && $this->session?->get('basket') === $basket->getId()) {
+        if ($basket->getStatus()->isSettled() && $this->session?->get('basket') === $basket->getId()) {
             $this->session->remove('basket');
         }
     }
@@ -701,7 +702,7 @@ class BasketService implements BasketServiceInterface
         if (null === $basket) {
             throw new \Exception('Basket not found');
         }
-        if ('shipped' !== $basket->getStatus()) {
+        if (BasketStatus::Shipped !== $basket->getStatus()) {
             $items = $basket->getItems();
 
             // Items
@@ -716,7 +717,7 @@ class BasketService implements BasketServiceInterface
 
             // Check if there's items and counterparts and if both have been shipped
             if (1 === count($items) or (null !== $basket->getItemsShipped() and null !== $basket->getCounterpartsShipped())) {
-                $basket->setStatus('shipped');
+                $basket->setStatus(BasketStatus::Shipped);
             }
             $basket->setModification(new \DateTime());
 
@@ -912,17 +913,17 @@ class BasketService implements BasketServiceInterface
     // A basket that has been paid for, or shipped, and is an order rather than something still being filled
     private function isOrder(Basket $basket): bool
     {
-        return in_array($basket->getStatus(), ['paid', 'shipped'], true);
+        return $basket->getStatus()->isSettled();
     }
 
     // A basket edited after it was validated no longer matches the checkout the customer is looking at, so it goes back to being a basket. The checkout left open at the provider can then deliver nothing - paid() only ever delivers a "validated" basket - and validate() numbers it again, with a new order number and a new security token that make the old return url useless
     private function reopen(Basket $basket): void
     {
-        if ('validated' !== $basket->getStatus()) {
+        if (BasketStatus::Validated !== $basket->getStatus()) {
             return;
         }
 
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setCheckoutData([]);
         $this->expireCheckout($basket);
     }

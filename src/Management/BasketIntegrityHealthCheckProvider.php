@@ -93,7 +93,7 @@ class BasketIntegrityHealthCheckProvider implements HealthCheckSiteWideInterface
                 'basketId' => $basket?->getId(),
                 'paymentId' => $payment->getId(),
                 'number' => $basket?->getNumber(),
-                'info' => $this->amount($payment->getAmount(), $payment->getCurrency()) . ' - ' . ($basket?->getStatus() ?? 'no basket'),
+                'info' => $this->amount($payment->getAmount(), $payment->getCurrency()) . ' - ' . ($basket?->getStatus()->value ?? 'no basket'),
             ];
         }
 

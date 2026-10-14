@@ -16,6 +16,7 @@ use c975L\ConfigBundle\Service\SiteUrlResolver;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Management\BasketIntegrityHealthCheckProvider;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
@@ -47,7 +48,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
     // The one nothing else can say: the money left the customer's account and the order stayed where it was
     public function testAChargedPaymentWithoutItsDeliveredOrderIsReported(): void
     {
-        $basket = $this->order('2026-000042', 'validated');
+        $basket = $this->order('2026-000042', BasketStatus::Validated);
         $payment = new Payment()->setAmount(4500)->setCurrency('EUR')->setBasket($basket);
         new \ReflectionProperty(Payment::class, 'id')->setValue($payment, 7);
 
@@ -74,7 +75,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
 
     public function testADeliveredOrderWithoutAConfirmedPaymentIsReported(): void
     {
-        $row = $this->row($this->provider(['findDeliveredWithoutFinishedPayment' => [$this->order('2026-000043', 'paid')]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_DELIVERED_UNPAID);
+        $row = $this->row($this->provider(['findDeliveredWithoutFinishedPayment' => [$this->order('2026-000043', BasketStatus::Paid)]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_DELIVERED_UNPAID);
 
         $this->assertSame(HealthCheckResult::STATUS_ERROR, $row['status']);
         $this->assertSame('no payment', $row['details']['offenders'][0]['info']);
@@ -83,7 +84,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
     // The query only narrows the candidates down - what a payment must match is what Basket::getPayable() charges, floor included
     public function testAnAmountThatMatchesTheOrderIsNotReported(): void
     {
-        $basket = $this->order('2026-000044', 'paid')->setTotal(4000)->setShipping(500);
+        $basket = $this->order('2026-000044', BasketStatus::Paid)->setTotal(4000)->setShipping(500);
         $basket->setPayment($this->payment(4500, 'eur'));
 
         $row = $this->row($this->provider(['findWithPaymentAmountMismatch' => [$basket]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_AMOUNT_MISMATCH);
@@ -93,7 +94,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
 
     public function testAnAmountThatDoesNotMatchTheOrderIsReportedWithBothFigures(): void
     {
-        $basket = $this->order('2026-000045', 'paid')->setTotal(4000)->setShipping(500);
+        $basket = $this->order('2026-000045', BasketStatus::Paid)->setTotal(4000)->setShipping(500);
         $basket->setPayment($this->payment(4000, 'EUR'));
 
         $row = $this->row($this->provider(['findWithPaymentAmountMismatch' => [$basket]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_AMOUNT_MISMATCH);
@@ -104,14 +105,14 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
 
     public function testADeliveredOrderWithoutAnInvoiceNumberIsReported(): void
     {
-        $row = $this->row($this->provider(['findDeliveredWithoutNumber' => [$this->order(null, 'paid')]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_MISSING_NUMBER);
+        $row = $this->row($this->provider(['findDeliveredWithoutNumber' => [$this->order(null, BasketStatus::Paid)]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_MISSING_NUMBER);
 
         $this->assertSame(HealthCheckResult::STATUS_ERROR, $row['status']);
     }
 
     public function testLinesThatDoNotAddUpToTheirOwnTotalAreReported(): void
     {
-        $basket = $this->order('2026-000046', 'paid')->setTotal(5000);
+        $basket = $this->order('2026-000046', BasketStatus::Paid)->setTotal(5000);
         $basket->setQuantity(1)->setItems(['product' => [12 => ['total' => 4000, 'quantity' => 1]]]);
 
         $row = $this->row($this->provider(['findOrdersSince' => [$basket]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_TOTAL_MISMATCH);
@@ -123,7 +124,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
     // An order written before this bundle stored a total per line is not a defect, and a check that reports one is a check that gets switched off
     public function testAnOrderWhoseLinesCannotBeAddedUpIsLeftAlone(): void
     {
-        $basket = $this->order('2026-000047', 'paid')->setTotal(5000);
+        $basket = $this->order('2026-000047', BasketStatus::Paid)->setTotal(5000);
         $basket->setQuantity(1)->setItems(['product' => [12 => ['title' => 'An order from another age']]]);
 
         $row = $this->row($this->provider(['findOrdersSince' => [$basket]])->runChecks(), BasketIntegrityHealthCheckProvider::ROW_TOTAL_MISMATCH);
@@ -133,7 +134,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
 
     public function testABasketHoldingAWithdrawnArticleIsReported(): void
     {
-        $basket = $this->order('2026-000048', 'new');
+        $basket = $this->order('2026-000048', BasketStatus::New);
         $basket->setItems(['product' => [12 => ['total' => 100, 'quantity' => 1]]]);
 
         $row = $this->row($this->provider(['findPayable' => [$basket]], false)->runChecks(), BasketIntegrityHealthCheckProvider::ROW_UNRESOLVABLE_ITEMS);
@@ -145,7 +146,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
     // The bundle selling that kind was removed while baskets still held it: the registry throws on get(), and the row must say so rather than take the five other checks down with it
     public function testABasketHoldingAKindNoBundleSellsIsReported(): void
     {
-        $basket = $this->order('2026-000049', 'new');
+        $basket = $this->order('2026-000049', BasketStatus::New);
         $basket->setItems(['crowdfunding' => [3 => ['total' => 100, 'quantity' => 1]]]);
 
         $rows = $this->provider(['findPayable' => [$basket]])->runChecks();
@@ -243,7 +244,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
     }
 
     // The id is posed the way the other suites of this bundle do it: what the provider hands the dashboard is a link, and a link is an id
-    private function order(?string $number, string $status, int $id = 42): Basket
+    private function order(?string $number, BasketStatus $status, int $id = 42): Basket
     {
         $basket = new Basket()
             ->setNumber($number)

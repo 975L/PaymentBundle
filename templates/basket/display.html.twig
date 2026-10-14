@@ -27,7 +27,7 @@
                 <twig:c975LPayment:Basket:Validation basket="{{ basket }}" form="{{ form }}"/>
             </div>
         {% elseif "paid" == action %}
-            {% set confirmed = basket.status in ['paid', 'shipped'] %}
+            {% set confirmed = basket.status.isSettled %}
             <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ confirmed }}"/>
             {% if confirmed %}
                 <twig:c975LPayment:Basket:MatomoOrder basket="{{ basket }}"/>

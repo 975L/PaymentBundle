@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketRetentionService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -58,13 +59,13 @@ class BasketRetentionServiceTest extends TestCase
     // Archiving is a date and not a status: the checkout reads the status as a string in half a dozen places, and an order that stopped answering to "shipped" would stop being recognised as the delivered one it still is
     public function testArchivingStampsADateAndLeavesTheStatusAlone(): void
     {
-        $basket = new Basket()->setStatus('shipped');
+        $basket = new Basket()->setStatus(BasketStatus::Shipped);
 
         $count = $this->service(['findToArchive' => [$basket]])->archiveDelivered();
 
         $this->assertSame(1, $count);
         $this->assertInstanceOf(\DateTimeInterface::class, $basket->getArchived());
-        $this->assertSame('shipped', $basket->getStatus());
+        $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
         $this->assertSame([], $this->removed, 'An archived order is kept, not deleted');
     }
 
@@ -110,7 +111,7 @@ class BasketRetentionServiceTest extends TestCase
     // A deleted account takes its open baskets at once and logs nothing: a validated one is left to the nightly pass, a payment possibly still on its way
     public function testADeletedAccountTakesItsOpenBasketsAtOnce(): void
     {
-        $open = new Basket()->setStatus('new');
+        $open = new Basket()->setStatus(BasketStatus::New);
 
         $records = [];
         $count = $this->service(['findOpenByUser' => [$open]], $records)->deleteUnpaidOf($this->createStub(UserInterface::class));

@@ -15,6 +15,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ConfigBundle\Service\Export\ExportFormat;
 use c975L\ConfigBundle\Service\Export\TableExporter;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\UiBundle\Contract\PdfGeneratorInterface;
@@ -38,6 +39,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -83,7 +85,7 @@ class BasketCrudController extends AbstractCrudController
             AssociationField::new('payment')
                 ->setLabel(t('label.payment', [], 'payment'))
                 ->setFormTypeOption('disabled', 'disabled'),
-            TextField::new('status')
+            ChoiceField::new('status')
                 ->setLabel(t('label.status', [], 'payment'))
                 ->setFormTypeOption('disabled', 'disabled'),
             ChoiceField::new('contentFlags')
@@ -189,7 +191,7 @@ class BasketCrudController extends AbstractCrudController
                 ->setController(self::class)
                 ->setAction(Action::INDEX)
                 ->unset('archived')
-                ->set('filters[status][value]', 'paid')
+                ->set('filters[status][value]', BasketStatus::Paid->value)
                 ->set('filters[status][comparison]', '=')
                 ->generateUrl())
         ;
@@ -201,7 +203,7 @@ class BasketCrudController extends AbstractCrudController
                 ->setController(self::class)
                 ->setAction(Action::INDEX)
                 ->unset('archived')
-                ->set('filters[status][value]', 'validated')
+                ->set('filters[status][value]', BasketStatus::Validated->value)
                 ->set('filters[status][comparison]', '=')
                 ->generateUrl())
         ;
@@ -213,7 +215,7 @@ class BasketCrudController extends AbstractCrudController
                 ->setController(self::class)
                 ->setAction(Action::INDEX)
                 ->unset('archived')
-                ->set('filters[status][value]', 'new')
+                ->set('filters[status][value]', BasketStatus::New->value)
                 ->set('filters[status][comparison]', '=')
                 ->generateUrl())
         ;
@@ -237,7 +239,7 @@ class BasketCrudController extends AbstractCrudController
             ->setHtmlAttributes([
                 'target' => '_blank',
             ])
-            ->displayIf(fn (Basket $basket): bool => 'paid' === $basket->getStatus()
+            ->displayIf(fn (Basket $basket): bool => BasketStatus::Paid === $basket->getStatus()
                 && null !== $basket->getNumber()
                 && ($basket->getContentFlags() & Basket::CONTENT_FLAG_PHYSICAL)
                 && null === $basket->getItemsShipped());
@@ -251,7 +253,7 @@ class BasketCrudController extends AbstractCrudController
             ->setHtmlAttributes([
                 'target' => '_blank',
             ])
-            ->displayIf(fn (Basket $basket): bool => 'paid' === $basket->getStatus()
+            ->displayIf(fn (Basket $basket): bool => BasketStatus::Paid === $basket->getStatus()
                 && null !== $basket->getNumber()
                 && ($basket->getContentFlags() & Basket::CONTENT_FLAG_CF_SHIPPING)
                 && null === $basket->getCounterpartsShipped());
@@ -351,7 +353,7 @@ class BasketCrudController extends AbstractCrudController
     {
         return $filters
             ->add('number')
-            ->add('status')
+            ->add(ChoiceFilter::new('status', t('label.status', [], 'payment'))->setTranslatableChoices(BasketStatus::cases()))
         ;
     }
 

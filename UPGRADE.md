@@ -1,5 +1,13 @@
 # UPGRADE
 
+## v6.19 > v6.20
+
+**The basket status is the `BasketStatus` enum.** `Basket::getStatus()` returns it and `setStatus()` takes it: a
+site calling them with `'paid'` and the like switches to `BasketStatus::Paid`, a template reading `basket.status`
+compares `basket.status.value` or calls `basket.status.isSettled`. The stored values are unchanged, nothing to migrate -
+but a row holding anything else no longer loads: before updating, check `SELECT DISTINCT status FROM payment_basket`
+(`dbal:run-sql`) returns only `new`, `validated`, `paid` and `shipped`.
+
 ## v6.18 > v6.19
 
 **Deleting an account no longer stumbles on its orders.** The foreign keys `payment_basket.user_id` and

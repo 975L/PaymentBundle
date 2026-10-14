@@ -15,6 +15,7 @@ use c975L\ConfigBundle\Service\LocalizedRouteNegotiator;
 use c975L\ConfigBundle\Service\SiteLocales;
 use c975L\PaymentBundle\Controller\BasketController;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Registry\BasketDownloadRegistry;
@@ -156,7 +157,7 @@ class BasketControllerTest extends TestCase
     public function testAPaidBasketIsHandedItsDownloadsOnThePage(): void
     {
         $downloads = [['title' => 'A book', 'url' => '/shop/download/abcd', 'size' => 1024]];
-        $basket = new Basket()->setStatus('paid');
+        $basket = new Basket()->setStatus(BasketStatus::Paid);
 
         $parameters = $this->renderedParameters($basket, $downloads);
 
@@ -166,7 +167,7 @@ class BasketControllerTest extends TestCase
     // A basket still being paid is never told about its files, whatever a provider would answer
     public function testABasketNotYetPaidIsHandedNoDownload(): void
     {
-        $basket = new Basket()->setStatus('waiting');
+        $basket = new Basket()->setStatus(BasketStatus::Validated);
 
         $parameters = $this->renderedParameters($basket, [['title' => 'A book', 'url' => '/shop/download/abcd', 'size' => 1024]]);
 
@@ -378,7 +379,7 @@ class BasketControllerTest extends TestCase
     // The payer of a shared order contracts, so the waiver of the right of withdrawal is asked of them: a POST without it charges nothing and says why
     public function testASharedOrderSuppliedAtOnceIsNotChargedWithoutThePayersWaiver(): void
     {
-        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus('validated');
+        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus(BasketStatus::Validated);
         $basket->setTotal(2500);
         $basket->setShipping(0);
         $basket->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);
@@ -393,7 +394,7 @@ class BasketControllerTest extends TestCase
     // Ticked, the payer goes on to the provider
     public function testASharedOrderWaivedByItsPayerGoesToTheProvider(): void
     {
-        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus('validated');
+        $basket = new Basket()->setNumber('202608-AB-12345')->setShareToken('aaaabbbbccccdddd')->setStatus(BasketStatus::Validated);
         $basket->setTotal(2500);
         $basket->setShipping(0);
         $basket->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);

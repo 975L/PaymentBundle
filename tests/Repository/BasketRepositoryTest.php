@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Repository;
 
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -36,7 +37,7 @@ class BasketRepositoryTest extends TestCase
         $this->createRepository()->findPaidByEmail('marie@example.org');
 
         $this->assertStringContainsString('b.status IN (:statuses)', $this->dql);
-        $this->assertSame(['paid', 'shipped'], $this->parameters['statuses']);
+        $this->assertSame(BasketStatus::SETTLED, $this->parameters['statuses']);
     }
 
     // An address typed with a capital at the checkout and without one on a review form is the same address, and the comparison says so on both sides
@@ -77,7 +78,7 @@ class BasketRepositoryTest extends TestCase
         $this->assertStringContainsString('b.reminderOptOutAt IS NULL', $this->dql);
         $this->assertStringContainsString('b.contentflags != :service', $this->dql);
         $this->assertStringContainsString('b.email IS NOT NULL', $this->dql);
-        $this->assertSame('validated', $this->parameters['status']);
+        $this->assertSame(BasketStatus::Validated, $this->parameters['status']);
         $this->assertSame(Basket::CONTENT_FLAG_SERVICE, $this->parameters['service']);
     }
 
@@ -88,7 +89,7 @@ class BasketRepositoryTest extends TestCase
 
         $this->assertStringContainsString('b.total + b.shipping - b.discountAmount > 0', $this->dql);
         $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
-        $this->assertSame(['paid', 'shipped'], $this->parameters['delivered']);
+        $this->assertSame(BasketStatus::SETTLED, $this->parameters['delivered']);
     }
 
     // "eur" and "EUR" are one and the same currency, and a check reporting them as two would report every order of a shop storing them differently on each side
@@ -107,7 +108,7 @@ class BasketRepositoryTest extends TestCase
 
         $this->assertStringContainsString('b.company IS NOT NULL', $this->dql);
         $this->assertStringContainsString('ORDER BY b.creation DESC', $this->dql);
-        $this->assertSame(['paid', 'shipped'], $this->parameters['statuses']);
+        $this->assertSame(BasketStatus::SETTLED, $this->parameters['statuses']);
     }
 
     // Payable is what a customer can still be charged for: an archived order is out of current business and no longer one of them
@@ -116,7 +117,7 @@ class BasketRepositoryTest extends TestCase
         $this->createRepository()->findPayable();
 
         $this->assertStringContainsString('b.archived IS NULL', $this->dql);
-        $this->assertSame(['new', 'validated'], $this->parameters['open']);
+        $this->assertSame(BasketStatus::OPEN, $this->parameters['open']);
     }
 
     /**

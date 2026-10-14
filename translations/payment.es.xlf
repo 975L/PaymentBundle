@@ -630,6 +630,22 @@
                 <source>label.basket_reminder_unsubscribed</source>
                 <target>Recordatorios detenidos</target>
             </trans-unit>
+            <trans-unit id="smYk0AL">
+                <source>label.basket_status_new</source>
+                <target>Nuevo</target>
+            </trans-unit>
+            <trans-unit id="QvVraMh">
+                <source>label.basket_status_paid</source>
+                <target>Pagado</target>
+            </trans-unit>
+            <trans-unit id="tFsSVGR">
+                <source>label.basket_status_shipped</source>
+                <target>Enviado</target>
+            </trans-unit>
+            <trans-unit id="lM7WrUI">
+                <source>label.basket_status_validated</source>
+                <target>Validado</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>¡Le agradecemos su pedido y su confianza!</target>

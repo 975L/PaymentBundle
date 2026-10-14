@@ -630,6 +630,22 @@
                 <source>label.basket_reminder_unsubscribed</source>
                 <target>Reminders stopped</target>
             </trans-unit>
+            <trans-unit id="smYk0AL">
+                <source>label.basket_status_new</source>
+                <target>New</target>
+            </trans-unit>
+            <trans-unit id="QvVraMh">
+                <source>label.basket_status_paid</source>
+                <target>Paid</target>
+            </trans-unit>
+            <trans-unit id="tFsSVGR">
+                <source>label.basket_status_shipped</source>
+                <target>Shipped</target>
+            </trans-unit>
+            <trans-unit id="lM7WrUI">
+                <source>label.basket_status_validated</source>
+                <target>Validated</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>Thank you for your order and your trust!</target>

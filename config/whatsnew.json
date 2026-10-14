@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-10-14",
+        "description": [
+            {
+                "en": "The order list shows each order's status in your language, and lets you filter on it.",
+                "fr": "La liste des commandes affiche le statut de chacune dans votre langue, et permet de filtrer dessus.",
+                "es": "La lista de pedidos muestra el estado de cada uno en su idioma y permite filtrar por él."
+            }
+        ]
+    },
+    {
         "date": "2026-10-09",
         "description": [
             {

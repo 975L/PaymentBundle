@@ -3,9 +3,9 @@
 {% if (basket.contentflags b-and constant('c975L\\PaymentBundle\\Entity\\Basket::FLAG_NEEDS_SHIPPING')) > 0 %}
     <h2 class="text-center">{{ 'label.delivery'|trans }}</h2>
     <div>
-        {% if basket.status == "paid" %}
+        {% if basket.status == constant('c975L\\PaymentBundle\\Enum\\BasketStatus::Paid') %}
             <p class="text text-center">{{ 'label.basket_delivery'|trans }}</p>
-        {% elseif basket.status == "shipped" %}
+        {% elseif basket.status == constant('c975L\\PaymentBundle\\Enum\\BasketStatus::Shipped') %}
             <p class="text text-center">{{ 'label.basket_delivered'|trans }}</p>
         {% endif %}
         <p class="text text-center">{{ basket.name }}</p>

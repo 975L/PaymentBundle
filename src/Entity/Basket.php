@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Entity;
 
 use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Contract\BasketLine;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -71,9 +72,8 @@ class Basket implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?array $checkoutData = null;
 
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank]
-    private ?string $status = null;
+    #[ORM\Column(length: 50, enumType: BasketStatus::class)]
+    private BasketStatus $status = BasketStatus::New;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $email = null;
@@ -313,12 +313,12 @@ class Basket implements \Stringable
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): BasketStatus
     {
         return $this->status;
     }
 
-    public function setStatus(?string $status): static
+    public function setStatus(BasketStatus $status): static
     {
         $this->status = $status;
 

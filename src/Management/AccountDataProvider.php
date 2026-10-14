@@ -36,7 +36,7 @@ class AccountDataProvider implements AccountDataProviderInterface
     {
         return [
             'number' => $basket->getNumber(),
-            'status' => $basket->getStatus(),
+            'status' => $basket->getStatus()->value,
             'date' => $basket->getCreation(),
             'total' => $basket->getTotal(),
             'currency' => $basket->getCurrency(),

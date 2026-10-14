@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
@@ -112,7 +113,7 @@ class BasketMalformedRequestTest extends TestCase
     private function basket(): Basket
     {
         $basket = new Basket();
-        $basket->setStatus('new');
+        $basket->setStatus(BasketStatus::New);
         $basket->setCurrency('EUR');
         $basket->setTotal(0);
         $basket->setShipping(0);

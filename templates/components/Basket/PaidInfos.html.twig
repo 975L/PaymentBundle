@@ -1,4 +1,4 @@
-{# <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ basket.status in ['paid', 'shipped'] }}"/> #}
+{# <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ basket.status.isSettled }}"/> #}
 {% trans_default_domain 'payment' %}
 {# The customer reaching this page is not proof their payment went through: the provider may have been unreachable on the way back, and its webhook confirms the order a moment later. Thanking them for an order that is not one yet is the very thing this page used to do #}
 {% if confirmed|default(true) %}

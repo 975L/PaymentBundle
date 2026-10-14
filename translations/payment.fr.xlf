@@ -630,6 +630,22 @@
                 <source>label.basket_reminder_unsubscribed</source>
                 <target>Rappels arrêtés</target>
             </trans-unit>
+            <trans-unit id="smYk0AL">
+                <source>label.basket_status_new</source>
+                <target>Nouveau</target>
+            </trans-unit>
+            <trans-unit id="QvVraMh">
+                <source>label.basket_status_paid</source>
+                <target>Payé</target>
+            </trans-unit>
+            <trans-unit id="tFsSVGR">
+                <source>label.basket_status_shipped</source>
+                <target>Expédié</target>
+            </trans-unit>
+            <trans-unit id="lM7WrUI">
+                <source>label.basket_status_validated</source>
+                <target>Validé</target>
+            </trans-unit>
             <trans-unit id="XC.lbLS">
                 <source>label.basket_thanks</source>
                 <target>Nous vous remercions pour votre commande et votre confiance !</target>

@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\ConfigBundle\Service\LocalizedRouteNegotiator;
 use c975L\ConfigBundle\Service\SiteLocales;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Registry\BasketDownloadRegistry;
@@ -286,7 +287,7 @@ class BasketController extends AbstractController
         }
 
         // Already settled, or taken back to a basket by its customer: the page says so and offers nothing to pay, rather than opening a second checkout
-        $payable = 'validated' === $basket->getStatus() && $basket->getPayable() > 0;
+        $payable = BasketStatus::Validated === $basket->getStatus() && $basket->getPayable() > 0;
 
         // The waiver the checkout asked of whoever shared the order is asked again here, of the one who pays and so contracts; a POST without it charges nothing
         $waiverMissing = $request->isMethod('POST') && $basket->asksWithdrawalWaiver() && !$request->request->getBoolean('withdrawalWaiver');
@@ -305,7 +306,7 @@ class BasketController extends AbstractController
         return $this->render('@c975LPayment/basket/shared_pay.html.twig', [
             'basket' => $basket,
             'payable' => $payable,
-            'settled' => in_array($basket->getStatus(), ['paid', 'shipped'], true),
+            'settled' => $basket->getStatus()->isSettled(),
             // Followed from a reminder, the page is the customer's own way back and not a payer's: same order, same button, other words
             'fromReminder' => $request->query->getBoolean('reminder'),
         ]);
@@ -331,7 +332,7 @@ class BasketController extends AbstractController
 
         return $this->render('@c975LPayment/basket/shared_paid.html.twig', [
             'basket' => $basket,
-            'confirmed' => in_array($basket->getStatus(), ['paid', 'shipped'], true),
+            'confirmed' => $basket->getStatus()->isSettled(),
         ]);
     }
 
@@ -375,7 +376,7 @@ class BasketController extends AbstractController
         }
 
         // The files are offered on the page itself, so a buyer whose email never arrived still gets them - read only once the payment is confirmed, never for a basket still being paid
-        $confirmed = null !== $basket && in_array($basket->getStatus(), ['paid', 'shipped'], true);
+        $confirmed = null !== $basket && $basket->getStatus()->isSettled();
 
         return $this->render('@c975LPayment/basket/display.html.twig', [
             'action' => 'paid',

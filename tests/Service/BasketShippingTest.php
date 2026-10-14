@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Message\ItemsShippedMessage;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
@@ -73,7 +74,7 @@ class BasketShippingTest extends TestCase
         $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
 
         $this->assertNotNull($basket->getItemsShipped());
-        $this->assertSame('shipped', $basket->getStatus());
+        $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
     }
 
     // Two kinds, shipped by two hands: the first one moves nothing but its own date
@@ -86,12 +87,12 @@ class BasketShippingTest extends TestCase
 
         $this->assertNotNull($basket->getItemsShipped());
         $this->assertNull($basket->getCounterpartsShipped());
-        $this->assertSame('paid', $basket->getStatus());
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
 
         $service->itemsShipped('SHOP-1', 'crowdfunding');
 
         $this->assertNotNull($basket->getCounterpartsShipped());
-        $this->assertSame('shipped', $basket->getStatus());
+        $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
     }
 
     // The message is what sends the customer their "it is on its way" email, so it goes out on every shipment
@@ -108,7 +109,7 @@ class BasketShippingTest extends TestCase
     public function testAnOrderAlreadyShippedIsNotAnnouncedAgain(): void
     {
         $basket = $this->basket(['product' => [1 => []]]);
-        $basket->setStatus('shipped');
+        $basket->setStatus(BasketStatus::Shipped);
 
         $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
 
@@ -139,7 +140,7 @@ class BasketShippingTest extends TestCase
     {
         $basket = new Basket()
             ->setNumber('SHOP-1')
-            ->setStatus('paid')
+            ->setStatus(BasketStatus::Paid)
             ->setItems($items)
         ;
 
