@@ -38,6 +38,10 @@
                 <source>description.revolut_webhook_secret_test</source>
                 <target>Secret de signature du webhook Revolut du bac à sable, utilisé quand les paiements de test sont activés</target>
             </trans-unit>
+            <trans-unit id="4lepQOA">
+                <source>description.shop_credit_note_prefix</source>
+                <target>Les lettres placées devant l'année et le rang, par exemple AV pour AV2026-0001. Une facture d'avoir est émise quand une commande facturée est remboursée en totalité ou perdue sur un litige, dans une série distincte de celle des factures.</target>
+            </trans-unit>
             <trans-unit id="OkQCTnA">
                 <source>description.shop_currency</source>
                 <target>Code ISO à 3 lettres de la devise, ex. EUR</target>
@@ -149,6 +153,10 @@
             <trans-unit id="jIPZSfz">
                 <source>label.revolut_webhook_secret_test</source>
                 <target>Secret du webhook Revolut de test</target>
+            </trans-unit>
+            <trans-unit id="3.1PnJN">
+                <source>label.shop_credit_note_prefix</source>
+                <target>Préfixe des factures d'avoir</target>
             </trans-unit>
             <trans-unit id="QXc9sdb">
                 <source>label.shop_currency</source>

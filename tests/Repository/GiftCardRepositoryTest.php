@@ -62,6 +62,23 @@ class GiftCardRepositoryTest extends TestCase
         $this->assertFalse($this->createRepository(0)->claimAmount(new GiftCard(), 1500));
     }
 
+    // A refund gives the money back in one statement, whatever became of the card since: the switch and the expiry are no condition of it
+    public function testACreditIsAddedToTheBalanceWithoutCondition(): void
+    {
+        $this->createRepository()->creditAmount(new GiftCard(), 1500);
+
+        $this->assertStringContainsString('balance = balance + :amount', $this->sql);
+        $this->assertStringNotContainsString('active', $this->sql);
+        $this->assertSame(1500, $this->parameters['amount']);
+    }
+
+    public function testNothingIsCreditedForNothing(): void
+    {
+        $this->createRepository()->creditAmount(new GiftCard(), 0);
+
+        $this->assertSame('', $this->sql);
+    }
+
     // The statement the repository runs is caught on the connection, the rest being Doctrine's own
     private function createRepository(int $affectedRows = 1): GiftCardRepository
     {

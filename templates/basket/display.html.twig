@@ -28,7 +28,12 @@
             </div>
         {% elseif "paid" == action %}
             {% set confirmed = basket.status.isSettled %}
-            <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ confirmed }}"/>
+            {# A refunded order reached again through its return url was paid once: it is said refunded rather than "being confirmed" #}
+            {% if basket.status.isRecorded and not confirmed %}
+                <twig:c975LPayment:Basket:Refunded basket="{{ basket }}"/>
+            {% else %}
+                <twig:c975LPayment:Basket:PaidInfos number="{{ basket.number }}" confirmed="{{ confirmed }}"/>
+            {% endif %}
             {% if confirmed %}
                 <twig:c975LPayment:Basket:MatomoOrder basket="{{ basket }}"/>
                 <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>

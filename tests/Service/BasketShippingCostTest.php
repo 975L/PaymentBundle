@@ -22,6 +22,7 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
+use c975L\PaymentBundle\Service\BasketRefundService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -162,6 +163,7 @@ class BasketShippingCostTest extends TestCase
             new VatCalculator($registry),
             $this->createStub(InvoiceService::class),
             $resolver,
+            $this->createStub(BasketRefundService::class),
         );
 
         // The basket the service works on, which it would otherwise read off the session

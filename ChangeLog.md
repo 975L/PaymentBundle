@@ -1,5 +1,43 @@
 # Changelog
 
+## v6.21.0
+
+A refund takes the access back and issues a credit note
+
+- Added `BasketStatus::Refunded`, set by the provider's webhook on a full refund or a lost chargeback: `hasPaidFor()`, the downloads and the gift cards the order bought stop working (15/10/2026) **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- Added `BasketStatus::RECORDED` and `isRecorded()`: archive, integrity checks, account linking and the customer area keep the refunded orders (15/10/2026)
+- Added `Basket::$refundedAt` and `$refundedAmount`, shown in the back office (15/10/2026)
+- Added `PaymentEvent` and `PaymentNotification::$event`, `$basketId` being null on a refund (15/10/2026)
+- Added `BasketRefundService` and `BasketRepository::claimRefunded()`, a replayed event changing nothing (15/10/2026)
+- Stripe reads `charge.refunded` and `charge.dispute.closed` through the new `StripeChargeReader` (15/10/2026) see [UPGRADE.md](UPGRADE.md)
+- Revolut reads refund orders and `DISPUTE_LOST`, the webhook being declared with both events (15/10/2026) see [UPGRADE.md](UPGRADE.md)
+- A completed Revolut refund order no longer reads as a payment (15/10/2026)
+- A partial refund leaves the order paid and is alerted on the dashboard for 30 days (15/10/2026)
+- The customer area lists a refunded order with its refund date and without its files (15/10/2026)
+- Added `BasketRepository::findOrdersByUser()` (15/10/2026)
+- `itemsShipped()` ships a paid order only (15/10/2026)
+- Added `InvoiceService::assignCreditNote()`: a full refund or a lost chargeback cancels the invoice with a credit note (15/10/2026) **Needs db migration** see [UPGRADE.md](UPGRADE.md)
+- Credit notes are numbered in a series of their own, prefixed by `shop-credit-note-prefix` (15/10/2026)
+- Added `basket_credit_note_pdf` and a **Credit note** back-office action (15/10/2026)
+- A full refund credits back the gift card that paid part of the order (15/10/2026)
+- Added a `refundedAmount` filter to the order listing, opened by the partial refunds alert (15/10/2026)
+- Added the `payment-refund-check` guided project (15/10/2026)
+- The webhook guided step names the events to listen to (15/10/2026)
+- A refunded shared order reads as refunded on its return page (15/10/2026)
+- Added `Basket:RefundedBadge` for the lists of orders (15/10/2026)
+- Revolut reads the order a webhook names once, on `2024-09-01` (15/10/2026)
+- Revolut settles a `payment_request` order like a payment (15/10/2026)
+- Revolut drops a refund naming no order, or still uncounted a day later, instead of refusing it (15/10/2026)
+- `hasPaidFor()` relies on the finders' settled filter (15/10/2026)
+- Added `BasketRefundServiceTest` and `StripeChargeReaderTest` (15/10/2026)
+
+## v6.20.1
+
+EasyAdmin 5.7
+
+- Requires `easycorp/easyadmin-bundle` ^5.7 (14/10/2026)
+- Back-office screens drawn with EasyAdmin Twig components (14/10/2026)
+
 ## v6.20.0
 
 The basket status is an enum

@@ -158,6 +158,37 @@ class BasketCodeServiceTest extends TestCase
         $this->assertTrue($this->service()->redeem(new Basket()));
     }
 
+    // A refunded order gives the card back what it took off it
+    public function testARefundedOrderCreditsItsGiftCardBack(): void
+    {
+        $giftCard = $this->giftCard(0);
+        $giftCardRepository = $this->createMock(GiftCardRepository::class);
+        $giftCardRepository->expects($this->once())->method('creditAmount')->with($giftCard, 1000);
+
+        $basket = new Basket()->setDiscountCode('AAAABBBBCCCCDDDD')->setDiscountKind(Basket::CODE_KIND_GIFT_CARD)->setDiscountAmount(1000);
+
+        $this->assertTrue($this->service(giftCard: $giftCard, giftCardRepository: $giftCardRepository)->restore($basket));
+    }
+
+    // A promotional code's use happened, and nothing of the customer's money sits in its quota
+    public function testARefundedOrderGivesNoPromotionalCodeBack(): void
+    {
+        $giftCardRepository = $this->createMock(GiftCardRepository::class);
+        $giftCardRepository->expects($this->never())->method('creditAmount');
+
+        $basket = new Basket()->setDiscountCode('NOEL')->setDiscountKind(Basket::CODE_KIND_DISCOUNT)->setDiscountAmount(250);
+
+        $this->assertTrue($this->service($this->discount(), giftCardRepository: $giftCardRepository)->restore($basket));
+    }
+
+    // A card deleted since cannot be credited, which the refund reports
+    public function testACardThatNoLongerExistsIsNotCredited(): void
+    {
+        $basket = new Basket()->setDiscountCode('AAAABBBBCCCCDDDD')->setDiscountKind(Basket::CODE_KIND_GIFT_CARD)->setDiscountAmount(1000);
+
+        $this->assertFalse($this->service()->restore($basket));
+    }
+
     // A rehearsal must not leave spendable money behind: a card issued in test mode is refused once the shop charges for real
     public function testACodeBornInTestModeIsRefusedByALiveShop(): void
     {
@@ -221,14 +252,14 @@ class BasketCodeServiceTest extends TestCase
         ;
     }
 
-    private function service(?Discount $discount = null, ?GiftCard $giftCard = null, bool $shopInTestMode = false): BasketCodeService
+    private function service(?Discount $discount = null, ?GiftCard $giftCard = null, bool $shopInTestMode = false, ?GiftCardRepository $giftCardRepository = null): BasketCodeService
     {
         $discountRepository = $this->createStub(DiscountRepository::class);
         $discountRepository->method('findOneByCode')->willReturnCallback(
             static fn (string $code): ?Discount => null !== $discount && mb_strtoupper(trim($code)) === $discount->getCode() ? $discount : null
         );
 
-        $giftCardRepository = $this->createStub(GiftCardRepository::class);
+        $giftCardRepository ??= $this->createStub(GiftCardRepository::class);
         $giftCardRepository->method('findOneByCode')->willReturnCallback(
             static fn (string $code): ?GiftCard => null !== $giftCard && mb_strtoupper(trim($code)) === $giftCard->getCode() ? $giftCard : null
         );

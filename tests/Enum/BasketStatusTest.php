@@ -23,12 +23,23 @@ class BasketStatusTest extends TestCase
         $this->assertFalse(BasketStatus::Validated->isSettled());
         $this->assertTrue(BasketStatus::Paid->isSettled());
         $this->assertTrue(BasketStatus::Shipped->isSettled());
+        $this->assertFalse(BasketStatus::Refunded->isSettled());
+    }
+
+    // A refunded order is still an order on the books, never a basket to fill again
+    public function testRecordedKeepsTheRefundedOrders(): void
+    {
+        $this->assertFalse(BasketStatus::New->isRecorded());
+        $this->assertFalse(BasketStatus::Validated->isRecorded());
+        $this->assertTrue(BasketStatus::Paid->isRecorded());
+        $this->assertTrue(BasketStatus::Shipped->isRecorded());
+        $this->assertTrue(BasketStatus::Refunded->isRecorded());
     }
 
     // The values are what the column already holds, so no row has to be migrated
     public function testValuesMatchTheStoredStrings(): void
     {
-        $this->assertSame(['new', 'validated', 'paid', 'shipped'], array_column(BasketStatus::cases(), 'value'));
+        $this->assertSame(['new', 'validated', 'paid', 'shipped', 'refunded'], array_column(BasketStatus::cases(), 'value'));
     }
 
     // Each case is translated from the payment domain

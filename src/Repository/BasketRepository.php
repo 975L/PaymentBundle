@@ -47,6 +47,36 @@ class BasketRepository extends ServiceEntityRepository
         return 1 === $updated;
     }
 
+    // Moves one settled order to "refunded" in a single conditional statement like claimPaid(), and says whether this call moved it - a replayed refund then neither redates it nor deactivates the cards twice
+    public function claimRefunded(Basket $basket, int $amount): bool
+    {
+        $updated = $this->getEntityManager()
+            ->createQuery('UPDATE ' . Basket::class . ' b SET b.status = :refunded, b.refundedAt = :now, b.refundedAmount = :amount, b.modification = :now WHERE b.id = :id AND b.status IN (:settled)')
+            ->setParameter('refunded', BasketStatus::Refunded)
+            ->setParameter('now', new \DateTime())
+            ->setParameter('amount', $amount)
+            ->setParameter('id', $basket->getId())
+            ->setParameter('settled', BasketStatus::SETTLED)
+            ->execute();
+
+        return 1 === $updated;
+    }
+
+    // How many orders were refunded in part since that date and still hand over what they sold, the shopkeeper being the one to say whether they should (see PaymentAlertProvider)
+    public function countPartiallyRefundedSince(\DateTimeInterface $since): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->andWhere('b.status IN (:settled)')
+            ->andWhere('b.refundedAmount > 0')
+            ->andWhere('b.refundedAt >= :since')
+            ->andWhere('b.testMode = false')
+            ->setParameter('settled', BasketStatus::SETTLED)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * The paid orders with something still to post, oldest first.
      *
@@ -147,19 +177,18 @@ class BasketRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    // The orders of that user the customer area lists, paid or shipped only (an unfinished checkout is no order), newest first, the latest few when a limit is given
+    // The orders of that user still handing over what was bought, paid or shipped only (an unfinished checkout is no order, a refunded one gives nothing any more), newest first, the latest few when a limit is given
     /** @return Basket[] */
     public function findPaidByUser(UserInterface $user, ?int $limit = null): array
     {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.user = :user')
-            ->andWhere('b.status IN (:statuses)')
-            ->setParameter('user', $user)
-            ->setParameter('statuses', BasketStatus::SETTLED)
-            ->orderBy('b.creation', \SortDirection::Descending)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        return $this->findByUserAndStatuses($user, BasketStatus::SETTLED, $limit);
+    }
+
+    // The orders of that user the customer area lists, refunded ones included so the customer still sees what was handed back and when, newest first, the latest few when a limit is given
+    /** @return Basket[] */
+    public function findOrdersByUser(UserInterface $user, ?int $limit = null): array
+    {
+        return $this->findByUserAndStatuses($user, BasketStatus::RECORDED, $limit);
     }
 
     /**
@@ -190,23 +219,7 @@ class BasketRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Hands the orders left under that address to the account that just proved it owns it, and says how many.
-     *
-     * A shop takes orders from visitors who never opened an account: those baskets carry the address typed at
-     * the checkout and no account at all (see BasketService::create(), which only ever poses the buyer of a
-     * visitor already signed in). Nothing else ever links them, so the day their buyer signs in - through a
-     * provider or through the form - the orders they placed before become theirs and show up in their customer
-     * area, without anyone having to click anything.
-     *
-     * Only ever called for an account whose address has been proved (see BasketAccountLinkSubscriber): matching
-     * on an unproved address would hand a stranger's orders, delivery address included, to whoever registered
-     * with their email. Paid and shipped orders only, as findPaidByUser(): an abandoned basket is not a purchase,
-     * and re-seating one would collide with the basket the visitor is filling right now.
-     *
-     * Written as one statement rather than as a loop of loaded entities: this runs on a login, where a customer
-     * of ten years is ten rows nobody asked for.
-     */
+    // Hands the orders left under that address to the account that just proved it owns it, and says how many - only for a proved address (see BasketAccountLinkSubscriber), orders only with the refunded ones included, in one statement since it runs on every login
     public function attachOrphansTo(UserInterface $user, string $email): int
     {
         $email = strtolower(trim($email));
@@ -223,26 +236,12 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:statuses)')
             ->setParameter('user', $user)
             ->setParameter('email', $email)
-            ->setParameter('statuses', BasketStatus::SETTLED)
+            ->setParameter('statuses', BasketStatus::RECORDED)
             ->getQuery()
             ->execute();
     }
 
-    /**
-     * Whether that buyer has already paid for one given item, in whatever order and however long ago.
-     *
-     * The question a paywall asks before showing what it protects, and this bundle answers it from the orders
-     * alone: a satellite gating its own media never has to keep a right of its own beside them. Not to be
-     * confused with the downloads of the customer area, which they resemble - a bought file is handed over for
-     * as long as its emailed link lives, while this says the purchase happened and says nothing about a delay.
-     *
-     * A UserInterface is matched on the account and a string on the address, as findPaidByUser() and
-     * findPaidByEmail() do, and the match itself is left to the entity: the column is JSON, and a search
-     * written in SQL would be one database's and not the next one's.
-     *
-     * A page gating several assets asks once per asset: keep the answer for the request rather than calling
-     * this in a loop over a gallery.
-     */
+    // Whether that buyer already paid for one given item, matched on the account or the address as the finders do - a refunded order answers no and a partial refund leaves it paid; a page gating several assets keeps the answer for the request
     public function hasPaidFor(UserInterface | string $buyer, string $kind, int | string $itemId): bool
     {
         $baskets = $buyer instanceof UserInterface ? $this->findPaidByUser($buyer) : $this->findPaidByEmail($buyer);
@@ -298,21 +297,15 @@ class BasketRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * The orders that have stopped being current business and belong in the intermediate archive.
-     *
-     * Read on the creation rather than on the shipping date: an order delivered within days of being placed
-     * makes the two dates the same to within a rounding error, and the creation is the one every order carries.
-     *
-     * @return Basket[]
-     */
+    // The orders that have stopped being current business, read on the creation date - a refunded one archived like any other, the books keeping it for as long as the sale
+    /** @return Basket[] */
     public function findToArchive(int $years): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.status IN (:statuses)')
             ->andWhere('b.archived IS NULL')
             ->andWhere('b.creation < :date')
-            ->setParameter('statuses', BasketStatus::SETTLED)
+            ->setParameter('statuses', BasketStatus::RECORDED)
             ->setParameter('date', new \DateTime('-' . $years . ' years'))
             ->getQuery()
             ->getResult();
@@ -337,18 +330,8 @@ class BasketRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * The orders whose payment the provider never confirmed, and which were delivered all the same.
-     *
-     * Nothing else says it: the order looks settled from every screen, its payment row says it never was, and the
-     * two are only ever read apart. An order with nothing to pay is left out - it is delivered without a payment
-     * row at all, which is the one case BasketService::paid() lets through on its own.
-     *
-     * Orders placed in test mode are left out here as everywhere in this check: a shop trying its checkout out
-     * writes rows nobody ever settles, and reporting them would bury the one order that is genuinely wrong.
-     *
-     * @return list<Basket>
-     */
+    // The orders delivered although their payment was never confirmed, which nothing else says - those with nothing to pay and the test orders left out, the refunded ones read too since they were paid first
+    /** @return list<Basket> */
     public function findDeliveredWithoutFinishedPayment(\DateTimeInterface $since, int $limit = 50): array
     {
         return $this->createQueryBuilder('b')
@@ -358,7 +341,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.total + b.shipping - b.discountAmount > 0')
             ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', BasketStatus::SETTLED)
+            ->setParameter('delivered', BasketStatus::RECORDED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -410,7 +393,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.creation >= :since')
             ->andWhere('b.number IS NULL')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', BasketStatus::SETTLED)
+            ->setParameter('delivered', BasketStatus::RECORDED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -432,7 +415,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status IN (:delivered)')
             ->andWhere('b.creation >= :since')
             ->andWhere('b.testMode = false')
-            ->setParameter('delivered', BasketStatus::SETTLED)
+            ->setParameter('delivered', BasketStatus::RECORDED)
             ->setParameter('since', $since)
             ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
@@ -455,6 +438,24 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.testMode = false')
             ->setParameter('open', BasketStatus::OPEN)
             ->orderBy('b.modification', \SortDirection::Descending)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param list<BasketStatus> $statuses
+     *
+     * @return Basket[]
+     */
+    private function findByUserAndStatuses(UserInterface $user, array $statuses, ?int $limit): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.user = :user')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', $statuses)
+            ->orderBy('b.creation', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

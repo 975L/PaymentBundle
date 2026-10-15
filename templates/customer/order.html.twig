@@ -10,10 +10,14 @@
 {% block content %}
     <h1>{{ 'label.order'|trans }} {{ basket.number }}</h1>
     <p><a href="{{ localized_path('customer_orders') }}">{{ 'label.back_to_orders'|trans }}</a></p>
+    <twig:c975LPayment:Basket:Refunded basket="{{ basket }}"/>
 
     {# A number is drawn when the order is paid, so an order still being settled has no invoice to offer #}
     {% if basket.invoiceNumber %}
         <p><a href="{{ path('basket_invoice_pdf', {'number': basket.number, 'securityToken': basket.securityToken}) }}">{{ 'label.download_invoice'|trans }} {{ basket.invoiceNumber }}</a></p>
+    {% endif %}
+    {% if basket.creditNoteNumber %}
+        <p><a href="{{ path('basket_credit_note_pdf', {'number': basket.number, 'securityToken': basket.securityToken}) }}">{{ 'label.download_credit_note'|trans }} {{ basket.creditNoteNumber }}</a></p>
     {% endif %}
 
     <twig:c975LPayment:Basket:TrackOrder basket="{{ basket }}"/>
@@ -22,5 +26,8 @@
     <twig:c975LPayment:Basket:MessageUser message="{{ basket.message }}"/>
 
     <twig:c975LPayment:Basket:Downloads downloads="{{ downloads }}"/>
-    <twig:c975LPayment:GiftCard:Cards basket="{{ basket }}"/>
+    {# The cards a refunded order bought are deactivated with it, and are no longer something to hand on #}
+    {% if basket.status.isSettled %}
+        <twig:c975LPayment:GiftCard:Cards basket="{{ basket }}"/>
+    {% endif %}
 {% endblock %}

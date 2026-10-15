@@ -40,6 +40,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -87,6 +88,15 @@ class BasketCrudController extends AbstractCrudController
                 ->setFormTypeOption('disabled', 'disabled'),
             ChoiceField::new('status')
                 ->setLabel(t('label.status', [], 'payment'))
+                ->setFormTypeOption('disabled', 'disabled'),
+            // Read off the provider's webhook, never typed here: the refund itself is made at the provider, which then tells the site. Kept on a partial refund too, the status then staying paid
+            DateTimeField::new('refundedAt')
+                ->setLabel(t('label.refunded_at', [], 'payment'))
+                ->hideOnIndex()
+                ->setFormTypeOption('disabled', 'disabled'),
+            IntegerField::new('refundedAmount')
+                ->setLabel(t('label.refunded_amount', [], 'payment'))
+                ->hideOnIndex()
                 ->setFormTypeOption('disabled', 'disabled'),
             ChoiceField::new('contentFlags')
                 ->setLabel(t('label.content', [], 'payment'))
@@ -273,6 +283,15 @@ class BasketCrudController extends AbstractCrudController
             ->setHtmlAttributes(['target' => '_blank'])
             ->displayIf(static fn (Basket $basket): bool => null !== $basket->getInvoiceNumber());
 
+        // The credit note cancelling that invoice, once the order was taken back
+        $creditNote = Action::new('creditNote', t('label.credit_note', [], 'payment'), 'fa fa-file-circle-minus')
+            ->linkToRoute('basket_credit_note_pdf', fn (Basket $basket): array => [
+                'number' => $basket->getNumber(),
+                'securityToken' => $basket->getSecurityToken(),
+            ])
+            ->setHtmlAttributes(['target' => '_blank'])
+            ->displayIf(static fn (Basket $basket): bool => null !== $basket->getCreditNoteNumber());
+
         // Being paid for something the catalogue does not sell - a deposit, a repair, an invoice. A global action: there is no row to start from, the order is written by the form it opens
         $paymentLink = Action::new('paymentLink', t('label.payment_link', [], 'payment'), 'fa fa-link')
             ->createAsGlobalAction()
@@ -293,6 +312,7 @@ class BasketCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $paymentLink)
             ->add(Crud::PAGE_INDEX, $shippingLabels)
             ->add(Crud::PAGE_INDEX, $invoice)
+            ->add(Crud::PAGE_INDEX, $creditNote)
             ->add(Crud::PAGE_INDEX, $filterPaid)
             ->add(Crud::PAGE_INDEX, $filterValidated)
             ->add(Crud::PAGE_INDEX, $filterNew)
@@ -317,6 +337,7 @@ class BasketCrudController extends AbstractCrudController
             ->setPermission('paymentLink', $role)
             ->setPermission('shippingLabels', $role)
             ->setPermission('invoice', $role)
+            ->setPermission('creditNote', $role)
             ->setPermission('exportSql', $role)
             ->setPermission('exportCsv', $role)
             ->setPermission('exportJson', $role)
@@ -354,6 +375,8 @@ class BasketCrudController extends AbstractCrudController
         return $filters
             ->add('number')
             ->add(ChoiceFilter::new('status', t('label.status', [], 'payment'))->setTranslatableChoices(BasketStatus::cases()))
+            // The orders money went back on, in full or in part - what the dashboard's partial refunds alert opens on (see PaymentAlertProvider)
+            ->add(NumericFilter::new('refundedAmount', t('label.refunded_amount', [], 'payment')))
         ;
     }
 

@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\Gateway;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
+use c975L\PaymentBundle\Gateway\StripeChargeReader;
 use c975L\PaymentBundle\Gateway\StripeGateway;
 use c975L\PaymentBundle\Gateway\StripeSessionReader;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -102,7 +103,7 @@ class StripeGatewayTest extends TestCase
         $mode = $this->createStub(PaymentTestModeInterface::class);
         $mode->method('isEnabled')->willReturn($testMode);
 
-        return new StripeGateway($configService, $mode, new StripeSessionReader());
+        return new StripeGateway($configService, $mode, new StripeSessionReader(), new StripeChargeReader());
     }
 
     private function configService(array $values): ConfigServiceInterface

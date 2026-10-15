@@ -38,6 +38,10 @@
                 <source>description.revolut_webhook_secret_test</source>
                 <target>Sandbox Revolut webhook signing secret, used when test payments are enabled</target>
             </trans-unit>
+            <trans-unit id="4lepQOA">
+                <source>description.shop_credit_note_prefix</source>
+                <target>The letters before the year and the rank, e.g. AV for AV2026-0001. A credit note is issued when an invoiced order is refunded in full or lost to a dispute, in a series of its own apart from the invoices.</target>
+            </trans-unit>
             <trans-unit id="OkQCTnA">
                 <source>description.shop_currency</source>
                 <target>ISO on 3 letters for currency, i.e. EUR</target>
@@ -149,6 +153,10 @@
             <trans-unit id="jIPZSfz">
                 <source>label.revolut_webhook_secret_test</source>
                 <target>Revolut test webhook secret</target>
+            </trans-unit>
+            <trans-unit id="3.1PnJN">
+                <source>label.shop_credit_note_prefix</source>
+                <target>Credit note prefix</target>
             </trans-unit>
             <trans-unit id="QXc9sdb">
                 <source>label.shop_currency</source>

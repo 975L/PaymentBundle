@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Tests\Repository;
 
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -81,7 +82,7 @@ class BasketPaidForTest extends TestCase
      */
     private function basketHolding(array $items): Basket
     {
-        return new Basket()->setItems($items);
+        return new Basket()->setItems($items)->setStatus(BasketStatus::Paid);
     }
 
     /**

@@ -11,6 +11,9 @@
         <twig:c975LPayment:Basket:Thanks/>
         <p class="text text-center lead">{{ 'label.share_paid_explanation'|trans({'%number%': basket.number}) }}</p>
         <twig:c975LPayment:Basket:Display basket="{{ basket }}" readonly="true"/>
+    {% elseif basket.status.isRecorded %}
+        {# A refunded order reached again through its return url was paid once: it is said refunded rather than "being recorded" #}
+        <twig:c975LPayment:Basket:Refunded basket="{{ basket }}"/>
     {% else %}
         {# The provider confirms on a request of its own, which may land after this one: the payer is told the payment is being recorded rather than that it failed #}
         <p class="text text-center lead">{{ 'label.share_pending'|trans }}</p>

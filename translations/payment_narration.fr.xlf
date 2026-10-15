@@ -128,7 +128,7 @@
             </trans-unit>
             <trans-unit id="NoPky5P">
                 <source>narration.guided_step_payment_gateway_setup_webhook</source>
-                <target>Enregistrez le secret du webhook : sans lui, le site refuse les notifications du fournisseur et aucune commande n'est marquée payée. Stripe le donne à la création du webhook dans son tableau de bord ; pour Revolut, une commande le déclare et l'enregistre, comme le détaille sa procédure.</target>
+                <target>Enregistrez le secret du webhook : sans lui, le site refuse les notifications du fournisseur et aucune commande n'est marquée payée. Stripe le donne à la création du webhook dans son tableau de bord, où cocher checkout.session.completed, charge.refunded et charge.dispute.closed ; pour Revolut, une commande le déclare avec ORDER_COMPLETED et DISPUTE_LOST et l'enregistre, comme le détaille sa procédure.</target>
             </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
@@ -213,6 +213,18 @@
             <trans-unit id="3spo3F_">
                 <source>narration.guided_step_payment_payment_link_start</source>
                 <target>Ouvrez le formulaire avec le bouton au-dessus de la liste. Il n'y a aucune ligne à sélectionner : la commande est écrite par le formulaire qu'il ouvre.</target>
+            </trans-unit>
+            <trans-unit id=".fx7r3M">
+                <source>narration.guided_step_payment_refund_check_detail</source>
+                <target>Ouvrez une commande remboursée : le statut, la date et le montant remboursés y figurent.</target>
+            </trans-unit>
+            <trans-unit id=".A2y.C7">
+                <source>narration.guided_step_payment_refund_check_fields</source>
+                <target>Lisez ce que le remboursement a changé. Il se fait chez le fournisseur, et le site le lit sur son webhook. Total ou litige perdu : la commande passe en Remboursée, ce qu'elle a vendu n'est plus remis et la carte cadeau éventuellement utilisée est recréditée. Partiel : la commande reste payée et le tableau de bord le signale pendant 30 jours ; si l'accès doit tomber, remboursez le reste chez le fournisseur.</target>
+            </trans-unit>
+            <trans-unit id="3h70wsT">
+                <source>narration.guided_step_payment_refund_check_open</source>
+                <target>Ouvrez les commandes remboursées : la liste est filtrée sur celles dont une partie au moins a été rendue au client.</target>
             </trans-unit>
             <trans-unit id="BppffwD">
                 <source>narration.guided_step_payment_shipping_done</source>

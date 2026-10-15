@@ -23,7 +23,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 
 ## Contents
 
-- **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [Stimulus controllers](#register-stimulus-controllers)
+- **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
 - **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
 
 ## Features
@@ -49,7 +49,8 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 - Every basket of the account in the member's data export (ConfigBundle's `/account/export`, through `AccountDataProviderInterface`)
 - `BasketRepository::hasPaidFor()`, the one question a paywall asks: has this buyer paid for this item, in whatever
   order and however long ago - so a bundle showing a paid photo, video or chapter gates it on the orders themselves
-  rather than keeping a right of its own beside them
+  rather than keeping a right of its own beside them. A refund in full or a chargeback lost, reported by the
+  provider's webhook, sets the order `refunded` and takes the access back (see [refunds](#refunds-and-chargebacks))
 - EasyAdmin CRUD for Basket and Payment, both exported as SQL/CSV/JSON from their index, the basket's security token excluded
 - Status report and health check contributions: the orders left to ship and the payments started and never
   confirmed land in `/status/report`, and `c975l:health-check:run` asks the active gateway whether its keys still
@@ -125,7 +126,8 @@ icons it draws.
 
 1. Sign in to your [Stripe Dashboard](https://dashboard.stripe.com/)
 2. Go to **Developers > Webhooks** and click **Add endpoint**
-3. Select the `checkout.session.completed` event
+3. Select the events `checkout.session.completed` (a payment), `charge.refunded` (a refund) and
+   `charge.dispute.closed` (a dispute, acted on only when lost)
 4. Enter `https://your-website.com/payment/webhook/stripe` as the endpoint URL
 5. Copy the signing secret and store it via the ConfigBundle dashboard (`stripe-webhook-secret`)
 
@@ -177,7 +179,7 @@ curl -X POST https://merchant.revolut.com/api/webhooks \
     -H "Authorization: Bearer YOUR_SECRET_KEY" \
     -H "Revolut-Api-Version: 2024-05-01" \
     -H "Content-Type: application/json" \
-    -d '{"url": "https://your-website.com/payment/webhook/revolut", "events": ["ORDER_COMPLETED"]}'
+    -d '{"url": "https://your-website.com/payment/webhook/revolut", "events": ["ORDER_COMPLETED", "DISPUTE_LOST"]}'
 ```
 
 The answer carries a `signing_secret`, which goes to `revolut-webhook-secret`; the sandbox call is the same one
@@ -185,6 +187,27 @@ against `https://sandbox-merchant.revolut.com/api/webhooks`, and its secret goes
 
 Without the signing secret the site refuses Revolut's notifications and no order is ever marked paid. A secret
 mislaid is read back from the webhook's own details rather than by creating the webhook again.
+
+`ORDER_COMPLETED` covers refunds too, Revolut making each refund an order of its own; `DISPUTE_LOST` is the
+chargeback. A webhook declared before v6.21 listens to `ORDER_COMPLETED` alone: run the command again with
+`--replace`, once per account. Revolut serves the disputes in production only, so a lost dispute cannot be tried
+in the sandbox. A refund Revolut still counts on no order a day after it was made is logged and dropped rather
+than refused again.
+
+### Refunds and chargebacks
+
+The refund is made at the provider - the back-office has no button for it - and the provider's webhook tells
+the site. The order stays the one record of the sale:
+
+- **Refunded in full**, or **a dispute lost**: the order goes `refunded`, dated (`refundedAt`), and stops handing
+  anything over - `hasPaidFor()` answers no, the customer area shows it with its refund but without its files, and
+  the gift cards it bought are deactivated (the orders they already paid for are left alone). A gift card that
+  paid part of it is credited back, and its invoice is cancelled by a [credit note](#invoices). It stays in the
+  books, the archive, the integrity checks and the member's data export.
+- **Refunded in part**: nothing changes on its own - a gesture on the postage is no reason to take the book back.
+  The amount is kept on the order and the dashboard warns for 30 days, opening the order listing filtered on the
+  refunded ones, so the shopkeeper decides.
+- An event replayed by the provider changes nothing, and a dispute is read on its close, never on its opening.
 
 Two differences with Stripe are worth knowing before switching. **Orders link to nothing** in the back-office:
 Revolut publishes no stable address for an order in its portal, so the id is shown rather than a link guessed at.
@@ -259,7 +282,7 @@ counterparts or prints.
 | `customer_order` | `/account/orders/{number}` | One order: its tracking, its lines and the files it bought |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}` | The order's invoice, linked from the customer's own order page |
 | `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
-| `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment - **the endpoint to declare in its dashboard** |
+| `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment, a refund or a lost dispute - **the endpoint to declare in its dashboard**, with the events listed under [Stripe](#configure-stripe-webhook) and [Revolut](#configure-revolut) |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
 `basket_display`, `basket_validate`, `customer_orders` and `customer_order` each have a `_localized` twin at
@@ -414,6 +437,11 @@ written back — two orders settled in the same second would otherwise be handed
 thing an invoice sequence must not do. Nothing there goes through the unit of work, so drawing a number never
 flushes whatever the caller had pending on the order.
 
+**An order refunded in full or lost to a dispute gets a credit note** (`assignCreditNote()`, called once by
+`BasketRefundService`), numbered `{prefix}{year}-{0000}` with `shop-credit-note-prefix` (`AV` by default) in a
+series of its own, so the invoices' one keeps no gap. It is the invoice under another title, stating the same
+frozen seller and the invoice it cancels. An order never invoiced - a rehearsal among them - gets none.
+
 The document itself is drawn on demand and kept nowhere: it says what the order says, and the order is the record.
 `shop-invoice-mentions` is printed at its foot — registration numbers, a VAT number, or the article exempting the
 shop from charging any. That is written by the shopkeeper, who is the only one who knows their own situation.
@@ -429,7 +457,8 @@ nothing either, and fall back on the same live values they were already being dr
 | Where | What |
 | --- | --- |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}`, linked from the customer's own order page |
-| Back office | An **Invoice** action on every numbered order, opening the same file |
+| `basket_credit_note_pdf` | `/shop/basket/credit-note/{number}/{securityToken}`, linked from the same page once the order is taken back |
+| Back office | An **Invoice** action on every numbered order, and a **Credit note** action on every cancelled one, opening the same files |
 | E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments) — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
 
 **A buyer may have it made out to their business**: the coordinates form offers a company name and a VAT number,

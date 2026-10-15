@@ -1,5 +1,30 @@
 [
     {
+        "date": "2026-10-15",
+        "description": [
+            {
+                "en": "An order refunded in full at Stripe or Revolut, or lost in a chargeback, is now marked refunded: it no longer gives access to what it sold, and the gift cards it bought are deactivated. A partial refund is shown on the dashboard so you decide.",
+                "fr": "Une commande remboursée en totalité chez Stripe ou Revolut, ou perdue sur un litige, passe désormais en « Remboursé » : elle ne donne plus accès à ce qu'elle a vendu, et les cartes cadeaux qu'elle a achetées sont désactivées. Un remboursement partiel est signalé sur le tableau de bord pour que vous décidiez.",
+                "es": "Un pedido reembolsado por completo en Stripe o Revolut, o perdido en una disputa, pasa ahora a «Reembolsado»: deja de dar acceso a lo que vendió y las tarjetas regalo que compró se desactivan. Un reembolso parcial se señala en el panel para que usted decida."
+            },
+            {
+                "en": "A refunded order now gets a credit note cancelling its invoice, which you and your customer can download next to the invoice.",
+                "fr": "Une commande remboursée reçoit désormais une facture d'avoir qui annule sa facture, téléchargeable par vous et votre client à côté de la facture.",
+                "es": "Un pedido reembolsado recibe ahora una factura rectificativa que anula su factura, descargable por usted y su cliente junto a la factura."
+            },
+            {
+                "en": "When a refunded order was partly paid with a gift card, that amount goes back onto the card.",
+                "fr": "Quand une commande remboursée avait été payée en partie par carte cadeau, ce montant est recrédité sur la carte.",
+                "es": "Cuando un pedido reembolsado se pagó en parte con una tarjeta regalo, ese importe vuelve a la tarjeta."
+            },
+            {
+                "en": "The partial refunds alert now opens the list of refunded orders, and a new guided tour explains what a refund changes.",
+                "fr": "L'alerte des remboursements partiels ouvre désormais la liste des commandes remboursées, et une nouvelle visite guidée explique ce qu'un remboursement change.",
+                "es": "La alerta de reembolsos parciales abre ahora la lista de pedidos reembolsados, y una nueva visita guiada explica lo que cambia un reembolso."
+            }
+        ]
+    },
+    {
         "date": "2026-10-14",
         "description": [
             {

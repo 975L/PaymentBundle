@@ -50,6 +50,10 @@
                 <source>description.guided_project_payment_payment_link</source>
                 <target>Escribir un pedido para un anticipo, una reparación o una factura, y dar su dirección a quien lo pague</target>
             </trans-unit>
+            <trans-unit id="WBV5mik">
+                <source>description.guided_project_payment_refund_check</source>
+                <target>Entender qué hace el sitio con un reembolso o una disputa perdida registrados en el proveedor</target>
+            </trans-unit>
             <trans-unit id="bDkghSo">
                 <source>description.guided_project_payment_shipping</source>
                 <target>Ir de los pedidos que deben un paquete al correo que anuncia a cada cliente que el suyo ha salido</target>
@@ -184,7 +188,7 @@
             </trans-unit>
             <trans-unit id="NCe._ZM">
                 <source>description.guided_step_payment_gateway_setup_webhook</source>
-                <target>Sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel; para Revolut, un comando lo declara y lo guarda (vea su procedimiento).</target>
+                <target>Sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel, donde marcar checkout.session.completed, charge.refunded y charge.dispute.closed; para Revolut, un comando lo declara con ORDER_COMPLETED y DISPUTE_LOST y lo guarda (vea su procedimiento).</target>
             </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
@@ -269,6 +273,18 @@
             <trans-unit id="DSDBs8F">
                 <source>description.guided_step_payment_payment_link_start</source>
                 <target>El botón Enlace de pago, encima de la lista: no hay ninguna fila de la que partir, el pedido lo escribe el formulario que abre.</target>
+            </trans-unit>
+            <trans-unit id="f4r_z3e">
+                <source>description.guided_step_payment_refund_check_detail</source>
+                <target>Allí figuran su estado, la fecha y el importe reembolsados.</target>
+            </trans-unit>
+            <trans-unit id="nxynZ8C">
+                <source>description.guided_step_payment_refund_check_fields</source>
+                <target>El reembolso se hace en el proveedor, y el sitio lo lee en su webhook. Total o disputa perdida: el pedido pasa a Reembolsado, lo que vendió deja de entregarse y la tarjeta regalo que se usó se vuelve a acreditar. Parcial: el pedido sigue pagado y el panel lo señala durante 30 días; si el acceso debe retirarse, reembolse el resto en el proveedor.</target>
+            </trans-unit>
+            <trans-unit id="0VqV3Yl">
+                <source>description.guided_step_payment_refund_check_open</source>
+                <target>La lista está filtrada en los pedidos de los que al menos una parte se devolvió al cliente.</target>
             </trans-unit>
             <trans-unit id="SR8LZlo">
                 <source>description.guided_step_payment_shipping_done</source>
@@ -369,6 +385,10 @@
             <trans-unit id="BkNaLjq">
                 <source>description.guided_step_payment_transaction_review_provider</source>
                 <target>El identificador de la transacción es en sí el enlace al panel de Stripe, cuando se ha registrado. Como Revolut no publica ninguna dirección estable para un pedido, ahí solo se muestra el identificador.</target>
+            </trans-unit>
+            <trans-unit id="50K91Az">
+                <source>description.partial_refunds</source>
+                <target>%count% pedido(s) reembolsado(s) en parte en los últimos 30 días siguen dando acceso a lo que vendieron. Compruebe en su proveedor de pago que es lo que quería: solo un reembolso total retira el acceso.</target>
             </trans-unit>
             <trans-unit id="bedYlU5">
                 <source>description.payment_gateway_unavailable</source>
@@ -638,6 +658,10 @@
                 <source>label.basket_status_paid</source>
                 <target>Pagado</target>
             </trans-unit>
+            <trans-unit id="s27dSTq">
+                <source>label.basket_status_refunded</source>
+                <target>Reembolsado</target>
+            </trans-unit>
             <trans-unit id="tFsSVGR">
                 <source>label.basket_status_shipped</source>
                 <target>Enviado</target>
@@ -754,6 +778,10 @@
                 <source>label.creation</source>
                 <target>Creación</target>
             </trans-unit>
+            <trans-unit id="PuOgz_o">
+                <source>label.credit_note</source>
+                <target>Factura rectificativa</target>
+            </trans-unit>
             <trans-unit id="5rtvyyn">
                 <source>label.crowdfunding_information</source>
                 <target>Ha contribuido a una financiación colectiva, se le ha enviado un email con la información.</target>
@@ -817,6 +845,10 @@
             <trans-unit id="tLGn0en">
                 <source>label.download</source>
                 <target>Descargar</target>
+            </trans-unit>
+            <trans-unit id="rC5b8sL">
+                <source>label.download_credit_note</source>
+                <target>Descargar la factura rectificativa</target>
             </trans-unit>
             <trans-unit id="_Z0psnt">
                 <source>label.download_information</source>
@@ -1021,6 +1053,10 @@
             <trans-unit id="svPZPHX">
                 <source>label.guided_project_payment_payment_link</source>
                 <target>Cobrar fuera del catálogo</target>
+            </trans-unit>
+            <trans-unit id="wdxstec">
+                <source>label.guided_project_payment_refund_check</source>
+                <target>Seguir un reembolso</target>
             </trans-unit>
             <trans-unit id="eVqjepW">
                 <source>label.guided_project_payment_shipping</source>
@@ -1241,6 +1277,18 @@
             <trans-unit id="DLUGUip">
                 <source>label.guided_step_payment_payment_link_start</source>
                 <target>Abrir el formulario</target>
+            </trans-unit>
+            <trans-unit id="xhwf0i6">
+                <source>label.guided_step_payment_refund_check_detail</source>
+                <target>Abrir un pedido reembolsado</target>
+            </trans-unit>
+            <trans-unit id="rx88bG5">
+                <source>label.guided_step_payment_refund_check_fields</source>
+                <target>Leer lo que cambió el reembolso</target>
+            </trans-unit>
+            <trans-unit id="ZTHgJYl">
+                <source>label.guided_step_payment_refund_check_open</source>
+                <target>Abrir los pedidos reembolsados</target>
             </trans-unit>
             <trans-unit id="01Ctvcm">
                 <source>label.guided_step_payment_shipping_done</source>
@@ -1578,6 +1626,10 @@
                 <source>label.ordered_items</source>
                 <target>Artículos pedidos</target>
             </trans-unit>
+            <trans-unit id="foQphvR">
+                <source>label.partial_refunds</source>
+                <target>Pedidos reembolsados en parte</target>
+            </trans-unit>
             <trans-unit id="CtBIYWp">
                 <source>label.pay</source>
                 <target>Pagar</target>
@@ -1661,6 +1713,14 @@
             <trans-unit id="SxGGYuv">
                 <source>label.quantity</source>
                 <target>Cantidad</target>
+            </trans-unit>
+            <trans-unit id="jcTWDZj">
+                <source>label.refunded_amount</source>
+                <target>Importe reembolsado</target>
+            </trans-unit>
+            <trans-unit id="J6P7XKV">
+                <source>label.refunded_at</source>
+                <target>Reembolsado el</target>
             </trans-unit>
             <trans-unit id="nS4remy">
                 <source>label.reminder_pay_explanation</source>
@@ -1934,6 +1994,10 @@
                 <source>text.counterparts_shipped</source>
                 <target>Las contrapartidas fueron enviadas el </target>
             </trans-unit>
+            <trans-unit id="1NHAIWI">
+                <source>text.credit_note_cancels</source>
+                <target>Anula la factura %number% del %date%.</target>
+            </trans-unit>
             <trans-unit id="1BIdF4I">
                 <source>text.download_expires_on</source>
                 <target>— enlace válido hasta el %date%</target>
@@ -1961,6 +2025,10 @@
             <trans-unit id="V0KGz2a">
                 <source>text.no_order_yet</source>
                 <target>Todavía no ha realizado ningún pedido.</target>
+            </trans-unit>
+            <trans-unit id="7jXivXQ">
+                <source>text.order_refunded</source>
+                <target>Este pedido fue reembolsado el %date%: su contenido ya no está disponible.</target>
             </trans-unit>
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>

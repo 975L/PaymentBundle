@@ -36,28 +36,30 @@ class InvoiceSequenceRepository extends ServiceEntityRepository
      * Deliberately not the unit of work: nothing here loads or flushes an entity, so drawing a number never
      * writes out whatever else the caller had pending on the order it is drawing it for.
      */
-    public function next(int $year): int
+    public function next(int $year, string $kind = InvoiceSequence::KIND_INVOICE): int
     {
         $manager = $this->getEntityManager();
 
-        return $manager->wrapInTransaction(function () use ($manager, $year): int {
-            if (0 === $this->bump($year)) {
-                $this->open($year);
+        return $manager->wrapInTransaction(function () use ($manager, $year, $kind): int {
+            if (0 === $this->bump($year, $kind)) {
+                $this->open($year, $kind);
             }
 
             return (int) $manager
-                ->createQuery('SELECT s.lastNumber FROM ' . InvoiceSequence::class . ' s WHERE s.year = :year')
+                ->createQuery('SELECT s.lastNumber FROM ' . InvoiceSequence::class . ' s WHERE s.year = :year AND s.kind = :kind')
                 ->setParameter('year', $year)
+                ->setParameter('kind', $kind)
                 ->getSingleScalarResult();
         });
     }
 
     // How many rows the increment touched: 1 for a year already open, 0 for the first invoice of a new one
-    private function bump(int $year): int
+    private function bump(int $year, string $kind): int
     {
         return (int) $this->getEntityManager()
-            ->createQuery('UPDATE ' . InvoiceSequence::class . ' s SET s.lastNumber = s.lastNumber + 1 WHERE s.year = :year')
+            ->createQuery('UPDATE ' . InvoiceSequence::class . ' s SET s.lastNumber = s.lastNumber + 1 WHERE s.year = :year AND s.kind = :kind')
             ->setParameter('year', $year)
+            ->setParameter('kind', $kind)
             ->execute();
     }
 
@@ -68,16 +70,17 @@ class InvoiceSequenceRepository extends ServiceEntityRepository
      * and the one that loses reads the winner's instead of failing an order over it. Written through the
      * connection rather than persisted, so opening a year flushes nothing else.
      */
-    private function open(int $year): void
+    private function open(int $year, string $kind): void
     {
         try {
             $this->getEntityManager()->getConnection()->insert('payment_invoice_sequence', [
+                'kind' => $kind,
                 'sequence_year' => $year,
                 'last_number' => 1,
             ]);
         } catch (UniqueConstraintViolationException) {
-            if (0 === $this->bump($year)) {
-                throw new \RuntimeException(sprintf('The invoice sequence of %d could neither be opened nor read.', $year));
+            if (0 === $this->bump($year, $kind)) {
+                throw new \RuntimeException(sprintf('The %s sequence of %d could neither be opened nor read.', $kind, $year));
             }
         }
     }

@@ -50,6 +50,10 @@
                 <source>description.guided_project_payment_payment_link</source>
                 <target>Write an order for a deposit, a repair or an invoice, and hand its address to whoever settles it</target>
             </trans-unit>
+            <trans-unit id="WBV5mik">
+                <source>description.guided_project_payment_refund_check</source>
+                <target>Understand what the site does with a refund or a lost dispute recorded at the provider</target>
+            </trans-unit>
             <trans-unit id="bDkghSo">
                 <source>description.guided_project_payment_shipping</source>
                 <target>Go from the orders owing a parcel to the e-mail telling each customer theirs is on its way</target>
@@ -184,7 +188,7 @@
             </trans-unit>
             <trans-unit id="NCe._ZM">
                 <source>description.guided_step_payment_gateway_setup_webhook</source>
-                <target>Without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard; for Revolut, a command declares and stores it (see its procedure).</target>
+                <target>Without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard, where checkout.session.completed, charge.refunded and charge.dispute.closed are to be ticked; for Revolut, a command declares it with ORDER_COMPLETED and DISPUTE_LOST and stores it (see its procedure).</target>
             </trans-unit>
             <trans-unit id="pMNxMMT">
                 <source>description.guided_step_payment_gift_card_issue_amount</source>
@@ -269,6 +273,18 @@
             <trans-unit id="DSDBs8F">
                 <source>description.guided_step_payment_payment_link_start</source>
                 <target>The Payment link button, above the listing: there is no row to start from, the order being written by the form it opens.</target>
+            </trans-unit>
+            <trans-unit id="f4r_z3e">
+                <source>description.guided_step_payment_refund_check_detail</source>
+                <target>Its status, refund date and refunded amount are shown there.</target>
+            </trans-unit>
+            <trans-unit id="nxynZ8C">
+                <source>description.guided_step_payment_refund_check_fields</source>
+                <target>Refunds are made at the provider, and the site reads them off its webhook. In full or a lost dispute: the order turns Refunded, what it sold is no longer handed over and any gift card it used is credited back. In part: the order stays paid and the dashboard flags it for 30 days; if the access should go, refund the rest at the provider.</target>
+            </trans-unit>
+            <trans-unit id="0VqV3Yl">
+                <source>description.guided_step_payment_refund_check_open</source>
+                <target>The list is filtered on the orders at least part of which went back to the customer.</target>
             </trans-unit>
             <trans-unit id="SR8LZlo">
                 <source>description.guided_step_payment_shipping_done</source>
@@ -369,6 +385,10 @@
             <trans-unit id="BkNaLjq">
                 <source>description.guided_step_payment_transaction_review_provider</source>
                 <target>The transaction id is itself the link to Stripe's dashboard, once it has been recorded. Revolut publishes no stable address for an order, so only the id is shown there.</target>
+            </trans-unit>
+            <trans-unit id="50K91Az">
+                <source>description.partial_refunds</source>
+                <target>%count% order(s) refunded in part over the last 30 days still give access to what they sold. Check at your payment provider whether that is what you meant: only a full refund takes the access back.</target>
             </trans-unit>
             <trans-unit id="bedYlU5">
                 <source>description.payment_gateway_unavailable</source>
@@ -638,6 +658,10 @@
                 <source>label.basket_status_paid</source>
                 <target>Paid</target>
             </trans-unit>
+            <trans-unit id="s27dSTq">
+                <source>label.basket_status_refunded</source>
+                <target>Refunded</target>
+            </trans-unit>
             <trans-unit id="tFsSVGR">
                 <source>label.basket_status_shipped</source>
                 <target>Shipped</target>
@@ -754,6 +778,10 @@
                 <source>label.creation</source>
                 <target>Creation</target>
             </trans-unit>
+            <trans-unit id="PuOgz_o">
+                <source>label.credit_note</source>
+                <target>Credit note</target>
+            </trans-unit>
             <trans-unit id="5rtvyyn">
                 <source>label.crowdfunding_information</source>
                 <target>You have contributed to a crowdfunding campaign, an email containing the information has been sent to you.</target>
@@ -817,6 +845,10 @@
             <trans-unit id="tLGn0en">
                 <source>label.download</source>
                 <target>Download</target>
+            </trans-unit>
+            <trans-unit id="rC5b8sL">
+                <source>label.download_credit_note</source>
+                <target>Download the credit note</target>
             </trans-unit>
             <trans-unit id="_Z0psnt">
                 <source>label.download_information</source>
@@ -1021,6 +1053,10 @@
             <trans-unit id="svPZPHX">
                 <source>label.guided_project_payment_payment_link</source>
                 <target>Charge for something outside the catalogue</target>
+            </trans-unit>
+            <trans-unit id="wdxstec">
+                <source>label.guided_project_payment_refund_check</source>
+                <target>Follow a refund</target>
             </trans-unit>
             <trans-unit id="eVqjepW">
                 <source>label.guided_project_payment_shipping</source>
@@ -1241,6 +1277,18 @@
             <trans-unit id="DLUGUip">
                 <source>label.guided_step_payment_payment_link_start</source>
                 <target>Open the form</target>
+            </trans-unit>
+            <trans-unit id="xhwf0i6">
+                <source>label.guided_step_payment_refund_check_detail</source>
+                <target>Open a refunded order</target>
+            </trans-unit>
+            <trans-unit id="rx88bG5">
+                <source>label.guided_step_payment_refund_check_fields</source>
+                <target>Read what the refund changed</target>
+            </trans-unit>
+            <trans-unit id="ZTHgJYl">
+                <source>label.guided_step_payment_refund_check_open</source>
+                <target>Open the refunded orders</target>
             </trans-unit>
             <trans-unit id="01Ctvcm">
                 <source>label.guided_step_payment_shipping_done</source>
@@ -1578,6 +1626,10 @@
                 <source>label.ordered_items</source>
                 <target>Ordered items</target>
             </trans-unit>
+            <trans-unit id="foQphvR">
+                <source>label.partial_refunds</source>
+                <target>Orders refunded in part</target>
+            </trans-unit>
             <trans-unit id="CtBIYWp">
                 <source>label.pay</source>
                 <target>Pay</target>
@@ -1661,6 +1713,14 @@
             <trans-unit id="SxGGYuv">
                 <source>label.quantity</source>
                 <target>Quantity</target>
+            </trans-unit>
+            <trans-unit id="jcTWDZj">
+                <source>label.refunded_amount</source>
+                <target>Amount refunded</target>
+            </trans-unit>
+            <trans-unit id="J6P7XKV">
+                <source>label.refunded_at</source>
+                <target>Refunded on</target>
             </trans-unit>
             <trans-unit id="nS4remy">
                 <source>label.reminder_pay_explanation</source>
@@ -1934,6 +1994,10 @@
                 <source>text.counterparts_shipped</source>
                 <target>Counterparts were shipped on </target>
             </trans-unit>
+            <trans-unit id="1NHAIWI">
+                <source>text.credit_note_cancels</source>
+                <target>Cancels invoice %number% of %date%.</target>
+            </trans-unit>
             <trans-unit id="1BIdF4I">
                 <source>text.download_expires_on</source>
                 <target>— link valid until %date%</target>
@@ -1961,6 +2025,10 @@
             <trans-unit id="V0KGz2a">
                 <source>text.no_order_yet</source>
                 <target>You have not placed any order yet.</target>
+            </trans-unit>
+            <trans-unit id="7jXivXQ">
+                <source>text.order_refunded</source>
+                <target>This order was refunded on %date%: what it included is no longer available.</target>
             </trans-unit>
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>

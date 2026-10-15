@@ -26,6 +26,7 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
+use c975L\PaymentBundle\Service\BasketRefundService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -241,6 +242,7 @@ class PaymentLinkTest extends TestCase
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),
+            $this->createStub(BasketRefundService::class),
         );
     }
 

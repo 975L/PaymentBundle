@@ -128,7 +128,7 @@
             </trans-unit>
             <trans-unit id="NoPky5P">
                 <source>narration.guided_step_payment_gateway_setup_webhook</source>
-                <target>Guarde el secreto del webhook: sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel; para Revolut, un comando lo declara y lo guarda, como detalla su procedimiento.</target>
+                <target>Guarde el secreto del webhook: sin él, el sitio rechaza las notificaciones del proveedor y ningún pedido se marca como pagado. Stripe lo da al crear el webhook en su panel, donde marcar checkout.session.completed, charge.refunded y charge.dispute.closed; para Revolut, un comando lo declara con ORDER_COMPLETED y DISPUTE_LOST y lo guarda, como detalla su procedimiento.</target>
             </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
@@ -213,6 +213,18 @@
             <trans-unit id="3spo3F_">
                 <source>narration.guided_step_payment_payment_link_start</source>
                 <target>Abra el formulario con el botón encima de la lista. No hay ninguna fila que seleccionar: el pedido lo escribe el formulario que abre.</target>
+            </trans-unit>
+            <trans-unit id=".fx7r3M">
+                <source>narration.guided_step_payment_refund_check_detail</source>
+                <target>Abra un pedido reembolsado: allí figuran su estado, la fecha y el importe reembolsados.</target>
+            </trans-unit>
+            <trans-unit id=".A2y.C7">
+                <source>narration.guided_step_payment_refund_check_fields</source>
+                <target>Lea lo que cambió el reembolso. Se hace en el proveedor, y el sitio lo lee en su webhook. Total o disputa perdida: el pedido pasa a Reembolsado, lo que vendió deja de entregarse y la tarjeta regalo que se usó se vuelve a acreditar. Parcial: el pedido sigue pagado y el panel lo señala durante 30 días; si el acceso debe retirarse, reembolse el resto en el proveedor.</target>
+            </trans-unit>
+            <trans-unit id="3h70wsT">
+                <source>narration.guided_step_payment_refund_check_open</source>
+                <target>Abra los pedidos reembolsados: la lista está filtrada en aquellos de los que al menos una parte se devolvió al cliente.</target>
             </trans-unit>
             <trans-unit id="BppffwD">
                 <source>narration.guided_step_payment_shipping_done</source>

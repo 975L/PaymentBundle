@@ -15,6 +15,7 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\PaymentGatewayInterface;
 use c975L\PaymentBundle\Management\PaymentAlertProvider;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use PHPUnit\Framework\TestCase;
@@ -48,6 +49,36 @@ class PaymentAlertProviderTest extends TestCase
             ['label.payment_keys_missing', 'label.shop_email_bcc_missing'],
             array_column($alerts, 'label'),
         );
+    }
+
+    // A partial refund leaves the order paid, and only the shopkeeper can say whether it should have taken the access back
+    public function testRecentPartialRefundsAreAlerted(): void
+    {
+        $alerts = $this->provider('stripe', true, false, partialRefunds: 2)->getAlerts();
+
+        $this->assertCount(1, $alerts);
+        $this->assertSame('label.partial_refunds', $alerts[0]['label']);
+        $this->assertSame(Config::SEVERITY_WARNING, $alerts[0]['severity']);
+    }
+
+    // The alert counts orders the index would otherwise list among all the others: it opens on those money went back on
+    public function testThePartialRefundsAlertOpensOnTheRefundedOrders(): void
+    {
+        $calls = [];
+        $urlGenerator = $this->createStub(AdminUrlGeneratorInterface::class);
+        $urlGenerator->method('unsetAll')->willReturnSelf();
+        $urlGenerator->method('setController')->willReturnSelf();
+        $urlGenerator->method('setAction')->willReturnSelf();
+        $urlGenerator->method('generateUrl')->willReturn('/admin/basket');
+        $urlGenerator->method('set')->willReturnCallback(function (string $name, mixed $value) use (&$calls, $urlGenerator) {
+            $calls[] = [$name, $value];
+
+            return $urlGenerator;
+        });
+
+        $this->provider('stripe', true, false, urlGenerator: $urlGenerator, partialRefunds: 2)->getAlerts();
+
+        $this->assertSame([['filters', ['refundedAmount' => ['comparison' => '>', 'value' => 0]]]], $calls);
     }
 
     public function testAGatewayWithoutItsKeysIsAlerted(): void
@@ -100,8 +131,11 @@ class PaymentAlertProviderTest extends TestCase
         );
     }
 
-    private function provider(string $activeSlug, bool $configured, bool $testMode, string $bcc = 'archive@shop.test', ?AdminUrlGeneratorInterface $urlGenerator = null): PaymentAlertProvider
+    private function provider(string $activeSlug, bool $configured, bool $testMode, string $bcc = 'archive@shop.test', ?AdminUrlGeneratorInterface $urlGenerator = null, int $partialRefunds = 0): PaymentAlertProvider
     {
+        $basketRepository = $this->createStub(BasketRepository::class);
+        $basketRepository->method('countPartiallyRefundedSince')->willReturn($partialRefunds);
+
         $gateway = $this->createStub(PaymentGatewayInterface::class);
         $gateway->method('getSlug')->willReturn('stripe');
         $gateway->method('isConfigured')->willReturn($configured);
@@ -136,6 +170,7 @@ class PaymentAlertProviderTest extends TestCase
             $configService,
             $urlGenerator,
             $translator,
+            $basketRepository,
         );
     }
 }

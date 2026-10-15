@@ -25,10 +25,10 @@
 
     {# The address of the order just written, shown once and on the page that wrote it - it is what the admin came for, and it is copied rather than read #}
     {% for url in app.flashes('payment_link_url') %}
-        <div class="alert alert-success">
+        <twig:ea:Alert variant="success">
             <p>{{ 'label.payment_link_url'|trans({}, 'payment') }}</p>
             <p><a href="{{ url }}" target="_blank" rel="noopener">{{ url }}</a></p>
-        </div>
+        </twig:ea:Alert>
     {% endfor %}
 
     {{ form(form) }}

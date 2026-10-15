@@ -36,6 +36,7 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
         private readonly ConfigServiceInterface $configService,
         private readonly PaymentTestModeInterface $testMode,
         private readonly StripeSessionReader $sessionReader,
+        private readonly StripeChargeReader $chargeReader,
     ) {
     }
 
@@ -86,7 +87,7 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
         StripeSession::retrieve($reference)->expire();
     }
 
-    // Only "checkout.session.completed" says a basket is paid; every other event Stripe is configured to send is authentic and of no interest here, hence a null rather than a refusal
+    // "checkout.session.completed" says a basket is paid, "charge.refunded" and "charge.dispute.closed" that money went back; every other event Stripe is configured to send is authentic and of no interest here, hence a null rather than a refusal
     public function readNotification(Request $request): ?PaymentNotification
     {
         try {
@@ -99,11 +100,13 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
             throw new InvalidNotificationException($e->getMessage(), 0, $e);
         }
 
-        if ('checkout.session.completed' !== $event->type) {
-            return null;
-        }
-
-        return $this->sessionReader->read($event->data->object);
+        // A payment, a refund (partial ones included, the total decided further on) and a dispute the shop lost are the three events the site acts on - they are the ones to tick in the Stripe dashboard
+        return match ($event->type) {
+            'checkout.session.completed' => $this->sessionReader->read($event->data->object),
+            'charge.refunded' => $this->chargeReader->readRefund($event->data->object),
+            'charge.dispute.closed' => $this->chargeReader->readDispute($event->data->object),
+            default => null,
+        };
     }
 
     // The customer coming back from Stripe, which is only ever a session id to look up: the session is re-read from Stripe itself, so a url typed by hand confirms nothing

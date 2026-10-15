@@ -290,6 +290,17 @@
         "description": "description.shop_invoice_prefix"
     },
     {
+        "label": "label.shop_credit_note_prefix",
+        "slug": "shop-credit-note-prefix",
+        "sensitive": false,
+        "restricted": false,
+        "value": "AV",
+        "kind": "text",
+        "group": "shop",
+        "severity": "warning",
+        "description": "description.shop_credit_note_prefix"
+    },
+    {
         "label": "label.shop_invoice_mentions",
         "slug": "shop-invoice-mentions",
         "sensitive": false,

@@ -38,6 +38,10 @@
                 <source>description.revolut_webhook_secret_test</source>
                 <target>Secreto de firma del webhook de Revolut en el entorno de pruebas, usado cuando los pagos de prueba están activados</target>
             </trans-unit>
+            <trans-unit id="4lepQOA">
+                <source>description.shop_credit_note_prefix</source>
+                <target>Las letras delante del año y del número, por ejemplo AV para AV2026-0001. Se emite una factura rectificativa cuando un pedido facturado se reembolsa por completo o se pierde en una disputa, en una serie distinta de la de las facturas.</target>
+            </trans-unit>
             <trans-unit id="OkQCTnA">
                 <source>description.shop_currency</source>
                 <target>Código ISO de 3 letras de la moneda, ej. EUR</target>
@@ -149,6 +153,10 @@
             <trans-unit id="jIPZSfz">
                 <source>label.revolut_webhook_secret_test</source>
                 <target>Secreto del webhook de prueba de Revolut</target>
+            </trans-unit>
+            <trans-unit id="3.1PnJN">
+                <source>label.shop_credit_note_prefix</source>
+                <target>Prefijo de las facturas rectificativas</target>
             </trans-unit>
             <trans-unit id="QXc9sdb">
                 <source>label.shop_currency</source>

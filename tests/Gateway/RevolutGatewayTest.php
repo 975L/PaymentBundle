@@ -12,12 +12,15 @@ namespace c975L\PaymentBundle\Tests\Gateway;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\CheckoutRequest;
+use c975L\PaymentBundle\Contract\PaymentNotification;
+use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Gateway\RevolutGateway;
 use c975L\PaymentBundle\Gateway\RevolutOrderReader;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -131,6 +134,67 @@ class RevolutGatewayTest extends TestCase
         $this->assertSame('42', $notification?->basketId);
     }
 
+    // A refund completes as an order of its own, read once on the version naming the order it was taken from, whose running total is what the notification carries
+    public function testACompletedRefundIsReadThroughTheOriginalOrder(): void
+    {
+        $versions = [];
+        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$versions) {
+            $versions[] = $this->header($options, 'Revolut-Api-Version');
+
+            return new MockResponse(json_encode(match (true) {
+                str_ends_with($url, '/orders/ref_1') => ['id' => 'ref_1', 'type' => 'refund', 'state' => 'completed', 'related_order_id' => 'ord_1'],
+                str_ends_with($url, '/orders/ord_1') => ['id' => 'ord_1', 'type' => 'payment', 'state' => 'completed', 'refunded_amount' => 2500],
+            }));
+        });
+
+        $notification = $this->gateway($this->configService(['revolut-webhook-secret' => 'wsk_1', 'revolut-secret' => 'sk_live_1']), false, $client)
+            ->readNotification($this->webhookRequest('{"event":"ORDER_COMPLETED","order_id":"ref_1"}', 'wsk_1'));
+
+        $this->assertSame('ord_1', $notification?->transactionId);
+        $this->assertSame(2500, $notification?->amount);
+        $this->assertSame(PaymentEvent::Refunded, $notification?->event);
+        $this->assertSame(['2024-09-01', '2024-09-01'], $versions, 'The refund is read once, then its original');
+    }
+
+    // A refund naming no original will name none on a replay either: dropped rather than refused
+    public function testARefundNamingNoOriginalIsDropped(): void
+    {
+        $client = new MockHttpClient(new MockResponse(json_encode(['id' => 'ref_1', 'type' => 'refund', 'state' => 'completed'])));
+
+        $this->assertNull($this->gateway($this->configService(['revolut-webhook-secret' => 'wsk_1', 'revolut-secret' => 'sk_live_1']), false, $client)
+            ->readNotification($this->webhookRequest('{"event":"ORDER_COMPLETED","order_id":"ref_1"}', 'wsk_1')));
+    }
+
+    // An original still counting nothing refunded is refused while Revolut may still catch up
+    public function testARecentRefundCountedOnNoOrderIsRefused(): void
+    {
+        $this->expectException(InvalidNotificationException::class);
+
+        $this->readRefundCountedOnNoOrder(time() - 60);
+    }
+
+    // A day after the refund, a replay would change nothing: dropped rather than refused again
+    public function testAnOldRefundCountedOnNoOrderIsDropped(): void
+    {
+        $this->assertNull($this->readRefundCountedOnNoOrder(time() - 2 * 86400));
+    }
+
+    // The dispute event names the dispute alone, read back for its outcome and its order
+    public function testALostDisputeIsReadBack(): void
+    {
+        $client = new MockHttpClient(function (string $method, string $url) {
+            $this->assertStringEndsWith('/disputes/dsp_1', $url);
+
+            return new MockResponse(json_encode(['id' => 'dsp_1', 'state' => 'lost', 'amount' => 2500, 'payment' => ['order_id' => 'ord_1']]));
+        });
+
+        $notification = $this->gateway($this->configService(['revolut-webhook-secret' => 'wsk_1', 'revolut-secret' => 'sk_live_1']), false, $client)
+            ->readNotification($this->webhookRequest('{"event":"DISPUTE_LOST","dispute_id":"dsp_1"}', 'wsk_1'));
+
+        $this->assertSame('ord_1', $notification?->transactionId);
+        $this->assertSame(PaymentEvent::ChargebackLost, $notification?->event);
+    }
+
     // Every other event the webhook is subscribed to is authentic and of no interest here, and Revolut is not called about it
     public function testAnEventThatIsNotAnOrderCompletionConfirmsNothing(): void
     {
@@ -166,7 +230,7 @@ class RevolutGatewayTest extends TestCase
 
         $this->assertSame('wsk_1', $secret);
         $this->assertSame('https://example.com/payment/webhook/revolut', $body['url']);
-        $this->assertSame(['ORDER_COMPLETED'], $body['events']);
+        $this->assertSame(['ORDER_COMPLETED', 'DISPUTE_LOST'], $body['events']);
     }
 
     // A webhook declared without a secret to check its events with settles nothing, and would look like a finished setup
@@ -218,7 +282,19 @@ class RevolutGatewayTest extends TestCase
         $mode = $this->createStub(PaymentTestModeInterface::class);
         $mode->method('isEnabled')->willReturn($testMode);
 
-        return new RevolutGateway($configService, $client ?? new MockHttpClient(), $mode, new RevolutOrderReader());
+        return new RevolutGateway($configService, $client ?? new MockHttpClient(), $mode, new RevolutOrderReader(), new NullLogger());
+    }
+
+    // A refund made at the given time, whose original order still counts nothing refunded
+    private function readRefundCountedOnNoOrder(int $createdAt): ?PaymentNotification
+    {
+        $client = new MockHttpClient(fn (string $method, string $url) => new MockResponse(json_encode(match (true) {
+            str_ends_with($url, '/orders/ref_1') => ['id' => 'ref_1', 'type' => 'refund', 'state' => 'completed', 'related_order_id' => 'ord_1', 'created_at' => date(\DATE_ATOM, $createdAt)],
+            str_ends_with($url, '/orders/ord_1') => ['id' => 'ord_1', 'type' => 'payment', 'state' => 'completed', 'refunded_amount' => 0],
+        })));
+
+        return $this->gateway($this->configService(['revolut-webhook-secret' => 'wsk_1', 'revolut-secret' => 'sk_live_1']), false, $client)
+            ->readNotification($this->webhookRequest('{"event":"ORDER_COMPLETED","order_id":"ref_1"}', 'wsk_1'));
     }
 
     private function checkoutRequest(): CheckoutRequest
@@ -234,6 +310,18 @@ class RevolutGatewayTest extends TestCase
             'buyer@example.com',
             ['basket_id' => '42', 'order_number' => '202608-AB-12345'],
         );
+    }
+
+    // The header as HttpClient normalised it, a list of "Name: value" lines
+    private function header(array $options, string $name): ?string
+    {
+        foreach ($options['headers'] ?? [] as $line) {
+            if (is_string($line) && str_starts_with(strtolower($line), strtolower($name) . ':')) {
+                return trim(substr($line, strlen($name) + 1));
+            }
+        }
+
+        return null;
     }
 
     private function webhookRequest(string $payload, string $secret, ?int $timestamp = null): Request

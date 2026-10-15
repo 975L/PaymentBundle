@@ -21,6 +21,7 @@ use c975L\PaymentBundle\Contract\WeighableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
+use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
@@ -70,6 +71,7 @@ class BasketService implements BasketServiceInterface
         private readonly VatCalculator $vatCalculator,
         private readonly InvoiceService $invoiceService,
         private readonly ShippingRateResolverInterface $shippingRateResolver,
+        private readonly BasketRefundService $refundService,
     ) {
         try {
             $this->session = $this->requestStack->getSession();
@@ -651,7 +653,7 @@ class BasketService implements BasketServiceInterface
         }
 
         // Whichever path numbered it, an order is no longer the visitor's current basket - but only when the session names this one: on a shared order the visitor here is the payer, and their own basket is none of this order's business
-        if ($basket->getStatus()->isSettled() && $this->session?->get('basket') === $basket->getId()) {
+        if ($basket->getStatus()->isRecorded() && $this->session?->get('basket') === $basket->getId()) {
             $this->session->remove('basket');
         }
     }
@@ -675,7 +677,7 @@ class BasketService implements BasketServiceInterface
         }
 
         // The url names one basket and the provider answers about another: nothing is confirmed on somebody else's payment
-        if (null !== $notification && $notification->basketId === (string) $basket->getId()) {
+        if (null !== $notification && PaymentEvent::Paid === $notification->event && $notification->basketId === (string) $basket->getId()) {
             $this->applyNotification($notification);
         }
     }
@@ -702,7 +704,8 @@ class BasketService implements BasketServiceInterface
         if (null === $basket) {
             throw new \Exception('Basket not found');
         }
-        if (BasketStatus::Shipped !== $basket->getStatus()) {
+        // Only a paid order leaves: a shipped one has already gone, and a refunded one going out would read as "shipped" again and hand back what the refund took away
+        if (BasketStatus::Paid === $basket->getStatus()) {
             $items = $basket->getItems();
 
             // Items
@@ -910,10 +913,10 @@ class BasketService implements BasketServiceInterface
         }
     }
 
-    // A basket that has been paid for, or shipped, and is an order rather than something still being filled
+    // A basket that has been paid for, shipped or refunded since, and is an order rather than something still being filled: a refunded one reopened would be a sale numbered twice
     private function isOrder(Basket $basket): bool
     {
-        return $basket->getStatus()->isSettled();
+        return $basket->getStatus()->isRecorded();
     }
 
     // A basket edited after it was validated no longer matches the checkout the customer is looking at, so it goes back to being a basket. The checkout left open at the provider can then deliver nothing - paid() only ever delivers a "validated" basket - and validate() numbers it again, with a new order number and a new security token that make the old return url useless
@@ -1083,10 +1086,16 @@ class BasketService implements BasketServiceInterface
         );
     }
 
-    // Records a payment the provider confirms and delivers the basket it settles, whether the provider said so through its webhook or when asked on the customer's return
+    // Records a payment the provider confirms and delivers the basket it settles, whether the provider said so through its webhook or when asked on the customer's return. Money going back is BasketRefundService's business, which finds its order on its own
     public function applyNotification(PaymentNotification $notification): void
     {
-        $basket = $this->basketRepository->find($notification->basketId);
+        if (PaymentEvent::Paid !== $notification->event) {
+            $this->refundService->apply($notification);
+
+            return;
+        }
+
+        $basket = null !== $notification->basketId ? $this->basketRepository->find($notification->basketId) : null;
         if (null === $basket) {
             // Answering an error would have the provider replay this notification for days over a basket that is not coming back
             $this->logger->error('Payment notification names an unknown basket', ['basket' => $notification->basketId, 'gateway' => $notification->gateway]);

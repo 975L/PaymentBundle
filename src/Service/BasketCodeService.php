@@ -125,6 +125,25 @@ class BasketCodeService
         return null !== $discount && $this->discountRepository->claimUse($discount);
     }
 
+    // Gives back to the gift card what a refunded order took off it, once (see BasketRepository::claimRefunded()), and says whether there was a card to credit - a promotional code's quota is not handed back
+    public function restore(Basket $basket): bool
+    {
+        $code = $basket->getDiscountCode();
+
+        if (null === $code || $basket->getDiscountAmount() <= 0 || Basket::CODE_KIND_GIFT_CARD !== $basket->getDiscountKind()) {
+            return true;
+        }
+
+        $giftCard = $this->giftCardRepository->findOneByCode($code);
+        if (null === $giftCard) {
+            return false;
+        }
+
+        $this->giftCardRepository->creditAmount($giftCard, $basket->getDiscountAmount());
+
+        return true;
+    }
+
     /**
      * @return array{kind: string|null, code: string|null, amount: int, error: string|null}
      */

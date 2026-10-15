@@ -14,9 +14,12 @@ use c975L\ConfigBundle\Controller\Management\ConfigCrudController;
 use c975L\ConfigBundle\Entity\Config;
 use c975L\ConfigBundle\Management\AlertProviderInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Controller\Management\BasketCrudController;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -29,12 +32,13 @@ class PaymentAlertProvider implements AlertProviderInterface
         private readonly ConfigServiceInterface $configService,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly TranslatorInterface $translator,
+        private readonly BasketRepository $basketRepository,
     ) {
     }
 
     public function getAlerts(): array
     {
-        return [...$this->gatewayAlerts(), ...$this->archiveAlerts()];
+        return [...$this->gatewayAlerts(), ...$this->archiveAlerts(), ...$this->partialRefundAlerts()];
     }
 
     /**
@@ -88,6 +92,30 @@ class PaymentAlertProvider implements AlertProviderInterface
             Config::GROUP_PAYMENT,
             false,
         )];
+    }
+
+    // Whether recent orders were refunded in part and still hand over what they sold - a gesture on the postage, or a full refund typed short at the provider, which only the shopkeeper can tell apart: said for a month, the date moving on with every further refund
+    /** @return list<array{label: string, description: ?string, severity: Config::SEVERITY_*, url: string, role?: string}> */
+    private function partialRefundAlerts(): array
+    {
+        $count = $this->basketRepository->countPartiallyRefundedSince(new \DateTime('-30 days'));
+        if (0 === $count) {
+            return [];
+        }
+
+        return [[
+            'label' => $this->translator->trans('label.partial_refunds', [], 'payment'),
+            'description' => $this->translator->trans('description.partial_refunds', ['%count%' => $count], 'payment'),
+            'severity' => Config::SEVERITY_WARNING,
+            // Opened on the orders money went back on, the refund being shown on the order alone
+            'url' => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(BasketCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set('filters', ['refundedAmount' => ['comparison' => ComparisonType::GT, 'value' => 0]])
+                ->generateUrl(),
+            'role' => (string) $this->configService->get('site-role-admin'),
+        ]];
     }
 
     /**

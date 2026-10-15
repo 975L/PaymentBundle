@@ -1,0 +1,5 @@
+{# <twig:c975LPayment:Basket:RefundedBadge basket="{{ basket }}"/> - the line under an order's number in a list of orders, where Basket:Refunded says it in full on the order itself #}
+{% trans_default_domain 'payment' %}
+{% if basket.status == constant('c975L\\PaymentBundle\\Enum\\BasketStatus::Refunded') %}
+    <br><small>{{ 'label.basket_status_refunded'|trans }}{% if basket.refundedAt %} {{ basket.refundedAt|date('d/m/Y') }}{% endif %}</small>
+{% endif %}

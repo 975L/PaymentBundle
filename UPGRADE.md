@@ -1,5 +1,26 @@
 # UPGRADE
 
+## v6.20 > v6.21
+
+**A refund or a lost chargeback takes the order back.** `payment_basket` gains `refunded_at` (nullable),
+`refunded_amount` (integer, default 0), `credit_note_number` (nullable, unique) and `credit_note_date` (nullable), and
+`payment_invoice_sequence` gains `kind` (default `invoice`), its unique index moving from the year to the kind and the
+year - generate the migration with `doctrine:migrations:diff` and run it. Nothing to fill on the orders already taken,
+and the existing counters keep numbering the invoices. The credit notes take the new `shop-credit-note-prefix` (`AV`). Then tell the providers to send the new events:
+
+- **Stripe**, in each dashboard (live and test): edit the endpoint `https://your-website.com/payment/webhook/stripe`
+  and add `charge.refunded` and `charge.dispute.closed` beside `checkout.session.completed`. Editing an endpoint
+  keeps its signing secret, nothing to copy.
+- **Revolut**, once per account (test mode on, then off): `php bin/console c975l:payment:revolut:webhook --replace`.
+  The webhook gains `DISPUTE_LOST` and its signing secret changes, the command storing the new one.
+
+Orders refunded before the upgrade stay `paid` - the provider sent nothing the site listened to. Set them by hand if
+they matter (`dbal:run-sql`: `UPDATE payment_basket SET status = 'refunded', refunded_at = NOW() WHERE number IN (...)`).
+
+A site calling `new PaymentNotification(...)` itself is unaffected: the new `$event` argument defaults to a payment,
+and `$basketId` only becomes nullable. A site decorating `BasketService` passes the new `BasketRefundService` on. A
+site building `RevolutGateway` by hand passes it a `LoggerInterface` as its last argument.
+
 ## v6.19 > v6.20
 
 **The basket status is the `BasketStatus` enum.** `Basket::getStatus()` returns it and `setStatus()` takes it: a

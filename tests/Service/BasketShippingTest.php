@@ -21,6 +21,7 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
+use c975L\PaymentBundle\Service\BasketRefundService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -75,6 +76,18 @@ class BasketShippingTest extends TestCase
 
         $this->assertNotNull($basket->getItemsShipped());
         $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
+    }
+
+    // A refunded order going out would read as shipped again, and hand back what the refund took away
+    public function testARefundedOrderIsNotShipped(): void
+    {
+        $basket = $this->basket(['product' => [1 => []]])->setStatus(BasketStatus::Refunded);
+
+        $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
+
+        $this->assertNull($basket->getItemsShipped());
+        $this->assertSame(BasketStatus::Refunded, $basket->getStatus());
+        $this->assertNull($this->dispatched);
     }
 
     // Two kinds, shipped by two hands: the first one moves nothing but its own date
@@ -183,6 +196,7 @@ class BasketShippingTest extends TestCase
             new VatCalculator($this->createStub(BasketItemProviderRegistry::class)),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),
+            $this->createStub(BasketRefundService::class),
         );
     }
 }

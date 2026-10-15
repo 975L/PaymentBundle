@@ -19,6 +19,7 @@ use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
 use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -46,6 +47,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             $this->orderEmailsProject(),
             $this->testModeProject(),
             $this->transactionReviewProject(),
+            $this->refundCheckProject(),
             $this->paymentLinkProject(),
             $this->giftCardIssueProject(),
             $this->discountCodeProject(),
@@ -283,6 +285,44 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_transaction_review_basket',
                     'description' => 'description.guided_step_payment_transaction_review_basket',
                     'narration' => 'narration.guided_step_payment_transaction_review_basket',
+                ],
+            ],
+        ];
+    }
+
+    // A refund is made at the provider and read off its webhook: this says what the site did with it, starting from the orders the dashboard's partial refunds alert opens on
+    private function refundCheckProject(): array
+    {
+        return [
+            'slug' => 'payment-refund-check',
+            'label' => 'label.guided_project_payment_refund_check',
+            'description' => 'description.guided_project_payment_refund_check',
+            'translation_domain' => 'payment',
+            // Next to the payments' reconciliation, a refund being the same money read the other way
+            'order' => 7025,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_refund_check_open',
+                    'description' => 'description.guided_step_payment_refund_check_open',
+                    'narration' => 'narration.guided_step_payment_refund_check_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(BasketCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('filters', ['refundedAmount' => ['comparison' => ComparisonType::GT, 'value' => 0]])
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_refund_check_detail',
+                    'description' => 'description.guided_step_payment_refund_check_detail',
+                    'narration' => 'narration.guided_step_payment_refund_check_detail',
+                    'highlight' => '.action-detail',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_refund_check_fields',
+                    'description' => 'description.guided_step_payment_refund_check_fields',
+                    'narration' => 'narration.guided_step_payment_refund_check_fields',
                 ],
             ],
         ];

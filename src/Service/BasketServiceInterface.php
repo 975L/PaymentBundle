@@ -97,13 +97,7 @@ interface BasketServiceInterface
      */
     public function getJson(): array;
 
-    /**
-     * Applies a payment the provider confirms to the basket it references, called from the webhook -
-     * and delivers the basket it settles.
-     *
-     * A notification naming no known basket, or an amount other than the one the basket was numbered for, is
-     * logged and dropped rather than raised: the provider would replay it for days over something it cannot fix.
-     */
+    // Applies a provider's notification from the webhook: a payment settles and delivers its basket, a full refund or a lost chargeback takes it back (see BasketRefundService), and what names no known basket or the wrong amount is logged and dropped rather than replayed for days
     public function applyNotification(PaymentNotification $notification): void;
 
     /**

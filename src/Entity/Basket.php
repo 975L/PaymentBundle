@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
 #[ORM\Table(name: 'payment_basket')]
 #[ORM\UniqueConstraint(name: 'uniq_basket_invoice_number', columns: ['invoice_number'])]
+#[ORM\UniqueConstraint(name: 'uniq_basket_credit_note_number', columns: ['credit_note_number'])]
 #[UniqueEntity('number')]
 class Basket implements \Stringable
 {
@@ -161,6 +162,14 @@ class Basket implements \Stringable
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $archived = null;
 
+    // When the provider last reported money handed back: the date the customer area and the back office show beside the "refunded" status, which says what but not when. Set on a partial refund too, the order then staying paid - which is what lets the dashboard tell the shopkeeper about the recent ones (see PaymentAlertProvider)
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $refundedAt = null;
+
+    // What the provider has handed back so far, in the currency's smallest unit, as the provider totals it: a partial refund leaves the order paid and is only told to the shopkeeper, who decides what it takes away
+    #[ORM\Column(options: ['default' => 0])]
+    private int $refundedAmount = 0;
+
     // How many reminders an abandoned basket has already been sent, so the second one is not the first one over again. Counted here rather than read from "modification": the retention pass reads that date to know when the visitor last touched their basket, and a reminder writing to it would push the purge back every time it fires
     #[ORM\Column(type: 'smallint', options: ['default' => 0])]
     private int $remindersSent = 0;
@@ -198,6 +207,13 @@ class Basket implements \Stringable
     // The registration numbers, the VAT number, or the article exempting the shop from charging any. Frozen for the sharpest reason of the four: a shopkeeper crossing the VAT threshold rewrites these, and every invoice issued before that day must keep saying what it said
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $invoiceMentions = null;
+
+    // The credit note cancelling the invoice once the order is refunded in full or lost to a chargeback, numbered in a series of its own (see InvoiceService::assignCreditNote()). It states the invoice's own seller and mentions, so nothing more is frozen for it. Null on every order not taken back, and on one that was never invoiced
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $creditNoteNumber = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $creditNoteDate = null;
 
     // Whoever the gift cards of this order were bought for, and what the buyer wanted said to them. One address per order, not one per card: a shopper buying two cards for the same person is the ordinary case, and asking twice for two lines that go to the same mailbox helps nobody
     #[ORM\Column(length: 255, nullable: true)]
@@ -572,6 +588,30 @@ class Basket implements \Stringable
         return $this;
     }
 
+    public function getRefundedAt(): ?\DateTimeInterface
+    {
+        return $this->refundedAt;
+    }
+
+    public function setRefundedAt(?\DateTimeInterface $refundedAt): static
+    {
+        $this->refundedAt = $refundedAt;
+
+        return $this;
+    }
+
+    public function getRefundedAmount(): int
+    {
+        return $this->refundedAmount;
+    }
+
+    public function setRefundedAmount(int $refundedAmount): static
+    {
+        $this->refundedAmount = $refundedAmount;
+
+        return $this;
+    }
+
     public function getRemindersSent(): int
     {
         return $this->remindersSent;
@@ -786,6 +826,30 @@ class Basket implements \Stringable
         $this->invoiceSellerAddress = $address;
         $this->invoiceSellerEmail = $email;
         $this->invoiceMentions = $mentions;
+
+        return $this;
+    }
+
+    public function getCreditNoteNumber(): ?string
+    {
+        return $this->creditNoteNumber;
+    }
+
+    public function setCreditNoteNumber(?string $creditNoteNumber): static
+    {
+        $this->creditNoteNumber = $creditNoteNumber;
+
+        return $this;
+    }
+
+    public function getCreditNoteDate(): ?\DateTimeInterface
+    {
+        return $this->creditNoteDate;
+    }
+
+    public function setCreditNoteDate(?\DateTimeInterface $creditNoteDate): static
+    {
+        $this->creditNoteDate = $creditNoteDate;
 
         return $this;
     }

@@ -197,12 +197,35 @@ class BasketController extends AbstractController
         // Numbered when it was paid, so an order still being settled has nothing to show and a wrong token has nothing to guess at
         $pdf = null === $basket ? null : $this->invoiceService->pdf($basket);
 
+        return $this->pdfResponse($pdf, null === $basket ? '' : $this->invoiceService->filename($basket));
+    }
+
+    // CREDIT NOTE - the document cancelling the invoice of an order taken back, opened from the same order page
+    #[Route(
+        '/shop/basket/credit-note/{number:basket}/{securityToken:basket}',
+        name: 'basket_credit_note_pdf',
+        requirements: [
+            'number' => '.{15,20}',
+            'securityToken' => '[a-f0-9]{16}',
+        ],
+        methods: ['GET']
+    )]
+    public function creditNote(?Basket $basket): Response
+    {
+        $pdf = null === $basket ? null : $this->invoiceService->creditNotePdf($basket);
+
+        return $this->pdfResponse($pdf, null === $basket ? '' : $this->invoiceService->creditNoteFilename($basket));
+    }
+
+    // A document of the order, or a 404 when there is none to show
+    private function pdfResponse(?string $pdf, string $filename): Response
+    {
         if (null === $pdf) {
             throw $this->createNotFoundException();
         }
 
         $response = new Response($pdf, Response::HTTP_OK, ['Content-Type' => 'application/pdf']);
-        $response->headers->set('Content-Disposition', $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $this->invoiceService->filename($basket)));
+        $response->headers->set('Content-Disposition', $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $filename));
 
         // Somebody's name, address and what they bought: never cached anywhere but the browser that asked for it, and never indexed
         $response->headers->set('X-Robots-Tag', 'noindex,nofollow,noarchive');

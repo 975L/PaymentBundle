@@ -50,7 +50,7 @@ class PaymentRepositoryTest extends TestCase
 
         $this->assertStringContainsString('b.id IS NULL OR b.status NOT IN (:delivered)', $this->dql);
         $this->assertStringContainsString('p.isFinished = true', $this->dql);
-        $this->assertSame(BasketStatus::SETTLED, $this->parameters['delivered']);
+        $this->assertSame(BasketStatus::RECORDED, $this->parameters['delivered']);
     }
 
     // The query the repository builds is read back through the DQL the entity manager is handed, the rest of it being Doctrine's own

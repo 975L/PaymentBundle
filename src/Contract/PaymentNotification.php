@@ -10,16 +10,18 @@
 
 namespace c975L\PaymentBundle\Contract;
 
-// A payment the provider confirms, reduced to what the site records of it - the gateway has already verified the signature and read the provider's own event shape, so BasketService never sees either
-// $amount is what the provider actually charged, in the currency's smallest unit: BasketService checks it against the amount the basket was numbered for, and a gateway that cannot report it leaves it null
+use c975L\PaymentBundle\Enum\PaymentEvent;
+
+// What a provider says about a payment - paid, refunded or charged back - reduced to what the site records of it. $amount is what the provider charged in the currency's smallest unit (on a refund the total handed back so far, on a lost chargeback what the bank took back), null when the gateway cannot report it; $basketId is null on a refund or a chargeback, the basket being found back from $transactionId
 final readonly class PaymentNotification
 {
     public function __construct(
-        public string $basketId,
+        public ?string $basketId,
         public string $gateway,
         public ?string $transactionId = null,
         public ?string $paymentMethod = null,
         public ?int $amount = null,
+        public PaymentEvent $event = PaymentEvent::Paid,
     ) {
     }
 }

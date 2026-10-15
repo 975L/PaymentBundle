@@ -57,6 +57,19 @@ class GiftCardRepository extends ServiceEntityRepository
         );
     }
 
+    // Gives an amount back to a card in one statement, the reverse of claimAmount(), with no condition on the switch or the expiry: the money was the customer's
+    public function creditAmount(GiftCard $giftCard, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE payment_gift_card SET balance = balance + :amount WHERE id = :id',
+            ['id' => $giftCard->getId(), 'amount' => $amount]
+        );
+    }
+
     /**
      * The cards one order paid for, which is what its confirmation email prints.
      *

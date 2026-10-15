@@ -1,7 +1,9 @@
-{# The invoice of a paid order, drawn on demand by InvoiceService::pdf() - a print document and not a page: no link, no picture, no script, nothing that means anything on paper #}
+{# The invoice of a paid order, drawn on demand by InvoiceService::pdf() - a print document and not a page: no link, no picture, no script, nothing that means anything on paper. The credit note cancelling it is the same document under its own title (see InvoiceService::creditNotePdf()) #}
 {% trans_default_domain 'payment' %}
+{% set credit_note = credit_note|default(false) %}
+{% set document = credit_note ? 'label.credit_note'|trans ~ ' ' ~ basket.creditNoteNumber : 'label.invoice'|trans ~ ' ' ~ basket.invoiceNumber %}
 <meta charset="utf-8">
-<title>{{ 'label.invoice'|trans }} {{ basket.invoiceNumber }}</title>
+<title>{{ document }}</title>
 <style>
     @page { size: A4; margin: 18mm 16mm; }
     body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #000; }
@@ -18,11 +20,12 @@
     .mentions { margin-top: 10mm; font-size: 8pt; white-space: pre-line; }
 </style>
 
-<h1>{{ 'label.invoice'|trans }} {{ basket.invoiceNumber }}</h1>
+<h1>{{ document }}</h1>
 <p>
     {{ 'label.order_number'|trans }} {{ basket.number }}<br>
-    {# The invoice's own date and not the order's last change, which moves the day the parcel goes out #}
-    {{ 'label.date'|trans }} {{ basket.invoiceDate|format_date('long') }}
+    {# The document's own date and not the order's last change, which moves the day the parcel goes out #}
+    {{ 'label.date'|trans }} {{ (credit_note ? basket.creditNoteDate : basket.invoiceDate)|format_date('long') }}
+    {% if credit_note %}<br>{{ 'text.credit_note_cancels'|trans({'%number%': basket.invoiceNumber, '%date%': basket.invoiceDate|format_date('long')}) }}{% endif %}
 </p>
 
 <table class="parties">

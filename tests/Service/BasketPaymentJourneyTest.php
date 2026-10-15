@@ -18,6 +18,7 @@ use c975L\PaymentBundle\Contract\ReturnAwareGatewayInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
+use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Message\ConfirmOrderMessage;
@@ -27,6 +28,7 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
+use c975L\PaymentBundle\Service\BasketRefundService;
 use c975L\PaymentBundle\Service\BasketService;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -226,6 +228,19 @@ class BasketPaymentJourneyTest extends TestCase
     public function testANotificationNamingAnUnknownBasketIsDroppedRatherThanRaised(): void
     {
         $this->service(null)->applyNotification(new PaymentNotification('404', 'stripe', 'pi_1', 'card', 2500));
+
+        $this->assertSame([], $this->delivered);
+    }
+
+    // Money going back is handed to the refund service whole, and never delivers anything - not even a basket still waiting for its payment
+    public function testARefundNotificationIsHandedOverAndDeliversNothing(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $notification = new PaymentNotification(null, 'stripe', 'pi_1', null, 2500, PaymentEvent::Refunded);
+        $refundService = $this->createMock(BasketRefundService::class);
+        $refundService->expects($this->once())->method('apply')->with($notification);
+
+        $this->service($basket, refundService: $refundService)->applyNotification($notification);
 
         $this->assertSame([], $this->delivered);
     }
@@ -745,7 +760,7 @@ class BasketPaymentJourneyTest extends TestCase
         return $testMode;
     }
 
-    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false, ?ShippingRateResolverInterface $shippingRateResolver = null): BasketService
+    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false, ?ShippingRateResolverInterface $shippingRateResolver = null, ?BasketRefundService $refundService = null): BasketService
     {
         // The one collaborator two of them are handed: the service prices the order through it, and so does the calculator
         $itemProviderRegistry = $this->itemProviderRegistry();
@@ -768,6 +783,7 @@ class BasketPaymentJourneyTest extends TestCase
             new VatCalculator($itemProviderRegistry),
             $invoiceService ?? $this->createStub(InvoiceService::class),
             $shippingRateResolver ?? $this->createStub(ShippingRateResolverInterface::class),
+            $refundService ?? $this->createStub(BasketRefundService::class),
         );
     }
 

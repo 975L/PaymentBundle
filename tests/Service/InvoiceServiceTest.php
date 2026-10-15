@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Entity\InvoiceSequence;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\InvoiceSequenceRepository;
 use c975L\PaymentBundle\Service\InvoiceService;
@@ -198,6 +199,57 @@ class InvoiceServiceTest extends TestCase
         ;
 
         $this->service(pdfGenerator: $pdfGenerator)->pdf(new Basket()->setInvoiceNumber('FA2026-0001'));
+    }
+
+    // A credit note is drawn from a series of its own, so the invoices' one keeps no gap where it was taken
+    public function testACreditNoteIsNumberedInItsOwnSeries(): void
+    {
+        $sequence = $this->createMock(InvoiceSequenceRepository::class);
+        $sequence->expects($this->once())->method('next')->with((int) new \DateTime()->format('Y'), InvoiceSequence::KIND_CREDIT_NOTE)->willReturn(3);
+
+        $basket = new Basket()->setInvoiceNumber('FA2026-0001');
+
+        $this->assertSame(sprintf('AV%d-0003', (int) new \DateTime()->format('Y')), $this->service(sequence: $sequence)->assignCreditNote($basket));
+        $this->assertSame($basket->getCreditNoteNumber(), sprintf('AV%d-0003', (int) new \DateTime()->format('Y')));
+        $this->assertNotNull($basket->getCreditNoteDate());
+    }
+
+    // No invoice, nothing to cancel - a rehearsal, never invoiced, included
+    public function testAnOrderNeverInvoicedGetsNoCreditNote(): void
+    {
+        $sequence = $this->createMock(InvoiceSequenceRepository::class);
+        $sequence->expects($this->never())->method('next');
+
+        $basket = new Basket()->setTestMode(true);
+
+        $this->assertNull($this->service(sequence: $sequence)->assignCreditNote($basket));
+        $this->assertNull($basket->getCreditNoteNumber());
+    }
+
+    // The credit note already held is the one the customer may have downloaded
+    public function testACreditNoteIsDrawnOnce(): void
+    {
+        $sequence = $this->createMock(InvoiceSequenceRepository::class);
+        $sequence->expects($this->never())->method('next');
+
+        $basket = new Basket()->setInvoiceNumber('FA2026-0001')->setCreditNoteNumber('AV2026-0001');
+
+        $this->assertSame('AV2026-0001', $this->service(sequence: $sequence)->assignCreditNote($basket));
+    }
+
+    // The same template, told which document it draws; nothing to draw for an order never taken back
+    public function testTheCreditNoteIsTheInvoiceUnderItsOwnTitle(): void
+    {
+        $pdfGenerator = $this->createMock(PdfGeneratorInterface::class);
+        $pdfGenerator->expects($this->once())->method('render')
+            ->with('@c975LPayment/invoice/pdf.html.twig', $this->callback(static fn (array $context): bool => true === $context['credit_note']))
+            ->willReturn('%PDF-1.7 a credit note');
+
+        $service = $this->service(pdfGenerator: $pdfGenerator);
+
+        $this->assertNull($service->creditNotePdf(new Basket()->setInvoiceNumber('FA2026-0001')));
+        $this->assertSame('%PDF-1.7 a credit note', $service->creditNotePdf(new Basket()->setInvoiceNumber('FA2026-0001')->setCreditNoteNumber('AV2026-0001')));
+        $this->assertSame('av2026-0001.pdf', $service->creditNoteFilename(new Basket()->setCreditNoteNumber('AV2026-0001')));
     }
 
     private function service(

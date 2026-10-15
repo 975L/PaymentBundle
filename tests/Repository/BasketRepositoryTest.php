@@ -89,7 +89,7 @@ class BasketRepositoryTest extends TestCase
 
         $this->assertStringContainsString('b.total + b.shipping - b.discountAmount > 0', $this->dql);
         $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
-        $this->assertSame(BasketStatus::SETTLED, $this->parameters['delivered']);
+        $this->assertSame(BasketStatus::RECORDED, $this->parameters['delivered']);
     }
 
     // "eur" and "EUR" are one and the same currency, and a check reporting them as two would report every order of a shop storing them differently on each side

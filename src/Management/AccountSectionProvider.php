@@ -31,7 +31,7 @@ class AccountSectionProvider implements AccountSectionProviderInterface
             'title' => 'label.my_orders',
             'translation_domain' => 'payment',
             'template' => '@c975LPayment/customer/_account_section.html.twig',
-            'context' => ['baskets' => $this->basketRepository->findPaidByUser($user, self::LATEST_ORDERS)],
+            'context' => ['baskets' => $this->basketRepository->findOrdersByUser($user, self::LATEST_ORDERS)],
             'position' => 10,
         ]];
     }

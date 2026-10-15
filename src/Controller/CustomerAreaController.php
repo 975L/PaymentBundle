@@ -53,7 +53,7 @@ class CustomerAreaController extends AbstractController
         }
 
         return $this->negotiator->vary($request, $this->render('@c975LPayment/customer/orders.html.twig', [
-            'baskets' => $this->basketRepository->findPaidByUser($this->getUser()),
+            'baskets' => $this->basketRepository->findOrdersByUser($this->getUser()),
         ]));
     }
 
@@ -70,13 +70,14 @@ class CustomerAreaController extends AbstractController
         $basket = $this->basketRepository->findOneBy(['number' => $number]);
 
         // Order numbers run in sequence, so one is guessed from the next: a basket that is not this user's own is answered as missing rather than as forbidden, which would confirm it exists
-        if (!$basket instanceof Basket || $basket->getUser() !== $this->getUser() || !$basket->getStatus()->isSettled()) {
+        if (!$basket instanceof Basket || $basket->getUser() !== $this->getUser() || !$basket->getStatus()->isRecorded()) {
             throw new NotFoundHttpException();
         }
 
+        // A refunded order is still shown, with its refund, but hands nothing over any more
         return $this->negotiator->vary($request, $this->render('@c975LPayment/customer/order.html.twig', [
             'basket' => $basket,
-            'downloads' => $this->basketDownloadRegistry->getDownloads($basket),
+            'downloads' => $basket->getStatus()->isSettled() ? $this->basketDownloadRegistry->getDownloads($basket) : [],
         ]));
     }
 }

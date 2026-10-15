@@ -122,7 +122,7 @@ A bundle showing a price of its own — a product sheet, a pack of credits — w
 
 **Not the same thing as `BasketDownloadProviderInterface` above, however much they look alike.** That one hands a bought **file** over to be downloaded, for as long as its emailed link lives. This one answers whether a **media** may be shown in the page at all — a paywalled photo, video or chapter.
 
-`BasketRepository::hasPaidFor()` takes the buyer (a `UserInterface` matched on the account, a string matched on the address), your `getKind()` and the id the item was added under, and says whether one of their paid or shipped orders holds it. It says the purchase happened; it says nothing about a delay and never expires on its own. No entity to add, no right to keep beside the orders.
+`BasketRepository::hasPaidFor()` takes the buyer (a `UserInterface` matched on the account, a string matched on the address), your `getKind()` and the id the item was added under, and says whether one of their paid or shipped orders holds it. It says the purchase happened; it says nothing about a delay and never expires on its own — but a refund in full or a lost chargeback, reported by the provider's webhook, sets the order `refunded` and the answer becomes no (a partial refund leaves it paid). No entity to add, no right to keep beside the orders.
 
 The paywall itself is yours, never this bundle's. Serve the file from outside `public/` with UiBundle's `PrivateFileResponseFactory::createInlineResponse()` — inline disposition, private response, and `Range` requests left to `BinaryFileResponse`, without which a video plays from its start and cannot be moved through. Never write the real path in the HTML, `src` attributes included. The teaser is yours too: the blurred thumbnail, the first seconds, and the button putting the media in the basket.
 
@@ -137,6 +137,7 @@ A page gating a whole gallery asks once per media, so keep the answer for the re
 - **Do not write anything in `validateCheckout()`** — it runs before the order exists.
 - **Do not mint a download link in `getDownloads()`** — hand over what the delivery made, with its `expiresAt`.
 - **Do not keep a right of your own beside the orders for a paywall** — `hasPaidFor()` reads them, and two records of the same purchase end up disagreeing.
+- **Do not override `findPaidByUser()` or `findPaidByEmail()` without their settled filter** — `hasPaidFor()` trusts them to leave the refunded orders out.
 - **Do not add `getCatalogueUrl()` to `BasketItemProviderInterface`** — it is optional, and a provider selling a one-off payment link must stay valid without it.
 - **Do not answer an address from `getCatalogueUrl()` for a catalogue nobody can browse** — `null` is the answer, and the button is then not drawn.
 - **Do not draw the recommendation strip's heading in the basket page** — `getTemplate()` names your markup, headings included, and it is included without the page's context.

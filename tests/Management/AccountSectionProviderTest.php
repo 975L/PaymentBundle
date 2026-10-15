@@ -25,7 +25,7 @@ class AccountSectionProviderTest extends TestCase
         $baskets = [new Basket()];
 
         $repository = $this->createMock(BasketRepository::class);
-        $repository->expects($this->once())->method('findPaidByUser')->with($user, 3)->willReturn($baskets);
+        $repository->expects($this->once())->method('findOrdersByUser')->with($user, 3)->willReturn($baskets);
 
         $sections = new AccountSectionProvider($repository)->getAccountSections($user);
 

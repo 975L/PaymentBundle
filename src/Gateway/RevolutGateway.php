@@ -21,6 +21,7 @@ use c975L\PaymentBundle\Contract\VerifiableGatewayInterface;
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
 use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -33,6 +34,8 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
 
     // The Merchant API refuses a call that names no version and answers a different shape per version: what this class reads back is the shape of that date, so it is pinned here rather than left to whatever Revolut serves that day
     private const string API_VERSION = '2024-05-01';
+    // The first version naming the order a refund was taken from ("related_order_id") and serving the disputes: asked for on what the webhook names, the checkout and the customer's return staying on the version they were written against
+    private const string REFUND_API_VERSION = '2024-09-01';
 
     // The sandbox is a separate space with its own keys and its own orders, exactly as Stripe's test dashboard is
     private const string LIVE_API = 'https://merchant.revolut.com/api';
@@ -42,11 +45,15 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
     // The five minutes Revolut asks a receiver to enforce: a signature stays valid for as long as the secret does, so replaying an old event is only stopped by refusing an old timestamp
     private const int TIMESTAMP_TOLERANCE = 300;
 
+    // How long a refund whose original order counts nothing refunded yet is refused for Revolut to replay: its events arriving out of order catch up within minutes, and a total still at zero a day later never will (a refund cancelled)
+    private const int REFUND_REPLAY_WINDOW = 86400;
+
     public function __construct(
         private readonly ConfigServiceInterface $configService,
         private readonly HttpClientInterface $httpClient,
         private readonly PaymentTestModeInterface $testMode,
         private readonly RevolutOrderReader $orderReader,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -118,17 +125,12 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
         $this->verifySignature($request, $payload);
 
         $event = json_decode($payload, true);
-        if (!is_array($event) || 'ORDER_COMPLETED' !== ($event['event'] ?? null)) {
-            return null;
-        }
 
-        // The event carries the order id and the merchant reference, and nothing of the state or the amount: the order itself is read back, so what settles a basket is what Revolut answers rather than what it posted
-        $orderId = $event['order_id'] ?? null;
-        if (!is_string($orderId) || '' === $orderId) {
-            throw new InvalidNotificationException('Order id is missing from the event');
-        }
-
-        return $this->orderReader->read($this->call('GET', '/orders/' . $orderId));
+        return match (is_array($event) ? ($event['event'] ?? null) : null) {
+            'ORDER_COMPLETED' => $this->readCompletedOrder($event),
+            'DISPUTE_LOST' => $this->readLostDispute($event),
+            default => null,
+        };
     }
 
     // The customer coming back from Revolut, on a url the site chose before the order existed and which therefore carries nothing to look up: the order id is the reference kept on the payment, and the order is re-read from Revolut itself
@@ -183,8 +185,8 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
     {
         $webhook = $this->call('POST', '/webhooks', [
             'url' => $url,
-            // The only event a site acts on; every other one would be authentic, read, and answered with a null
-            'events' => ['ORDER_COMPLETED'],
+            // The only events a site acts on - a payment or a refund completing, and a dispute lost; every other one would be authentic, read, and answered with a null
+            'events' => ['ORDER_COMPLETED', 'DISPUTE_LOST'],
         ]);
 
         $secret = $webhook['signing_secret'] ?? null;
@@ -216,6 +218,54 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
     {
         // Answered with no content, so the status is what is read - and reading it is also what makes the client send the request at all
         $this->send('DELETE', '/webhooks/' . $id)->getStatusCode();
+    }
+
+    // The event carries the order id and the merchant reference, and nothing of the state or the amount: the order itself is read back, so what settles a basket is what Revolut answers rather than what it posted. Read on the version naming the order a refund was taken from, a refund completing as an order of its own - the fields a payment is read on are the same in both versions
+    private function readCompletedOrder(array $event): ?PaymentNotification
+    {
+        $orderId = $event['order_id'] ?? null;
+        if (!is_string($orderId) || '' === $orderId) {
+            throw new InvalidNotificationException('Order id is missing from the event');
+        }
+
+        $order = $this->call('GET', '/orders/' . $orderId, null, self::REFUND_API_VERSION);
+        if ('refund' !== ($order['type'] ?? null)) {
+            return $this->orderReader->read($order);
+        }
+
+        // A refund naming no original will name none on a replay either: logged and dropped rather than refused for days
+        $originalId = $order['related_order_id'] ?? null;
+        if (!is_string($originalId) || '' === $originalId) {
+            $this->logger->error('Revolut refund {id} names no order it was taken from', ['id' => $orderId]);
+
+            return null;
+        }
+
+        $notification = $this->orderReader->readRefund($this->call('GET', '/orders/' . $originalId, null, self::REFUND_API_VERSION), $this->isReplayable($order));
+        if (null === $notification) {
+            $this->logger->error('Revolut refund {id} is still counted on no order a day after it was made', ['id' => $orderId, 'order' => $originalId]);
+        }
+
+        return $notification;
+    }
+
+    // A refund whose date cannot be read stays replayable, the safe side being to let Revolut try again
+    private function isReplayable(array $refund): bool
+    {
+        $createdAt = strtotime((string) ($refund['created_at'] ?? ''));
+
+        return false === $createdAt || time() - $createdAt < self::REFUND_REPLAY_WINDOW;
+    }
+
+    // The event names the dispute alone, which is read back for its outcome and the order it was raised against
+    private function readLostDispute(array $event): ?PaymentNotification
+    {
+        $disputeId = $event['dispute_id'] ?? null;
+        if (!is_string($disputeId) || '' === $disputeId) {
+            throw new InvalidNotificationException('Dispute id is missing from the event');
+        }
+
+        return $this->orderReader->readDispute($this->call('GET', '/disputes/' . $disputeId, null, self::REFUND_API_VERSION));
     }
 
     // Refuses an event that is not Revolut's, an event replayed later than the tolerance, and an event arriving on a site holding no signing secret to check it with - a payload nobody signed is anybody's, and marking a basket paid on it would hand the order away
@@ -255,18 +305,18 @@ class RevolutGateway implements ExpirableGatewayInterface, PaymentGatewayInterfa
      *
      * @throws HttpExceptionInterface when Revolut refuses the call or cannot be reached
      */
-    private function call(string $method, string $path, ?array $body = null): array
+    private function call(string $method, string $path, ?array $body = null, string $version = self::API_VERSION): array
     {
-        return $this->send($method, $path, $body)->toArray();
+        return $this->send($method, $path, $body, $version)->toArray();
     }
 
     // The call itself, kept apart from decoding it: a deletion is answered with no content at all, which toArray() reads as a broken answer
-    private function send(string $method, string $path, ?array $body = null): ResponseInterface
+    private function send(string $method, string $path, ?array $body = null, string $version = self::API_VERSION): ResponseInterface
     {
         $options = [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->getSecret(),
-                'Revolut-Api-Version' => self::API_VERSION,
+                'Revolut-Api-Version' => $version,
                 'Accept' => 'application/json',
             ],
         ];

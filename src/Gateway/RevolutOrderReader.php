@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Gateway;
 
 use c975L\PaymentBundle\Contract\PaymentNotification;
+use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\InvalidNotificationException;
 
 // The step of the checkout that decides whether a Revolut order says "this basket is paid", split out of RevolutGateway so it can be exercised on its own: it reaches nothing, holds nothing and answers on the payload alone, where every other step of the gateway needs Revolut on the line
@@ -33,6 +34,11 @@ final class RevolutOrderReader
             return null;
         }
 
+        // Only an order taking money in settles a basket - a payment, or a payment request sent from Revolut's own portal. A refund or a chargeback is an order of its own, completed like a payment and announced by the same event: read as one, it would settle the basket again with its id. RevolutGateway reads a refund through readRefund(), and a type Revolut adds later stays ignored until it is known
+        if (!\in_array($order['type'] ?? 'payment', ['payment', 'payment_request'], true)) {
+            return null;
+        }
+
         $basketId = $this->basketId($order);
         $orderId = $this->orderId($order);
 
@@ -43,6 +49,52 @@ final class RevolutOrderReader
             $this->readPaymentMethod($order),
             $this->readAmount($order),
         );
+    }
+
+    // Reads the order a refund was taken from and returns the running total handed back so far, partial refunds included - a refund order carries its own amount alone, and whether that total is the whole order is BasketRefundService's call
+    /**
+     * @param array<string, mixed> $order      the original payment order, as the Merchant API answers it
+     * @param bool                 $replayable whether a total still at zero may yet catch up, which RevolutGateway decides from the refund's date
+     *
+     * @return PaymentNotification|null null when the order counts nothing refunded and a replay would change nothing
+     *
+     * @throws InvalidNotificationException when the order carries no id to find the basket back with, or no refund yet while it may still come
+     */
+    public function readRefund(array $order, bool $replayable = true): ?PaymentNotification
+    {
+        // Revolut warns its events can arrive out of order: an original read before its total caught up with the refund would answer nothing refunded, and the refund would be dropped for good. Refused instead, so Revolut replays it and the next read counts it - for as long as that can still happen
+        $refunded = (int) ($order['refunded_amount'] ?? 0);
+        if ($refunded <= 0) {
+            if ($replayable) {
+                throw new InvalidNotificationException('The refunded order says nothing was refunded yet');
+            }
+
+            return null;
+        }
+
+        return new PaymentNotification(null, RevolutGateway::SLUG, $this->orderId($order), null, $refunded, PaymentEvent::Refunded);
+    }
+
+    // Reads a dispute and returns the chargeback it settles when the shop lost it, the basket being found back from the payment order it was raised against
+    /**
+     * @param array<string, mixed> $dispute as the Merchant API answers it
+     *
+     * @return PaymentNotification|null null for a dispute not lost, which takes nothing back
+     *
+     * @throws InvalidNotificationException when a lost dispute names no order
+     */
+    public function readDispute(array $dispute): ?PaymentNotification
+    {
+        if ('lost' !== ($dispute['state'] ?? null)) {
+            return null;
+        }
+
+        $orderId = $dispute['payment']['order_id'] ?? null;
+        if (!is_string($orderId) || '' === $orderId) {
+            throw new InvalidNotificationException('Order id is missing from the lost dispute');
+        }
+
+        return new PaymentNotification(null, RevolutGateway::SLUG, $orderId, null, isset($dispute['amount']) ? (int) $dispute['amount'] : null, PaymentEvent::ChargebackLost);
     }
 
     // Revolut hands nothing of ours back but the merchant reference, which is what the checkout wrote the basket into; the order fetched from the api names it under the key it was sent with, the webhook under its own
@@ -61,7 +113,7 @@ final class RevolutOrderReader
     {
         $orderId = $order['id'] ?? null;
         if (!is_string($orderId) || '' === $orderId) {
-            throw new InvalidNotificationException('Order id is missing from the completed order');
+            throw new InvalidNotificationException('Order id is missing from the order');
         }
 
         return $orderId;

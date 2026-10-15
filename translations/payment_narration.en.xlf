@@ -128,7 +128,7 @@
             </trans-unit>
             <trans-unit id="NoPky5P">
                 <source>narration.guided_step_payment_gateway_setup_webhook</source>
-                <target>Store the webhook secret: without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard; for Revolut, a command declares and stores it, as its procedure details.</target>
+                <target>Store the webhook secret: without it the site refuses the provider's notifications and no order is ever marked paid. Stripe hands it over when the webhook is created on its dashboard, where checkout.session.completed, charge.refunded and charge.dispute.closed are to be ticked; for Revolut, a command declares it with ORDER_COMPLETED and DISPUTE_LOST and stores it, as its procedure details.</target>
             </trans-unit>
             <trans-unit id="b7YjqKV">
                 <source>narration.guided_step_payment_gift_card_issue_amount</source>
@@ -213,6 +213,18 @@
             <trans-unit id="3spo3F_">
                 <source>narration.guided_step_payment_payment_link_start</source>
                 <target>Open the form with the button above the listing. There is no row to start from: the order is written by the form it opens.</target>
+            </trans-unit>
+            <trans-unit id=".fx7r3M">
+                <source>narration.guided_step_payment_refund_check_detail</source>
+                <target>Open a refunded order: its status, refund date and refunded amount are shown there.</target>
+            </trans-unit>
+            <trans-unit id=".A2y.C7">
+                <source>narration.guided_step_payment_refund_check_fields</source>
+                <target>Read what the refund changed. Refunds are made at the provider, and the site reads them off its webhook. In full or a lost dispute: the order turns Refunded, what it sold is no longer handed over and any gift card it used is credited back. In part: the order stays paid and the dashboard flags it for 30 days; if the access should go, refund the rest at the provider.</target>
+            </trans-unit>
+            <trans-unit id="3h70wsT">
+                <source>narration.guided_step_payment_refund_check_open</source>
+                <target>Open the refunded orders: the list is filtered on those at least part of which went back to the customer.</target>
             </trans-unit>
             <trans-unit id="BppffwD">
                 <source>narration.guided_step_payment_shipping_done</source>

@@ -1,0 +1,5 @@
+{# <twig:c975LPayment:Basket:Refunded basket="{{ basket }}"/> - what became of an order handed back: still shown, never as one being paid for #}
+{% trans_default_domain 'payment' %}
+{% if basket.status == constant('c975L\\PaymentBundle\\Enum\\BasketStatus::Refunded') %}
+    <twig:c975LUi:Alert:Alert type="warning" message="{{ 'text.order_refunded'|trans({'%date%': basket.refundedAt ? basket.refundedAt|format_date('long') : ''}) }}"/>
+{% endif %}
