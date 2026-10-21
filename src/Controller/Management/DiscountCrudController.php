@@ -15,7 +15,6 @@ use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -70,16 +69,7 @@ class DiscountCrudController extends AbstractCrudController
     // Icon-only row buttons, as everywhere else in the back office: worded ones widen a table that already carries ten columns
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
-            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.edit', [], 'EasyAdminBundle'),
-            ))
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
-            ))
-        ;
+        return EasyAdminActionHelper::iconOnlyDefaults($actions, $this->translator);
     }
 
     public function configureFields(string $pageName): iterable

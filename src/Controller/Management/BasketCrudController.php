@@ -241,7 +241,7 @@ class BasketCrudController extends AbstractCrudController
         ;
 
         // Send items
-        $sendPhysicalItems = Action::new('sendPhysicalItems', t('label.send_items', [], 'payment'))
+        $sendPhysicalItems = EasyAdminActionHelper::toIconOnly(Action::new('sendPhysicalItems', t('label.send_items', [], 'payment'), 'fa fa-truck')
             ->linkToRoute('items_shipped', fn (Basket $basket): array => [
                 'number' => $basket->getNumber(),
                 'type' => 'product',
@@ -252,10 +252,10 @@ class BasketCrudController extends AbstractCrudController
             ->displayIf(fn (Basket $basket): bool => BasketStatus::Paid === $basket->getStatus()
                 && null !== $basket->getNumber()
                 && ($basket->getContentFlags() & Basket::CONTENT_FLAG_PHYSICAL)
-                && null === $basket->getItemsShipped());
+                && null === $basket->getItemsShipped()), $this->translator->trans('label.send_items', [], 'payment'));
 
         // Send counterparts
-        $sendCounterparts = Action::new('sendCounterparts', t('label.send_counterparts', [], 'payment'))
+        $sendCounterparts = EasyAdminActionHelper::toIconOnly(Action::new('sendCounterparts', t('label.send_counterparts', [], 'payment'), 'fa fa-hand-holding-heart')
             ->linkToRoute('items_shipped', fn (Basket $basket): array => [
                 'number' => $basket->getNumber(),
                 'type' => 'crowdfunding',
@@ -266,7 +266,7 @@ class BasketCrudController extends AbstractCrudController
             ->displayIf(fn (Basket $basket): bool => BasketStatus::Paid === $basket->getStatus()
                 && null !== $basket->getNumber()
                 && ($basket->getContentFlags() & Basket::CONTENT_FLAG_CF_SHIPPING)
-                && null === $basket->getCounterpartsShipped());
+                && null === $basket->getCounterpartsShipped()), $this->translator->trans('label.send_counterparts', [], 'payment'));
 
         // The parcels of the day, printed in one go. A global action and not a per-row one: what a shopkeeper does is print the sheet, stick the labels and post the lot, not fetch one label at a time
         $shippingLabels = Action::new('shippingLabels', t('label.shipping_labels', [], 'payment'), 'fa fa-tags')
@@ -275,22 +275,22 @@ class BasketCrudController extends AbstractCrudController
             ->setHtmlAttributes(['target' => '_blank']);
 
         // The order's own invoice, the same file the customer downloads - a shop is asked for it often enough that hunting for the customer's page is not the answer
-        $invoice = Action::new('invoice', t('label.invoice', [], 'payment'), 'fa fa-file-invoice')
+        $invoice = EasyAdminActionHelper::toIconOnly(Action::new('invoice', t('label.invoice', [], 'payment'), 'fa fa-file-invoice')
             ->linkToRoute('basket_invoice_pdf', fn (Basket $basket): array => [
                 'number' => $basket->getNumber(),
                 'securityToken' => $basket->getSecurityToken(),
             ])
             ->setHtmlAttributes(['target' => '_blank'])
-            ->displayIf(static fn (Basket $basket): bool => null !== $basket->getInvoiceNumber());
+            ->displayIf(static fn (Basket $basket): bool => null !== $basket->getInvoiceNumber()), $this->translator->trans('label.invoice', [], 'payment'));
 
         // The credit note cancelling that invoice, once the order was taken back
-        $creditNote = Action::new('creditNote', t('label.credit_note', [], 'payment'), 'fa fa-file-circle-minus')
+        $creditNote = EasyAdminActionHelper::toIconOnly(Action::new('creditNote', t('label.credit_note', [], 'payment'), 'fa fa-file-circle-minus')
             ->linkToRoute('basket_credit_note_pdf', fn (Basket $basket): array => [
                 'number' => $basket->getNumber(),
                 'securityToken' => $basket->getSecurityToken(),
             ])
             ->setHtmlAttributes(['target' => '_blank'])
-            ->displayIf(static fn (Basket $basket): bool => null !== $basket->getCreditNoteNumber());
+            ->displayIf(static fn (Basket $basket): bool => null !== $basket->getCreditNoteNumber()), $this->translator->trans('label.credit_note', [], 'payment'));
 
         // Being paid for something the catalogue does not sell - a deposit, a repair, an invoice. A global action: there is no row to start from, the order is written by the form it opens
         $paymentLink = Action::new('paymentLink', t('label.payment_link', [], 'payment'), 'fa fa-link')
@@ -305,9 +305,12 @@ class BasketCrudController extends AbstractCrudController
             ->addAction(Action::new('exportJson', 'JSON')->linkToCrudAction('exportJson'))
         ;
 
+        // EasyAdmin's own Delete and Detail as icons on the list, their label kept as the title
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+        EasyAdminActionHelper::iconOnlyDefaults($actions, $this->translator, [Action::DELETE, Action::DETAIL]);
+
         return $actions
             ->disable(Action::NEW, Action::EDIT)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportGroup)
             ->add(Crud::PAGE_INDEX, $paymentLink)
             ->add(Crud::PAGE_INDEX, $shippingLabels)
@@ -319,14 +322,6 @@ class BasketCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $filterArchived)
             ->add(Crud::PAGE_INDEX, $sendPhysicalItems)
             ->add(Crud::PAGE_INDEX, $sendCounterparts)
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
-            ))
-            ->update(Crud::PAGE_INDEX, Action::DETAIL, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.detail', [], 'EasyAdminBundle'),
-            ))
             ->setPermission(Action::INDEX, $role)
             ->setPermission(Action::DELETE, $role)
             ->setPermission(Action::DETAIL, $role)

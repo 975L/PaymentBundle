@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.21.1
+
+The back-office row buttons are icons, their label as the title
+
+- The row actions of the orders, payments, gift cards, discounts and shipping zones are icons, their label shown on hover (21/10/2026)
+- The counterparts' shipping action has an icon of its own, distinct from the products' one (21/10/2026)
+- The payment's provider link uses a payment icon instead of the invoice one (21/10/2026)
+- Requires `c975l/core-bundle` ^1.72.2 for `EasyAdminActionHelper::iconOnlyDefaults()` (21/10/2026)
+
 ## v6.21.0
 
 A refund takes the access back and issues a credit note

@@ -108,9 +108,9 @@ class PaymentCrudController extends AbstractCrudController
     {
         $role = $this->configService->get('site-role-admin');
 
-        $viewTransaction = Action::new('viewTransaction', t('label.transaction', [], 'payment'), 'fa fa-file-invoice')
+        $viewTransaction = EasyAdminActionHelper::toIconOnly(Action::new('viewTransaction', t('label.transaction', [], 'payment'), 'fa fa-credit-card')
             ->linkToUrl(fn (Payment $payment) => $this->getTransactionUrl($payment) ?? '#')
-            ->displayIf(fn (Payment $payment) => null !== $this->getTransactionUrl($payment));
+            ->displayIf(fn (Payment $payment) => null !== $this->getTransactionUrl($payment)), $this->translator->trans('label.transaction', [], 'payment'));
 
         // Same flat table dump as the baskets it pays for (see BasketCrudController), the provider's reference travelling with it: it is what a payment is reconciled by, and the admin already reads it on the index
         $exportGroup = ActionGroup::new('export', t('label.export', [], 'payment'), 'fa fa-download')
@@ -120,19 +120,14 @@ class PaymentCrudController extends AbstractCrudController
             ->addAction(Action::new('exportJson', 'JSON')->linkToCrudAction('exportJson'))
         ;
 
+        // EasyAdmin's own Delete and Detail as icons on the list, their label kept as the title
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+        EasyAdminActionHelper::iconOnlyDefaults($actions, $this->translator, [Action::DELETE, Action::DETAIL]);
+
         return $actions
             ->disable(Action::NEW, Action::EDIT)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $viewTransaction)
             ->add(Crud::PAGE_INDEX, $exportGroup)
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
-            ))
-            ->update(Crud::PAGE_INDEX, Action::DETAIL, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.detail', [], 'EasyAdminBundle'),
-            ))
             ->setPermission(Action::INDEX, $role)
             ->setPermission(Action::DELETE, $role)
             ->setPermission(Action::DETAIL, $role)

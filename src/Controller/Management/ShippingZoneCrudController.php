@@ -14,7 +14,6 @@ use c975L\ConfigBundle\Management\EasyAdminActionHelper;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\ShippingZone;
 use c975L\PaymentBundle\Form\ShippingRateType;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -56,16 +55,7 @@ class ShippingZoneCrudController extends AbstractCrudController
     // Icon-only row buttons, as everywhere else in the back office
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
-            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.edit', [], 'EasyAdminBundle'),
-            ))
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => EasyAdminActionHelper::toIconOnly(
-                $action,
-                $this->translator->trans('action.delete', [], 'EasyAdminBundle'),
-            ))
-        ;
+        return EasyAdminActionHelper::iconOnlyDefaults($actions, $this->translator);
     }
 
     public function configureFields(string $pageName): iterable

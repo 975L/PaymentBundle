@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-10-21",
+        "description": [
+            {
+                "en": "The buttons on each row of the orders, payments, gift cards, discounts and shipping zones are now compact icons: hover one to read what it does.",
+                "fr": "Les boutons de chaque ligne des commandes, paiements, cartes cadeaux, réductions et zones de livraison sont désormais des icônes compactes : survolez-en une pour lire ce qu'elle fait.",
+                "es": "Los botones de cada fila de pedidos, pagos, tarjetas regalo, descuentos y zonas de envío son ahora iconos compactos: pase el cursor por encima para leer lo que hacen."
+            }
+        ]
+    },
+    {
         "date": "2026-10-15",
         "description": [
             {
