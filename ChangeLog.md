@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.21.2
+
+The checkout CSP relies on the core-bundle's CspFormAction
+
+- `CheckoutCspSubscriber` widens `form-action` through `CspFormAction` (22/10/2026)
+- Requires `c975l/core-bundle` ^1.72.7 for `CspFormAction` (22/10/2026)
+
 ## v6.21.1
 
 The back-office row buttons are icons, their label as the title
