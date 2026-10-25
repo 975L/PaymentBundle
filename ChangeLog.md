@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.21.3
+
+The CI installs the latest lizard
+
+- The CI installs lizard unpinned (25/10/2026)
+
 ## v6.21.2
 
 The checkout CSP relies on the core-bundle's CspFormAction
