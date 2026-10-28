@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.21.4
+
+The event subscribers are attribute-declared listeners
+
+- The account deletion, account link, basket recovery and checkout CSP subscribers use `#[AsEventListener]` (28/10/2026)
+
 ## v6.21.3
 
 The CI installs the latest lizard

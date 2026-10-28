@@ -15,6 +15,7 @@ use c975L\ConfigBundle\Event\UserAnonymizedEvent;
 use c975L\PaymentBundle\EventSubscriber\AccountDeletionSubscriber;
 use c975L\PaymentBundle\Service\BasketRetentionService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 class AccountDeletionSubscriberTest extends TestCase
 {
@@ -32,6 +33,6 @@ class AccountDeletionSubscriberTest extends TestCase
     // Listening to the event ConfigBundle dispatches, from the account page and from the inactivity cleanup alike
     public function testItListensToTheAnonymization(): void
     {
-        $this->assertArrayHasKey(UserAnonymizedEvent::class, AccountDeletionSubscriber::getSubscribedEvents());
+        $this->assertSame(UserAnonymizedEvent::class, new \ReflectionMethod(AccountDeletionSubscriber::class, 'onUserAnonymized')->getAttributes(AsEventListener::class)[0]->newInstance()->event);
     }
 }

@@ -14,7 +14,7 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketRetentionService;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -41,7 +41,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * two passes, which is what keeps a lost session ("no basket, but the row is still there") apart from a finished
  * one ("no basket, and the row says why").
  */
-class BasketRecoverySubscriber implements EventSubscriberInterface
+class BasketRecoverySubscriber
 {
     public const COOKIE_NAME = 'basket_recovery';
 
@@ -51,16 +51,8 @@ class BasketRecoverySubscriber implements EventSubscriberInterface
     ) {
     }
 
-    // Default priority on the request, so the firewall (8) has named the user by the time the account is asked for a basket
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST => 'onKernelRequest',
-            KernelEvents::RESPONSE => 'onKernelResponse',
-        ];
-    }
-
-    // Re-seats the visitor's basket in the session when it names none
+    // Re-seats the visitor's basket in the session when it names none, at the default priority so the firewall (8) has named the user by then
+    #[AsEventListener(event: KernelEvents::REQUEST)]
     public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -92,6 +84,7 @@ class BasketRecoverySubscriber implements EventSubscriberInterface
     }
 
     // Writes the recovery cookie of the basket the session holds, or takes it away
+    #[AsEventListener(event: KernelEvents::RESPONSE)]
     public function onKernelResponse(ResponseEvent $event): void
     {
         if (!$event->isMainRequest()) {

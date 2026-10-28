@@ -12,7 +12,7 @@ namespace c975L\PaymentBundle\EventSubscriber;
 
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 /**
@@ -33,7 +33,7 @@ use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
  * sign-in, where the provider vouched for it. Matching on an address nobody proved would hand a stranger's
  * orders - delivery address included - to whoever registered with their email.
  */
-class BasketAccountLinkSubscriber implements EventSubscriberInterface
+class BasketAccountLinkSubscriber
 {
     // The logger is optional: an app without Monolog leaves it null and everything else works the same
     public function __construct(
@@ -42,13 +42,7 @@ class BasketAccountLinkSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            LoginSuccessEvent::class => 'onLoginSuccess',
-        ];
-    }
-
+    #[AsEventListener(event: LoginSuccessEvent::class)]
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $user = $event->getUser();
