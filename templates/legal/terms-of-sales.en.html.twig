@@ -1,0 +1,13 @@
+{# The in-app purchases section of UiBundle's "france/terms-of-sales" model, which includes it after "payment" when this bundle is installed - shown only once a store is fully set up, a site selling nothing in an app keeps the model as it was #}
+{% if payment_in_app_stores() is not empty %}
+<section data-legal-id="in-app-purchases">
+	<h2>In-app purchases</h2>
+	<div>
+		Purchases made in the mobile app of
+		<strong>{{ legal_var('site-name') }}</strong>
+		are paid to Apple (App Store) or Google (Google Play), which collect and invoice them: a refund of the payment is to be requested from the platform concerned. The legal guarantees of conformity owed on the content bought remain our responsibility, under the "Legal guarantees" section below.
+		<br>
+		The content bought is made available on the user's account as soon as the platform confirms the purchase, and withdrawn if the platform refunds it. The content being supplied as soon as the purchase is confirmed, by confirming the purchase the user asks for this immediate supply and expressly waives their right of withdrawal, under article L 221-28 of the French consumer code. These GTCS apply for everything else.
+	</div>
+</section>
+{% endif %}

@@ -1,5 +1,11 @@
-{# The payment provider, in the "third-parties" section of UiBundle's "france/privacy-policy" model, which includes it when this bundle is installed #}
+{# The payment providers, in the "third-parties" section of UiBundle's "france/privacy-policy" model, which includes it when this bundle is installed - the app stores only once one is fully set up #}
 <h3 data-legal-id="third-parties.stripe">Payment (Stripe)</h3>
 <div>
 	Payments are processed by Stripe, a PCI-DSS certified provider. Your card details are entered at Stripe and never reach us: we only receive the payment confirmation, with the payer's email address and name. This data is processed under <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe's privacy policy</a>.
 </div>
+{% if payment_in_app_stores() is not empty %}
+<h3 data-legal-id="third-parties.app-stores">In-app purchases (Apple, Google)</h3>
+<div>
+	Purchases made in the mobile app are processed by Apple (App Store) or Google (Google Play), to which they are paid. We receive from them the purchase identifier, the product bought and, where applicable, its refund, linked to your account. This data is processed under <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's privacy policy</a> and <a href="https://policies.google.com/privacy?hl=en" target="_blank" rel="noopener">Google's</a>.
+</div>
+{% endif %}

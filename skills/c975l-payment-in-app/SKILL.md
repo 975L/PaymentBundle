@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-in-app
-description: "Use this skill when a site's mobile app sells through Apple's App Store or Google Play — plugging what the site sells in, verifying a purchase sent by the app, restoring purchases, taking back a refund, writing the store products. Triggers on: in-app purchase, IAP, App Store, Google Play, StoreKit, expo-iap, react-native-iap, InAppStoreInterface, InAppProductProviderInterface, InAppProduct, InAppTransaction, InAppPurchaseService, InAppPurchaseServiceInterface, accountToken, appAccountToken, obfuscatedAccountId, verifyPurchase, restore purchases, refund reversed, REFUND_REVERSED, StorePurchase, payment_store_purchase, StorePurchaseCrudController, AppleStore, GooglePlayStore, AppleJwsVerifier, AppleCatalogWriter, App Store Server API, App Store Server Notifications, Pub/Sub, voidedPurchaseNotification, store:publish, product id, non-consumable."
+description: "Use this skill when a site's mobile app sells through Apple's App Store or Google Play — plugging what the site sells in, verifying a purchase sent by the app, restoring purchases, taking back a refund, writing the store products. Triggers on: in-app purchase, IAP, App Store, Google Play, StoreKit, expo-iap, react-native-iap, InAppStoreInterface, InAppProductProviderInterface, InAppProduct, InAppTransaction, InAppPurchaseService, InAppPurchaseServiceInterface, accountToken, appAccountToken, obfuscatedAccountId, verifyPurchase, restore purchases, refund reversed, REFUND_REVERSED, StorePurchase, payment_store_purchase, StorePurchaseCrudController, AppleStore, GooglePlayStore, AppleJwsVerifier, AppleCatalogWriter, App Store Server API, App Store Server Notifications, Pub/Sub, voidedPurchaseNotification, store:publish, product id, non-consumable, payment_in_app_stores, InAppStoreExtension, terms of sale, privacy policy, legal_var."
 ---
 
 # c975L PaymentBundle — selling in a mobile app
@@ -10,7 +10,7 @@ description: "Use this skill when a site's mobile app sells through Apple's App 
 **Package:** `c975l/payment-bundle` · **Bundle:** `c975L\PaymentBundle\`
 
 **Key source paths** (relative to the package root):
-`src/Contract/InAppStoreInterface.php`, `src/Contract/InAppProductProviderInterface.php`, `src/Contract/InAppProduct.php`, `src/Contract/InAppTransaction.php`, `src/Service/InAppPurchaseService.php`, `src/Service/InAppCatalogPublisher.php`, `src/Store/AppleStore.php`, `src/Store/AppleCatalogWriter.php`, `src/Store/AppleJwsVerifier.php`, `src/Store/GooglePlayStore.php`, `src/Controller/StoreNotificationController.php`, `src/Controller/Management/StorePurchaseCrudController.php`, `src/Entity/StorePurchase.php`
+`src/Contract/InAppStoreInterface.php`, `src/Contract/InAppProductProviderInterface.php`, `src/Contract/InAppProduct.php`, `src/Contract/InAppTransaction.php`, `src/Service/InAppPurchaseService.php`, `src/Service/InAppCatalogPublisher.php`, `src/Store/AppleStore.php`, `src/Store/AppleCatalogWriter.php`, `src/Store/AppleJwsVerifier.php`, `src/Store/GooglePlayStore.php`, `src/Controller/StoreNotificationController.php`, `src/Twig/InAppStoreExtension.php`, `src/Controller/Management/StorePurchaseCrudController.php`, `src/Entity/StorePurchase.php`
 
 **Related skills:** `c975l-payment-items` (the basket's equivalent) and `c975l-payment-gateway` in this same bundle.
 
@@ -52,8 +52,13 @@ The back office lists the recorded purchases read-only (*Payment › In-app purc
 
 `php bin/console c975l:payment:store:publish` writes every product into every store whose keys allow it — never create a product by hand in a store console. Apple's price is the French price point matching the price exactly.
 
+## Legal texts
+
+Once a store is fully set up, UiBundle's `france/terms-of-sales` model gains the `in-app-purchases` section and its `france/privacy-policy` the `third-parties.app-stores` unit, from `templates/legal/`. Both are keyed on the Twig function `payment_in_app_stores()` — the slugs of the stores whose `isConfigured()` holds, the same test the purchase endpoint makes — never on a single config value.
+
 ## Do not
 
 - Deliver from the app's own claim: only `verify()` asks the store.
 - Write `StorePurchase` rows yourself, or delete them: a refund finds its holder through them.
 - Make `deliver()` fail on what is already held — it runs again on a restore, a retry and a refund reversed.
+- Key a template on `config('apple-bundle-id')` or `config('google-play-package-name')`: an identifier alone is half a setup, ask `payment_in_app_stores()`.

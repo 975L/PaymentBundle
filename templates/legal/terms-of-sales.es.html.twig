@@ -1,0 +1,13 @@
+{# The in-app purchases section of UiBundle's "france/terms-of-sales" model, which includes it after "payment" when this bundle is installed - shown only once a store is fully set up, a site selling nothing in an app keeps the model as it was #}
+{% if payment_in_app_stores() is not empty %}
+<section data-legal-id="in-app-purchases">
+	<h2>Compras en la aplicación</h2>
+	<div>
+		Las compras realizadas en la aplicación móvil de
+		<strong>{{ legal_var('site-name') }}</strong>
+		se pagan a Apple (App Store) o a Google (Google Play), que se encargan de su cobro y su facturación: el reembolso del pago debe solicitarse a la plataforma correspondiente. Las garantías legales de conformidad debidas sobre el contenido comprado siguen a nuestro cargo, en las condiciones de la sección «Garantías legales» más abajo.
+		<br>
+		El contenido comprado se pone a disposición en la cuenta del/de la usuario/a en cuanto la plataforma confirma la compra, y se retira si esta lo reembolsa. Al proporcionarse el contenido en cuanto se confirma la compra, al confirmar su compra el usuario/a solicita esta ejecución inmediata y renuncia expresamente a su derecho de desistimiento, en aplicación del artículo L 221-28 del código de consumo francés. Las presentes CGV se aplican para todo lo demás.
+	</div>
+</section>
+{% endif %}

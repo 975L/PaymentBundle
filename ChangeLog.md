@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.22.1
+
+Legal texts for in-app purchases
+
+- `legal/terms-of-sales.{fr,en,es}`: an in-app purchases section for UiBundle's terms of sale model (30/10/2026)
+- `legal/privacy-policy.{fr,en,es}`: Apple and Google named among the third parties (30/10/2026)
+- `payment_in_app_stores()` Twig function, the stores fully set up, keying both (30/10/2026)
+
 ## v6.22.0
 
 Selling inside a mobile app through Apple's App Store and Google Play

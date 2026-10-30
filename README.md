@@ -644,7 +644,8 @@ browser. The moment it is ticked is dated on the order (`withdrawalWaived`) and 
 `withdrawal_waived` slot. An order shared is waived by whoever pays it, on the payer's page.
 
 The privacy policy of UiBundle's `france/privacy-policy` model names Stripe in its "third-parties" section, from
-`templates/legal/privacy-policy.{fr,en,es}.html.twig`.
+`templates/legal/privacy-policy.{fr,en,es}.html.twig` - and Apple and Google once an in-app store is set up, see
+[selling in a mobile app](#selling-in-a-mobile-app).
 
 ---
 
@@ -805,6 +806,13 @@ app, so `payment-test-mode` plays no part here.
 A refund calls `revoke()`; a refund Apple reverses (`REFUND_REVERSED`), or a refunded purchase the store calls paid
 again on a restore, calls `deliver()` again. The purchases are listed read-only in the back office, *Payment ›
 In-app purchases*, and the guided project `payment-in-app-setup` walks through the settings below.
+
+**The legal texts** follow on their own: once a store is fully set up, UiBundle's `france/terms-of-sales` model
+gains an "In-app purchases" section after "Payment" (`templates/legal/terms-of-sales.{fr,en,es}.html.twig`: the
+platform refunds the payment, the site owes the legal guarantees, the right of withdrawal waived by confirming the purchase), and
+its `france/privacy-policy` names Apple and Google among the third parties. Both ask the Twig function
+`payment_in_app_stores()`, the slugs of the stores whose `isConfigured()` holds - an app identifier alone shows
+nothing.
 
 **Settings**, in the `payment` group of the dashboard:
 
