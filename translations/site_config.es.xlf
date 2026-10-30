@@ -2,6 +2,46 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="es" datatype="plaintext" original="site_config.es.xlf">
         <body>
+            <trans-unit id="elctTGN">
+                <source>description.apple_app_id</source>
+                <target>El número de la app en App Store Connect (Información de la app), bajo el que se crean los productos integrados</target>
+            </trans-unit>
+            <trans-unit id="VL8DzOy">
+                <source>description.apple_bundle_id</source>
+                <target>El bundle id de la app en el App Store (p. ej. com.ejemplo.app): se rechaza una transacción de otra app</target>
+            </trans-unit>
+            <trans-unit id="h1APydX">
+                <source>description.apple_iap_key_id</source>
+                <target>El identificador de la clave de tipo In-App Purchase, que verifica las compras con la App Store Server API</target>
+            </trans-unit>
+            <trans-unit id="boipf6t">
+                <source>description.apple_iap_private_key</source>
+                <target>El contenido del archivo SubscriptionKey_XXXX.p8 de la clave In-App Purchase, de -----BEGIN a -----END</target>
+            </trans-unit>
+            <trans-unit id="i1Ax27L">
+                <source>description.apple_issuer_id</source>
+                <target>El Issuer ID que aparece en App Store Connect, Usuarios y acceso, Integraciones, común a ambas claves</target>
+            </trans-unit>
+            <trans-unit id="sbvtbHG">
+                <source>description.apple_key_id</source>
+                <target>El identificador de la clave API de equipo (acceso Admin o App Manager), que escribe los productos integrados</target>
+            </trans-unit>
+            <trans-unit id="sSuhCbD">
+                <source>description.apple_private_key</source>
+                <target>El contenido del archivo AuthKey_XXXX.p8 de la clave de equipo, de -----BEGIN a -----END</target>
+            </trans-unit>
+            <trans-unit id="qlnZ1e8">
+                <source>description.google_play_notification_token</source>
+                <target>Un secreto de su elección, añadido como ?token= a la url de push de la suscripción Pub/Sub: se rechaza una notificación que no lo lleve</target>
+            </trans-unit>
+            <trans-unit id="E1X1PFu">
+                <source>description.google_play_package_name</source>
+                <target>El paquete de la app en Google Play (p. ej. com.ejemplo.app)</target>
+            </trans-unit>
+            <trans-unit id="fmBpVu3">
+                <source>description.google_play_service_account</source>
+                <target>El archivo de clave JSON de la cuenta de servicio, pegado entero; la cuenta debe estar invitada en la app en Play Console, con los permisos de pedidos y monetización</target>
+            </trans-unit>
             <trans-unit id=".WVUEkd">
                 <source>description.payment_gateway</source>
                 <target>Proveedor con el que cobra la tienda, p. ej. stripe o revolut</target>
@@ -117,6 +157,46 @@
             <trans-unit id="UfelsWV">
                 <source>description.url_terms_of_use</source>
                 <target>URL de condiciones de uso, ej. https://example.com/pages/terms-of-use</target>
+            </trans-unit>
+            <trans-unit id="XH1vW4D">
+                <source>label.apple_app_id</source>
+                <target>Apple ID de la app</target>
+            </trans-unit>
+            <trans-unit id="kdog2hW">
+                <source>label.apple_bundle_id</source>
+                <target>Identificador de la app iOS</target>
+            </trans-unit>
+            <trans-unit id="0IZcJro">
+                <source>label.apple_iap_key_id</source>
+                <target>Key ID de la clave In-App Purchase</target>
+            </trans-unit>
+            <trans-unit id="QeZ0.Hw">
+                <source>label.apple_iap_private_key</source>
+                <target>Clave privada In-App Purchase (.p8)</target>
+            </trans-unit>
+            <trans-unit id="nqQ6U73">
+                <source>label.apple_issuer_id</source>
+                <target>Issuer ID de App Store Connect</target>
+            </trans-unit>
+            <trans-unit id="0w6PVPD">
+                <source>label.apple_key_id</source>
+                <target>Key ID de la clave de equipo</target>
+            </trans-unit>
+            <trans-unit id="HdXaUxQ">
+                <source>label.apple_private_key</source>
+                <target>Clave privada de equipo (.p8)</target>
+            </trans-unit>
+            <trans-unit id="y9rCRxf">
+                <source>label.google_play_notification_token</source>
+                <target>Token de notificaciones de Google Play</target>
+            </trans-unit>
+            <trans-unit id="XZz41kB">
+                <source>label.google_play_package_name</source>
+                <target>Nombre de paquete Android</target>
+            </trans-unit>
+            <trans-unit id="6wr9Amz">
+                <source>label.google_play_service_account</source>
+                <target>Cuenta de servicio de Google Play (JSON)</target>
             </trans-unit>
             <trans-unit id="JAhMYFJ">
                 <source>label.payment_gateway</source>

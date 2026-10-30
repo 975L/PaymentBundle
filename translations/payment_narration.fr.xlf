@@ -170,6 +170,26 @@
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fixez une date de fin, ou aucune. Laissée vide, la carte n'expire jamais ; renseignée, elle cesse d'être utilisable ce jour-là, quel que soit le solde qui y reste.</target>
             </trans-unit>
+            <trans-unit id="9ibMf.2">
+                <source>narration.guided_step_payment_in_app_setup_key</source>
+                <target>Modifiez un réglage du store. Apple demande deux clés : celle « In-App Purchase » vérifie les achats, celle de l'équipe écrit le catalogue. Google n'en demande qu'une, le fichier du compte de service ; la procédure « Vendre dans l'appli mobile » détaille où les trouver.</target>
+            </trans-unit>
+            <trans-unit id="IGBV8Vv">
+                <source>narration.guided_step_payment_in_app_setup_notifications</source>
+                <target>Déclarez ensuite, dans App Store Connect et chez Google, l'adresse où chacun annonce un remboursement : sans elle, un achat remboursé reste acquis. Les adresses exactes figurent dans la description de cette étape.</target>
+            </trans-unit>
+            <trans-unit id="BHzBaf6">
+                <source>narration.guided_step_payment_in_app_setup_open</source>
+                <target>Le panneau vous emmène sur la configuration, groupe Paiement. Les clés d'Apple et de Google sont des réglages sensibles : ils y sont listés à part, masqués, une fois le bouton « Afficher les sensibles » activé.</target>
+            </trans-unit>
+            <trans-unit id="xWLCIoc">
+                <source>narration.guided_step_payment_in_app_setup_publish</source>
+                <target>Enfin, la commande de publication crée les produits chez Apple et Google à partir de ce que le site vend. Chaque achat apparaît ensuite dans Achats dans l'appli.</target>
+            </trans-unit>
+            <trans-unit id="jjK_Jbc">
+                <source>narration.guided_step_payment_in_app_setup_value</source>
+                <target>Collez le contenu entier du fichier, tel quel, puis enregistrez. Recommencez pour chaque réglage du store que vous vendez.</target>
+            </trans-unit>
             <trans-unit id="vsfIz4q">
                 <source>narration.guided_step_payment_order_emails_done</source>
                 <target>Les e-mails sont signés : la prochaine confirmation de commande partira de cette adresse, et les réponses du client arriveront à celle choisie.</target>
@@ -333,6 +353,10 @@
             <trans-unit id="D2KYkuw">
                 <source>narration.shipping_zones</source>
                 <target>« Zones de livraison » regroupe les pays livrés au même tarif, chacun avec ses paliers de poids.</target>
+            </trans-unit>
+            <trans-unit id="By8k1sd">
+                <source>narration.store_purchases</source>
+                <target>« Achats dans l'appli » liste ce qu'Apple et Google ont vendu dans l'appli mobile, le compte qui l'a reçu et, s'il y a lieu, le remboursement qui l'a repris.</target>
             </trans-unit>
         </body>
     </file>

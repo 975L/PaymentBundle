@@ -14,6 +14,8 @@ use c975L\ConfigBundle\DependencyInjection\Compiler\TaggedInterfacePass;
 use c975L\PaymentBundle\Contract\BasketDownloadProviderInterface;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketRecommendationProviderInterface;
+use c975L\PaymentBundle\Contract\InAppProductProviderInterface;
+use c975L\PaymentBundle\Contract\InAppStoreInterface;
 use c975L\PaymentBundle\Contract\PaymentGatewayInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -27,6 +29,8 @@ class c975LPaymentBundle extends AbstractBundle
         $container->addCompilerPass(new TaggedInterfacePass(BasketRecommendationProviderInterface::class, 'payment.basket_recommendation_provider'));
         $container->addCompilerPass(new TaggedInterfacePass(BasketDownloadProviderInterface::class, 'payment.basket_download_provider'));
         $container->addCompilerPass(new TaggedInterfacePass(PaymentGatewayInterface::class, 'payment.gateway'));
+        $container->addCompilerPass(new TaggedInterfacePass(InAppStoreInterface::class, 'payment.in_app_store'));
+        $container->addCompilerPass(new TaggedInterfacePass(InAppProductProviderInterface::class, 'payment.in_app_product_provider'));
     }
 
     public function prependExtension(ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void

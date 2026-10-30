@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-10-30",
+        "description": [
+            {
+                "en": "Your mobile app can now sell through the App Store and Google Play: each purchase is checked with the store, delivered to the buyer's account and taken back if the store refunds it. The store products are created from your site, never typed into the store consoles. The keys go in the Payment settings, a guided project walks you through them, and every purchase is listed under Payment › In-app purchases.",
+                "fr": "Votre appli mobile peut désormais vendre par l'App Store et Google Play : chaque achat est vérifié auprès du store, livré sur le compte de l'acheteur et repris si le store le rembourse. Les produits des stores sont créés depuis votre site, jamais saisis à la main dans leurs consoles. Les clés se renseignent dans les réglages Paiement, un projet guidé vous y accompagne, et chaque achat est listé dans Paiement › Achats dans l'appli.",
+                "es": "Su app móvil ya puede vender a través del App Store y Google Play: cada compra se verifica con la tienda, se entrega en la cuenta del comprador y se retira si la tienda la reembolsa. Los productos de las tiendas se crean desde su sitio, nunca se escriben a mano en sus consolas. Las claves se indican en los ajustes de Pago, un proyecto guiado le acompaña y cada compra aparece en Pago › Compras en la app."
+            }
+        ]
+    },
+    {
         "date": "2026-10-21",
         "description": [
             {

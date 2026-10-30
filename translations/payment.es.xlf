@@ -42,6 +42,10 @@
                 <source>description.guided_project_payment_gift_card_issue</source>
                 <target>Crear una tarjeta que ninguna venta ha generado: gesto comercial, tarjeta vendida en mano, recuperación de tarjetas existentes</target>
             </trans-unit>
+            <trans-unit id="PY60uBn">
+                <source>description.guided_project_payment_in_app_setup</source>
+                <target>Guardar las claves de Apple y Google, declarar dónde anuncian un reembolso y publicar los productos</target>
+            </trans-unit>
             <trans-unit id="gFRB9ZQ">
                 <source>description.guided_project_payment_order_emails</source>
                 <target>Elegir la dirección desde la que salen los correos de pedido, la que recibe las respuestas y quién guarda copia</target>
@@ -229,6 +233,26 @@
             <trans-unit id="tOpIhxB">
                 <source>description.guided_step_payment_gift_card_issue_validity</source>
                 <target>En blanco, la tarjeta nunca caduca. Rellenada, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
+            </trans-unit>
+            <trans-unit id="UVQR2oQ">
+                <source>description.guided_step_payment_in_app_setup_key</source>
+                <target>Apple pide dos claves: «In-App Purchase» (apple-iap-key-id, apple-iap-private-key) verifica las compras, la del equipo (apple-key-id, apple-private-key) escribe el catálogo, junto con apple-issuer-id, apple-bundle-id y apple-app-id. Google solo pide una: el archivo JSON de la cuenta de servicio, junto con google-play-package-name. El procedimiento «Vender en la app móvil» detalla dónde encontrarlas.</target>
+            </trans-unit>
+            <trans-unit id="Z6TXewN">
+                <source>description.guided_step_payment_in_app_setup_notifications</source>
+                <target>En App Store Connect, Notificaciones del servidor de App Store, versión 2: https://su-sitio/payment/store/apple. En Google, una suscripción push de Pub/Sub hacia https://su-sitio/payment/store/google?token=…, con el token copiado en google-play-notification-token. Sin ellas, un reembolso no recupera nada.</target>
+            </trans-unit>
+            <trans-unit id="DzzlYGm">
+                <source>description.guided_step_payment_in_app_setup_open</source>
+                <target>Las claves de Apple y Google son ajustes sensibles: la configuración las lista aparte, ocultas, una vez activado el botón «Mostrar sensibles».</target>
+            </trans-unit>
+            <trans-unit id="5GMquBf">
+                <source>description.guided_step_payment_in_app_setup_publish</source>
+                <target>El comando php bin/console c975l:payment:store:publish crea o actualiza en Apple y Google lo que vende el sitio: nada se introduce a mano en las consolas. Cada compra aparece luego en Pago › Compras en la app.</target>
+            </trans-unit>
+            <trans-unit id="DILkIxt">
+                <source>description.guided_step_payment_in_app_setup_value</source>
+                <target>Pegue el contenido entero del archivo .p8 de Apple o del archivo JSON de Google, tal cual, y guarde. Repita para cada ajuste de la tienda por la que vende.</target>
             </trans-unit>
             <trans-unit id="D9HAEMH">
                 <source>description.guided_step_payment_order_emails_done</source>
@@ -874,6 +898,10 @@
                 <source>label.empty_basket</source>
                 <target>Vaciar el carrito</target>
             </trans-unit>
+            <trans-unit id="qYYYhPT">
+                <source>label.environment</source>
+                <target>Entorno</target>
+            </trans-unit>
             <trans-unit id="7YIlu03">
                 <source>label.expected_delivery</source>
                 <target>Entrega prevista</target>
@@ -1045,6 +1073,10 @@
             <trans-unit id="mXJ10rx">
                 <source>label.guided_project_payment_gift_card_issue</source>
                 <target>Emitir una tarjeta regalo a mano</target>
+            </trans-unit>
+            <trans-unit id="tIExq3k">
+                <source>label.guided_project_payment_in_app_setup</source>
+                <target>Vender en la app móvil</target>
             </trans-unit>
             <trans-unit id="WrdSa1C">
                 <source>label.guided_project_payment_order_emails</source>
@@ -1233,6 +1265,26 @@
             <trans-unit id="_bNlvel">
                 <source>label.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fijar una fecha de fin, o ninguna</target>
+            </trans-unit>
+            <trans-unit id="YAizedz">
+                <source>label.guided_step_payment_in_app_setup_key</source>
+                <target>Modificar un ajuste de la tienda</target>
+            </trans-unit>
+            <trans-unit id="0TFp0_L">
+                <source>label.guided_step_payment_in_app_setup_notifications</source>
+                <target>Declarar las direcciones de reembolso</target>
+            </trans-unit>
+            <trans-unit id="8egMkCy">
+                <source>label.guided_step_payment_in_app_setup_open</source>
+                <target>Abrir las claves del grupo Pago</target>
+            </trans-unit>
+            <trans-unit id="AETAB6H">
+                <source>label.guided_step_payment_in_app_setup_publish</source>
+                <target>Publicar los productos</target>
+            </trans-unit>
+            <trans-unit id="0PdPhme">
+                <source>label.guided_step_payment_in_app_setup_value</source>
+                <target>Pegar el valor</target>
             </trans-unit>
             <trans-unit id="TgrvbnF">
                 <source>label.guided_step_payment_order_emails_done</source>
@@ -1526,6 +1578,10 @@
                 <source>label.health_check_shipping_zones_ok</source>
                 <target>%count% zona(s), con el paquete más pesado incluido en cada una</target>
             </trans-unit>
+            <trans-unit id="ZS2Jcue">
+                <source>label.holder</source>
+                <target>Titular</target>
+            </trans-unit>
             <trans-unit id="x86UrIw">
                 <source>label.including_vat</source>
                 <target>IVA incluido</target>
@@ -1558,6 +1614,10 @@
                 <source>label.info_shipping_zone</source>
                 <target>Las zonas de envío y sus tarifas por peso, leídas al pagar para cada paquete.</target>
             </trans-unit>
+            <trans-unit id="be.BENV">
+                <source>label.info_store_purchase</source>
+                <target>Las compras hechas en la app móvil, registradas cuando Apple o Google las confirma, con la cuenta que las recibió y un posible reembolso.</target>
+            </trans-unit>
             <trans-unit id="xsfKfLg">
                 <source>label.initial_amount</source>
                 <target>Importe inicial</target>
@@ -1569,6 +1629,10 @@
             <trans-unit id="UuHdw7y">
                 <source>label.is_finished</source>
                 <target>¿Terminado?</target>
+            </trans-unit>
+            <trans-unit id="1fYA19F">
+                <source>label.is_refunded</source>
+                <target>Reembolsado</target>
             </trans-unit>
             <trans-unit id="6PGWM7c">
                 <source>label.items_shipped</source>
@@ -1709,6 +1773,10 @@
             <trans-unit id="rnEujBk">
                 <source>label.physical_item</source>
                 <target>Artículo físico</target>
+            </trans-unit>
+            <trans-unit id="kSelYYT">
+                <source>label.product_id</source>
+                <target>Producto</target>
             </trans-unit>
             <trans-unit id="SxGGYuv">
                 <source>label.quantity</source>
@@ -1877,6 +1945,14 @@
             <trans-unit id="8nXIScQ">
                 <source>label.status</source>
                 <target>Estado</target>
+            </trans-unit>
+            <trans-unit id="J30TiPN">
+                <source>label.store</source>
+                <target>Tienda</target>
+            </trans-unit>
+            <trans-unit id="hEzv4K2">
+                <source>label.store_purchases</source>
+                <target>Compras en la app</target>
             </trans-unit>
             <trans-unit id="o3mFitM">
                 <source>label.subtotal</source>

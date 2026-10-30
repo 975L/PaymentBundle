@@ -24,7 +24,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 ## Contents
 
 - **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
-- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
+- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
 
 ## Features
 
@@ -34,6 +34,9 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   `Stripe\*`, and nothing outside `RevolutGateway` knows Revolut's shapes
 - **The customer picks who they pay through** when the shop offers more than one: a provider is offered as soon as
   its keys are filled in, so a second one is opened by storing its keys and closed by clearing them
+- **Selling inside a mobile app** through Apple's App Store and Google Play, beside the basket: purchases verified
+  with the store itself, tied to their holder, delivered and taken back on a refund, the store products written
+  from the site's own data - see [selling in a mobile app](#selling-in-a-mobile-app)
 - Test mode switched from the dashboard, charging with the provider's test keys and warning the customer
 - Generic `BasketItemProviderInterface` extension point — a satellite bundle registers a service implementing it
   to plug a new kind of sellable item into the basket (pricing, stock validation, content flags, pre/post-payment
@@ -282,6 +285,7 @@ counterparts or prints.
 | `customer_order` | `/account/orders/{number}` | One order: its tracking, its lines and the files it bought |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}` | The order's invoice, linked from the customer's own order page |
 | `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
+| `payment_store_notification` | `/payment/store/{store}` (POST) | Where Apple and Google announce a refund of an in-app purchase - see [selling in a mobile app](#selling-in-a-mobile-app) |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment, a refund or a lost dispute - **the endpoint to declare in its dashboard**, with the events listed under [Stripe](#configure-stripe-webhook) and [Revolut](#configure-revolut) |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
 
@@ -542,6 +546,7 @@ their mailbox is.
 | --- | --- |
 | `php bin/console c975l:payment:baskets:retention` | Applies the retention rules below: deletes what nothing keeps any more, archives what is no longer current business |
 | `php bin/console c975l:payment:baskets:remind` | Sends the first and second reminder to the customers who validated an order and never paid it |
+| `php bin/console c975l:payment:store:publish [product]` | Creates or updates the in-app products at Apple and Google from what the site's `InAppProductProviderInterface` services sell, all of them or the one named - see [selling in a mobile app](#selling-in-a-mobile-app) |
 | `php bin/console c975l:payment:revolut:webhook` | Declares the site's webhook endpoint at Revolut - which has no screen for it - and stores the signing secret it answers once. Once per Revolut account, `--replace` to declare it again |
 
 The first two do not have to be scheduled by the site: `Scheduler\PaymentMaintenanceTaskProvider` declares both, the retention
@@ -751,6 +756,70 @@ What follows from it:
 - the dashboard alerts when *no* provider holds keys, and when `payment-gateway` names one no bundle registers
 
 A provider's display name in the chooser is the `label.gateway_<slug>` key of the `payment` translation domain.
+
+---
+
+## Selling in a mobile app
+
+A site's mobile app sells through its store and nowhere else: Apple and Google require their own in-app purchase
+for digital goods, and the app may not point to the site's shop. The store is then the merchant of record - no
+basket, no invoice, no VAT on this side - so this runs beside the basket rather than through it, with the same
+split as the basket's: the bundle verifies, records and takes back, the site says what it sells and what a
+purchase gives.
+
+**The site's side** is one service implementing `c975L\PaymentBundle\Contract\InAppProductProviderInterface`
+(autoconfigured):
+
+```php
+public function getProducts(): iterable;                                          // InAppProduct objects: id, price in cents, names and descriptions per locale, review screenshot
+public function supports(string $productId): bool;                               // whether this provider sells the product
+public function deliver(string $holder, string $productId, string $store): void; // gives what was bought - called again on a restore, a retry or a refund reversed, so it must be harmless
+public function revoke(string $holder, string $productId, string $store): void;  // takes back what a refund cancelled
+```
+
+A product id is derived, never typed: `InAppProduct::idFor('back', $slug)` turns `chateau-hurlton-orage` into
+`back.chateau_hurlton_orage`, the only shape both stores accept. Apple never gives an id back once used, so
+renaming the slug leaves the old product behind at the store. `$holder` is whatever the site calls the owner, 191
+characters at most.
+
+**Buying**, from the site's own app endpoints, which know who the holder is:
+
+1. the app asks for `InAppPurchaseServiceInterface::accountToken($holder)` and buys under it (`appAccountToken` at
+   Apple, `obfuscatedAccountId` at Google): a proof copied from someone else's phone unlocks nothing;
+2. it sends the proof - `{"transactionId"}` for Apple, `{"productId", "purchaseToken"}` for Google - and the site
+   calls `verify($store, $holder, $proof)`, which asks the store itself, checks the token, records a
+   `StorePurchase`, calls `deliver()` and acknowledges at Google (which refunds a purchase left unacknowledged for
+   three days). "Restore purchases", which Apple requires, sends the same proofs again. A store that cannot be
+   reached throws `PaymentUnavailableException`.
+
+Apple is asked in production first, then in the sandbox: Apple's review buys in the sandbox from the production
+app, so `payment-test-mode` plays no part here.
+
+**Refunds** reach `POST /payment/store/{store}`:
+
+- Apple: declare `https://<site>/payment/store/apple` in App Store Connect, *App Store Server Notifications*,
+  version 2. Each notification is a JWS checked down to Apple Root CA - G3, shipped in `config/certificates`;
+- Google: create a Pub/Sub topic, set it in the Play Console under *Monetization setup*, and give it a push
+  subscription to `https://<site>/payment/store/google?token=<google-play-notification-token>`.
+
+A refund calls `revoke()`; a refund Apple reverses (`REFUND_REVERSED`), or a refunded purchase the store calls paid
+again on a restore, calls `deliver()` again. The purchases are listed read-only in the back office, *Payment ›
+In-app purchases*, and the guided project `payment-in-app-setup` walks through the settings below.
+
+**Settings**, in the `payment` group of the dashboard:
+
+| Setting | Used for |
+| --- | --- |
+| `apple-bundle-id`, `apple-issuer-id`, `apple-iap-key-id`, `apple-iap-private-key` | Verifying purchases (App Store Server API, a key of type *In-App Purchase*) |
+| `apple-app-id`, `apple-key-id`, `apple-private-key` | Writing the products (App Store Connect API, the team key) |
+| `google-play-package-name`, `google-play-service-account` | Both, the service account invited on the app in the Play Console |
+| `google-play-notification-token` | Telling Google's notifications from anybody's |
+
+**The catalogue** is written by `c975l:payment:store:publish`: at Apple the product is created with its
+availability everywhere, then named in each language, priced on the French price point matching the price
+(1,00 € is one) and given its review screenshot; at Google it is upserted in one call, the French price converted
+for the other countries (through the `inappproducts` endpoint, which Google has since superseded by
+`monetization.onetimeproducts` - the first real run is its test). Apple only lets the first products through review together with a version of the app.
 
 ---
 
@@ -1037,7 +1106,7 @@ loop over a hundred thumbnails.
 
 ## AI agent skills
 
-The package ships three skills of its own, written for the coding agent of the site installing this bundle
+The package ships four skills of its own, written for the coding agent of the site installing this bundle
 rather than for someone modifying it. Point your agent at them:
 
 ```text
@@ -1049,6 +1118,8 @@ vendor/c975l/payment-bundle/skills/
   came back on
 - `c975l-payment-gateway` — adding, configuring or debugging a payment provider: the contract, the Stripe
   implementation, the webhook signature, the three optional interfaces and the test keys
+- `c975l-payment-in-app` — selling in a mobile app through Apple and Google: the site's provider, the account
+  token the app buys under, verifying and restoring, refunds and writing the store products
 - `c975l-payment-items` — plugging a new kind of sellable item in from a satellite bundle: the provider
   contract, the pre/post-payment hooks and the one mistake that loses a customer's data
 

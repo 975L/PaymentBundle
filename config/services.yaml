@@ -24,6 +24,14 @@ services:
         arguments:
             $gateways: !tagged_iterator payment.gateway
 
+    c975L\PaymentBundle\Registry\InAppStoreRegistry:
+        arguments:
+            $stores: !tagged_iterator payment.in_app_store
+
+    c975L\PaymentBundle\Registry\InAppProductProviderRegistry:
+        arguments:
+            $providers: !tagged_iterator payment.in_app_product_provider
+
     c975L\PaymentBundle\Registry\BasketItemProviderRegistry:
         arguments:
             $providers: !tagged_iterator payment.basket_item_provider

@@ -68,11 +68,11 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $projects = $this->createProvider()->getGuidedProjects();
 
         $this->assertSame(
-            ['payment-gateway-setup', 'payment-shop-identity', 'payment-order-emails', 'payment-test-mode', 'payment-transaction-review', 'payment-refund-check', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
+            ['payment-gateway-setup', 'payment-in-app-setup', 'payment-shop-identity', 'payment-order-emails', 'payment-test-mode', 'payment-transaction-review', 'payment-refund-check', 'payment-payment-link', 'payment-gift-card-issue', 'payment-discount-code', 'payment-shipping-grid', 'payment-shipping', 'payment-archived-invoice', 'payment-basket-integrity', 'payment-export'],
             array_column($projects, 'slug'),
         );
-        // 7005, 7007, 7008, 7025, 7055 and 7065 slip between two tens rather than being appended: the keys, the shop's identity and its email sender come before the test mode rehearsing against them, a refund follows the payments it is read against, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
-        $this->assertSame([7005, 7007, 7008, 7010, 7020, 7025, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
+        // 7005, 7006, 7007, 7008, 7025, 7055 and 7065 slip between two tens rather than being appended: the keys, the app's store keys, the shop's identity and its email sender come before the test mode rehearsing against them, a refund follows the payments it is read against, the delivery grid stands just before the parcel round it prices, and the archive follows the round that ends an order's life
+        $this->assertSame([7005, 7006, 7007, 7008, 7010, 7020, 7025, 7030, 7040, 7050, 7055, 7060, 7065, 7070, 7080], array_column($projects, 'order'));
     }
 
     public function testEverySlugIsPrefixedWithTheBundleName(): void
@@ -134,14 +134,14 @@ class PaymentGuidedProjectProviderTest extends TestCase
         $this->assertSame(['management', 'management_health_check_index'], $routes);
     }
 
-    // Each parcours opens on the listing the task starts from, the five written from the baskets one included, and the keys and the shop's settings on ConfigBundle's own screen
+    // Each parcours opens on the listing the task starts from, the five written from the baskets one included, and the keys, the app's store keys and the shop's settings on ConfigBundle's own screen
     public function testEachCrudProjectOpensOnItsOwnListing(): void
     {
         $controllers = [];
         $routes = [];
         $this->createProvider($controllers, $routes)->getGuidedProjects();
 
-        $this->assertSame(['ConfigCrudController', 'ConfigCrudController', 'ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
+        $this->assertSame(['ConfigCrudController', 'ConfigCrudController', 'ConfigCrudController', 'ConfigCrudController', 'PaymentCrudController', 'BasketCrudController', 'BasketCrudController', 'GiftCardCrudController', 'DiscountCrudController', 'ShippingZoneCrudController', 'BasketCrudController', 'BasketCrudController', 'BasketCrudController'], array_map(
             static fn (string $fqcn): string => basename(str_replace('\\', '/', $fqcn)),
             $controllers,
         ));
@@ -310,7 +310,7 @@ class PaymentGuidedProjectProviderTest extends TestCase
         new PaymentGuidedProjectProvider($generator, $this->createUrlGenerator(), $configService)->getGuidedProjects();
 
         // The refunds parcours filters its listing, the one CRUD project to do so
-        $this->assertSame([['group', 'payment'], ['showSensitive', 1], ['group', 'shop'], ['group', 'payment'], ['filters', ['refundedAmount' => ['comparison' => '>', 'value' => 0]]]], $parameters);
+        $this->assertSame([['group', 'payment'], ['showSensitive', 1], ['group', 'payment'], ['showSensitive', 1], ['group', 'shop'], ['group', 'payment'], ['filters', ['refundedAmount' => ['comparison' => '>', 'value' => 0]]]], $parameters);
     }
 
     // Read by slug rather than by position, so a parcours slipped between two others leaves the tests of its neighbours alone

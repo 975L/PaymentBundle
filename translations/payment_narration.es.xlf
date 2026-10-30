@@ -170,6 +170,26 @@
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Fije una fecha de fin, o ninguna. Si se deja vacía, la tarjeta nunca caduca; si se rellena, deja de poder usarse ese día, sea cual sea el saldo que le quede.</target>
             </trans-unit>
+            <trans-unit id="9ibMf.2">
+                <source>narration.guided_step_payment_in_app_setup_key</source>
+                <target>Modifique un ajuste de la tienda. Apple pide dos claves: la «In-App Purchase» verifica las compras, la del equipo escribe el catálogo. Google solo pide una, el archivo de la cuenta de servicio; el procedimiento «Vender en la app móvil» detalla dónde encontrarlas.</target>
+            </trans-unit>
+            <trans-unit id="IGBV8Vv">
+                <source>narration.guided_step_payment_in_app_setup_notifications</source>
+                <target>Declare luego, en App Store Connect y en Google, la dirección donde cada uno anuncia un reembolso: sin ella, una compra reembolsada sigue adquirida. Las direcciones exactas figuran en la descripción de este paso.</target>
+            </trans-unit>
+            <trans-unit id="BHzBaf6">
+                <source>narration.guided_step_payment_in_app_setup_open</source>
+                <target>El panel le lleva a la configuración, grupo Pago. Las claves de Apple y Google son ajustes sensibles: se listan aparte, ocultas, una vez activado el botón «Mostrar sensibles».</target>
+            </trans-unit>
+            <trans-unit id="xWLCIoc">
+                <source>narration.guided_step_payment_in_app_setup_publish</source>
+                <target>Por último, el comando de publicación crea los productos en Apple y Google a partir de lo que vende el sitio. Cada compra aparece luego en Compras en la app.</target>
+            </trans-unit>
+            <trans-unit id="jjK_Jbc">
+                <source>narration.guided_step_payment_in_app_setup_value</source>
+                <target>Pegue el contenido entero del archivo, tal cual, y guarde. Repita para cada ajuste de la tienda por la que vende.</target>
+            </trans-unit>
             <trans-unit id="vsfIz4q">
                 <source>narration.guided_step_payment_order_emails_done</source>
                 <target>Los correos están firmados: la próxima confirmación de pedido saldrá de esta dirección y las respuestas del cliente llegarán a la elegida.</target>
@@ -333,6 +353,10 @@
             <trans-unit id="D2KYkuw">
                 <source>narration.shipping_zones</source>
                 <target>«Zonas de envío» agrupa los países enviados a la misma tarifa, cada uno con sus tramos de peso.</target>
+            </trans-unit>
+            <trans-unit id="By8k1sd">
+                <source>narration.store_purchases</source>
+                <target>«Compras en la app» lista lo que Apple y Google vendieron en la app móvil, la cuenta que lo recibió y, si lo hay, el reembolso que lo recuperó.</target>
             </trans-unit>
         </body>
     </file>

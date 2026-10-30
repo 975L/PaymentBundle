@@ -16,6 +16,7 @@ use c975L\PaymentBundle\Controller\Management\DiscountCrudController;
 use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
 use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
+use c975L\PaymentBundle\Controller\Management\StorePurchaseCrudController;
 
 class MenuProvider implements MenuProviderInterface
 {
@@ -50,6 +51,16 @@ class MenuProvider implements MenuProviderInterface
                 'translation_domain' => 'payment',
                 'icon' => 'fas fa-money-bill-wave',
                 'description' => 'label.info_payment',
+            ],
+            'store_purchase' => [
+                'controller' => StorePurchaseCrudController::class,
+                // Written by the stores rather than made by an admin: empty, it is no feature left unused (see UnusedFeatureBuilder)
+                'creatable' => false,
+                'label' => 'label.store_purchases',
+                'narration' => 'narration.store_purchases',
+                'translation_domain' => 'payment',
+                'icon' => 'fas fa-mobile-screen-button',
+                'description' => 'label.info_store_purchase',
             ],
             'discount' => [
                 'controller' => DiscountCrudController::class,

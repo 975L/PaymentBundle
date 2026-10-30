@@ -1,5 +1,21 @@
 # Changelog
 
+## v6.22.0
+
+Selling inside a mobile app through Apple's App Store and Google Play
+
+- `InAppStoreInterface` with `AppleStore` and `GooglePlayStore`: a purchase is verified with the store itself, Apple's signed data checked down to Apple Root CA - G3 (30/10/2026)
+- `InAppProductProviderInterface`, the site's side: what it sells, what a purchase gives, what a refund takes back (30/10/2026)
+- `InAppPurchaseService` ties a purchase to its holder through an account token, records a `StorePurchase`, delivers it and acknowledges it at Google - new table `payment_store_purchase` (30/10/2026)
+- `POST /payment/store/{store}` takes the refunds both stores announce (30/10/2026)
+- `c975l:payment:store:publish` creates or updates the store products from the site's data (30/10/2026)
+- Ten settings for the Apple and Google keys (30/10/2026)
+- `c975l-payment-in-app`, a fourth agent skill (30/10/2026)
+- A refund the store reverses delivers the purchase again (30/10/2026)
+- A store that cannot be reached throws `PaymentUnavailableException` (30/10/2026)
+- `StorePurchaseCrudController` lists the in-app purchases read-only (30/10/2026)
+- Guided project `payment-in-app-setup` (30/10/2026)
+
 ## v6.21.4
 
 The event subscribers are attribute-declared listeners

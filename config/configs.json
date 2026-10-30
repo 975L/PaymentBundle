@@ -310,5 +310,115 @@
         "group": "shop",
         "severity": "warning",
         "description": "description.shop_invoice_mentions"
+    },
+    {
+        "label": "label.apple_bundle_id",
+        "slug": "apple-bundle-id",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_bundle_id"
+    },
+    {
+        "label": "label.apple_app_id",
+        "slug": "apple-app-id",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_app_id"
+    },
+    {
+        "label": "label.apple_issuer_id",
+        "slug": "apple-issuer-id",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_issuer_id"
+    },
+    {
+        "label": "label.apple_key_id",
+        "slug": "apple-key-id",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_key_id"
+    },
+    {
+        "label": "label.apple_private_key",
+        "slug": "apple-private-key",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "textarea",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_private_key"
+    },
+    {
+        "label": "label.apple_iap_key_id",
+        "slug": "apple-iap-key-id",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_iap_key_id"
+    },
+    {
+        "label": "label.apple_iap_private_key",
+        "slug": "apple-iap-private-key",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "textarea",
+        "group": "payment",
+        "severity": null,
+        "description": "description.apple_iap_private_key"
+    },
+    {
+        "label": "label.google_play_package_name",
+        "slug": "google-play-package-name",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.google_play_package_name"
+    },
+    {
+        "label": "label.google_play_service_account",
+        "slug": "google-play-service-account",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "textarea",
+        "group": "payment",
+        "severity": null,
+        "description": "description.google_play_service_account"
+    },
+    {
+        "label": "label.google_play_notification_token",
+        "slug": "google-play-notification-token",
+        "sensitive": true,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.google_play_notification_token"
     }
 ]

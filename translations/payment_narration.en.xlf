@@ -170,6 +170,26 @@
                 <source>narration.guided_step_payment_gift_card_issue_validity</source>
                 <target>Set an end date, or none. Left empty, the card never expires; filled in, it stops being spendable that day, whatever balance is left on it.</target>
             </trans-unit>
+            <trans-unit id="9ibMf.2">
+                <source>narration.guided_step_payment_in_app_setup_key</source>
+                <target>Edit a store setting. Apple asks for two keys: the "In-App Purchase" one verifies purchases, the team one writes the catalogue. Google asks for one, the service account's file; the "Sell in the mobile app" procedure details where to find them.</target>
+            </trans-unit>
+            <trans-unit id="IGBV8Vv">
+                <source>narration.guided_step_payment_in_app_setup_notifications</source>
+                <target>Then declare, in App Store Connect and at Google, the url each one announces a refund to: without it, a refunded purchase stays held. The exact urls are in this step's description.</target>
+            </trans-unit>
+            <trans-unit id="BHzBaf6">
+                <source>narration.guided_step_payment_in_app_setup_open</source>
+                <target>The panel takes you to the configuration, Payment group. Apple's and Google's keys are sensitive settings: they are listed apart there, masked, once the "Show sensitive" button is on.</target>
+            </trans-unit>
+            <trans-unit id="xWLCIoc">
+                <source>narration.guided_step_payment_in_app_setup_publish</source>
+                <target>Last, the publish command creates the products at Apple and Google from what the site sells. Each purchase then shows in In-app purchases.</target>
+            </trans-unit>
+            <trans-unit id="jjK_Jbc">
+                <source>narration.guided_step_payment_in_app_setup_value</source>
+                <target>Paste the whole content of the file, as it is, then save. Do it again for each setting of the store you sell through.</target>
+            </trans-unit>
             <trans-unit id="vsfIz4q">
                 <source>narration.guided_step_payment_order_emails_done</source>
                 <target>The emails are signed: the next order confirmation leaves from this address, and the customer's replies reach the one chosen.</target>
@@ -333,6 +353,10 @@
             <trans-unit id="D2KYkuw">
                 <source>narration.shipping_zones</source>
                 <target>"Shipping zones" groups the countries posted at one tariff, each with its weight tiers.</target>
+            </trans-unit>
+            <trans-unit id="By8k1sd">
+                <source>narration.store_purchases</source>
+                <target>"In-app purchases" lists what Apple and Google sold in the mobile app, the account it went to and, if any, the refund that took it back.</target>
             </trans-unit>
         </body>
     </file>

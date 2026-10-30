@@ -43,6 +43,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     {
         return [
             $this->gatewaySetupProject(),
+            $this->inAppSetupProject(),
             $this->shopIdentityProject(),
             $this->orderEmailsProject(),
             $this->testModeProject(),
@@ -76,13 +77,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'description' => 'description.guided_step_payment_gateway_setup_open',
                     'narration' => 'narration.guided_step_payment_gateway_setup_open',
                     // The keys are sensitive entries, which ConfigCrudController lists apart from the rest of their group and only once asked to (see its showSensitive toggle)
-                    'url' => $this->adminUrlGenerator
-                        ->unsetAll()
-                        ->setController(ConfigCrudController::class)
-                        ->setAction(Action::INDEX)
-                        ->set('group', 'payment')
-                        ->set('showSensitive', 1)
-                        ->generateUrl(),
+                    'url' => $this->configUrl('payment', true),
                 ],
                 [
                     'label' => 'label.guided_step_payment_gateway_setup_key',
@@ -118,6 +113,52 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
         ];
     }
 
+    // Selling inside the mobile app: Apple and Google take the money, so there is no gateway here, only their keys - among the payment group's sensitive entries, as the gateway's are - the url each store announces a refund to, and the catalogue the console writes for them
+    private function inAppSetupProject(): array
+    {
+        return [
+            'slug' => 'payment-in-app-setup',
+            'label' => 'label.guided_project_payment_in_app_setup',
+            'description' => 'description.guided_project_payment_in_app_setup',
+            'translation_domain' => 'payment',
+            // Next to the gateway's keys, the other way the site gets paid, ahead of the shop's identity
+            'order' => 7006,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_in_app_setup_open',
+                    'description' => 'description.guided_step_payment_in_app_setup_open',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_open',
+                    'url' => $this->configUrl('payment', true),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_in_app_setup_key',
+                    'description' => 'description.guided_step_payment_in_app_setup_key',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_key',
+                    'highlight' => '.action-edit',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_in_app_setup_value',
+                    'description' => 'description.guided_step_payment_in_app_setup_value',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_value',
+                    'highlight' => '[data-guided-config-value]',
+                ],
+                [
+                    // Declared in App Store Connect and in Google Cloud, so the parcours names the urls rather than walking to them
+                    'label' => 'label.guided_step_payment_in_app_setup_notifications',
+                    'description' => 'description.guided_step_payment_in_app_setup_notifications',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_notifications',
+                ],
+                [
+                    // A console command, named for the same reason
+                    'label' => 'label.guided_step_payment_in_app_setup_publish',
+                    'description' => 'description.guided_step_payment_in_app_setup_publish',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_publish',
+                ],
+            ],
+        ];
+    }
+
     // What the shop calls itself, charges in and prints on its invoices, written before the first order rather than read off an invoice already sent
     private function shopIdentityProject(): array
     {
@@ -134,12 +175,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_shop_identity_open',
                     'description' => 'description.guided_step_payment_shop_identity_open',
                     'narration' => 'narration.guided_step_payment_shop_identity_open',
-                    'url' => $this->adminUrlGenerator
-                        ->unsetAll()
-                        ->setController(ConfigCrudController::class)
-                        ->setAction(Action::INDEX)
-                        ->set('group', self::SHOP_GROUP)
-                        ->generateUrl(),
+                    'url' => $this->configUrl(self::SHOP_GROUP),
                 ],
                 [
                     'label' => 'label.guided_step_payment_shop_identity_key',
@@ -178,12 +214,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_order_emails_open',
                     'description' => 'description.guided_step_payment_order_emails_open',
                     'narration' => 'narration.guided_step_payment_order_emails_open',
-                    'url' => $this->adminUrlGenerator
-                        ->unsetAll()
-                        ->setController(ConfigCrudController::class)
-                        ->setAction(Action::INDEX)
-                        ->set('group', 'payment')
-                        ->generateUrl(),
+                    'url' => $this->configUrl('payment'),
                 ],
                 [
                     'label' => 'label.guided_step_payment_order_emails_key',
@@ -793,6 +824,18 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
     }
 
     // The role every payment management screen sits behind, the same ConfigBundle entry its controllers read (see PaymentCrudController, BasketCrudController) - a parcours walking screens the user can't open reads as a broken one
+    // ConfigBundle's screen on one group, with its sensitive entries listed when the parcours is after a key
+    private function configUrl(string $group, bool $showSensitive = false): string
+    {
+        $generator = $this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(ConfigCrudController::class)
+            ->setAction(Action::INDEX)
+            ->set('group', $group);
+
+        return ($showSensitive ? $generator->set('showSensitive', 1) : $generator)->generateUrl();
+    }
+
     private function roleNeeded(): string
     {
         return (string) $this->configService->get('site-role-admin');
