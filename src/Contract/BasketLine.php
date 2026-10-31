@@ -64,7 +64,7 @@ final class BasketLine
             'image' => false,
         ];
 
-        // "service", "file" and "requiresShipping" are left out on purpose: Item:Type tells a line that names one apart from a line that names none, and writing a default here would answer a question the provider never asked
+        // "service", "file", "digital" and "requiresShipping" are left out on purpose: Item:Type tells a line that names one apart from a line that names none, and writing a default here would answer a question the provider never asked
         return $line;
     }
 }

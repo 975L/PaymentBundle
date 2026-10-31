@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.22.3
+
+Digital lines held once whatever their kind, and pictured without a page of their own
+
+- A line counts as digital from its provider's content flags, not only from a file (31/10/2026)
+- A digital line is never counted up and offers no "+" button (31/10/2026)
+- A digital line without a file is labelled digital item (31/10/2026)
+- A basket line with no page of its own still shows its picture when it has one (31/10/2026)
+
 ## v6.22.2
 
 Shop handling and transit time settings

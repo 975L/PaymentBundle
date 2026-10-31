@@ -431,7 +431,7 @@ export default class extends Controller {
             const inBasket = basketItem?.quantity ?? 0;
 
             // A digital item is bought once: a second copy of the same file is nothing to sell
-            if (inBasket > 0 && basketItem.item?.file) {
+            if (inBasket > 0 && (basketItem.item?.digital || basketItem.item?.file)) {
                 button.setAttribute("disabled", "disabled");
             }
 

@@ -103,6 +103,13 @@ class BasketAdditionTest extends TestCase
         $this->assertArrayNotHasKey(7, $basket->getItems()['product']);
     }
 
+    // A line says whether it is digital, as its provider flags it, for the basket page to offer no "+" on it
+    public function testANewLineSaysWhetherItIsDigital(): void
+    {
+        $this->assertTrue($this->newLine(new DownloadableItem(9, 2500))['item']['digital']);
+        $this->assertFalse($this->newLine(new AddableItem(9, 2500))['item']['digital']);
+    }
+
     // An article the basket doesn't hold opens its own line, whatever the others hold
     public function testAnArticleTheBasketDoesNotHoldOpensItsOwnLine(): void
     {
@@ -137,6 +144,15 @@ class BasketAdditionTest extends TestCase
         return $basket;
     }
 
+    // The line a basket holding nothing of article 9 opens when one is added
+    private function newLine(object $item): array
+    {
+        $basket = $this->basketHolding(1);
+        $this->service($basket, $item)->addItem($this->jsonRequest(['type' => 'product', 'id' => 9, 'quantity' => 1]));
+
+        return $basket->getItems()['product'][9];
+    }
+
     private function jsonRequest(array $data): Request
     {
         return new Request([], [], [], [], [], [], json_encode($data));
@@ -150,7 +166,7 @@ class BasketAdditionTest extends TestCase
         $provider = $this->createStub(BasketItemProviderInterface::class);
         $provider->method('findItem')->willReturn($item);
         $provider->method('validateAddition')->willReturn(null);
-        $provider->method('getContentFlags')->willReturn(0);
+        $provider->method('getContentFlags')->willReturn($item instanceof DownloadableItem ? Basket::CONTENT_FLAG_DIGITAL : 0);
         $provider->method('toBasketData')->willReturnCallback(fn (object $found, int $quantity): array => [
             'item' => ['id' => $found->getId(), 'title' => 'Article', 'price' => $found->getPrice(), 'vat' => 0.0],
             'parent' => [],

@@ -35,6 +35,15 @@ class PaymentLinkMarkupTest extends TestCase
         $this->assertStringContainsString('{% set linked = itemUrl is not null %}', $template);
     }
 
+    // A line with no page but a picture of its own - a card back - shows it unlinked, while a payment link, carrying none, still draws its label alone
+    public function testTheBasketRowPicturesALineWithNoPageOnlyWhenItHasAPicture(): void
+    {
+        $template = $this->read('templates/components/Basket/Item.html.twig');
+
+        $this->assertStringContainsString('{% elseif item.item.media != null %}', $template);
+        $this->assertStringContainsString('<twig:c975LUi:Image:Image src="{{ asset(item.item.media) }}"', $template);
+    }
+
     // An accounting document, where an empty pair of brackets is what a customer queries
     public function testTheInvoiceNamesALineByItsLabelWhenItHangsUnderNothing(): void
     {

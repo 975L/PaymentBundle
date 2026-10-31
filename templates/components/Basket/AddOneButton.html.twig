@@ -1,7 +1,8 @@
 {# <twig:c975LPayment:Basket:AddOneButton item="{{ item }}" [type="primary"]/> #}
 {% set type = type | default('primary') %}
 {% set disabled = "" %}
-{% if item.item.limitedQuantity > 0 and item.item.orderedQuantity + item.quantity >= item.item.limitedQuantity or item.type == "product" and null != item.item.file %}
+{# A digital line is held once, as its provider flags it (see BasketService::line()); a product line written before that flag still tells by its file #}
+{% if item.item.limitedQuantity > 0 and item.item.orderedQuantity + item.quantity >= item.item.limitedQuantity or item.item.digital|default(false) or item.type == "product" and null != item.item.file %}
     {% set disabled = "disabled" %}
 {% endif %}
 <button

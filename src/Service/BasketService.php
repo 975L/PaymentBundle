@@ -291,10 +291,13 @@ class BasketService implements BasketServiceInterface
         $this->basket->setItems($items);
     }
 
-    // The one place a line is built, so the shape it was written in is written down with it and no caller has to remember to (see BasketLine::VERSION)
+    // The one place a line is built, so the shape it was written in is written down with it and no caller has to remember to (see BasketLine::VERSION). It also says whether it is digital, as its provider flags it, for the basket page to offer no "+" on what is held once (see Basket:AddOneButton)
     private function line(BasketItemProviderInterface $provider, object $item, int $quantity): array
     {
-        return BasketLine::stamp($provider->toBasketData($item, $quantity));
+        $line = $provider->toBasketData($item, $quantity);
+        $line['item']['digital'] = 0 !== ($provider->getContentFlags($line) & Basket::CONTENT_FLAG_DIGITAL);
+
+        return BasketLine::stamp($line);
     }
 
     /**
@@ -772,9 +775,8 @@ class BasketService implements BasketServiceInterface
             return;
         }
 
-        // Otherwise updates quantity unless it's a digital item
-        // Only the quantity is written here: the line's price, its totals and its VAT are drawn from the item itself by the refresh updateTotals() runs afterwards
-        if (false === method_exists($item, 'getFile') || null === $item->getFile()->getName()) {
+        // Otherwise updates quantity unless its provider flags it digital - a file, a card back, whatever is held once. Only the quantity is written here: the price, totals and VAT are drawn from the item by the refresh updateTotals() runs afterwards
+        if (0 === ($provider->getContentFlags($items[$type][$itemId]) & Basket::CONTENT_FLAG_DIGITAL)) {
             $items[$type][$itemId]['quantity'] += $quantity;
         }
     }

@@ -3,7 +3,7 @@
     {% set label = "label.service" %}
 {% elseif (item.file is defined and item.file.name == null) or (item.item.file is defined and item.item.file == null) %}
     {% set label = "label.physical_item" %}
-{% elseif (item.file is defined and item.file.name != null) or (item.item.file is defined and item.item.file != null) %}
+{% elseif (item.file is defined and item.file.name != null) or (item.item.file is defined and item.item.file != null) or item.item.digital|default(false) %}
     {% set label = "label.digital_item" %}
 {% elseif (item.type is defined and item.type == "crowdfunding" and item.item.requiresShipping is defined and item.item.requiresShipping == true) or (item.requiresShipping is defined and item.requiresShipping == true) %}
     {% set label = "label.counterpart_with_shipping" %}

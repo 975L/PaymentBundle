@@ -21,12 +21,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 interface BasketServiceInterface
 {
+    // Adds the {id, quantity, type} of the JSON body to the session's basket, creating it if needed: a negative quantity decrements, 0 removes the line, a line its provider flags digital stays at 1
     /**
-     * Adds $quantity of an item to the session's basket, creating the basket if there is none yet.
-     * The request body carries the JSON payload {id, quantity, type}, "type" being the kind key of the
-     * BasketItemProviderInterface owning the item. A negative quantity decrements, reaching 0 removes
-     * the line; a digital item keeps its quantity of 1 whatever is asked.
-     *
      * @return array{error: string}|array{basket: array<string, mixed>} the translated refusal from the
      *                                                                  provider's validateAddition(), or the updated basket
      *

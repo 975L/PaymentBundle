@@ -20,6 +20,9 @@
         <div class="basket-item-inner">
             {% if linked %}
                 <twig:c975LUi:Image:Link src="{{ asset(imageSrc) }}" url="{{ itemUrl }}" ariaLabel="{{ title }}" class="img-shadow img-product" width="80" priority="true"/>
+            {# A line with no page of its own but a picture - a card back - still shows what was bought #}
+            {% elseif item.item.media != null %}
+                <twig:c975LUi:Image:Image src="{{ asset(item.item.media) }}" class="img-shadow img-product" width="80" priority="true"/>
             {% endif %}
             <div class="basket-item-text">
                 {% if linked %}<a href="{{ itemUrl }}">{{ title }}</a>{% else %}<span>{{ title }}</span>{% endif %}

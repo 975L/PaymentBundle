@@ -40,7 +40,7 @@ Implement `Contract\BasketItemProviderInterface` in a service — autoconfigured
 | `parent.url` | the page the line was bought on, when its catalogue is **not** reached by `<kind>_display` with a slug |
 | `parent.title`, `parent.slug`, `parent.image` | the catalogue entry the line hangs under, otherwise |
 
-A kind with no catalogue entry at all — a payment link typed by the shop — sends an empty `parent`: the row is then drawn as its label alone rather than linked to a route no site declares, and the picture falls back to `no-product-image.webp`.
+A kind with no catalogue entry at all — a payment link typed by the shop — sends an empty `parent`: the row is then drawn as its label alone rather than linked to a route no site declares, and it carries no picture unless `item.media` names one, then drawn unlinked.
 
 `validateCheckout()` runs for every provider at the top of `validate()`, **before anything is numbered, charged or written**. Its message is shown as-is via `BasketNotOrderableException` — only the bundle owning the item can say what is wrong with it. Nothing has been written when it throws, so the basket the visitor comes back to is the one they left.
 
@@ -76,6 +76,8 @@ Most kinds have nothing to carry — what was ordered is already on the basket. 
 `CONTENT_FLAG_DIGITAL` 1 · `CONTENT_FLAG_PHYSICAL` 2 · `CONTENT_FLAG_CF_SHIPPING` 4 · `CONTENT_FLAG_CF_DIGITAL` 8 · `CONTENT_FLAG_SERVICE` 16
 
 They decide whether the order needs shipping, whether it appears in the "orders to ship" figure, and what the order page renders. Getting them wrong makes a digital-only order wait forever for a shipment.
+
+`CONTENT_FLAG_DIGITAL` also makes a line **held once**, whatever its kind: the basket writes it as `item.digital` when the line is built, never counts it up past 1, draws no "+" on it and labels it a digital item. A file is no longer the only way to say so — a card back, a credit, anything flagged digital is bought once.
 
 ## Saying what a line weighs
 
