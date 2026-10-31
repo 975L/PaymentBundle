@@ -110,6 +110,10 @@
                 <source>description.shop_email_reply_to_name</source>
                 <target>Name for the Email address for replies</target>
             </trans-unit>
+            <trans-unit id="rxS7bvu">
+                <source>description.shop_handling_days</source>
+                <target>Business days between the order and the dispatch of a posted article, as a range (e.g. 1-3) or a single number. Published to Google with the transit time; both are needed, otherwise no delivery time is published.</target>
+            </trans-unit>
             <trans-unit id="80nApHW">
                 <source>description.shop_invoice_mentions</source>
                 <target>Printed at the foot of every invoice: registration numbers, VAT number, or the exemption that applies to you. You are the only one who knows your own situation.</target>
@@ -133,6 +137,10 @@
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
                 <target>Amount in cents at which shipping is offered</target>
+            </trans-unit>
+            <trans-unit id="rTOMO2M">
+                <source>description.shop_transit_days</source>
+                <target>Business days between dispatch and delivery to the customer, as a range (e.g. 2-4) or a single number. Published to Google with the handling time; downloadable files are always declared as delivered at once.</target>
             </trans-unit>
             <trans-unit id=".Ukoz6J">
                 <source>description.stripe_secret</source>
@@ -266,6 +274,10 @@
                 <source>label.shop_email_reply_to_name</source>
                 <target>Shop email (replyTo) Name</target>
             </trans-unit>
+            <trans-unit id=".9ZYcJa">
+                <source>label.shop_handling_days</source>
+                <target>Order handling time</target>
+            </trans-unit>
             <trans-unit id="92aRyER">
                 <source>label.shop_invoice_mentions</source>
                 <target>Invoice legal notices</target>
@@ -289,6 +301,10 @@
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>
                 <target>Shop shipping free</target>
+            </trans-unit>
+            <trans-unit id="ve4wOQb">
+                <source>label.shop_transit_days</source>
+                <target>Shipping transit time</target>
             </trans-unit>
             <trans-unit id="z65mQvI">
                 <source>label.stripe_secret</source>

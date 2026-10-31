@@ -279,6 +279,28 @@
         "description": "description.shop_return_days"
     },
     {
+        "label": "label.shop_handling_days",
+        "slug": "shop-handling-days",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "shop",
+        "severity": null,
+        "description": "description.shop_handling_days"
+    },
+    {
+        "label": "label.shop_transit_days",
+        "slug": "shop-transit-days",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "shop",
+        "severity": null,
+        "description": "description.shop_transit_days"
+    },
+    {
         "label": "label.shop_invoice_prefix",
         "slug": "shop-invoice-prefix",
         "sensitive": false,

@@ -110,6 +110,10 @@
                 <source>description.shop_email_reply_to_name</source>
                 <target>Nom associé à l'adresse email de réponse</target>
             </trans-unit>
+            <trans-unit id="rxS7bvu">
+                <source>description.shop_handling_days</source>
+                <target>Jours ouvrés entre la commande et l'envoi d'un article posté, en fourchette (ex. 1-3) ou en nombre seul. Publié à Google avec le délai d'acheminement ; il faut les deux, sinon aucun délai de livraison n'est publié.</target>
+            </trans-unit>
             <trans-unit id="80nApHW">
                 <source>description.shop_invoice_mentions</source>
                 <target>Imprimé en bas de chaque facture : SIREN, numéro de TVA, ou la mention d'exonération qui vous concerne. Vous seul connaissez votre situation.</target>
@@ -133,6 +137,10 @@
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
                 <target>Montant en centimes à partir duquel la livraison est offerte</target>
+            </trans-unit>
+            <trans-unit id="rTOMO2M">
+                <source>description.shop_transit_days</source>
+                <target>Jours ouvrés entre l'envoi et la réception par le client, en fourchette (ex. 2-4) ou en nombre seul. Publié à Google avec le délai de préparation ; les fichiers téléchargeables sont toujours déclarés livrés immédiatement.</target>
             </trans-unit>
             <trans-unit id=".Ukoz6J">
                 <source>description.stripe_secret</source>
@@ -266,6 +274,10 @@
                 <source>label.shop_email_reply_to_name</source>
                 <target>Nom de l'email de la boutique (réponse à)</target>
             </trans-unit>
+            <trans-unit id=".9ZYcJa">
+                <source>label.shop_handling_days</source>
+                <target>Délai de préparation des envois</target>
+            </trans-unit>
             <trans-unit id="92aRyER">
                 <source>label.shop_invoice_mentions</source>
                 <target>Mentions légales des factures</target>
@@ -289,6 +301,10 @@
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>
                 <target>Livraison gratuite de la boutique</target>
+            </trans-unit>
+            <trans-unit id="ve4wOQb">
+                <source>label.shop_transit_days</source>
+                <target>Délai d'acheminement</target>
             </trans-unit>
             <trans-unit id="z65mQvI">
                 <source>label.stripe_secret</source>

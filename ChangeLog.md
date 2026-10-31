@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.22.2
+
+Shop handling and transit time settings
+
+- `shop-handling-days` setting, the business days between order and dispatch (31/10/2026)
+- `shop-transit-days` setting, the business days between dispatch and delivery (31/10/2026)
+
 ## v6.22.1
 
 Legal texts for in-app purchases

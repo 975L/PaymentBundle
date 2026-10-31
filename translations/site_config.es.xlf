@@ -110,6 +110,10 @@
                 <source>description.shop_email_reply_to_name</source>
                 <target>Nombre asociado a la dirección de correo de respuesta</target>
             </trans-unit>
+            <trans-unit id="rxS7bvu">
+                <source>description.shop_handling_days</source>
+                <target>Días hábiles entre el pedido y el envío de un artículo postal, como intervalo (p. ej. 1-3) o como número único. Se publica en Google con el plazo de transporte; hacen falta los dos, si no no se publica ningún plazo de entrega.</target>
+            </trans-unit>
             <trans-unit id="80nApHW">
                 <source>description.shop_invoice_mentions</source>
                 <target>Impreso al pie de cada factura: números de registro, número de IVA, o la exención que le corresponda. Solo usted conoce su situación.</target>
@@ -133,6 +137,10 @@
             <trans-unit id="I.C46rC">
                 <source>description.shop_shipping_free</source>
                 <target>Importe en céntimos a partir del cual el envío es gratuito</target>
+            </trans-unit>
+            <trans-unit id="rTOMO2M">
+                <source>description.shop_transit_days</source>
+                <target>Días hábiles entre el envío y la recepción por el cliente, como intervalo (p. ej. 2-4) o como número único. Se publica en Google con el plazo de preparación; los archivos descargables siempre se declaran entregados al instante.</target>
             </trans-unit>
             <trans-unit id=".Ukoz6J">
                 <source>description.stripe_secret</source>
@@ -266,6 +274,10 @@
                 <source>label.shop_email_reply_to_name</source>
                 <target>Nombre del correo de la tienda (responder a)</target>
             </trans-unit>
+            <trans-unit id=".9ZYcJa">
+                <source>label.shop_handling_days</source>
+                <target>Plazo de preparación de los envíos</target>
+            </trans-unit>
             <trans-unit id="92aRyER">
                 <source>label.shop_invoice_mentions</source>
                 <target>Menciones legales de las facturas</target>
@@ -289,6 +301,10 @@
             <trans-unit id="Pe3xc4W">
                 <source>label.shop_shipping_free</source>
                 <target>Envío gratuito de la tienda</target>
+            </trans-unit>
+            <trans-unit id="ve4wOQb">
+                <source>label.shop_transit_days</source>
+                <target>Plazo de transporte</target>
             </trans-unit>
             <trans-unit id="z65mQvI">
                 <source>label.stripe_secret</source>
