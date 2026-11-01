@@ -67,8 +67,9 @@ export default class extends Controller {
 
         if (!basketDataPromise || now - lastFetchTime > CACHE_DURATION) {
             lastFetchTime = now;
-            basketDataPromise = fetch("/shop/basket/json")
-                .then((response) => response.ok ? response.json() : Promise.reject(response.status))
+            basketDataPromise = fetch(Handlers.url("/shop/basket/json"))
+                // Read on every page, a public one and the sign-in page included: a redirect is no basket to show, neither a failure to tell nor a reason to leave
+                .then((response) => response.redirected ? null : this.readJson(response))
                 .catch(() => {
                     Handlers.displayMessage(Handlers.translate("basket.load.error"), "alert-danger");
                     // Dropped so the next connect retries rather than handing out the failure again
@@ -83,8 +84,8 @@ export default class extends Controller {
 
     // Empties the basket
     delete() {
-        fetch("/shop/basket", { method: "DELETE" })
-            .then((response) => response.ok ? response : Promise.reject(response.status))
+        fetch(Handlers.url("/shop/basket"), { method: "DELETE" })
+            .then((response) => this.readAnswer(response))
             .then(() => {
                 basketDataPromise = null;
                 window.location.reload();
@@ -110,8 +111,8 @@ export default class extends Controller {
     }
 
     // The three write the same body to the same shape of answer, only the route, the quantity and the message they fail with change
-    send(target, url, method, quantity, errorKey) {
-        fetch(url, {
+    send(target, path, method, quantity, errorKey) {
+        fetch(Handlers.url(path), {
             method: method,
             body: JSON.stringify({
                 id: target.dataset.itemId,
@@ -122,7 +123,7 @@ export default class extends Controller {
                 "Content-Type": "application/json",
             }
         })
-            .then((response) => response.ok ? response.json() : Promise.reject(response.status))
+            .then((response) => this.readAnswer(response))
             .then((data) => {
                 // Dropped so the next read sees the basket as this call left it
                 basketDataPromise = null;
@@ -137,6 +138,21 @@ export default class extends Controller {
                 this.update(data);
             })
             .catch(() => Handlers.displayMessage(Handlers.translate(errorKey), "alert-danger"));
+    }
+
+    // A site asking the visitor to sign in first answers a redirect, which fetch follows to a page that is no json: the visitor is sent there rather than told the basket failed
+    readAnswer(response) {
+        if (response.redirected) {
+            window.location.href = response.url;
+
+            return new Promise(() => {});
+        }
+
+        return this.readJson(response);
+    }
+
+    readJson(response) {
+        return response.ok ? response.json() : Promise.reject(response.status);
     }
 
     // What is actually charged: the items, the shipping, less whatever a code took off. The server holds the same rule (see Basket::getPayable()) - this is what the page has to print beside it
@@ -176,14 +192,14 @@ export default class extends Controller {
     }
 
     sendCode(method, body, errorKey) {
-        return fetch("/shop/basket/code", {
+        return fetch(Handlers.url("/shop/basket/code"), {
             method: method,
             body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json",
             }
         })
-            .then((response) => response.ok ? response.json() : Promise.reject(response.status))
+            .then((response) => this.readAnswer(response))
             .then((data) => {
                 // Dropped so the next read sees the basket as this call left it
                 basketDataPromise = null;

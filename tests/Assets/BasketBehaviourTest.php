@@ -281,6 +281,51 @@ class BasketBehaviourTest extends JsCase
         $this->assertFalse((bool) $this->basket('return target("vatRow").hidden;'), 'The tax line is hidden on a basket that does hold tax.');
     }
 
+    // Signing in asked for answers a redirect fetch has already followed: the visitor goes there, without a word of a failure
+    public function testARedirectedAnswerSendsTheVisitorThere(): void
+    {
+        $followed = $this->basket(
+            'window.fetch = () => Promise.resolve({ ok: true, status: 200, redirected: true, url: window.location.href.split("#")[0] + "#signin", json: () => Promise.reject(new Error("not json")) });
+             root.querySelector("#add-plain").click();
+             await settle();
+
+             return { hash: window.location.hash, said: root.querySelector(".global-message").textContent };'
+        );
+
+        $this->assertSame('#signin', $followed['hash'], 'The visitor was left on the page instead of being sent to sign in.');
+        $this->assertSame('', $followed['said'], 'A request to sign in was told as a basket that failed.');
+    }
+
+    // The basket is read on every page, the sign-in page itself included: a redirect there is no failure to tell and no reason to leave
+    public function testABasketReadBehindASignInSaysNothingAndStays(): void
+    {
+        $read = $this->basket(
+            'return { hash: window.location.hash, said: message().textContent, shown: target("quantity").textContent };',
+            [],
+            'window.location.hash = "";
+             window.fetch = () => Promise.resolve({ ok: true, status: 200, redirected: true, url: window.location.href.split("#")[0] + "#signin", json: () => Promise.reject(new Error("not json")) });'
+        );
+
+        $this->assertSame('', $read['hash'], 'Reading the basket sent the visitor away from a page they were entitled to read.');
+        $this->assertSame('', $read['said'], 'A basket behind a sign-in was told as a basket that failed.');
+        $this->assertSame('', $read['shown'], 'A basket nobody could read was drawn all the same.');
+    }
+
+    // Emptying goes through the same door as the other writes: a request to sign in sends the visitor there
+    public function testEmptyingTheBasketFollowsARedirectedAnswer(): void
+    {
+        $followed = $this->basket(
+            'window.fetch = () => Promise.resolve({ ok: false, status: 405, redirected: true, url: window.location.href.split("#")[0] + "#signin", json: () => Promise.reject(new Error("not json")) });
+             root.querySelector("#empty").click();
+             await settle();
+
+             return { hash: window.location.hash, said: root.querySelector(".global-message").textContent };'
+        );
+
+        $this->assertSame('#signin', $followed['hash'], 'Emptying the basket left the visitor on the page instead of sending them to sign in.');
+        $this->assertSame('', $followed['said'], 'A request to sign in was told as a basket that could not be emptied.');
+    }
+
     // The blocks of a page each hold part of the basket, and the one that changed has to hand the others what it got
     public function testTheBlockThatChangedTheBasketTellsTheOthers(): void
     {
@@ -415,6 +460,7 @@ class BasketBehaviourTest extends JsCase
                 <div data-basket-target="codeRow" hidden><span data-basket-target="codeLabel"></span><span data-basket-target="codeAmount"></span></div>
                 <input type="text" data-basket-target="code" value="">
                 <button id="apply" type="button" data-action="click->basket#applyCode">Appliquer</button>
+                <button id="empty" type="button" data-action="click->basket#delete">Vider</button>
                 <a id="pay" href="#coordonnees" data-action="click->basket#validateWithCode">Valider</a>
                 <input type="submit" data-basket-target="submitButton" value="">
             </div>

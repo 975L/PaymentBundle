@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -50,6 +51,40 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class BasketAdditionTest extends TestCase
 {
+    // An id nobody sells is the caller's mistake and a 404: as a 500 it raised an alert each time a robot made one up
+    public function testAnItemNobodySellsAnswersNotFound(): void
+    {
+        $service = $this->service($this->basketHolding(1), null);
+
+        $this->expectException(NotFoundHttpException::class);
+
+        $service->addItem($this->jsonRequest(['type' => 'product', 'id' => 999, 'quantity' => 1]));
+    }
+
+    // Only a real item touches the basket: a checkout still open stays open under an id nobody sells
+    public function testAnItemNobodySellsLeavesTheBasketAsItWas(): void
+    {
+        $basket = $this->basketHolding(1);
+        $basket->setStatus(BasketStatus::Validated);
+
+        try {
+            $this->service($basket, null)->addItem($this->jsonRequest(['type' => 'product', 'id' => 999, 'quantity' => 1]));
+            $this->fail('An id nobody sells was taken.');
+        } catch (NotFoundHttpException) {
+            $this->assertSame(BasketStatus::Validated, $basket->getStatus(), 'An id nobody sells reopened a checkout.');
+        }
+    }
+
+    // An id that is no id is refused here: a list would reach the provider and raise a 500
+    public function testAnIdThatIsNeitherANumberNorAStringIsRefused(): void
+    {
+        $service = $this->service($this->basketHolding(1), new AddableItem(9, 2500));
+
+        $this->expectException(BadRequestHttpException::class);
+
+        $service->addItem($this->jsonRequest(['type' => 'product', 'id' => [9], 'quantity' => 1]));
+    }
+
     // The ordinary case: the same article asked for again is counted, not laid a second time beside itself
     public function testAskingForTheSameArticleAgainCountsItUp(): void
     {
@@ -223,7 +258,7 @@ class BasketAdditionTest extends TestCase
         return new Request([], [], [], [], [], [], json_encode($data));
     }
 
-    private function service(Basket $basket, object $item): BasketService
+    private function service(Basket $basket, ?object $item): BasketService
     {
         $basketRepository = $this->createStub(BasketRepository::class);
         $basketRepository->method('find')->willReturn($basket);

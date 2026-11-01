@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.23.1
+
+The basket calls the site it is on
+
+- `basket.js`, `handlers.js`: calls follow the folder the site is served from (01/11/2026)
+- `basket.js`: a redirected write sends the visitor there, a redirected read says nothing (01/11/2026)
+- `BasketService::addItem()`: an unknown item answers 404, not a 500 (01/11/2026)
+- `BasketService::addItem()`: an unknown item neither opens a basket nor reopens a checkout (01/11/2026)
+- `BasketService::addItem()`: an id neither number nor string answers 400, not a 500 (01/11/2026)
+
 ## v6.23.0
 
 A code is spent once and an order is settled once

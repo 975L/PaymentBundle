@@ -208,6 +208,8 @@ An order already settled, or taken back to a basket by its customer, says so and
 
 `basket.js` also posts the browser's own timezone to `set_timezone` (`TimezoneController`), held in the session as `user_timezone` so the dates this bundle prints — an order registered, items shipped, a download — read in the hour of whoever is reading them. It is posted **once for the browsing session**, `sessionStorage` holding what was sent: the bar connects this controller on every page, and the post opens a session — so a cookie — for whoever is reading, buyer or not. **Only a known identifier is kept**: a session holding anything else would break every page that prints an hour, and only emptying it would get out.
 
+Its calls go through `url()` in `assets/js/handlers.js`, which reads the folder the site is served from off the script's own address. A redirected answer to a write sends the visitor there (a site asking to sign in first); a redirected read of `basket_json` shows no basket and says nothing, the read running on every page, the sign-in page included.
+
 ## Measuring a paid order
 
 `<twig:c975LPayment:Basket:MatomoOrder basket="{{ basket }}"/>` hands a confirmed order to Matomo's `_paq` queue (`assets/js/matomo-order.js`, the lazy `matomoOrder` controller): one `addEcommerceItem` per line, then `trackEcommerceOrder`. The figures come from `payment_matomo_order(basket)` (`Twig\MatomoOrderExtension`), in units rather than cents, the order number as its id, each line's kind as its category. It is placed by `basket/display` and `basket/shared_paid` on a **confirmed** order only, and draws nothing unless UiBundle's `matomo_enabled()` says the site measures its audience. Matomo counts an order number once, so a reload records nothing twice. **A satellite bundle adds nothing**: every basket line is already in it.
@@ -308,6 +310,7 @@ a provider that throws, and no rows at all reads as "nothing to report".
 - **Do not trust the amount the basket holds** as proof of what was charged.
 - **Do not leave a validated basket editable** without expiring its checkout.
 - **Do not read the session in anything reachable from the webhook** — it carries none.
+- **Do not `fetch` a bare route path from this bundle's scripts**: go through `url()` in `handlers.js`, or a site served from a folder calls the one around it.
 - **Do not answer 403** for another user's order; 404 is the answer.
 - **Do not read `payment-test-mode` from the secret key's contents.**
 - **Do not send a basket email outside `BasketEmailFactory`**, nor swallow a send failure.

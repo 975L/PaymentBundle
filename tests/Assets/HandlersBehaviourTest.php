@@ -104,6 +104,22 @@ class HandlersBehaviourTest extends JsCase
         );
     }
 
+    // A site served from a folder, as a demo under /demo is, calls its own routes and not those of the site around it
+    public function testTheFolderTheSiteIsServedFromIsReadOffTheScript(): void
+    {
+        $read = $this->handlers(
+            'return {
+                folder: h.basePath("https://site.test/demo/assets/@c975l/payment-bundle/js/handlers-abc.js"),
+                root: h.basePath("https://site.test/assets/@c975l/payment-bundle/js/handlers-abc.js"),
+                elsewhere: h.basePath("https://site.test/some/where/handlers.js"),
+            };'
+        );
+
+        $this->assertSame('/demo', $read['folder'], 'A demo would call the routes of the site around it.');
+        $this->assertSame('', $read['root'], 'A site at the root of its domain would call a folder that does not exist.');
+        $this->assertSame('', $read['elsewhere'], 'A script served from anywhere else would make up a folder.');
+    }
+
     // The timezone the session is stored with, sent once and read from the browser itself
     public function testTheTimezoneSentIsTheBrowsersOwn(): void
     {

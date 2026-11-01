@@ -15,6 +15,16 @@ export default {
     getLanguage: UiHandlers.getLanguage,
     translate: UiHandlers.translate,
 
+    // The folder the site is served from, read off the address this very script came from: AssetMapper serves it as <folder>/assets/@c975l/...
+    basePath(moduleUrl = import.meta.url) {
+        return new URL(moduleUrl).pathname.match(/^(.*?)\/assets\/@c975l\//)?.[1] ?? "";
+    },
+
+    // A url of this site from its route's path: served from a folder, as a demo under /demo is, "/shop/basket" alone would call the site around it
+    url(path) {
+        return `${this.basePath()}${path}`;
+    },
+
     // Displays a message in the placeholder the Basket:Message component draws
     displayMessage(message, alertClass) {
         const messageElement = document.querySelector(".global-message");
@@ -33,7 +43,7 @@ export default {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         // Sends request
-        fetch("/set-timezone", {
+        fetch(this.url("/set-timezone"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

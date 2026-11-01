@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -882,7 +883,7 @@ class BasketService implements BasketServiceInterface
     private function readAddition(Request $request): array
     {
         $data = $this->readPayload($request);
-        if (!isset($data['id'], $data['quantity'], $data['type']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type'])) {
+        if (!isset($data['id'], $data['quantity'], $data['type']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type']) || !(\is_int($data['id']) || \is_string($data['id']))) {
             throw new BadRequestHttpException('The body must carry "id", "quantity" and a "type" a provider answers for.');
         }
 
@@ -944,6 +945,14 @@ class BasketService implements BasketServiceInterface
     {
         [$itemId, $quantity, $type] = $this->readAddition($request);
 
+        $provider = $this->itemProviderRegistry->get($type);
+        $item = $provider->findItem($itemId);
+
+        // Before the basket: an id made up by a robot neither opens a row nor reopens a checkout
+        if (null === $item) {
+            throw new NotFoundHttpException('Item not found');
+        }
+
         $this->basket = $this->basketToAddTo();
 
         // Paid at the provider though nothing had said so yet: the order keeps what it was paid for, and this goes in a new basket
@@ -953,13 +962,6 @@ class BasketService implements BasketServiceInterface
         }
 
         $items = $this->basket->getItems();
-
-        $provider = $this->itemProviderRegistry->get($type);
-        $item = $provider->findItem($itemId);
-
-        if (null === $item) {
-            throw new \Exception('Item not found');
-        }
 
         $error = $provider->validateAddition($item, $quantity);
         if (null !== $error) {

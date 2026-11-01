@@ -36,6 +36,11 @@
                 "en": "Marking an order as shipped now asks for a confirmation first.",
                 "fr": "Marquer une commande comme expédiée demande désormais une confirmation.",
                 "es": "Marcar un pedido como enviado pide ahora una confirmación."
+            },
+            {
+                "en": "A visitor who has to sign in before adding to the basket is now taken to the sign-in page instead of being told the basket failed.",
+                "fr": "Un visiteur qui doit se connecter avant d'ajouter au panier est désormais conduit à la page de connexion, au lieu de lire que le panier a échoué.",
+                "es": "Un visitante que debe iniciar sesión antes de añadir a la cesta llega ahora a la página de inicio de sesión, en lugar de leer que la cesta ha fallado."
             }
         ]
     },
