@@ -109,22 +109,17 @@ class StripeGateway implements ExpirableGatewayInterface, PaymentGatewayInterfac
         };
     }
 
-    // The customer coming back from Stripe, which is only ever a session id to look up: the session is re-read from Stripe itself, so a url typed by hand confirms nothing
+    // The customer coming back from Stripe, whose answer is read off the session the payment keeps: a session id typed in the url, one already paid included, confirms nothing, and one that is not the session kept is refused outright. A kept session the url does not name is the url losing it along the way
     public function readReturn(Request $request, ?string $reference): ?PaymentNotification
     {
-        // Stripe writes the session id into the url it sends the customer back on, and the reference kept on the payment names the same session: the second answers when the first has been dropped along the way
         $sessionId = $request->query->get('session_id');
-        if (!is_string($sessionId) || '' === $sessionId) {
-            $sessionId = $reference;
-        }
-
-        if (null === $sessionId || '' === $sessionId) {
+        if (null === $reference || '' === $reference || (\is_string($sessionId) && '' !== $sessionId && $sessionId !== $reference)) {
             return null;
         }
 
         Stripe::setApiKey($this->getSecret());
 
-        return $this->sessionReader->read(StripeSession::retrieve($sessionId));
+        return $this->sessionReader->read(StripeSession::retrieve($reference));
     }
 
     // The test dashboard and the live one are two distinct spaces at Stripe, and a live payment id is not found in the test one

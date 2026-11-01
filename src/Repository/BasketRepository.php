@@ -47,7 +47,34 @@ class BasketRepository extends ServiceEntityRepository
         return 1 === $updated;
     }
 
-    // Moves one settled order to "refunded" in a single conditional statement like claimPaid(), and says whether this call moved it - a replayed refund then neither redates it nor deactivates the cards twice
+    // Moves one basket back from "paid" to "validated", which is how a retry finds an order whose delivery did not go through (see BasketService::paid()). On the connection: a flush that failed has closed the manager, and this has to run then
+    public function releasePaid(Basket $basket): void
+    {
+        $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE payment_basket SET status = :validated WHERE id = :id AND status = :paid',
+            ['id' => $basket->getId(), 'validated' => BasketStatus::Validated->value, 'paid' => BasketStatus::Paid->value]
+        );
+    }
+
+    // Takes the marker saying this basket holds its code's amount, and says whether this call is the one that took it: the same request sent twice debits once (see BasketCodeService::claim())
+    public function markCodeClaimed(Basket $basket): bool
+    {
+        return 1 === (int) $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE payment_basket SET discount_claimed = 1 WHERE id = :id AND discount_claimed = 0',
+            ['id' => $basket->getId()]
+        );
+    }
+
+    // Takes that marker back, and says whether this call is the one that took it: what is given back is given back once (see BasketCodeService::release()). Only off an order still open, the nightly pass having read as given up on an order the payment has delivered since. A delivery refused by its code gets its marker back from the rollback
+    public function markCodeReleased(Basket $basket): bool
+    {
+        return 1 === (int) $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE payment_basket SET discount_claimed = 0 WHERE id = :id AND discount_claimed = 1 AND status IN (:new, :validated)',
+            ['id' => $basket->getId(), 'new' => BasketStatus::New->value, 'validated' => BasketStatus::Validated->value]
+        );
+    }
+
+    // Moves one settled order to "refunded" in a single conditional statement like claimPaid(), and says whether this call moved it - a replayed refund then neither redates it nor deactivates the cards twice. An order charged and never delivered goes the same way from where it stands: the shop's answer to one it cannot deliver is to hand the money back
     public function claimRefunded(Basket $basket, int $amount): bool
     {
         $updated = $this->getEntityManager()
@@ -56,10 +83,26 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('now', new \DateTime())
             ->setParameter('amount', $amount)
             ->setParameter('id', $basket->getId())
-            ->setParameter('settled', BasketStatus::SETTLED)
+            ->setParameter('settled', $basket->isChargedUndelivered() ? [BasketStatus::Validated] : BasketStatus::SETTLED)
             ->execute();
 
         return 1 === $updated;
+    }
+
+    // How many orders were charged and not delivered since that date, a shop's own test orders left out (see PaymentAlertProvider)
+    public function countChargedUndeliveredSince(\DateTimeInterface $since): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->innerJoin('b.payment', 'p')
+            ->andWhere('b.status = :validated')
+            ->andWhere('p.isFinished = true')
+            ->andWhere('p.modification >= :since')
+            ->andWhere('b.testMode = false')
+            ->setParameter('validated', BasketStatus::Validated)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     // How many orders were refunded in part since that date and still hand over what they sold, the shopkeeper being the one to say whether they should (see PaymentAlertProvider)
@@ -255,13 +298,17 @@ class BasketRepository extends ServiceEntityRepository
      * Read on the last change like the unvalidated ones, and not on the creation: a customer still coming back
      * to their order is not somebody who abandoned it, whatever day they first opened it.
      *
+     * An order the provider did charge is left out: it is not abandoned but undelivered, and the record of that money.
+     *
      * @return Basket[]
      */
     public function findAbandoned(int $days): array
     {
         return $this->createQueryBuilder('b')
+            ->leftJoin('b.payment', 'p')
             ->andWhere('b.status = :status')
             ->andWhere('b.modification < :date')
+            ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->setParameter('status', BasketStatus::Validated)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
             ->getQuery()
@@ -283,7 +330,10 @@ class BasketRepository extends ServiceEntityRepository
     public function findToRemind(int $days, int $alreadySent): array
     {
         return $this->createQueryBuilder('b')
+            ->leftJoin('b.payment', 'p')
             ->andWhere('b.status = :status')
+            // Charged and not delivered is the shop's to settle: nobody is asked to pay it again
+            ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->andWhere('b.reminderOptOutAt IS NULL')
             ->andWhere('b.contentflags != :service')
             ->andWhere('b.email IS NOT NULL')
@@ -293,6 +343,23 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('service', Basket::CONTENT_FLAG_SERVICE)
             ->setParameter('sent', $alreadySent)
             ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->getQuery()
+            ->getResult();
+    }
+
+    // The checkouts given up on that still hold the amount of their code, for the nightly pass to give back (see BasketRetentionService::releaseStaleClaims()): a card would otherwise read empty for the thirty days of findAbandoned(). A shared order waits for its link's validity instead of a day, a payer following it later claiming afresh (see BasketService::payShared())
+    /** @return Basket[] */
+    public function findStaleClaims(int $hours, int $sharedDays): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.payment', 'p')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.discountClaimed = true')
+            ->andWhere('(b.shareToken IS NULL AND b.modification < :date) OR (b.shareToken IS NOT NULL AND b.modification < :sharedDate)')
+            ->andWhere('p.id IS NULL OR p.isFinished = false')
+            ->setParameter('status', BasketStatus::Validated)
+            ->setParameter('date', new \DateTime('-' . $hours . ' hours'))
+            ->setParameter('sharedDate', new \DateTime('-' . $sharedDays . ' days'))
             ->getQuery()
             ->getResult();
     }

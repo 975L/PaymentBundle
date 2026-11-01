@@ -28,12 +28,14 @@ use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -122,6 +124,69 @@ class BasketAdditionTest extends TestCase
         $this->assertSame(1, $basket->getItems()['product'][9]['quantity']);
     }
 
+    // The "-" of a stale page, or a call written by hand: nothing to walk down, so no line is opened owing articles - the "free order" a quantity of 0 or below used to be
+    /** @return iterable<string, array{mixed}> */
+    public static function quantitiesOpeningNoLine(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
+        yield 'negative as the page sends it' => ['-3'];
+    }
+
+    #[DataProvider('quantitiesOpeningNoLine')]
+    public function testAQuantityBelowOneOpensNoLine(mixed $quantity): void
+    {
+        $basket = $this->basketHolding(1);
+        $service = $this->service($basket, new AddableItem(9, 2500));
+
+        $answer = $service->addItem($this->jsonRequest(['type' => 'product', 'id' => 9, 'quantity' => $quantity]));
+
+        $this->assertSame('error.quantity_invalid', $answer['error']);
+        $this->assertArrayNotHasKey(9, $basket->getItems()['product']);
+    }
+
+    // What the cast used to round or wrap: "1.9" read as 1, and a number past the integers read as whatever PHP made of it
+    /** @return iterable<string, array{mixed}> */
+    public static function quantitiesRefusedWhole(): iterable
+    {
+        yield 'a fraction' => ['1.9'];
+        yield 'a json fraction' => [1.9];
+        yield 'an exponent' => ['1e3'];
+        yield 'past the integers' => ['99999999999999999999'];
+        yield 'past what one line holds' => [BasketService::MAX_LINE_QUANTITY + 1];
+        yield 'as far below' => [-BasketService::MAX_LINE_QUANTITY - 1];
+    }
+
+    #[DataProvider('quantitiesRefusedWhole')]
+    public function testAQuantityThatIsNotAWholeNumberInRangeIsRefused(mixed $quantity): void
+    {
+        $service = $this->service($this->basketHolding(1), new AddableItem(9, 2500));
+
+        $this->expectException(BadRequestHttpException::class);
+        $service->addItem($this->jsonRequest(['type' => 'product', 'id' => 9, 'quantity' => $quantity]));
+    }
+
+    // One click at a time is no way round the cap: the line as a whole stays under what the columns behind it count
+    public function testALineCannotBeCountedUpPastItsCap(): void
+    {
+        $basket = $this->basketHolding(BasketService::MAX_LINE_QUANTITY);
+        $service = $this->service($basket, new AddableItem(7, 1000));
+
+        $this->expectException(BadRequestHttpException::class);
+        $service->addItem($this->jsonRequest(['type' => 'product', 'id' => 7, 'quantity' => 1]));
+    }
+
+    // A truly free article stays free and stays ordered: its quantity is what makes it a line, not its price
+    public function testAFreeArticleOfQuantityOneOpensItsLine(): void
+    {
+        $basket = $this->basketHolding(1);
+
+        $this->service($basket, new AddableItem(9, 0))->addItem($this->jsonRequest(['type' => 'product', 'id' => 9, 'quantity' => 1]));
+
+        $this->assertSame(1, $basket->getItems()['product'][9]['quantity']);
+        $this->assertSame(0, $basket->getItems()['product'][9]['total']);
+    }
+
     private function basketHolding(int $quantity): Basket
     {
         $basket = new Basket();
@@ -189,13 +254,17 @@ class BasketAdditionTest extends TestCase
         $configService = $this->createStub(ConfigServiceInterface::class);
         $configService->method('get')->willReturnCallback(fn (string $slug) => 'shop-currency' === $slug ? 'EUR' : 0);
 
+        // The error is the key itself, so a test says which refusal happened rather than matching a sentence
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+
         return new BasketService(
             $basketRepository,
             $configService,
             $this->createStub(EntityManagerInterface::class),
             $requestStack,
             $this->createStub(PaymentFormFactoryInterface::class),
-            $this->createStub(TranslatorInterface::class),
+            $translator,
             $this->createStub(MessageBusInterface::class),
             $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(LoggerInterface::class),
@@ -203,7 +272,7 @@ class BasketAdditionTest extends TestCase
             $itemProviderRegistry,
             $this->createStub(PaymentGatewayRegistry::class),
             $this->createStub(PaymentTestModeInterface::class),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $this->createStub(BasketRepository::class)),
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),

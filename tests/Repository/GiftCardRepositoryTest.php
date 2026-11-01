@@ -23,6 +23,8 @@ class GiftCardRepositoryTest extends TestCase
 {
     private string $sql = '';
 
+    private bool $refreshed = false;
+
     /**
      * @var array<string, mixed>
      */
@@ -72,6 +74,14 @@ class GiftCardRepositoryTest extends TestCase
         $this->assertSame(1500, $this->parameters['amount']);
     }
 
+    // The statement goes round the unit of work and the same request goes on to price a basket against the card: what it reads next is what the database holds
+    public function testACreditReadsTheCardBack(): void
+    {
+        $this->createRepository()->creditAmount(new GiftCard(), 1500);
+
+        $this->assertTrue($this->refreshed);
+    }
+
     public function testNothingIsCreditedForNothing(): void
     {
         $this->createRepository()->creditAmount(new GiftCard(), 0);
@@ -92,6 +102,10 @@ class GiftCardRepositoryTest extends TestCase
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
+        $entityManager->method('isOpen')->willReturn(true);
+        $entityManager->method('refresh')->willReturnCallback(function (): void {
+            $this->refreshed = true;
+        });
         $entityManager->method('getClassMetadata')->willReturnMap([
             [GiftCard::class, new ClassMetadata(GiftCard::class)],
         ]);

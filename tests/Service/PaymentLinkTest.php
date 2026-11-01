@@ -238,7 +238,7 @@ class PaymentLinkTest extends TestCase
             $itemProviderRegistry,
             $gatewayRegistry,
             $this->paymentTestMode($testMode),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $this->createStub(BasketRepository::class)),
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),

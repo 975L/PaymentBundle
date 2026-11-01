@@ -25,6 +25,7 @@ class BasketRetentionCommandTest extends TestCase
         $retentionService->expects($this->once())->method('run')->willReturn([
             'unvalidated' => 12,
             'abandoned' => 3,
+            'released' => 4,
             'archived' => 7,
             'expired' => 1,
         ]);
@@ -43,7 +44,7 @@ class BasketRetentionCommandTest extends TestCase
     public function testTheReportNamesTheDurationsApplied(): void
     {
         $retentionService = $this->createMock(BasketRetentionService::class);
-        $retentionService->expects($this->once())->method('run')->willReturn(['unvalidated' => 0, 'abandoned' => 0, 'archived' => 0, 'expired' => 0]);
+        $retentionService->expects($this->once())->method('run')->willReturn(['released' => 0, 'unvalidated' => 0, 'abandoned' => 0, 'archived' => 0, 'expired' => 0]);
 
         $tester = new CommandTester(new BasketRetentionCommand($retentionService));
         $tester->execute([]);

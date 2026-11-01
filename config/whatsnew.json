@@ -1,5 +1,45 @@
 [
     {
+        "date": "2026-11-01",
+        "description": [
+            {
+                "en": "An order your customer paid for but did not receive is now named on your dashboard, with a button to deliver it again once the cause is settled.",
+                "fr": "Une commande payée par votre client mais non livrée est désormais signalée sur votre tableau de bord, avec un bouton pour la livrer à nouveau une fois la cause réglée.",
+                "es": "Un pedido pagado por su cliente pero no entregado se indica ahora en su panel, con un botón para volver a entregarlo una vez resuelta la causa."
+            },
+            {
+                "en": "A customer coming back from Stripe or Revolut with the back button after paying is shown their order instead of being charged a second time.",
+                "fr": "Un client qui revient de Stripe ou de Revolut avec le bouton retour après avoir payé retrouve sa commande au lieu d'être débité une seconde fois.",
+                "es": "Un cliente que vuelve de Stripe o de Revolut con el botón atrás después de pagar encuentra su pedido en lugar de que se le cobre una segunda vez."
+            },
+            {
+                "en": "A shared order holds its gift card or code for as many days as its link is announced to last, rather than thirty.",
+                "fr": "Une commande partagée réserve sa carte cadeau ou son code pendant la durée annoncée du lien, et non plus trente jours.",
+                "es": "Un pedido compartido reserva su tarjeta regalo o su código durante el plazo anunciado del enlace, y no treinta días."
+            },
+            {
+                "en": "A gift card or a promotional code is now set aside as soon as the order is validated, so it can no longer be spent twice.",
+                "fr": "Une carte cadeau ou un code promo est désormais réservé dès la validation de la commande : il ne peut plus servir deux fois.",
+                "es": "Una tarjeta regalo o un código promocional se reserva ahora al validar el pedido: ya no puede usarse dos veces."
+            },
+            {
+                "en": "A store's test purchase is now delivered only to the accounts you list in the new \"Accounts allowed store test purchases\" setting: name the one you hand Apple's reviewer before submitting your app.",
+                "fr": "Un achat de test des stores n'est désormais livré qu'aux comptes listés dans le nouveau réglage « Comptes autorisés aux achats de test des stores » : nommez celui remis à la relecture d'Apple avant de soumettre votre application.",
+                "es": "Una compra de prueba de las tiendas solo se entrega ahora a las cuentas indicadas en el nuevo ajuste «Cuentas autorizadas a las compras de prueba de las tiendas»: indique la entregada a la revisión de Apple antes de enviar su aplicación."
+            },
+            {
+                "en": "Deleting a validated basket from the back office now cancels its payment page, so a customer can no longer pay for a basket that is gone; one found already paid is kept as an order.",
+                "fr": "Supprimer un panier validé depuis le back-office annule désormais sa page de paiement : un client ne peut plus payer un panier disparu, et celui qui s'avère déjà payé est conservé comme commande.",
+                "es": "Eliminar una cesta validada desde el back office anula ahora su página de pago: un cliente ya no puede pagar una cesta desaparecida, y la que resulta ya pagada se conserva como pedido."
+            },
+            {
+                "en": "Marking an order as shipped now asks for a confirmation first.",
+                "fr": "Marquer une commande comme expédiée demande désormais une confirmation.",
+                "es": "Marcar un pedido como enviado pide ahora una confirmación."
+            }
+        ]
+    },
+    {
         "date": "2026-10-31",
         "description": [
             {

@@ -58,6 +58,18 @@
                 <source>narration.guided_step_payment_basket_integrity_status</source>
                 <target>Affichez toutes les lignes : le tableau s'ouvre sur ce qui reste à traiter, choisissez « Tous les statuts » pour voir aussi les contrôles qui n'ont rien trouvé.</target>
             </trans-unit>
+            <trans-unit id="AQL0WcT">
+                <source>narration.guided_step_payment_charged_undelivered_open</source>
+                <target>Ouvrez les commandes validées. Celle encaissée mais non livrée en fait partie, et elle seule porte le bouton de l'étape suivante. Réglez d'abord la cause donnée par le journal.</target>
+            </trans-unit>
+            <trans-unit id="0M7dcyg">
+                <source>narration.guided_step_payment_charged_undelivered_refund</source>
+                <target>Si elle ne peut pas être livrée, remboursez le client chez le prestataire de paiement : la commande passe seule en remboursée, et la carte cadeau récupère ce que la commande avait pris.</target>
+            </trans-unit>
+            <trans-unit id="HeyOm_E">
+                <source>narration.guided_step_payment_charged_undelivered_retry</source>
+                <target>Cliquez pour repasser toute la livraison. Le site indique si elle a abouti, et rien n'est débité une seconde fois.</target>
+            </trans-unit>
             <trans-unit id="YDh6NB0">
                 <source>narration.guided_step_payment_discount_code_active</source>
                 <target>Laissez-le actif : décochée, la case suspend le code sans l'effacer ni remettre son compteur à zéro.</target>
@@ -186,6 +198,10 @@
                 <source>narration.guided_step_payment_in_app_setup_publish</source>
                 <target>Enfin, la commande de publication crée les produits chez Apple et Google à partir de ce que le site vend. Chaque achat apparaît ensuite dans Achats dans l'appli.</target>
             </trans-unit>
+            <trans-unit id="9hOtqqY">
+                <source>narration.guided_step_payment_in_app_setup_sandbox</source>
+                <target>Un achat de test des stores n'est livré qu'à un détenteur nommé dans payment-store-sandbox-holders. Nommez le compte remis à la relecture d'Apple avant de soumettre l'application, et vos testeurs.</target>
+            </trans-unit>
             <trans-unit id="jjK_Jbc">
                 <source>narration.guided_step_payment_in_app_setup_value</source>
                 <target>Collez le contenu entier du fichier, tel quel, puis enregistrez. Recommencez pour chaque réglage du store que vous vendez.</target>
@@ -292,7 +308,7 @@
             </trans-unit>
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
-                <target>Marquez une commande expédiée, sur la ligne de celle que vous venez d'emballer. Le bouton ne s'affiche que sur une commande payée portant quelque chose à poster et pas encore marquée ; le clic enregistre l'expédition et prévient le client par e-mail.</target>
+                <target>Marquez une commande expédiée, sur la ligne de celle que vous venez d'emballer. Le bouton ne s'affiche que sur une commande payée portant quelque chose à poster et pas encore marquée ; le clic ouvre une confirmation, qui enregistre l'expédition et prévient le client par e-mail.</target>
             </trans-unit>
             <trans-unit id="mxkzgZi">
                 <source>narration.guided_step_payment_shop_identity_invoice</source>

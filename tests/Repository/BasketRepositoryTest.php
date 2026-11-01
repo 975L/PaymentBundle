@@ -64,6 +64,34 @@ class BasketRepositoryTest extends TestCase
         $this->assertSame('', $this->dql);
     }
 
+    // An order the provider charged is money on the books: the purge that removes checkouts given up on does not touch it
+    public function testTheAbandonedQueryLeavesTheChargedOrdersOut(): void
+    {
+        $this->createRepository()->findAbandoned(30);
+
+        $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
+    }
+
+    // Nor is its customer reminded to pay it
+    public function testTheReminderQueryLeavesTheChargedOrdersOut(): void
+    {
+        $this->createRepository()->findToRemind(3, 0);
+
+        $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
+    }
+
+    // A checkout given up on stops holding its card after a day, and a shared order once its link has run out, read each on its own date
+    public function testTheStaleClaimQueryReadsASharedOrderOnItsLinkAndLeavesTheChargedOut(): void
+    {
+        $this->createRepository()->findStaleClaims(24, 7);
+
+        $this->assertStringContainsString('b.discountClaimed = true', $this->dql);
+        $this->assertStringContainsString('(b.shareToken IS NULL AND b.modification < :date) OR (b.shareToken IS NOT NULL AND b.modification < :sharedDate)', $this->dql);
+        $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
+        $this->assertEqualsWithDelta(new \DateTime('-24 hours')->getTimestamp(), $this->parameters['date']->getTimestamp(), 5);
+        $this->assertEqualsWithDelta(new \DateTime('-7 days')->getTimestamp(), $this->parameters['sharedDate']->getTimestamp(), 5);
+    }
+
     /**
      * The three conditions that keep an order out of the reminders.
      *

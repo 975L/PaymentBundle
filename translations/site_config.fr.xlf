@@ -56,7 +56,11 @@
             </trans-unit>
             <trans-unit id="wgKNCR_">
                 <source>description.payment_share_validity</source>
-                <target>Nombre de jours pendant lesquels une commande que le client se fait offrir reste payable par le lien partagé. Le délai est annoncé au client, il n'est pas imposé : la commande est réellement effacée au bout de 30 jours si elle n'est pas payée.</target>
+                <target>Nombre de jours pendant lesquels une commande que le client se fait offrir reste payable par le lien partagé. Son code reste réservé pendant ce délai, puis redevient utilisable : le lien répond toujours et reprend le code s'il le peut, jusqu'à l'effacement de la commande au bout de 30 jours si elle n'est pas payée.</target>
+            </trans-unit>
+            <trans-unit id="hiuGO.g">
+                <source>description.payment_store_sandbox_holders</source>
+                <target>Identifiants des comptes dont les achats de test d'App Store ou de Google Play sont livrés, séparés par des virgules : celui que vous confiez à la revue d'Apple, ceux de vos testeurs. Vide, aucun achat de test n'est livré.</target>
             </trans-unit>
             <trans-unit id="i415WZO">
                 <source>description.payment_test_mode</source>
@@ -221,6 +225,10 @@
             <trans-unit id="8WjAZqT">
                 <source>label.payment_share_validity</source>
                 <target>Validité d'une commande partagée (jours)</target>
+            </trans-unit>
+            <trans-unit id="jTm31Gs">
+                <source>label.payment_store_sandbox_holders</source>
+                <target>Comptes autorisés aux achats de test des stores</target>
             </trans-unit>
             <trans-unit id="KlPswTP">
                 <source>label.payment_test_mode</source>

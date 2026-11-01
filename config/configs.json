@@ -48,6 +48,17 @@
         "description": "description.payment_share_validity"
     },
     {
+        "label": "label.payment_store_sandbox_holders",
+        "slug": "payment-store-sandbox-holders",
+        "sensitive": false,
+        "restricted": false,
+        "value": null,
+        "kind": "text",
+        "group": "payment",
+        "severity": null,
+        "description": "description.payment_store_sandbox_holders"
+    },
+    {
         "label": "label.payment_test_mode",
         "slug": "payment-test-mode",
         "sensitive": false,

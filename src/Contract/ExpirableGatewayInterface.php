@@ -20,7 +20,8 @@ interface ExpirableGatewayInterface
      * @param string $reference what the provider called that checkout, as CheckoutSession carried it back
      *
      * @throws \Exception when the provider refuses or cannot be reached - a checkout already paid, already
-     *                    expired or unknown is the provider's answer, not the caller's to guess
+     *                    expired or unknown is the provider's answer, not the caller's to guess: BasketService
+     *                    reads it back through ReturnAwareGatewayInterface, so a checkout found paid opens no other
      */
     public function expireCheckout(string $reference): void;
 }

@@ -12,6 +12,6 @@
         <strong>{{ counterpart.item.expectedDelivery }}</strong>
         <br>
         <br>
-        {{ counterpart.item.description|raw|nl2br }}
+        {{ counterpart.item.description|default('')|sanitize_html('c975l.rich')|nl2br }}
     </td>
 </tr>

@@ -49,6 +49,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\Translation\t;
@@ -56,6 +57,8 @@ use function Symfony\Component\Translation\t;
 class BasketCrudController extends AbstractCrudController
 {
     private const string TABLE = 'payment_basket';
+
+    private const string RETRY_DELIVERY_TOKEN = 'payment_retry_delivery';
 
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
@@ -66,6 +69,7 @@ class BasketCrudController extends AbstractCrudController
         private readonly BasketRepository $basketRepository,
         private readonly PdfGeneratorInterface $pdfGenerator,
         private readonly BasketServiceInterface $basketService,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -268,6 +272,18 @@ class BasketCrudController extends AbstractCrudController
                 && ($basket->getContentFlags() & Basket::CONTENT_FLAG_CF_SHIPPING)
                 && null === $basket->getCounterpartsShipped()), $this->translator->trans('label.send_counterparts', [], 'payment'));
 
+        // An order the customer paid and did not receive (see Basket::isChargedUndelivered()): delivered again once its cause is settled, the same path a webhook's replay takes
+        $retryDelivery = EasyAdminActionHelper::toIconOnly(Action::new('retryDelivery', t('label.retry_delivery', [], 'payment'), 'fa fa-rotate-right')
+            ->linkToUrl(fn (Basket $basket): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction('retryDelivery')
+                ->setEntityId($basket->getId())
+                ->set('token', $this->csrfTokenManager->getToken(self::RETRY_DELIVERY_TOKEN)->getValue())
+                ->generateUrl())
+            ->renderAsForm()
+            ->displayIf(static fn (Basket $basket): bool => $basket->isChargedUndelivered()), $this->translator->trans('label.retry_delivery', [], 'payment'));
+
         // The parcels of the day, printed in one go. A global action and not a per-row one: what a shopkeeper does is print the sheet, stick the labels and post the lot, not fetch one label at a time
         $shippingLabels = Action::new('shippingLabels', t('label.shipping_labels', [], 'payment'), 'fa fa-tags')
             ->createAsGlobalAction()
@@ -322,6 +338,7 @@ class BasketCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $filterArchived)
             ->add(Crud::PAGE_INDEX, $sendPhysicalItems)
             ->add(Crud::PAGE_INDEX, $sendCounterparts)
+            ->add(Crud::PAGE_INDEX, $retryDelivery)
             ->setPermission(Action::INDEX, $role)
             ->setPermission(Action::DELETE, $role)
             ->setPermission(Action::DETAIL, $role)
@@ -330,6 +347,7 @@ class BasketCrudController extends AbstractCrudController
             ->setPermission('filterNew', $role)
             ->setPermission('filterArchived', $role)
             ->setPermission('paymentLink', $role)
+            ->setPermission('retryDelivery', $role)
             ->setPermission('shippingLabels', $role)
             ->setPermission('invoice', $role)
             ->setPermission('creditNote', $role)
@@ -373,6 +391,47 @@ class BasketCrudController extends AbstractCrudController
             // The orders money went back on, in full or in part - what the dashboard's partial refunds alert opens on (see PaymentAlertProvider)
             ->add(NumericFilter::new('refundedAmount', t('label.refunded_amount', [], 'payment')))
         ;
+    }
+
+    // Delivers again an order charged and not delivered, which paid() holds back as long as its code does not cover it and hands to the log when a provider throws
+    #[AdminRoute(options: ['methods' => ['POST']])]
+    public function retryDelivery(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted($this->configService->get('site-role-admin'));
+
+        $index = $this->adminUrlGenerator->unsetAll()->setController(self::class)->setAction(Action::INDEX)->generateUrl();
+        if (!$this->isCsrfTokenValid(self::RETRY_DELIVERY_TOKEN, $request->query->getString('token'))) {
+            return $this->redirect($index);
+        }
+
+        $basket = $this->basketRepository->find($request->query->getInt('entityId'));
+        if (null === $basket || !$basket->isChargedUndelivered()) {
+            throw $this->createNotFoundException();
+        }
+
+        // A provider throwing again is logged by paid(), and said to the admin rather than answered with an error page
+        try {
+            $this->basketService->paid($basket);
+            $delivered = $basket->getStatus()->isSettled();
+        } catch (\Throwable) {
+            $delivered = false;
+        }
+
+        $this->addFlash($delivered ? 'success' : 'danger', $this->translator->trans($delivered ? 'flash.delivery_retried' : 'flash.delivery_still_held', [], 'payment'));
+
+        return $this->redirect($index);
+    }
+
+    // A checkout removed from here is called off at its provider and gives back what it held of its code, one found paid being settled and kept; an order keeps what it spent, a charged one included, a refund being the way that goes back
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof Basket && !$entityInstance->isOrder() && !$this->basketService->callOffCheckout($entityInstance)) {
+            $this->addFlash('warning', $this->translator->trans('flash.basket_kept_paid', [], 'payment'));
+
+            return;
+        }
+
+        parent::deleteEntity($entityManager, $entityInstance);
     }
 
     /**

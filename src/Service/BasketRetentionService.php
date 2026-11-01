@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Service;
 
 use c975L\ConfigBundle\Contract\UserInterface;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,12 @@ use Psr\Log\LoggerInterface;
 // How long a basket lives, in one place: the four durations below are what the law asks for rather than what a shop prefers, which is why they are constants of this bundle and not settings of each site. Deliberately not an interface, like BasketEmailFactory: there is no extension point to offer, a site free to keep its orders longer than ten years being a site that is no longer compliant
 class BasketRetentionService
 {
+    // A checkout left open holds the amount of its code about as long as the provider keeps it payable (Stripe: 24 hours): past that the card reads what it holds again, and a payment still arriving claims it afresh (see BasketCodeService::claim())
+    public const int CLAIM_HOURS = 24;
+
+    // What "payment-share-validity" reads as when it holds no number of days: the value it ships with
+    public const int SHARE_VALIDITY_DAYS = 7;
+
     // A basket nobody validated: no obligation holds it, only the visitor who may come back to it (see BasketRecoverySubscriber, whose recovery cookie lives exactly this long)
     public const int UNVALIDATED_DAYS = 14;
 
@@ -37,6 +44,8 @@ class BasketRetentionService
         private readonly BasketRepository $basketRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
+        private readonly BasketCodeService $basketCodeService,
+        private readonly ConfigServiceInterface $configService,
     ) {
     }
 
@@ -48,11 +57,30 @@ class BasketRetentionService
     public function run(): array
     {
         return [
+            'released' => $this->releaseStaleClaims(),
             'unvalidated' => $this->deleteUnvalidated(),
             'abandoned' => $this->deleteAbandoned(),
             'archived' => $this->archiveDelivered(),
             'expired' => $this->deleteExpired(),
         ];
+    }
+
+    // Gives back the code amounts of the checkouts given up on and of the shared links run out, which are written with the order they free (see BasketRepository::findStaleClaims())
+    public function releaseStaleClaims(): int
+    {
+        $baskets = $this->basketRepository->findStaleClaims(self::CLAIM_HOURS, $this->shareValidityDays());
+        array_walk($baskets, $this->basketCodeService->release(...));
+        $this->entityManager->flush();
+
+        return \count($baskets);
+    }
+
+    // How long the checkout told the customer a shared order is held for (see Basket/Validation.html.twig)
+    private function shareValidityDays(): int
+    {
+        $days = $this->configService->hasParameter('payment-share-validity') ? (int) $this->configService->get('payment-share-validity') : 0;
+
+        return $days > 0 ? $days : self::SHARE_VALIDITY_DAYS;
     }
 
     // Baskets nobody ever validated
@@ -74,6 +102,7 @@ class BasketRetentionService
     {
         $baskets = $this->basketRepository->findAbandoned(self::ABANDONED_DAYS);
         array_walk($baskets, $this->logAbandoned(...));
+        array_walk($baskets, $this->basketCodeService->release(...));
 
         return $this->delete($baskets);
     }

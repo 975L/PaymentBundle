@@ -20,6 +20,7 @@ use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
+use c975L\PaymentBundle\Exception\PaymentUnavailableException;
 use c975L\PaymentBundle\Form\PaymentFormFactoryInterface;
 use c975L\PaymentBundle\Message\ConfirmOrderMessage;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
@@ -35,6 +36,7 @@ use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use c975L\PaymentBundle\Service\ShippingRateResolverInterface;
 use c975L\PaymentBundle\Service\VatCalculator;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -400,6 +402,179 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
+    // A provider refusing to call off a checkout already paid, the webhook still on its way: the customer back on the basket by the browser's button
+    private function paidCheckoutGateway(PaymentNotification $notification): TestReturnAwareGateway
+    {
+        $gateway = $this->createMock(TestReturnAwareGateway::class);
+        $gateway->method('getSlug')->willReturn('stripe');
+        $gateway->method('isConfigured')->willReturn(true);
+        $gateway->method('expireCheckout')->willThrowException(new \RuntimeException('Only open sessions can be expired'));
+        $gateway->method('readReturn')->willReturnCallback(function (Request $request, ?string $reference) use ($notification): PaymentNotification {
+            $this->assertSame('cs_1', $reference);
+
+            return $notification;
+        });
+        $gateway->expects($this->never())->method('createCheckout');
+
+        return $gateway;
+    }
+
+    private function paidNotification(int $amount = 2500, string $basketId = '42'): PaymentNotification
+    {
+        return new PaymentNotification($basketId, 'stripe', 'pi_1', 'card', $amount);
+    }
+
+    private function routeNamingUrls(): UrlGeneratorInterface
+    {
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturnCallback(static fn (string $route): string => '/' . $route);
+
+        return $urlGenerator;
+    }
+
+    // Validating again what was just paid delivers the existing order, and sends the customer to it rather than to a second checkout
+    public function testValidatingAgainAfterPayingSettlesTheOrderAndOpensNoCheckout(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+
+        $service = $this->service($basket, $this->paidCheckoutGateway($this->paidNotification()), $this->sessionNaming(42), urlGenerator: $this->routeNamingUrls());
+
+        $this->assertSame('/basket_paid', $service->validate(new Request()));
+
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
+        $this->assertTrue($basket->getPayment()->isFinished());
+        $this->assertSame('pi_1', $basket->getPayment()->getTransactionId());
+        $this->assertSame(['product'], $this->delivered);
+    }
+
+    // Followed twice by a payer who has paid: the same, and to the payer's own page
+    public function testASharedLinkFollowedAfterPayingSettlesTheOrderAndOpensNoCheckout(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setShareToken('1111222233334444');
+
+        $service = $this->service($basket, $this->paidCheckoutGateway($this->paidNotification()), urlGenerator: $this->routeNamingUrls());
+
+        $this->assertSame('/basket_shared_paid', $service->payShared($basket));
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
+    }
+
+    // Editing the basket after paying: nothing is taken out of the order, and it is delivered
+    public function testEditingAfterPayingSettlesTheOrderInsteadOfReopeningIt(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+
+        $this->service($basket, $this->paidCheckoutGateway($this->paidNotification()), $this->sessionNaming(42))
+            ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
+
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
+        $this->assertArrayHasKey(1, $basket->getItems()['product']);
+    }
+
+    // Emptying the basket after paying leaves the order standing
+    public function testDeletingAfterPayingKeepsTheOrder(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->never())->method('remove');
+
+        $this->service($basket, $this->paidCheckoutGateway($this->paidNotification()), $this->sessionNaming(42), entityManager: $entityManager)->delete();
+
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
+    }
+
+    // What the back-office asks before deleting: the checkout is called off, so a tab left open can no longer charge for a basket gone
+    public function testCallingOffACheckoutExpiresItAtTheProvider(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+
+        $this->assertTrue($this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->callOffCheckout($basket));
+
+        $this->assertSame(['cs_1'], $this->expired);
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+    }
+
+    // Found paid on the way, the order is settled and the back-office told to keep it
+    public function testCallingOffACheckoutFoundPaidKeepsTheOrder(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+
+        $this->assertFalse($this->service($basket, $this->paidCheckoutGateway($this->paidNotification()), $this->sessionNaming(42))->callOffCheckout($basket));
+
+        $this->assertSame(BasketStatus::Paid, $basket->getStatus());
+    }
+
+    // The provider says paid, the order disagrees on the amount: nothing is delivered and the shop told, as on any notification, and no second checkout charges on top
+    public function testAPaymentTheOrderRefusesStillOpensNoSecondCheckout(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+
+        $service = $this->service($basket, $this->paidCheckoutGateway($this->paidNotification(1)), $this->sessionNaming(42), urlGenerator: $this->routeNamingUrls());
+
+        $this->assertSame('/basket_paid', $service->validate(new Request()));
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
+        $this->assertFalse($basket->getPayment()->isFinished());
+    }
+
+    // Refused for another reason, the session having expired: read back unpaid, the basket reopens as it always did
+    public function testACheckoutReadBackUnpaidStillReopensTheBasket(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $gateway = $this->createStub(TestReturnAwareGateway::class);
+        $gateway->method('expireCheckout')->willThrowException(new \RuntimeException('Session already expired'));
+        $gateway->method('readReturn')->willReturn(null);
+
+        $this->service($basket, $gateway, $this->sessionNaming(42))
+            ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
+
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+        $this->assertNull($basket->getPayment()->getGatewayReference());
+    }
+
+    // A session paid for another basket confirms nothing about this one
+    public function testACheckoutReadBackForAnotherBasketStillReopensThisOne(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $gateway = $this->createStub(TestReturnAwareGateway::class);
+        $gateway->method('expireCheckout')->willThrowException(new \RuntimeException('Refused'));
+        $gateway->method('readReturn')->willReturn($this->paidNotification(basketId: '43'));
+
+        $this->service($basket, $gateway, $this->sessionNaming(42))
+            ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
+
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+    }
+
+    // The provider out of reach on both calls: nothing is known, the basket reopens as it always did
+    public function testAProviderOutOfReachOnBothCallsStillReopensTheBasket(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $gateway = $this->createStub(TestReturnAwareGateway::class);
+        $gateway->method('expireCheckout')->willThrowException(new \RuntimeException('Down'));
+        $gateway->method('readReturn')->willThrowException(new \RuntimeException('Down'));
+
+        $this->service($basket, $gateway, $this->sessionNaming(42))
+            ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
+
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+    }
+
+    // A checkout called off without a fuss is asked nothing more
+    public function testACheckoutCalledOffIsNotReadBack(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $gateway = $this->createMock(TestReturnAwareGateway::class);
+        $gateway->expects($this->once())->method('expireCheckout');
+        $gateway->expects($this->never())->method('readReturn');
+        $gateway->method('getSlug')->willReturn('stripe');
+        $gateway->method('isConfigured')->willReturn(true);
+
+        $this->service($basket, $gateway, $this->sessionNaming(42))
+            ->deleteItem($this->jsonRequest(['type' => 'product', 'id' => 1]));
+
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+    }
+
     // A payment already settled is no longer a checkout to call off
     public function testASettledPaymentIsNotExpired(): void
     {
@@ -673,6 +848,181 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertTrue($json['basket']['shippingTooHeavy']);
     }
 
+    // ------------------------------------------------------- stored quantities
+
+    // A line stored below one, from before addItem() refused them: whatever its provider says, it does not go through, the free path included
+    /** @return iterable<string, array{int|string}> */
+    public static function storedQuantitiesBelowOne(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-2];
+        yield 'zero as a string' => ['0'];
+    }
+
+    #[DataProvider('storedQuantitiesBelowOne')]
+    public function testAStoredLineBelowOneRefusesTheOrder(int | string $quantity): void
+    {
+        $basket = $this->basket(0, null);
+        $basket->setStatus(BasketStatus::New);
+        $basket->setItems(['card' => [3 => ['quantity' => $quantity, 'total' => 0, 'item' => ['title' => 'Back', 'price' => 500]]]]);
+
+        $this->expectException(BasketNotOrderableException::class);
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->validate($this->jsonRequest([]));
+    }
+
+    // The same line on an order numbered before the fix: its free path, or a total it brought down, delivers nothing
+    public function testAStoredLineBelowOneIsNotDelivered(): void
+    {
+        $basket = $this->basket(0, null);
+        $basket->setItems(['product' => [1 => ['quantity' => 0, 'total' => 0, 'item' => ['title' => 'Book', 'price' => 500]]]]);
+
+        $this->service($basket)->paid($basket);
+
+        $this->assertSame([], $this->delivered);
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
+    }
+
+    // A truly free article, quantity one: the free path it has always taken
+    public function testAFreeLineOfQuantityOneGoesThroughAndIsDelivered(): void
+    {
+        $basket = $this->basket(0, null);
+        $basket->setStatus(BasketStatus::New);
+
+        $url = $this->service($basket, null, $this->sessionNaming(42))->validate($this->jsonRequest([]));
+        $this->service($basket)->paid($basket);
+
+        $this->assertIsString($url);
+        $this->assertSame(['product'], $this->delivered);
+    }
+
+    // ----------------------------------------------- an order is settled once
+
+    // The order paid or refunded, still named by the session: nothing renumbers it, and the visitor starts over
+    /** @return iterable<string, array{BasketStatus}> */
+    public static function recordedStatuses(): iterable
+    {
+        yield 'paid' => [BasketStatus::Paid];
+        yield 'shipped' => [BasketStatus::Shipped];
+        yield 'refunded' => [BasketStatus::Refunded];
+    }
+
+    #[DataProvider('recordedStatuses')]
+    public function testARecordedOrderIsNotValidatedAgain(BasketStatus $status): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: true));
+        $basket->setStatus($status);
+        $session = $this->sessionNaming(42);
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $session)->validate($this->jsonRequest([]));
+            $this->fail('An order is not validated again');
+        } catch (BasketNotOrderableException) {
+            $this->addToAssertionCount(1);
+        }
+
+        $this->assertSame($status, $basket->getStatus());
+        $this->assertSame('202608-AB-12345', $basket->getNumber());
+        $this->assertTrue($basket->getPayment()->isFinished());
+        $this->assertFalse($session->has('basket'), 'The session lets go of it, and the next page starts a new basket');
+    }
+
+    // A session the provider says is paid, already recorded on this very payment: it settled once. Reset since by a checkout started again, it settles nothing more
+    public function testATransactionAlreadyRecordedDoesNotSettleAgain(): void
+    {
+        $payment = $this->payment(2500, finished: false)->setTransactionId('pi_1');
+        $basket = $this->basket(2500, $payment);
+
+        $this->service($basket)->applyNotification(new PaymentNotification('42', 'stripe', 'pi_1', 'card', 2500));
+
+        $this->assertSame([], $this->delivered);
+        $this->assertFalse($payment->isFinished());
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
+    }
+
+    // The replay of a confirmation on an order whose delivery failed is what retries it, and is let through
+    public function testTheReplayOfAChargedUndeliveredOrderDeliversIt(): void
+    {
+        $payment = $this->payment(2500, finished: true)->setTransactionId('pi_1');
+        $basket = $this->basket(2500, $payment);
+
+        $this->service($basket)->applyNotification(new PaymentNotification('42', 'stripe', 'pi_1', 'card', 2500));
+
+        $this->assertSame(['product'], $this->delivered);
+    }
+
+    // The return of an order charged and not delivered is a retry that needs nothing of the provider, whose reference is long gone
+    public function testAReturnOnAChargedOrderRetriesWithoutAskingTheProvider(): void
+    {
+        $payment = $this->payment(2500, finished: true);
+        $payment->setGatewayReference(null);
+        $basket = $this->basket(2500, $payment);
+
+        $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42))->confirmReturn($basket, new Request());
+
+        $this->assertSame(['product'], $this->delivered);
+    }
+
+    // A shared order already charged asks nobody for money again, nor does its row start over
+    public function testAChargedSharedOrderOpensNoSecondCheckout(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: true));
+        $basket->setShareToken('0123456789abcdef');
+
+        $this->expectException(PaymentUnavailableException::class);
+        $this->service($basket, $this->returnAwareGateway(null))->payShared($basket);
+    }
+
+    // ------------------------------------------------------- deleting a basket
+
+    // Emptying the page on an order the session still names only lets go of it: the row is the shop's record
+    /** @return iterable<string, array{BasketStatus, bool}> */
+    public static function orders(): iterable
+    {
+        yield 'paid' => [BasketStatus::Paid, true];
+        yield 'shipped' => [BasketStatus::Shipped, true];
+        yield 'refunded' => [BasketStatus::Refunded, true];
+        yield 'charged and undelivered' => [BasketStatus::Validated, true];
+    }
+
+    #[DataProvider('orders')]
+    public function testDeletingAnOrderOnlyClearsTheSession(BasketStatus $status, bool $finished): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, $finished));
+        $basket->setStatus($status);
+        $session = $this->sessionNaming(42);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->never())->method('remove');
+
+        $answer = $this->service($basket, null, $session, entityManager: $entityManager)->delete();
+
+        $this->assertSame(['total' => 0, 'quantity' => 0], $answer);
+        $this->assertFalse($session->has('basket'));
+    }
+
+    // A basket still being filled goes as it always did
+    public function testDeletingABasketRemovesIt(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus(BasketStatus::New);
+        $session = $this->sessionNaming(42);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->once())->method('remove')->with($basket);
+
+        $this->service($basket, null, $session, entityManager: $entityManager)->delete();
+
+        $this->assertFalse($session->has('basket'));
+    }
+
+    // A session naming a row the nightly pass has taken away has nothing to remove, and no crash to answer with
+    public function testDeletingABasketThatIsGoneOnlyClearsTheSession(): void
+    {
+        $session = $this->sessionNaming(42);
+
+        $this->service(null, null, $session)->delete();
+
+        $this->assertFalse($session->has('basket'));
+    }
+
     // ------------------------------------------------------------------ setup
 
     // A grid whose German zone stops short of every parcel, the other countries pricing it at 490
@@ -760,7 +1110,7 @@ class BasketPaymentJourneyTest extends TestCase
         return $testMode;
     }
 
-    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false, ?ShippingRateResolverInterface $shippingRateResolver = null, ?BasketRefundService $refundService = null): BasketService
+    private function service(?Basket $basket = null, ?object $gateway = null, ?Session $session = null, ?InvoiceService $invoiceService = null, bool $testMode = false, ?ShippingRateResolverInterface $shippingRateResolver = null, ?BasketRefundService $refundService = null, ?EntityManagerInterface $entityManager = null, ?UrlGeneratorInterface $urlGenerator = null): BasketService
     {
         // The one collaborator two of them are handed: the service prices the order through it, and so does the calculator
         $itemProviderRegistry = $this->itemProviderRegistry();
@@ -768,18 +1118,18 @@ class BasketPaymentJourneyTest extends TestCase
         return new BasketService(
             $this->basketRepository($basket),
             $this->configService(),
-            $this->createStub(EntityManagerInterface::class),
+            $entityManager ?? $this->createStub(EntityManagerInterface::class),
             $this->requestStack($session),
             $this->createStub(PaymentFormFactoryInterface::class),
             $this->createStub(TranslatorInterface::class),
             $this->messageBus(),
-            $this->createStub(UrlGeneratorInterface::class),
+            $urlGenerator ?? $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(LoggerInterface::class),
             $this->createStub(TokenStorageInterface::class),
             $itemProviderRegistry,
             $this->gatewayRegistry($gateway),
             $this->paymentTestMode($testMode),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $this->createStub(BasketRepository::class)),
             new VatCalculator($itemProviderRegistry),
             $invoiceService ?? $this->createStub(InvoiceService::class),
             $shippingRateResolver ?? $this->createStub(ShippingRateResolverInterface::class),

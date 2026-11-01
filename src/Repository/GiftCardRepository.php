@@ -68,6 +68,11 @@ class GiftCardRepository extends ServiceEntityRepository
             'UPDATE payment_gift_card SET balance = balance + :amount WHERE id = :id',
             ['id' => $giftCard->getId(), 'amount' => $amount]
         );
+
+        // Read back: the statement went round the unit of work, and the same request goes on to price a basket against this card (see BasketCodeService::release()). A closed manager has no such request to serve, and refreshing would throw over the cause that closed it
+        if ($this->getEntityManager()->isOpen()) {
+            $this->getEntityManager()->refresh($giftCard);
+        }
     }
 
     /**

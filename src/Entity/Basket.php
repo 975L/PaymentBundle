@@ -124,6 +124,10 @@ class Basket implements \Stringable
     #[Assert\PositiveOrZero]
     private int $discountAmount = 0;
 
+    // Whether the amount above has already been taken off the card or counted against the quota, which validate() does (see BasketCodeService::claim()): what tells a release to give something back, and paid() to take nothing a second time
+    #[ORM\Column(options: ['default' => false])]
+    private bool $discountClaimed = false;
+
     #[ORM\Column]
     #[Assert\PositiveOrZero]
     private ?int $quantity = null;
@@ -236,7 +240,7 @@ class Basket implements \Stringable
     public function toArray(): array
     {
         $vars = get_object_vars($this);
-        unset($vars['securityToken'], $vars['shareToken'], $vars['recoveryToken']);
+        unset($vars['securityToken'], $vars['shareToken'], $vars['recoveryToken'], $vars['discountClaimed']);
         // Read through the getter rather than off the property, so the page is handed the same shape the templates are
         $vars['items'] = $this->getItems();
 
@@ -724,6 +728,30 @@ class Basket implements \Stringable
     public function getPayable(): int
     {
         return max(0, (int) $this->total + (int) $this->shipping - $this->discountAmount);
+    }
+
+    public function isDiscountClaimed(): bool
+    {
+        return $this->discountClaimed;
+    }
+
+    public function setDiscountClaimed(bool $discountClaimed): static
+    {
+        $this->discountClaimed = $discountClaimed;
+
+        return $this;
+    }
+
+    // The provider took the money and the order was not delivered: a code that no longer covers it or a delivery that threw, BasketService::paid() having moved it back to "validated" for a retry. Neither a basket to edit nor something left to pay, and what the dashboard asks the shop to look at
+    public function isChargedUndelivered(): bool
+    {
+        return BasketStatus::Validated === $this->status && true === $this->payment?->isFinished();
+    }
+
+    // Whether this is an order rather than something still being filled: a refunded one reopened would be a sale numbered twice, and a charged one money taken for it twice
+    public function isOrder(): bool
+    {
+        return $this->status->isRecorded() || $this->isChargedUndelivered();
     }
 
     public function getShareToken(): ?string

@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Service;
 
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\InAppTransaction;
 use c975L\PaymentBundle\Entity\StorePurchase;
 use c975L\PaymentBundle\Enum\PaymentEvent;
@@ -30,6 +31,7 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
         private readonly InAppProductProviderRegistry $providerRegistry,
         private readonly StorePurchaseRepository $purchaseRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ConfigServiceInterface $configService,
         #[Autowire(param: 'kernel.secret')]
         private readonly string $secret,
     ) {
@@ -58,6 +60,10 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
         if ($transaction->accountToken !== $this->accountToken($holder)) {
             throw new InvalidNotificationException('The purchase was made under another account');
         }
+        // A test purchase costs nothing and a sandbox account is all it takes: nothing is recorded, delivered nor acknowledged for it
+        if ('production' !== $transaction->environment && !$this->mayBuyInSandbox($holder)) {
+            return false;
+        }
         $provider = $this->providerRegistry->forProduct($transaction->productId) ?? throw new InvalidNotificationException(sprintf('Nothing here sells "%s"', $transaction->productId));
 
         $purchase = $this->purchaseRepository->findOneByTransaction($store, $transaction->transactionId);
@@ -67,8 +73,9 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
 
         // Recorded before delivering, so a delivery or an acknowledgement failing leaves a row that a retry or a refund finds back; a refunded row the store calls paid again is a refund it reversed
         if (null === $purchase) {
+            $purchase = new StorePurchase($store, $transaction->transactionId, $transaction->productId, $holder, $transaction->environment);
             try {
-                $this->entityManager->persist(new StorePurchase($store, $transaction->transactionId, $transaction->productId, $holder, $transaction->environment));
+                $this->entityManager->persist($purchase);
                 $this->entityManager->flush();
             } catch (UniqueConstraintViolationException) {
                 // The same purchase recorded meanwhile by a concurrent request, which delivers it
@@ -79,10 +86,24 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
             $this->entityManager->flush();
         }
 
-        $provider->deliver($holder, $transaction->productId, $store);
+        // Delivered once per transaction, the date on the row telling a retry from a replay: a restore asks for nothing more than the acknowledgement that may still be missing
+        if (!$purchase->isDelivered()) {
+            $provider->deliver($holder, $transaction->productId, $store);
+            $purchase->markDelivered();
+            $this->entityManager->flush();
+        }
+
         $this->storeRegistry->get($store)->acknowledge($transaction);
 
         return true;
+    }
+
+    // Whether the shop named this holder as one who may buy in a store's test space: the review account it hands Apple, its own testers. Nobody by default (see the "payment-store-sandbox-holders" setting)
+    private function mayBuyInSandbox(string $holder): bool
+    {
+        $holders = array_map(trim(...), explode(',', (string) $this->configService->get('payment-store-sandbox-holders')));
+
+        return '' !== $holder && \in_array($holder, $holders, true);
     }
 
     // A refund names the transaction only: the holder and the product are the ones recorded when it was delivered. A paid one is a refund the store reversed, giving back what it took
@@ -98,7 +119,12 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
         if ($isReversal) {
             $purchase->markRestored();
             $this->entityManager->flush();
-            $provider?->deliver($purchase->getHolder(), $purchase->getProductId(), $purchase->getStore());
+            // No provider sells it any more: left undelivered, for the next proof to find once one does
+            if (null !== $provider) {
+                $provider->deliver($purchase->getHolder(), $purchase->getProductId(), $purchase->getStore());
+                $purchase->markDelivered();
+                $this->entityManager->flush();
+            }
 
             return;
         }

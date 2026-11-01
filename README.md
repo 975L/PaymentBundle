@@ -284,7 +284,7 @@ counterparts or prints.
 | `customer_orders` | `/account/orders` | A signed-in buyer's own orders, newest first |
 | `customer_order` | `/account/orders/{number}` | One order: its tracking, its lines and the files it bought |
 | `basket_invoice_pdf` | `/shop/basket/invoice/{number}/{securityToken}` | The order's invoice, linked from the customer's own order page |
-| `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Marks a kind of item as shipped and emails the customer |
+| `items_shipped` | `/shop/basket/items-shipped/{number}/{type}` | Asks for confirmation, then on its POST with a CSRF token marks a kind of item as shipped and emails the customer |
 | `payment_store_notification` | `/payment/store/{store}` (POST) | Where Apple and Google announce a refund of an in-app purchase - see [selling in a mobile app](#selling-in-a-mobile-app) |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment, a refund or a lost dispute - **the endpoint to declare in its dashboard**, with the events listed under [Stripe](#configure-stripe-webhook) and [Revolut](#configure-revolut) |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
@@ -359,8 +359,11 @@ the minimum it applies from. A `GiftCard` is a balance rather than a reduction: 
 many orders as it takes, and what is left stays on the card. Both have their own EasyAdmin CRUD, and
 `GiftCardService::issue()` mints a card either from a purchase or by hand from the back-office.
 
-A code is spent when the payment is confirmed and nowhere else: a basket abandoned at the payment page burns
-neither a quota nor a balance. The free-shipping threshold is weighed against what the basket holds and not
+A code is set aside when the order is validated, in one conditional statement, so two baskets cannot spend it twice:
+the second is refused before it pays anything. It is given back when the basket is reopened, deleted or abandoned, a
+checkout given up on letting go of it after 24 hours (a shared order keeping it for `payment-share-validity` days, what its link is announced to last, then its payer claiming it again if it can). A payment reaching an
+order that no longer holds it claims it again, and an order the code cannot cover is not delivered: it stays charged
+and undelivered for the shop, named on the dashboard, with a button to deliver it again. The free-shipping threshold is weighed against what the basket holds and not
 against what is paid, so a code never costs the customer the delivery they had earned.
 
 ### The card as an object
@@ -628,8 +631,14 @@ by, and the one they forward in a text message as readily as in an e-mail. It is
 and reads its token whatever its case: this is an address that gets dictated over the telephone and retyped.
 
 The checkout says how long the shop will hold such an order, read from **`payment-share-validity`** (days, 7 by
-default). It is the shopkeeper's promise and not a mechanism: nothing is reserved, stock only moves when the
-order is paid, and `BasketRetentionService` takes an unpaid order away at thirty days whatever the setting says.
+default), which is also how long its code stays set aside. The link keeps answering past it: stock only moves when
+the order is paid, and `BasketRetentionService` takes an unpaid order away at thirty days whatever the setting says.
+
+**Going back from the provider after paying charges nothing twice.** The customer who pays, then comes back with the
+browser's button ahead of the webhook, still has a validated order. Calling off its checkout is refused, so
+`BasketService` reads it back through `ReturnAwareGatewayInterface::readReturn()`; found paid, the order is settled the
+normal way and no second checkout opens. A provider implementing `ExpirableGatewayInterface` and
+`ReturnAwareGatewayInterface` gets this as it is; one with no `readReturn()` stays on its webhook.
 
 **The checkout asks for no GDPR consent.** What it processes, the contract itself needs; a box the customer could
 not refuse without giving up their order was never a consent. `Form\CoordinatesType` carries the terms-of-use and
@@ -794,7 +803,12 @@ characters at most.
    reached throws `PaymentUnavailableException`.
 
 Apple is asked in production first, then in the sandbox: Apple's review buys in the sandbox from the production
-app, so `payment-test-mode` plays no part here.
+app, so `payment-test-mode` plays no part here. A sandbox purchase is delivered only to a holder named in
+`payment-store-sandbox-holders`, comma-separated: put the account you hand Apple's reviewer there before submitting,
+and your own testers; for anyone else `verify()` answers `false` and records nothing.
+
+A transaction is delivered once, the date on its row telling a retry from a replay: a failed delivery is retried by
+the next call, while a "Restore purchases" on a delivered one only acknowledges it.
 
 **Refunds** reach `POST /payment/store/{store}`:
 

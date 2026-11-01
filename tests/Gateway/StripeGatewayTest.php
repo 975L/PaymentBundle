@@ -98,6 +98,46 @@ class StripeGatewayTest extends TestCase
         $this->assertStringNotContainsString('/v1/account', $client->urls[0]);
     }
 
+    // The session in the url is the customer's to type: one that is not the one kept on the payment settles nothing, and Stripe is not even asked about it
+    public function testASessionOtherThanTheOneKeptOnThePaymentIsRefused(): void
+    {
+        $httpClient = $this->createMock(ClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+        ApiRequestor::setHttpClient($httpClient);
+
+        $gateway = $this->gateway($this->configService(['stripe-secret' => 'sk_live_1']), false);
+
+        $this->assertNull($gateway->readReturn(new Request(['session_id' => 'cs_paid_once']), 'cs_current'));
+    }
+
+    // A payment keeping no session has none to compare with, and the url alone proves nothing
+    public function testASessionInTheUrlWithNoneKeptOnThePaymentIsRefused(): void
+    {
+        $httpClient = $this->createMock(ClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+        ApiRequestor::setHttpClient($httpClient);
+
+        $this->assertNull($this->gateway($this->configService(['stripe-secret' => 'sk_live_1']), false)->readReturn(new Request(['session_id' => 'cs_paid_once']), null));
+    }
+
+    // The session kept on the payment is what is read back, whether the url names it too or not
+    public function testTheSessionKeptOnThePaymentIsReadBack(): void
+    {
+        foreach ([new Request(['session_id' => 'cs_current']), new Request()] as $request) {
+            $urls = [];
+            $httpClient = $this->createStub(ClientInterface::class);
+            $httpClient->method('request')->willReturnCallback(function (string $method, string $url) use (&$urls): array {
+                $urls[] = $url;
+
+                return [json_encode(['id' => 'cs_current', 'object' => 'checkout.session', 'payment_status' => 'unpaid']), 200, []];
+            });
+            ApiRequestor::setHttpClient($httpClient);
+
+            $this->assertNull($this->gateway($this->configService(['stripe-secret' => 'sk_live_1']), false)->readReturn($request, 'cs_current'));
+            $this->assertStringEndsWith('/checkout/sessions/cs_current', $urls[0]);
+        }
+    }
+
     private function gateway(ConfigServiceInterface $configService, bool $testMode): StripeGateway
     {
         $mode = $this->createStub(PaymentTestModeInterface::class);

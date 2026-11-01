@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Service;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Entity\GiftCard;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,6 +26,7 @@ class BasketCodeService
         private readonly GiftCardRepository $giftCardRepository,
         private readonly TranslatorInterface $translator,
         private readonly PaymentTestModeInterface $testMode,
+        private readonly BasketRepository $basketRepository,
     ) {
     }
 
@@ -99,20 +101,57 @@ class BasketCodeService
         ;
     }
 
-    /**
-     * Spends what the settled order used, and says whether it could be spent.
-     *
-     * Called from BasketService::paid(), i.e. once and once only per order (see BasketRepository::claimPaid()), and never at validation: a basket abandoned at the payment page must burn neither a quota nor a balance.
-     *
-     * A refusal here means the code ran out between the last check and the payment, which is a window of seconds - the order is already paid for, so it is never undone, only reported.
-     */
-    public function redeem(Basket $basket): bool
+    // Sets aside what this order uses of its code at validation, and says whether the code still held it, so the second of two baskets priced against one card is refused before paying. Marker first, debit second, the same request sent twice debiting once; the database says whether the amount is set aside, never the entity, which the nightly pass can leave stale. Asked again by BasketService::paid() for an order holding no claim
+    public function claim(Basket $basket): bool
     {
-        $code = $basket->getDiscountCode();
-
-        if (null === $code || $basket->getDiscountAmount() <= 0) {
+        if (null === $basket->getDiscountCode() || $basket->getDiscountAmount() <= 0) {
             return true;
         }
+
+        // A second request on this basket got there first, and the amount is set aside already
+        if (!$this->basketRepository->markCodeClaimed($basket)) {
+            return true;
+        }
+
+        if (!$this->redeem($basket)) {
+            $this->basketRepository->markCodeReleased($basket);
+
+            return false;
+        }
+
+        $basket->setDiscountClaimed(true);
+
+        return true;
+    }
+
+    // Gives back what claim() set aside, the order being no longer one: reopened, deleted, or given up on. The database says whether there is anything to give back, the entity can be stale; a card or a code deleted since has nothing to receive it
+    public function release(Basket $basket): void
+    {
+        if (null === $basket->getDiscountCode() || !$this->basketRepository->markCodeReleased($basket)) {
+            return;
+        }
+
+        $basket->setDiscountClaimed(false);
+
+        if (Basket::CODE_KIND_GIFT_CARD === $basket->getDiscountKind()) {
+            $giftCard = $this->giftCardRepository->findOneByCode($basket->getDiscountCode());
+            if (null !== $giftCard) {
+                $this->giftCardRepository->creditAmount($giftCard, $basket->getDiscountAmount());
+            }
+
+            return;
+        }
+
+        $discount = $this->discountRepository->findOneByCode($basket->getDiscountCode());
+        if (null !== $discount) {
+            $this->discountRepository->releaseUse($discount);
+        }
+    }
+
+    // Spends what the order uses, and says whether the code still held it - the statements decide, the same conditions as resolve() read on the row as it stands now (see GiftCardRepository::claimAmount(), DiscountRepository::claimUse())
+    private function redeem(Basket $basket): bool
+    {
+        $code = (string) $basket->getDiscountCode();
 
         if (Basket::CODE_KIND_GIFT_CARD === $basket->getDiscountKind()) {
             $giftCard = $this->giftCardRepository->findOneByCode($code);

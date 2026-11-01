@@ -145,6 +145,13 @@ class BasketController extends AbstractController
             return $this->backToBasket($request);
         }
 
+        // An order the session still names, its customer having paid and never come back, is not checked out again: delete() only lets go of it, and the visitor starts over
+        if ($basket->isOrder()) {
+            $this->basketService->delete();
+
+            return $this->backToBasket($request);
+        }
+
         // Signing in asked here and not before: the basket is filled freely, and the visitor comes back to this very page once signed in, the basket following them (see BasketRecoverySubscriber)
         if ($this->itemProviderRegistry->requiresAccount(array_keys($basket->getItems())) && null === $this->getUser()) {
             $this->addFlash('info', $this->translator->trans('flash.sign_in_to_order', [], 'payment'));
@@ -310,7 +317,7 @@ class BasketController extends AbstractController
         }
 
         // Already settled, or taken back to a basket by its customer: the page says so and offers nothing to pay, rather than opening a second checkout
-        $payable = BasketStatus::Validated === $basket->getStatus() && $basket->getPayable() > 0;
+        $payable = BasketStatus::Validated === $basket->getStatus() && !$basket->isChargedUndelivered() && $basket->getPayable() > 0;
 
         // The waiver the checkout asked of whoever shared the order is asked again here, of the one who pays and so contracts; a POST without it charges nothing
         $waiverMissing = $request->isMethod('POST') && $basket->asksWithdrawalWaiver() && !$request->request->getBoolean('withdrawalWaiver');
@@ -463,7 +470,7 @@ class BasketController extends AbstractController
         return new JsonResponse($this->basketService->delete());
     }
 
-    // ITEMS SHIPPED
+    // ITEMS SHIPPED - reached by a link from the back-office, which writes nothing and asks: an address an admin can be sent to must not move an order or email a customer on its own. Only the form that page posts, with the token of this admin's session, does
     #[Route(
         '/shop/basket/items-shipped/{number}/{type}',
         name: 'items_shipped',
@@ -471,11 +478,19 @@ class BasketController extends AbstractController
             'number' => '.{15,20}',
             'type' => 'product|crowdfunding',
         ],
-        methods: ['GET']
+        methods: ['GET', 'POST']
     )]
-    public function itemsShipped(string $number, string $type): Response
+    public function itemsShipped(Request $request, string $number, string $type): Response
     {
         $this->denyAccessUnlessGranted($this->configService->get('site-role-admin'));
+
+        // Asked again on a token that does not hold, which a form left open past its session comes to as well as a forged one
+        if (!$request->isMethod('POST') || !$this->isCsrfTokenValid('items_shipped_' . $number, $request->request->getString('_token'))) {
+            return $this->render('@c975LPayment/basket/ship_confirm.html.twig', [
+                'number' => $number,
+                'type' => $type,
+            ]);
+        }
 
         $basket = $this->basketService->itemsShipped($number, $type);
 

@@ -20,7 +20,7 @@ class InvoiceSellerTest extends TestCase
     {
         $invoice = $this->read();
 
-        $this->assertStringContainsString('{{ seller.owner|raw }}', $invoice);
+        $this->assertStringContainsString("{{ seller.owner|default('')|sanitize_html('c975l.legal') }}", $invoice);
         $this->assertStringContainsString('{{ seller.address|nl2br }}', $invoice);
         $this->assertStringContainsString('{{ seller.email }}', $invoice);
     }

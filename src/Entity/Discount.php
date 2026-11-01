@@ -60,7 +60,7 @@ class Discount implements \Stringable
     #[ORM\Column]
     private int $maxUses = 0;
 
-    // Raised once a payment is settled and never at validation: a basket abandoned at the payment page must not burn one of the quota
+    // Raised when an order takes the code at validation, and lowered when it gives it back: a basket abandoned at the payment page burns none of the quota for long (see BasketCodeService::claim())
     #[ORM\Column]
     private int $usedCount = 0;
 

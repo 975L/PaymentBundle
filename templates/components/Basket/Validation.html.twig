@@ -18,7 +18,7 @@
             {% if basket.payable > 0 %}
                 <div>
                     <button type="submit" name="share" value="1" class="btn btn-secondary">{{ 'label.share_order'|trans }}</button>
-                    {# How long the shop says it will hold the order, which is the shopkeeper's promise and not a mechanism: nothing is reserved, stock only moves when the order is paid, and BasketRetentionService takes an unpaid order away at thirty days whatever is said here #}
+                    {# How long the shop says it will hold the order, and what its code sets aside with it (see BasketRetentionService::releaseStaleClaims()): stock only moves when the order is paid, and an unpaid order goes at thirty days whatever is said here #}
                     <p class="text-muted">{{ 'label.share_order_help'|trans({'%days%': config('payment-share-validity')}) }}</p>
                 </div>
             {% endif %}

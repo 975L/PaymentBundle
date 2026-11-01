@@ -13,6 +13,7 @@ namespace c975L\PaymentBundle\Tests\Service;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Entity\GiftCard;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
@@ -155,7 +156,7 @@ class BasketCodeServiceTest extends TestCase
 
     public function testABasketCarryingNoCodeRedeemsNothing(): void
     {
-        $this->assertTrue($this->service()->redeem(new Basket()));
+        $this->assertTrue($this->service()->claim(new Basket()));
     }
 
     // A refunded order gives the card back what it took off it
@@ -271,6 +272,6 @@ class BasketCodeServiceTest extends TestCase
         $testMode = $this->createStub(PaymentTestModeInterface::class);
         $testMode->method('isEnabled')->willReturn($shopInTestMode);
 
-        return new BasketCodeService($discountRepository, $giftCardRepository, $translator, $testMode);
+        return new BasketCodeService($discountRepository, $giftCardRepository, $translator, $testMode, $this->createStub(BasketRepository::class));
     }
 }

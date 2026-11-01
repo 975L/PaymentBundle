@@ -56,7 +56,11 @@
             </trans-unit>
             <trans-unit id="wgKNCR_">
                 <source>description.payment_share_validity</source>
-                <target>How many days an order the customer has asked to be offered stays payable through the shared link. The delay is told to the customer, not enforced: the order is really removed after 30 days if it goes unpaid.</target>
+                <target>How many days an order the customer has asked to be offered stays payable through the shared link. Its code stays set aside for that long, then can be used again: the link still answers and takes the code back if it can, until the order is removed after 30 days if it goes unpaid.</target>
+            </trans-unit>
+            <trans-unit id="hiuGO.g">
+                <source>description.payment_store_sandbox_holders</source>
+                <target>Identifiers of the accounts whose App Store or Google Play test purchases are delivered, comma-separated: the one you hand Apple's review, your testers' own. Empty, no test purchase is delivered.</target>
             </trans-unit>
             <trans-unit id="i415WZO">
                 <source>description.payment_test_mode</source>
@@ -221,6 +225,10 @@
             <trans-unit id="8WjAZqT">
                 <source>label.payment_share_validity</source>
                 <target>Shared order validity (days)</target>
+            </trans-unit>
+            <trans-unit id="jTm31Gs">
+                <source>label.payment_store_sandbox_holders</source>
+                <target>Accounts allowed store test purchases</target>
             </trans-unit>
             <trans-unit id="KlPswTP">
                 <source>label.payment_test_mode</source>

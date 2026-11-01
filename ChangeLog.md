@@ -1,5 +1,47 @@
 # Changelog
 
+## v6.23.0
+
+A code is spent once and an order is settled once
+
+- `BasketService::addItem()`: a quantity below 1 opens no line (01/11/2026)
+- `BasketService::readAddition()`: a quantity must be a whole number within `MAX_LINE_QUANTITY`, or answers 400 (01/11/2026)
+- `BasketService::validate()` and `paid()`: refuse a stored line below 1 (01/11/2026)
+- `Basket::$discountClaimed` (column `payment_basket.discount_claimed`): `validate()` takes the code's amount in one conditional statement (01/11/2026) **Needs db update**
+- `BasketCodeService::release()`: reopening, deleting, the retention and the back-office give the code back (01/11/2026)
+- `BasketCodeService::redeem()` is private, `claim()` being what is called (01/11/2026)
+- `DiscountRepository::releaseUse()`: gives one use of a code back (01/11/2026)
+- `BasketRetentionService::releaseStaleClaims()`: a checkout given up on stops holding its code after 24 hours (01/11/2026)
+- `BasketRepository::findStaleClaims()`: a shared order holds its code for `payment-share-validity` days (01/11/2026)
+- `description.payment_share_validity`: says the code is held for that long (01/11/2026)
+- `BasketService::paid()`: delivers in one transaction, a failure moving the order back to `validated` for a retry (01/11/2026)
+- `BasketService::deliver()`: the rollback empties the unit of work (01/11/2026)
+- `Basket::isChargedUndelivered()`: paid, undelivered, neither reopened, nor charged again, nor purged, nor reminded (01/11/2026)
+- `PaymentAlertProvider`: a dashboard alert names the orders charged and not delivered (01/11/2026)
+- `BasketCrudController::retryDelivery()`: a button delivers them again (01/11/2026)
+- `PaymentGuidedProjectProvider`: a `payment-charged-undelivered` project walks that button (01/11/2026)
+- `BasketRefundService`: an order charged and not delivered can be refunded, its card credited only if it claimed (01/11/2026)
+- `BasketService::validate()` and `BasketController::validate()`: an order the session still names is not validated again (01/11/2026)
+- `BasketService::delete()`: on an order only clears the session key (01/11/2026)
+- `StripeGateway::readReturn()`: reads the session kept on the payment and refuses another one in the url (01/11/2026)
+- `BasketService`: a checkout the provider refuses to call off is read back, and found paid opens no second one (01/11/2026)
+- `BasketService::applyNotification()`: a transaction already recorded settles nothing more, the retry of a failed delivery excepted (01/11/2026)
+- `BasketService::applyNotification()`: a second charge, or a charge on a basket reopened since, is logged as critical and writes nothing (01/11/2026)
+- `BasketService::payShared()`: takes the code again before opening a checkout, and opens none if it no longer covers the order (01/11/2026)
+- `BasketCodeService::claim()` asks the database and not the entity (01/11/2026)
+- `BasketRepository::markCodeReleased()`: only lets go of an order still open (01/11/2026)
+- `GiftCardRepository::creditAmount()` and `DiscountRepository::releaseUse()`: read the row back, except on a closed entity manager (01/11/2026)
+- `BasketServiceInterface::callOffCheckout()`: `BasketCrudController::deleteEntity()` calls off a checkout and gives its code back, one found paid staying as an order (01/11/2026)
+- `BasketCrudController::deleteEntity()`: an order keeps what it took from its code (01/11/2026)
+- `InAppPurchaseService::verify()`: a store's test purchase is delivered only to a holder named in `payment-store-sandbox-holders` (01/11/2026)
+- `StorePurchase::$delivered` (column `payment_store_purchase.delivered`): a transaction is delivered once, a failed delivery retried (01/11/2026) **Needs db update**
+- `InAppPurchaseService::applyNotification()`: a refund reversed on a product nobody sells any more stays undelivered (01/11/2026)
+- `items_shipped`: asks for confirmation through `basket/ship_confirm.html.twig`, only its POST with a CSRF token ships (01/11/2026)
+- `Basket/Counterpart`: `|raw` replaced with `|sanitize_html('c975l.rich')` (01/11/2026)
+- `invoice/pdf`: the seller block goes through `|sanitize_html('c975l.legal')` (01/11/2026)
+- Requires `c975l/core-bundle` ^1.85.0 (01/11/2026)
+- `tests/Integration/MoneyOnADatabaseTest`: the code, the charge and the store purchase on real entities and SQLite (01/11/2026)
+
 ## v6.22.3
 
 Digital lines held once whatever their kind, and pictured without a page of their own

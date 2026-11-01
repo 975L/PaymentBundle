@@ -77,6 +77,30 @@ class BasketRefundServiceTest extends TestCase
         $this->assertFalse($this->repository->hasPaidFor('buyer@example.org', 'product', 12));
     }
 
+    // An order charged and never delivered, the money handed back at the provider: settled, and the card it held credited
+    public function testAChargedUndeliveredOrderIsRefundedAndItsClaimGivenBack(): void
+    {
+        $this->basket->setStatus(BasketStatus::Validated)->setPayment(new Payment()->setFinished(true))->setDiscountClaimed(true);
+        $code = $this->createMock(BasketCodeService::class);
+        $code->expects($this->once())->method('restore')->willReturn(true);
+
+        $this->service(basketCodeService: $code)->apply($this->refund(2500));
+
+        $this->assertSame(BasketStatus::Refunded, $this->basket->getStatus());
+    }
+
+    // Held because the code no longer covered it: nothing was taken off the card, so nothing is credited to it
+    public function testAChargedUndeliveredOrderThatClaimedNothingCreditsNothing(): void
+    {
+        $this->basket->setStatus(BasketStatus::Validated)->setPayment(new Payment()->setFinished(true))->setDiscountClaimed(false);
+        $code = $this->createMock(BasketCodeService::class);
+        $code->expects($this->never())->method('restore');
+
+        $this->service(basketCodeService: $code)->apply($this->refund(2500));
+
+        $this->assertSame(BasketStatus::Refunded, $this->basket->getStatus());
+    }
+
     // A gesture on part of the order leaves it paid: recorded for the dashboard, and the access stays
     public function testAPartialRefundKeepsTheAccess(): void
     {
@@ -174,7 +198,7 @@ class BasketRefundServiceTest extends TestCase
 
     private function service(?int $expectedFlushes = null, ?BasketCodeService $basketCodeService = null, ?InvoiceService $invoiceService = null): BasketRefundService
     {
-        $payment = new Payment();
+        $payment = $this->basket->getPayment() ?? new Payment();
         $payment->setBasket($this->basket);
 
         $payments = $this->createStub(EntityRepository::class);
@@ -209,7 +233,7 @@ class BasketRefundServiceTest extends TestCase
 
             public function claimRefunded(Basket $basket, int $amount): bool
             {
-                return $basket->getStatus()->isSettled();
+                return $basket->getStatus()->isSettled() || $basket->isChargedUndelivered();
             }
 
             public function findPaidByUser(UserInterface $user, ?int $limit = null): array

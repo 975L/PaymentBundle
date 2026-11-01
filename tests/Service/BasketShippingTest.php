@@ -192,7 +192,7 @@ class BasketShippingTest extends TestCase
             $this->createStub(BasketItemProviderRegistry::class),
             $this->createStub(PaymentGatewayRegistry::class),
             $this->createStub(PaymentTestModeInterface::class),
-            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($this->createStub(DiscountRepository::class), $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $this->createStub(BasketRepository::class)),
             new VatCalculator($this->createStub(BasketItemProviderRegistry::class)),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),

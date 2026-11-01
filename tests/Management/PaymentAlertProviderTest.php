@@ -61,6 +61,17 @@ class PaymentAlertProviderTest extends TestCase
         $this->assertSame(Config::SEVERITY_WARNING, $alerts[0]['severity']);
     }
 
+    // The customer paid and got nothing: said in red until the shop has settled it, and opened on the orders it is listed among
+    public function testChargedUndeliveredOrdersAreAlerted(): void
+    {
+        $alerts = $this->provider('stripe', true, false, chargedUndelivered: 3)->getAlerts();
+
+        $this->assertCount(1, $alerts);
+        $this->assertSame('label.charged_undelivered', $alerts[0]['label']);
+        $this->assertSame('description.charged_undelivered', $alerts[0]['description']);
+        $this->assertSame(Config::SEVERITY_DANGER, $alerts[0]['severity']);
+    }
+
     // The alert counts orders the index would otherwise list among all the others: it opens on those money went back on
     public function testThePartialRefundsAlertOpensOnTheRefundedOrders(): void
     {
@@ -131,10 +142,11 @@ class PaymentAlertProviderTest extends TestCase
         );
     }
 
-    private function provider(string $activeSlug, bool $configured, bool $testMode, string $bcc = 'archive@shop.test', ?AdminUrlGeneratorInterface $urlGenerator = null, int $partialRefunds = 0): PaymentAlertProvider
+    private function provider(string $activeSlug, bool $configured, bool $testMode, string $bcc = 'archive@shop.test', ?AdminUrlGeneratorInterface $urlGenerator = null, int $partialRefunds = 0, int $chargedUndelivered = 0): PaymentAlertProvider
     {
         $basketRepository = $this->createStub(BasketRepository::class);
         $basketRepository->method('countPartiallyRefundedSince')->willReturn($partialRefunds);
+        $basketRepository->method('countChargedUndeliveredSince')->willReturn($chargedUndelivered);
 
         $gateway = $this->createStub(PaymentGatewayInterface::class);
         $gateway->method('getSlug')->willReturn('stripe');

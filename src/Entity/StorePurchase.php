@@ -28,6 +28,10 @@ class StorePurchase implements \Stringable
     #[ORM\Column]
     private bool $isRefunded = false;
 
+    // When the holder was given what they bought: the row is written before the delivery, so an empty date is what a retry finds a failed one by, and a filled one what stops the same proof delivering twice
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $delivered = null;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $creation;
 
@@ -45,7 +49,7 @@ class StorePurchase implements \Stringable
         // Whatever the site calls the owner of what was bought (see InAppProductProviderInterface)
         #[ORM\Column(length: 191)]
         private string $holder,
-        // "sandbox" for a test purchase - Apple's review and Google's license testers - which delivers all the same
+        // "sandbox" for a test purchase - Apple's review and Google's license testers - delivered only to a holder the shop named (see InAppPurchaseService::mayBuyInSandbox())
         #[ORM\Column(length: 16)]
         private string $environment = 'production',
     ) {
@@ -102,6 +106,18 @@ class StorePurchase implements \Stringable
         return $this->refunded;
     }
 
+    public function isDelivered(): bool
+    {
+        return null !== $this->delivered;
+    }
+
+    public function markDelivered(): static
+    {
+        $this->delivered = new \DateTimeImmutable();
+
+        return $this;
+    }
+
     public function markRefunded(): static
     {
         $this->isRefunded = true;
@@ -115,6 +131,8 @@ class StorePurchase implements \Stringable
     {
         $this->isRefunded = false;
         $this->refunded = null;
+        // The refund took back what was given, so it is owed again
+        $this->delivered = null;
 
         return $this;
     }

@@ -18,6 +18,7 @@ use c975L\PaymentBundle\Controller\Management\DiscountCrudController;
 use c975L\PaymentBundle\Controller\Management\GiftCardCrudController;
 use c975L\PaymentBundle\Controller\Management\PaymentCrudController;
 use c975L\PaymentBundle\Controller\Management\ShippingZoneCrudController;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -49,6 +50,7 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
             $this->testModeProject(),
             $this->transactionReviewProject(),
             $this->refundCheckProject(),
+            $this->chargedUndeliveredProject(),
             $this->paymentLinkProject(),
             $this->giftCardIssueProject(),
             $this->discountCodeProject(),
@@ -148,6 +150,12 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_in_app_setup_notifications',
                     'description' => 'description.guided_step_payment_in_app_setup_notifications',
                     'narration' => 'narration.guided_step_payment_in_app_setup_notifications',
+                ],
+                [
+                    // Not a sensitive entry, so the screen this parcours opened does not list it: named rather than walked to
+                    'label' => 'label.guided_step_payment_in_app_setup_sandbox',
+                    'description' => 'description.guided_step_payment_in_app_setup_sandbox',
+                    'narration' => 'narration.guided_step_payment_in_app_setup_sandbox',
                 ],
                 [
                     // A console command, named for the same reason
@@ -354,6 +362,44 @@ class PaymentGuidedProjectProvider implements GuidedProjectProviderInterface
                     'label' => 'label.guided_step_payment_refund_check_fields',
                     'description' => 'description.guided_step_payment_refund_check_fields',
                     'narration' => 'narration.guided_step_payment_refund_check_fields',
+                ],
+            ],
+        ];
+    }
+
+    // What the dashboard's alert on orders charged and not delivered sends the shop to do: deliver them again from their own line once the cause is settled, or hand the money back
+    private function chargedUndeliveredProject(): array
+    {
+        return [
+            'slug' => 'payment-charged-undelivered',
+            'label' => 'label.guided_project_payment_charged_undelivered',
+            'description' => 'description.guided_project_payment_charged_undelivered',
+            'translation_domain' => 'payment',
+            // Next to the refunds, a refund being the other way out of such an order
+            'order' => 7027,
+            'role' => $this->roleNeeded(),
+            'steps' => [
+                [
+                    'label' => 'label.guided_step_payment_charged_undelivered_open',
+                    'description' => 'description.guided_step_payment_charged_undelivered_open',
+                    'narration' => 'narration.guided_step_payment_charged_undelivered_open',
+                    'url' => $this->adminUrlGenerator
+                        ->unsetAll()
+                        ->setController(BasketCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('filters', ['status' => ['comparison' => ComparisonType::EQ, 'value' => BasketStatus::Validated->value]])
+                        ->generateUrl(),
+                ],
+                [
+                    'label' => 'label.guided_step_payment_charged_undelivered_retry',
+                    'description' => 'description.guided_step_payment_charged_undelivered_retry',
+                    'narration' => 'narration.guided_step_payment_charged_undelivered_retry',
+                    'highlight' => '.action-retryDelivery',
+                ],
+                [
+                    'label' => 'label.guided_step_payment_charged_undelivered_refund',
+                    'description' => 'description.guided_step_payment_charged_undelivered_refund',
+                    'narration' => 'narration.guided_step_payment_charged_undelivered_refund',
                 ],
             ],
         ];

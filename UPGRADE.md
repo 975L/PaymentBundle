@@ -1,5 +1,27 @@
 # UPGRADE
 
+## v6.22 > v6.23
+
+**A code is set aside at validation, and a store's transaction is delivered once.** `payment_basket` gains
+`discount_claimed` (boolean, default 0) and `payment_store_purchase` gains `delivered` (nullable) - generate the
+migration with `doctrine:migrations:diff` and run it **before** deploying, every basket query reading the column.
+Nothing to fill: an order validated before the upgrade claims its code when it is paid, and a purchase recorded
+before it is delivered once more on its next proof, which the contract already asked to be harmless.
+
+**A shared order holds its code for as long as its link says.** `payment-share-validity` (7 days by default) was a sentence on the checkout; the nightly `c975l:payment:baskets:retention` now gives the code back once it has passed, the link still answering and taking the code again if it can (`payShared()`) until the 30-day purge. `BasketRetentionService` takes a `ConfigServiceInterface` and `BasketRepository::findStaleClaims()` a second argument: nothing to do with autowiring.
+
+**A store's test purchase is no longer delivered to anyone.** List in `payment-store-sandbox-holders` the holder of
+the account you hand Apple's reviewer, and your testers': Apple's review buys in the sandbox, and an app whose
+purchases answer `false` to its reviewer is rejected.
+
+`items_shipped` asks for confirmation and ships on its POST: a site linking to it needs nothing, a site calling it from
+a script of its own posts the form. A site building these by hand passes the new arguments on: `BasketCodeService`
+takes `BasketRepository`, `BasketRetentionService` takes `BasketCodeService`, `InAppPurchaseService` takes
+`ConfigServiceInterface` before the secret, `BasketCrudController` takes `CsrfTokenManagerInterface`. A class of your own
+implementing `BasketServiceInterface` adds `callOffCheckout()`. `BasketCodeService::redeem()` is private, `claim()` being what is called.
+
+Requires `c975l/core-bundle` ^1.85.0, for the `c975l.rich` and `c975l.legal` sanitizers: release it first.
+
 ## v6.20 > v6.21
 
 **A refund or a lost chargeback takes the order back.** `payment_basket` gains `refunded_at` (nullable),

@@ -53,7 +53,7 @@ class AppleStore implements InAppStoreInterface
         return '' !== $this->config('apple-bundle-id') && '' !== $this->config('apple-issuer-id') && '' !== $this->config('apple-iap-key-id') && '' !== $this->config('apple-iap-private-key');
     }
 
-    // Asked of production first, then of the sandbox on a 404: Apple's own review buys in the sandbox from the production app, so the mode cannot be told in advance (see payment-test-mode, which plays no part here)
+    // Asked of production first, then of the sandbox on a 404: Apple's own review buys in the sandbox from the production app, so the mode cannot be told in advance (see payment-test-mode, which plays no part here, and InAppPurchaseService, which delivers a sandbox purchase only to a holder the shop named)
     public function verifyPurchase(array $proof): ?InAppTransaction
     {
         $transactionId = $proof['transactionId'] ?? null;

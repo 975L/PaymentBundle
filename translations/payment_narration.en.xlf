@@ -58,6 +58,18 @@
                 <source>narration.guided_step_payment_basket_integrity_status</source>
                 <target>Show every row: the table opens on what is left to handle, pick "All statuses" to also see the checks that found nothing.</target>
             </trans-unit>
+            <trans-unit id="AQL0WcT">
+                <source>narration.guided_step_payment_charged_undelivered_open</source>
+                <target>Open the validated orders. One charged and not delivered is among them, the only one carrying the button of the next step. First settle the cause the log names.</target>
+            </trans-unit>
+            <trans-unit id="0M7dcyg">
+                <source>narration.guided_step_payment_charged_undelivered_refund</source>
+                <target>When it cannot be delivered, refund the customer at the payment provider: the order is marked refunded on its own, and the gift card gets back what the order had taken.</target>
+            </trans-unit>
+            <trans-unit id="HeyOm_E">
+                <source>narration.guided_step_payment_charged_undelivered_retry</source>
+                <target>Click to go through the delivery again. It says whether it went through, and nothing is charged a second time.</target>
+            </trans-unit>
             <trans-unit id="YDh6NB0">
                 <source>narration.guided_step_payment_discount_code_active</source>
                 <target>Leave it active: unticked, the box suspends the code without erasing it or resetting its counter.</target>
@@ -186,6 +198,10 @@
                 <source>narration.guided_step_payment_in_app_setup_publish</source>
                 <target>Last, the publish command creates the products at Apple and Google from what the site sells. Each purchase then shows in In-app purchases.</target>
             </trans-unit>
+            <trans-unit id="9hOtqqY">
+                <source>narration.guided_step_payment_in_app_setup_sandbox</source>
+                <target>A store's test purchase is delivered only to a holder you name in payment-store-sandbox-holders. Name the account you hand Apple's reviewer before submitting the app, and your testers.</target>
+            </trans-unit>
             <trans-unit id="jjK_Jbc">
                 <source>narration.guided_step_payment_in_app_setup_value</source>
                 <target>Paste the whole content of the file, as it is, then save. Do it again for each setting of the store you sell through.</target>
@@ -292,7 +308,7 @@
             </trans-unit>
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
-                <target>Mark one order sent, on the row of the one you have just packed. The button only shows on a paid order carrying something to post and not yet marked; the click records the shipping and e-mails the customer.</target>
+                <target>Mark one order sent, on the row of the one you have just packed. The button only shows on a paid order carrying something to post and not yet marked; the click opens a confirmation, which records the shipping and e-mails the customer.</target>
             </trans-unit>
             <trans-unit id="mxkzgZi">
                 <source>narration.guided_step_payment_shop_identity_invoice</source>

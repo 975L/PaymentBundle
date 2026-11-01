@@ -1,0 +1,24 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Defines specific variables #}
+{% set title = 'label.items_shipped'|trans %}
+{# No indexing: one order's own shipping page, reached from the back-office #}
+{% set robots = 'noindex, nofollow' %}
+
+{% block content %}
+    {# Reaching this page writes nothing: the form is what marks the order and emails the customer #}
+    <section class="text-center">
+        <p class="text text-center lead">{{ ('product' == type ? 'text.ship_items_confirm' : 'text.ship_counterparts_confirm')|trans }}</p>
+        <p class="text text-center">{{ 'label.order_number'|trans }}: {{ number }}</p>
+        <form method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('items_shipped_' ~ number) }}">
+            <p class="text-center">
+                <button type="submit" class="btn btn-large btn-primary">{{ ('product' == type ? 'label.send_items' : 'label.send_counterparts')|trans }}</button>
+            </p>
+        </form>
+    </section>
+{% endblock %}
+
+{% block share %}
+{% endblock %}

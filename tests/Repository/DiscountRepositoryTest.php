@@ -55,6 +55,15 @@ class DiscountRepositoryTest extends TestCase
         $this->assertArrayHasKey('now', $this->parameters);
     }
 
+    // A use given back never takes the count below nothing, an admin having reset it in between
+    public function testAUseGivenBackStopsAtNothing(): void
+    {
+        $this->createRepository()->releaseUse(new Discount());
+
+        $this->assertStringContainsString('used_count = used_count - 1', $this->sql);
+        $this->assertStringContainsString('used_count > 0', $this->sql);
+    }
+
     // What the caller acts on: the row was updated or it was not, and nothing else is read back to find out
     public function testTheAnswerIsWhetherTheDatabaseTookIt(): void
     {

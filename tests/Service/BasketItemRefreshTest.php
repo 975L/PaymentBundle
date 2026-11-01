@@ -214,7 +214,7 @@ class BasketItemRefreshTest extends TestCase
             $itemProviderRegistry,
             $this->createStub(PaymentGatewayRegistry::class),
             $this->createStub(PaymentTestModeInterface::class),
-            new BasketCodeService($discountRepository, $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class)),
+            new BasketCodeService($discountRepository, $this->createStub(GiftCardRepository::class), $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $this->createStub(BasketRepository::class)),
             new VatCalculator($itemProviderRegistry),
             $this->createStub(InvoiceService::class),
             $this->createStub(ShippingRateResolverInterface::class),

@@ -109,7 +109,7 @@ class DiscountCrudController extends AbstractCrudController
             IntegerField::new('maxUses')
                 ->setLabel(t('label.max_uses', [], 'payment'))
                 ->setHelp(t('help.discount_max_uses', [], 'payment')),
-            // Raised by the settled orders alone (see BasketCodeService::redeem()), so an admin never has to keep it
+            // Raised by the orders holding the code alone (see BasketCodeService::claim()), so an admin never has to keep it
             IntegerField::new('usedCount')
                 ->setLabel(t('label.used_count', [], 'payment'))
                 ->setFormTypeOption('disabled', 'disabled'),

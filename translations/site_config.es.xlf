@@ -56,7 +56,11 @@
             </trans-unit>
             <trans-unit id="wgKNCR_">
                 <source>description.payment_share_validity</source>
-                <target>Número de días durante los cuales un pedido que el cliente pide que le regalen sigue siendo pagadero por el enlace compartido. El plazo se anuncia al cliente, no se impone: el pedido se borra realmente al cabo de 30 días si no se paga.</target>
+                <target>Número de días durante los cuales un pedido que el cliente pide que le regalen sigue siendo pagadero por el enlace compartido. Su código queda reservado durante ese plazo y después vuelve a poder usarse: el enlace sigue respondiendo y retoma el código si puede, hasta que el pedido se borra al cabo de 30 días si no se paga.</target>
+            </trans-unit>
+            <trans-unit id="hiuGO.g">
+                <source>description.payment_store_sandbox_holders</source>
+                <target>Identificadores de las cuentas cuyas compras de prueba de App Store o Google Play se entregan, separados por comas: la que confía a la revisión de Apple, las de sus probadores. Vacío, no se entrega ninguna compra de prueba.</target>
             </trans-unit>
             <trans-unit id="i415WZO">
                 <source>description.payment_test_mode</source>
@@ -221,6 +225,10 @@
             <trans-unit id="8WjAZqT">
                 <source>label.payment_share_validity</source>
                 <target>Validez de un pedido compartido (días)</target>
+            </trans-unit>
+            <trans-unit id="jTm31Gs">
+                <source>label.payment_store_sandbox_holders</source>
+                <target>Cuentas autorizadas a las compras de prueba de las tiendas</target>
             </trans-unit>
             <trans-unit id="KlPswTP">
                 <source>label.payment_test_mode</source>

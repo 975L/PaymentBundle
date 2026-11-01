@@ -46,6 +46,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasketService implements BasketServiceInterface
 {
+    // The most one line holds: far past any real order, and within the smallint the providers' stock columns count in
+    public const int MAX_LINE_QUANTITY = 9999;
+
     private $basket;
     private $session;
     private $user;
@@ -124,15 +127,15 @@ class BasketService implements BasketServiceInterface
     // Deletes basket
     public function delete(): array
     {
-        $identifiant = $this->session->get('basket');
-        if (null !== $identifiant) {
-            $this->basket = $this->get();
+        $this->basket = $this->get();
 
+        // An order is the shop's record, a charged one included: the visitor lets go of it and the row stays. A checkout still open goes back to being a basket on the way out, so its code is given back and its session called off
+        if (null !== $this->basket && !$this->basket->isOrder() && $this->reopen($this->basket)) {
             $this->entityManager->remove($this->basket);
             $this->entityManager->flush();
-
-            $this->session->remove('basket');
         }
+
+        $this->session->remove('basket');
 
         return [
             'total' => 0,
@@ -354,6 +357,20 @@ class BasketService implements BasketServiceInterface
         throw new BasketNotOrderableException($resolution['error'] ?? $this->translator->trans('error.code_changed', [], 'payment'));
     }
 
+    // Whether every line holds at least one of what it sells, whatever its provider: addItem() opens none below that, which leaves the baskets stored before it did
+    private function holdsOnlyWholeLines(Basket $basket): bool
+    {
+        foreach ($basket->getItems() as $itemsOfThisKind) {
+            foreach ($itemsOfThisKind as $itemContent) {
+                if ((int) ($itemContent['quantity'] ?? 0) < 1) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     // Asked first, and for the same reason as the gateway: a basket holding something that ran out, was withdrawn or was taken offline while it sat there takes no order at all, rather than being numbered and charged for what cannot be delivered. Every path of validate() is behind it, the free one included
     private function assertItemsOrderable(): void
     {
@@ -400,6 +417,30 @@ class BasketService implements BasketServiceInterface
     {
         $this->basket = $this->get();
 
+        // An order the session still names, its customer having paid and never come back: the session lets go of it and the visitor starts over, rather than numbering a sale a second time and having it charged or delivered again
+        if ($this->basket->isOrder()) {
+            $this->session?->remove('basket');
+
+            throw new BasketNotOrderableException($this->translator->trans('error.already_ordered', [], 'payment'));
+        }
+
+        // Refused before anything else is read: quantity 0 is a free order and a negative one a reduced total, and no provider is asked whether it minds
+        if (!$this->holdsOnlyWholeLines($this->basket)) {
+            throw new BasketNotOrderableException($this->translator->trans('error.quantity_invalid', [], 'payment'));
+        }
+
+        // The same order posted again goes back to being a basket first: the checkout it opened is called off and what it held of its code given back, before the code is read against the card. Flushed apart so a refusal below comes back to a basket that says so
+        if (BasketStatus::Validated === $this->basket->getStatus()) {
+            // The customer came back from the provider by the browser's back button, having paid: their order is what they are shown, and nothing is opened to charge them again
+            if (!$this->reopen($this->basket)) {
+                $this->entityManager->flush();
+
+                return $this->paidUrl($this->basket);
+            }
+
+            $this->entityManager->flush();
+        }
+
         $this->assertCodeStillHolds();
         $this->assertItemsOrderable();
 
@@ -429,7 +470,37 @@ class BasketService implements BasketServiceInterface
             throw new PaymentUnavailableException('No payment gateway holds a key');
         }
 
+        $this->claimCode();
+
+        // Whatever stops the order from here on, a checkout the provider refuses to open included, the amount taken just above does not stay taken
+        try {
+            return $this->freeze($request, $forSharing);
+        } catch (\Throwable $exception) {
+            $this->basketCodeService->release($this->basket);
+
+            throw $exception;
+        }
+    }
+
+    // Sets aside what the order uses of its code, the database refusing what another order took first: the code leaves the basket and the customer comes back to the true price, before paying anything
+    private function claimCode(): void
+    {
+        if ($this->basketCodeService->claim($this->basket)) {
+            return;
+        }
+
+        $this->basketCodeService->clear($this->basket);
+        $this->entityManager->flush();
+
+        throw new BasketNotOrderableException($this->translator->trans('error.code_changed', [], 'payment'));
+    }
+
+    // Numbers the order and opens its checkout, the basket having passed every check of validate()
+    private function freeze(Request $request, bool $forSharing): string
+    {
         $this->basket->setStatus(BasketStatus::Validated);
+        // The last change this order sees: the nightly pass counts from here how long its checkout has been given up on (see BasketRepository::findStaleClaims())
+        $this->basket->setModification(new \DateTime());
         // The one moment the customer's own request is here to be asked: everything sent afterwards is sent from somewhere else
         $this->basket->setLocale($this->requestStack->getCurrentRequest()?->getLocale());
         $this->basket->setNumber($this->generateOrderNumber());
@@ -447,17 +518,9 @@ class BasketService implements BasketServiceInterface
 
         // Nothing left to pay - the free path, which a code covering the whole order now takes too
         if (0 === $this->basket->getPayable()) {
-            $url = $this->urlGenerator->generate(
-                'basket_paid',
-                [
-                    'number' => $this->basket->getNumber(),
-                    'securityToken' => $this->basket->getSecurityToken(),
-                ],
-                $this->urlGenerator::ABSOLUTE_URL
-            );
             $this->entityManager->flush();
 
-            return $url;
+            return $this->paidUrl($this->basket);
         }
 
         // An order somebody else is going to settle opens no checkout here: the payer opens their own when they follow the link (see payShared())
@@ -490,6 +553,19 @@ class BasketService implements BasketServiceInterface
         return $checkout->url;
     }
 
+    // Where a customer reads their order, once there is nothing left for them to pay
+    private function paidUrl(Basket $basket): string
+    {
+        return $this->urlGenerator->generate(
+            'basket_paid',
+            [
+                'number' => $basket->getNumber(),
+                'securityToken' => $basket->getSecurityToken(),
+            ],
+            $this->urlGenerator::ABSOLUTE_URL
+        );
+    }
+
     /**
      * Opens the checkout of an order somebody else is settling, and hands back the page to send them to.
      *
@@ -498,7 +574,7 @@ class BasketService implements BasketServiceInterface
     public function payShared(Basket $basket): string
     {
         // Only an order still waiting for its money: one already settled, or one the customer took back to a basket, has nothing to charge
-        if (BasketStatus::Validated !== $basket->getStatus() || null === $basket->getShareToken() || $basket->getPayable() <= 0) {
+        if (BasketStatus::Validated !== $basket->getStatus() || $basket->isChargedUndelivered() || null === $basket->getShareToken() || $basket->getPayable() <= 0) {
             throw new PaymentUnavailableException('This order is not waiting for a payment');
         }
 
@@ -510,22 +586,33 @@ class BasketService implements BasketServiceInterface
 
         $this->basket = $basket;
 
+        // A reminder comes back after the nightly pass let go of the code, which may have been spent since: nobody is charged for an order the code can no longer cover, the money would only be held undelivered
+        if (!$this->basketCodeService->claim($basket)) {
+            throw new PaymentUnavailableException('The code of this order no longer covers it');
+        }
+
         // The payer is the one contracting, so the waiver is theirs: the page asked for it before calling this (see BasketController::sharedPay())
         if ($basket->asksWithdrawalWaiver()) {
             $basket->setWithdrawalWaived(new \DateTime());
         }
 
-        // A link followed twice opens a second checkout, and the first is called off rather than left payable: two sessions on one order is two charges for it
-        $this->expireCheckout($basket);
-
-        $checkout = $this->createCheckout($this->urlGenerator->generate(
+        $paidUrl = $this->urlGenerator->generate(
             'basket_shared_paid',
             [
                 'number' => $basket->getNumber(),
                 'shareToken' => $basket->getShareToken(),
             ],
             $this->urlGenerator::ABSOLUTE_URL
-        ));
+        );
+
+        // A link followed twice opens a second checkout, and the first is called off rather than left payable: two sessions on one order is two charges for it. The first found paid, the payer is done
+        if ($this->expireCheckout($basket)) {
+            $this->entityManager->flush();
+
+            return $paidUrl;
+        }
+
+        $checkout = $this->createCheckout($paidUrl);
         $this->createPayment($checkout->reference);
 
         $this->entityManager->flush();
@@ -607,6 +694,13 @@ class BasketService implements BasketServiceInterface
             return;
         }
 
+        // An order numbered before addItem() refused them, whose line below one made it free or brought its total down: charged or not, it is not delivered, and a charged one stands on the dashboard as charged and undelivered
+        if (!$this->holdsOnlyWholeLines($basket)) {
+            $this->logger->critical('Basket {number}: a line below one, the order is not delivered', ['number' => $basket->getNumber()]);
+
+            return;
+        }
+
         // The webhook and the customer's return confirm the same payment within the same second, and both would read "validated" and deliver. Only the request the database hands the basket to goes on to decrement stock and send the email
         if (!$this->basketRepository->claimPaid($basket)) {
             return;
@@ -616,47 +710,91 @@ class BasketService implements BasketServiceInterface
         $basket->setStatus(BasketStatus::Paid);
         $basket->setModification(new \DateTime());
 
-        // The code is spent here and nowhere else, an abandoned basket burning neither quota nor balance; a refusal means it ran out since the last check, and the order being paid nothing is undone but the log
-        if (!$this->basketCodeService->redeem($basket)) {
-            $this->logger->error('Basket {number}: the code {code} could not be redeemed for {amount}, the order was charged all the same', [
-                'number' => $basket->getNumber(),
-                'code' => $basket->getDiscountCode(),
-                'amount' => $basket->getDiscountAmount(),
-            ]);
+        if ($this->deliver($basket)) {
+            // Dispatch messages emails
+            $this->sendEmails($basket);
+        }
+    }
+
+    // What a paid order is owed, in one transaction: the code if validate() no longer holds it, each provider's effects, the invoice number. The status moved before this and stays out of it, deciding between the webhook and the customer's return: whatever happens below moves it back, so a retry finds the order where it was and delivers it whole
+    /** @return bool whether the order was delivered; false when its code no longer covers what it took off, which no replay can change until the shop has acted */
+    private function deliver(Basket $basket): bool
+    {
+        $connection = $this->entityManager->getConnection();
+        $connection->beginTransaction();
+        // What the rollback gives back to the database, the entity being told apart
+        $claimedAtValidation = $basket->isDiscountClaimed();
+
+        try {
+            // Never more value than the code covered: the customer paid the rest by card, so the order is neither delivered for free nor lost, but kept charged and undelivered for the shop to settle
+            if (!$this->basketCodeService->claim($basket)) {
+                $connection->rollBack();
+                $this->holdOrder($basket, 'the code ' . $basket->getDiscountCode() . ' no longer covers ' . $basket->getDiscountAmount());
+
+                return false;
+            }
+
+            // Lets each item kind's provider apply its own paid effects (ordered quantity, contributor, tickets...), handing back what it left at validation
+            $checkoutData = $basket->getCheckoutData();
+            foreach ($basket->getItems() as $type => $itemsOfThisKind) {
+                $this->itemProviderRegistry->get($type)->onBasketPaid($basket, $itemsOfThisKind, $checkoutData[$type] ?? []);
+            }
+
+            // A delivered basket is no longer a checkout: what was carried across it has been used, and some of it is the customer's own details
+            $basket->setCheckoutData([]);
+
+            $this->entityManager->flush();
+
+            // The invoice number, drawn here and nowhere else: this runs once per order, the database having said so above, which is what keeps the sequence free of gaps and free of repeats
+            $this->invoiceService->assign($basket);
+
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+            // What the providers persisted and had not flushed goes with the rollback, or the next flush of this request writes half a delivery, gift cards included
+            if ($this->entityManager->isOpen()) {
+                $this->entityManager->clear();
+            }
+            $basket->setDiscountClaimed($claimedAtValidation);
+            $this->holdOrder($basket, $exception->getMessage());
+
+            // The webhook answers 500 on it and the provider replays, the customer's return swallows it (see confirmReturn())
+            throw $exception;
         }
 
-        // Lets each item kind's provider apply its own paid effects (ordered quantity, contributor, tickets...), handing back what it left at validation
-        $checkoutData = $basket->getCheckoutData();
-        foreach ($basket->getItems() as $type => $itemsOfThisKind) {
-            $this->itemProviderRegistry->get($type)->onBasketPaid($basket, $itemsOfThisKind, $checkoutData[$type] ?? []);
-        }
+        return true;
+    }
 
-        // A delivered basket is no longer a checkout: what was carried across it has been used, and some of it is the customer's own details
-        $basket->setCheckoutData([]);
+    // Moves an order that was not delivered back to where a retry finds it, and tells the shop: the critical line is what raises the alert, the charged payment on it what the dashboard and the integrity check read (see Basket::isChargedUndelivered())
+    private function holdOrder(Basket $basket, string $reason): void
+    {
+        $this->basketRepository->releasePaid($basket);
+        $basket->setStatus(BasketStatus::Validated);
 
-        $this->entityManager->flush();
-
-        // The invoice number, drawn here and nowhere else: this runs once per order, the database having said so above, which is what keeps the sequence free of gaps and free of repeats
-        $this->invoiceService->assign($basket);
-
-        // Dispatch messages emails
-        $this->sendEmails($basket);
+        $this->logger->critical('Basket {number}: charged and not delivered, {reason}', ['number' => $basket->getNumber(), 'reason' => $reason]);
     }
 
     // The customer's own return to the site, which asks the provider whether that payment went through rather than trusting the url it arrived on. The webhook confirms the same payment on its own, so this is a shortcut, never the only path
     public function confirmReturn(Basket $basket, Request $request): void
     {
         if (BasketStatus::Validated === $basket->getStatus()) {
-            // A basket with nothing to pay has no provider to ask
-            if (0 === $basket->getPayable()) {
-                $this->paid($basket);
-            } else {
-                $this->confirmWithGateway($basket, $request);
+            // The customer is shown their order as it stands rather than an error page: paid() has logged it and moved the order back for a retry, which the webhook's replay or this page's next load makes
+            try {
+                // A basket with nothing to pay has no provider to ask, and one already charged has been answered
+                if (0 === $basket->getPayable() || $basket->isChargedUndelivered()) {
+                    $this->paid($basket);
+                } else {
+                    $this->confirmWithGateway($basket, $request);
+                }
+            } catch (\Throwable $exception) {
+                $this->logger->error('Order could not be delivered on the return', ['basket' => $basket->getId(), 'error' => $exception->getMessage()]);
             }
         }
 
         // Whichever path numbered it, an order is no longer the visitor's current basket - but only when the session names this one: on a shared order the visitor here is the payer, and their own basket is none of this order's business
-        if ($basket->getStatus()->isRecorded() && $this->session?->get('basket') === $basket->getId()) {
+        if ($basket->isOrder() && $this->session?->get('basket') === $basket->getId()) {
             $this->session->remove('basket');
         }
     }
@@ -672,6 +810,7 @@ class BasketService implements BasketServiceInterface
 
         // Reaching the provider can fail, and its webhook confirms the same payment on its own: the customer is shown their order as it stands rather than an error page
         try {
+            // The reference kept on the payment and nothing else: the url the customer came back on is theirs to type (see StripeGateway::readReturn())
             $notification = $gateway->readReturn($request, $basket->getPayment()?->getGatewayReference());
         } catch (\Exception $e) {
             $this->logger->error('Payment return could not be confirmed', ['basket' => $basket->getId(), 'error' => $e->getMessage()]);
@@ -743,11 +882,25 @@ class BasketService implements BasketServiceInterface
     private function readAddition(Request $request): array
     {
         $data = $this->readPayload($request);
-        if (!isset($data['id'], $data['quantity'], $data['type']) || !is_numeric($data['quantity']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type'])) {
+        if (!isset($data['id'], $data['quantity'], $data['type']) || !\is_string($data['type']) || !$this->itemProviderRegistry->has($data['type'])) {
             throw new BadRequestHttpException('The body must carry "id", "quantity" and a "type" a provider answers for.');
         }
 
-        return [$data['id'], (int) $data['quantity'], $data['type']];
+        return [$data['id'], $this->readQuantity($data['quantity']), $data['type']];
+    }
+
+    // A whole number in range and nothing a cast would round or wrap: "1.9" is no quantity, and neither is a number past what a line, its total and the stock columns behind it can count. Negative is the "-" button walking a line down (see addToItems())
+    private function readQuantity(mixed $quantity): int
+    {
+        $whole = is_numeric($quantity)
+            ? filter_var($quantity, \FILTER_VALIDATE_INT, ['options' => ['min_range' => -self::MAX_LINE_QUANTITY, 'max_range' => self::MAX_LINE_QUANTITY]])
+            : false;
+
+        if (false === $whole) {
+            throw new BadRequestHttpException(\sprintf('"quantity" must be a whole number of at most %d.', self::MAX_LINE_QUANTITY));
+        }
+
+        return $whole;
     }
 
     // An order is no longer a basket: one still named by the session - its customer paid and never came back to the site, so nothing cleared it - is left alone and the visitor starts a new one
@@ -755,7 +908,7 @@ class BasketService implements BasketServiceInterface
     {
         $basket = $this->get();
 
-        return null !== $basket && !$this->isOrder($basket) ? $basket : $this->create();
+        return null !== $basket && !$basket->isOrder() ? $basket : $this->create();
     }
 
     // The line written over, dropped, or opened, on the basket's own lines - the caller writing them back once the totals have been drawn
@@ -775,6 +928,11 @@ class BasketService implements BasketServiceInterface
             return;
         }
 
+        // One click at a time is no way past the cap readQuantity() holds a single call to; a line stored above it can still be walked down
+        if ($quantity > 0 && $items[$type][$itemId]['quantity'] + $quantity > self::MAX_LINE_QUANTITY) {
+            throw new BadRequestHttpException(\sprintf('A line holds at most %d.', self::MAX_LINE_QUANTITY));
+        }
+
         // Otherwise updates quantity unless its provider flags it digital - a file, a card back, whatever is held once. Only the quantity is written here: the price, totals and VAT are drawn from the item by the refresh updateTotals() runs afterwards
         if (0 === ($provider->getContentFlags($items[$type][$itemId]) & Basket::CONTENT_FLAG_DIGITAL)) {
             $items[$type][$itemId]['quantity'] += $quantity;
@@ -787,7 +945,12 @@ class BasketService implements BasketServiceInterface
         [$itemId, $quantity, $type] = $this->readAddition($request);
 
         $this->basket = $this->basketToAddTo();
-        $this->reopen($this->basket);
+
+        // Paid at the provider though nothing had said so yet: the order keeps what it was paid for, and this goes in a new basket
+        if (!$this->reopen($this->basket)) {
+            $this->session->remove('basket');
+            $this->basket = $this->create();
+        }
 
         $items = $this->basket->getItems();
 
@@ -801,6 +964,11 @@ class BasketService implements BasketServiceInterface
         $error = $provider->validateAddition($item, $quantity);
         if (null !== $error) {
             return ['error' => $error];
+        }
+
+        // A negative quantity walks an existing line down, the way the page's "-" button takes it off; with no line to walk down it would open one at a price below nothing, and a quantity of 0 a free line delivered all the same
+        if ($quantity < 1 && !isset($items[$type][$itemId])) {
+            return ['error' => $this->translator->trans('error.quantity_invalid', [], 'payment')];
         }
 
         $this->addToItems($items, $type, $itemId, $item, $provider, $quantity);
@@ -827,11 +995,13 @@ class BasketService implements BasketServiceInterface
         $this->basket = $this->get();
 
         // Nothing is added to an order, nor to a basket the session no longer names
-        if (null === $this->basket || $this->isOrder($this->basket)) {
+        if (null === $this->basket || $this->basket->isOrder()) {
             return $this->getJson();
         }
 
-        $this->reopen($this->basket);
+        if (!$this->reopen($this->basket)) {
+            return $this->getJson();
+        }
 
         $data = $this->readPayload($request);
         $code = isset($data['code']) && \is_string($data['code']) ? $data['code'] : '';
@@ -856,11 +1026,13 @@ class BasketService implements BasketServiceInterface
     {
         $this->basket = $this->get();
 
-        if (null === $this->basket || $this->isOrder($this->basket)) {
+        if (null === $this->basket || $this->basket->isOrder()) {
             return $this->getJson();
         }
 
-        $this->reopen($this->basket);
+        if (!$this->reopen($this->basket)) {
+            return $this->getJson();
+        }
         $this->basketCodeService->clear($this->basket);
         $this->basket->setModification(new \DateTime());
 
@@ -876,11 +1048,13 @@ class BasketService implements BasketServiceInterface
         $this->basket = $this->get();
 
         // Nothing is taken out of an order, nor out of a basket the session no longer names
-        if (null === $this->basket || $this->isOrder($this->basket)) {
+        if (null === $this->basket || $this->basket->isOrder()) {
             return $this->getJson();
         }
 
-        $this->reopen($this->basket);
+        if (!$this->reopen($this->basket)) {
+            return $this->getJson();
+        }
 
         $data = $this->readPayload($request);
         if (!isset($data['id'], $data['type']) || !\is_string($data['type'])) {
@@ -915,33 +1089,41 @@ class BasketService implements BasketServiceInterface
         }
     }
 
-    // A basket that has been paid for, shipped or refunded since, and is an order rather than something still being filled: a refunded one reopened would be a sale numbered twice
-    private function isOrder(Basket $basket): bool
+    // What the back-office asks before deleting a basket, a customer's tab being able to pay its checkout afterwards: the same way out as delete(), which answers false when that checkout turns out to be paid, the order being settled and kept
+    public function callOffCheckout(Basket $basket): bool
     {
-        return $basket->getStatus()->isRecorded();
+        return $this->reopen($basket);
     }
 
     // A basket edited after it was validated no longer matches the checkout the customer is looking at, so it goes back to being a basket. The checkout left open at the provider can then deliver nothing - paid() only ever delivers a "validated" basket - and validate() numbers it again, with a new order number and a new security token that make the old return url useless
-    private function reopen(Basket $basket): void
+    private function reopen(Basket $basket): bool
     {
         if (BasketStatus::Validated !== $basket->getStatus()) {
-            return;
+            return true;
+        }
+
+        // First, the order having to still be one if its checkout turns out to be paid
+        if ($this->expireCheckout($basket)) {
+            return false;
         }
 
         $basket->setStatus(BasketStatus::New);
         $basket->setCheckoutData([]);
-        $this->expireCheckout($basket);
+        // What it held of its code goes back now, while the code and the amount on the basket are still the ones it claimed: every caller reopens before it edits
+        $this->basketCodeService->release($basket);
+
+        return true;
     }
 
-    // Calls off the checkout this basket had already opened, so the customer who still has it in a tab cannot pay for a basket that no longer exists. Refusing that payment afterwards is all the site could otherwise do, and by then they are charged and take delivery of nothing
-    private function expireCheckout(Basket $basket): void
+    // Calls off the checkout this basket had already opened, so the customer who still has it in a tab cannot pay for a basket that no longer exists. Refusing that payment afterwards is all the site could otherwise do, and by then they are charged and take delivery of nothing. Answers whether that checkout turned out to be paid, the provider having refused to call it off for that reason
+    private function expireCheckout(Basket $basket): bool
     {
         $payment = $basket->getPayment();
         $reference = $payment?->getGatewayReference();
 
         // A payment already settled is no longer a checkout to call off
         if (null === $payment || null === $reference || true === $payment->isFinished()) {
-            return;
+            return false;
         }
 
         // Asked of the provider that opened it, which the active one may no longer be
@@ -949,15 +1131,51 @@ class BasketService implements BasketServiceInterface
         $gateway = $this->gatewayRegistry->has($slug) ? $this->gatewayRegistry->get($slug) : null;
 
         if ($gateway instanceof ExpirableGatewayInterface) {
-            // A checkout Stripe has already expired, or cannot be reached about, answers with an exception: the basket is still reopened, and the payment that may yet arrive for it is refused on its amount
             try {
                 $gateway->expireCheckout($reference);
             } catch (\Exception $e) {
+                if ($this->settleIfPaid($basket, $gateway, $reference)) {
+                    return true;
+                }
+
+                // Already expired, or the provider out of reach: the basket is still reopened, and the payment that may yet arrive for it is refused on its amount
                 $this->logger->error('Checkout could not be expired', ['basket' => $basket->getId(), 'reference' => $reference, 'error' => $e->getMessage()]);
             }
         }
 
         $payment->setGatewayReference(null);
+
+        return false;
+    }
+
+    // A provider refuses to call off a checkout already paid, the customer having come back by the browser's back button ahead of the webhook. The checkout is read again, by the call the customer's return makes, and the order settled the way that return settles it: paid means no second checkout, even when the order then refuses that payment, which applyNotification() logs for the shop to settle
+    private function settleIfPaid(Basket $basket, object $gateway, string $reference): bool
+    {
+        if (!$gateway instanceof ReturnAwareGatewayInterface) {
+            return false;
+        }
+
+        try {
+            // No url to read: the customer is not coming back from the provider here, and the reference is all it takes
+            $notification = $gateway->readReturn(new Request(), $reference);
+        } catch (\Exception $e) {
+            $this->logger->error('Checkout could not be read back', ['basket' => $basket->getId(), 'reference' => $reference, 'error' => $e->getMessage()]);
+
+            return false;
+        }
+
+        if (null === $notification || PaymentEvent::Paid !== $notification->event || $notification->basketId !== (string) $basket->getId()) {
+            return false;
+        }
+
+        // The money is taken whatever delivering it does: paid() has logged what stopped it and left the order for a retry, the customer being shown their order as it stands
+        try {
+            $this->applyNotification($notification);
+        } catch (\Throwable $exception) {
+            $this->logger->error('Order could not be delivered once its checkout was read back', ['basket' => $basket->getId(), 'error' => $exception->getMessage()]);
+        }
+
+        return true;
     }
 
     // Generates order number with format AAAAMM-YY-XXXXX
@@ -1071,14 +1289,7 @@ class BasketService implements BasketServiceInterface
         return new CheckoutRequest(
             $this->basket->getCurrency(),
             $lines,
-            $successUrl ?? $this->urlGenerator->generate(
-                'basket_paid',
-                [
-                    'number' => $this->basket->getNumber(),
-                    'securityToken' => $this->basket->getSecurityToken(),
-                ],
-                $this->urlGenerator::ABSOLUTE_URL
-            ),
+            $successUrl ?? $this->paidUrl($this->basket),
             $this->urlGenerator->generate('basket_validate', [], $this->urlGenerator::ABSOLUTE_URL),
             $this->basket->getEmail(),
             [
@@ -1105,6 +1316,13 @@ class BasketService implements BasketServiceInterface
             return;
         }
 
+        // A basket reopened since: its old checkout got paid before it could be called off, and nothing delivers it. Nothing is written over the payment the next validate() opens, and the shop is told, the customer having paid
+        if (BasketStatus::New === $basket->getStatus()) {
+            $this->logger->critical('Basket {basket}: charged by {transaction} on a checkout reopened since, nothing delivered, to refund', ['basket' => $notification->basketId, 'transaction' => $notification->transactionId]);
+
+            return;
+        }
+
         // What the provider charged, against what the basket holds *now* rather than against the payment row: both were written when the basket was validated, and comparing them would agree with itself. A basket can still be added to once it is validated, and the checkout the customer paid was priced before that - so a basket grown since is refused in both directions, the charge staying for an admin to settle rather than delivering contents nobody paid for. What is due is what was payable - the checkout is opened for the discounted amount (see buildCheckoutRequest()), so comparing against the undiscounted total refuses every order settled with a code or a gift card
         $due = $basket->getPayable();
         if (null !== $notification->amount && $notification->amount !== $due) {
@@ -1119,6 +1337,10 @@ class BasketService implements BasketServiceInterface
         }
 
         $payment = $basket->getPayment();
+
+        if ($this->alreadySettled($basket, $notification)) {
+            return;
+        }
 
         if ($payment) {
             $payment->setGateway($notification->gateway);
@@ -1136,6 +1358,25 @@ class BasketService implements BasketServiceInterface
 
         // The payment is proven, so the basket is delivered now rather than waiting for the customer to come back
         $this->paid($basket);
+    }
+
+    // A provider's session settles one order once: the transaction the payment recorded goes on only to retry the delivery that followed it. Another one on an order already charged is the customer paying a second time, on a checkout that could not be called off: the first stays the one a refund finds, and the shop is told
+    private function alreadySettled(Basket $basket, PaymentNotification $notification): bool
+    {
+        $recorded = $basket->getPayment()?->getTransactionId();
+        if (null === $recorded || !$basket->isOrder() && $notification->transactionId !== $recorded) {
+            return false;
+        }
+
+        if ($notification->transactionId === $recorded) {
+            $this->logger->info('Payment notification replays a transaction already recorded', ['basket' => $notification->basketId, 'gateway' => $notification->gateway, 'transaction' => $notification->transactionId]);
+
+            return !$basket->isChargedUndelivered();
+        }
+
+        $this->logger->critical('Basket {basket}: charged again by {transaction} on top of {recorded}, to refund', ['basket' => $notification->basketId, 'transaction' => $notification->transactionId, 'recorded' => $recorded]);
+
+        return true;
     }
 
     // Gets user

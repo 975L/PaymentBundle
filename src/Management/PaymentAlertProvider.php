@@ -15,6 +15,7 @@ use c975L\ConfigBundle\Entity\Config;
 use c975L\ConfigBundle\Management\AlertProviderInterface;
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Controller\Management\BasketCrudController;
+use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\PaymentTestModeInterface;
@@ -38,7 +39,7 @@ class PaymentAlertProvider implements AlertProviderInterface
 
     public function getAlerts(): array
     {
-        return [...$this->gatewayAlerts(), ...$this->archiveAlerts(), ...$this->partialRefundAlerts()];
+        return [...$this->gatewayAlerts(), ...$this->archiveAlerts(), ...$this->partialRefundAlerts(), ...$this->chargedUndeliveredAlerts()];
     }
 
     /**
@@ -113,6 +114,29 @@ class PaymentAlertProvider implements AlertProviderInterface
                 ->setController(BasketCrudController::class)
                 ->setAction(Action::INDEX)
                 ->set('filters', ['refundedAmount' => ['comparison' => ComparisonType::GT, 'value' => 0]])
+                ->generateUrl(),
+            'role' => (string) $this->configService->get('site-role-admin'),
+        ]];
+    }
+
+    // Whether customers paid and received nothing: a code that no longer covered its share or a delivery that threw, each order listed with a button to deliver it again once the cause is settled - said for a month, the integrity check going on naming them afterwards
+    /** @return list<array{label: string, description: ?string, severity: Config::SEVERITY_*, url: string, role?: string}> */
+    private function chargedUndeliveredAlerts(): array
+    {
+        $count = $this->basketRepository->countChargedUndeliveredSince(new \DateTime('-30 days'));
+        if (0 === $count) {
+            return [];
+        }
+
+        return [[
+            'label' => $this->translator->trans('label.charged_undelivered', [], 'payment'),
+            'description' => $this->translator->trans('description.charged_undelivered', ['%count%' => $count], 'payment'),
+            'severity' => Config::SEVERITY_DANGER,
+            'url' => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(BasketCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set('filters', ['status' => ['comparison' => ComparisonType::EQ, 'value' => BasketStatus::Validated->value]])
                 ->generateUrl(),
             'role' => (string) $this->configService->get('site-role-admin'),
         ]];

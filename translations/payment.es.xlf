@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" target-language="es" datatype="plaintext" original="payment.en.xlf">
         <body>
+            <trans-unit id="tEU63kD">
+                <source>description.charged_undelivered</source>
+                <target>%count% pedido(s) pagado(s) por el cliente no se han entregado: el código que usaban ya no los cubre, o la entrega falló. Resuelva la causa (crédito de la tarjeta, cuota del código) y vuelva a lanzar la entrega desde el pedido, o reembolse al cliente en el proveedor de pago.</target>
+            </trans-unit>
             <trans-unit id="6XZS.VB">
                 <source>description.gift_card_how_to_use</source>
                 <target>Introduzca el código de esta tarjeta en su cesta al validar el pedido. El saldo restante sigue disponible para un pedido posterior.</target>
@@ -25,6 +29,10 @@
             <trans-unit id="ZqyUp7y">
                 <source>description.guided_project_payment_basket_integrity</source>
                 <target>Adquirir el hábito de leer lo que encontró la comprobación semanal y de abrir los pedidos afectados</target>
+            </trans-unit>
+            <trans-unit id="I8FvyoB">
+                <source>description.guided_project_payment_charged_undelivered</source>
+                <target>Resolver un pedido pagado por su cliente y que no ha recibido: volver a entregarlo o devolverle el dinero</target>
             </trans-unit>
             <trans-unit id="XBBuu0j">
                 <source>description.guided_project_payment_discount_code</source>
@@ -121,6 +129,18 @@
             <trans-unit id="YQe2I9y">
                 <source>description.guided_step_payment_basket_integrity_status</source>
                 <target>La tabla se abre en lo que queda por tratar: elija «Todos los estados» para ver también los controles que no encontraron nada.</target>
+            </trans-unit>
+            <trans-unit id="GVdEsxs">
+                <source>description.guided_step_payment_charged_undelivered_open</source>
+                <target>Un pedido cobrado y no entregado sigue validado, y solo él lleva el botón del paso siguiente. Resuelva primero la causa que indica el registro: saldo de la tarjeta, cupo del código o error de la entrega.</target>
+            </trans-unit>
+            <trans-unit id="aHWiDoj">
+                <source>description.guided_step_payment_charged_undelivered_refund</source>
+                <target>Si no se puede entregar, reembolse al cliente en el proveedor de pago: su webhook marca el pedido como reembolsado y devuelve a la tarjeta regalo lo que el pedido le había tomado.</target>
+            </trans-unit>
+            <trans-unit id="ZADZ.pE">
+                <source>description.guided_step_payment_charged_undelivered_retry</source>
+                <target>El clic repite toda la entrega e indica si se ha realizado. No se cobra nada una segunda vez.</target>
             </trans-unit>
             <trans-unit id="oJE4bm6">
                 <source>description.guided_step_payment_discount_code_active</source>
@@ -250,6 +270,10 @@
                 <source>description.guided_step_payment_in_app_setup_publish</source>
                 <target>El comando php bin/console c975l:payment:store:publish crea o actualiza en Apple y Google lo que vende el sitio: nada se introduce a mano en las consolas. Cada compra aparece luego en Pago › Compras en la app.</target>
             </trans-unit>
+            <trans-unit id="fxtwo4m">
+                <source>description.guided_step_payment_in_app_setup_sandbox</source>
+                <target>Una compra de prueba de las tiendas solo se entrega a un titular indicado en payment-store-sandbox-holders, separados por comas, entre los ajustes no sensibles del grupo. Indique la cuenta entregada a la revisión de Apple antes de enviar la aplicación, y sus probadores: una aplicación cuyas compras fallan en la revisión se rechaza.</target>
+            </trans-unit>
             <trans-unit id="DILkIxt">
                 <source>description.guided_step_payment_in_app_setup_value</source>
                 <target>Pegue el contenido entero del archivo .p8 de Apple o del archivo JSON de Google, tal cual, y guarde. Repita para cada ajuste de la tienda por la que vende.</target>
@@ -356,7 +380,7 @@
             </trans-unit>
             <trans-unit id="yH9irXB">
                 <source>description.guided_step_payment_shipping_send</source>
-                <target>En la fila del pedido que acaba de embalar. Solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado, y el clic registra el envío y avisa al cliente por correo.</target>
+                <target>En la fila del pedido que acaba de embalar. Solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado, y el clic abre una confirmación, que registra el envío y avisa al cliente por correo.</target>
             </trans-unit>
             <trans-unit id="FS8I.i.">
                 <source>description.guided_step_payment_shop_identity_invoice</source>
@@ -438,6 +462,10 @@
                 <source>description.vat_number</source>
                 <target>Número de IVA intracomunitario, impreso en la factura (FR12345678901)</target>
             </trans-unit>
+            <trans-unit id="QtEQVTk">
+                <source>error.already_ordered</source>
+                <target>Este pedido ya está registrado: su cesta vuelve a empezar</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Este código ya no se aplica a este pedido como antes: se ha actualizado el precio</target>
@@ -478,6 +506,10 @@
                 <source>error.payment_link_not_addable</source>
                 <target>Un enlace de pago no se añade a la cesta.</target>
             </trans-unit>
+            <trans-unit id="CLPNUH3">
+                <source>error.quantity_invalid</source>
+                <target>Esta cantidad no es válida: retire esta línea de la cesta o añada al menos una</target>
+            </trans-unit>
             <trans-unit id="9Aypio_">
                 <source>error.shipping_changed</source>
                 <target>El envío a la dirección indicada no cuesta lo que estimaba la cesta: se ha actualizado el precio</target>
@@ -485,6 +517,18 @@
             <trans-unit id="z1oPU0i">
                 <source>error.shipping_too_heavy</source>
                 <target>Este paquete supera el peso que la tienda envía a este destino: contáctenos para completar el pedido</target>
+            </trans-unit>
+            <trans-unit id="9l6W7jL">
+                <source>flash.basket_kept_paid</source>
+                <target>Esta cesta no se ha eliminado: su pago resulta haberse completado, por lo que se conserva como pedido</target>
+            </trans-unit>
+            <trans-unit id="VQae9u1">
+                <source>flash.delivery_retried</source>
+                <target>El pedido se ha entregado</target>
+            </trans-unit>
+            <trans-unit id="fGDV01D">
+                <source>flash.delivery_still_held</source>
+                <target>El pedido sigue sin poder entregarse: el código no lo cubre, o la entrega sigue fallando (ver el registro)</target>
             </trans-unit>
             <trans-unit id="KVIUnzj">
                 <source>flash.gift_card_issued</source>
@@ -729,6 +773,10 @@
             <trans-unit id="pVZ2WV6">
                 <source>label.category_shop</source>
                 <target>Tienda</target>
+            </trans-unit>
+            <trans-unit id="fYt2G8k">
+                <source>label.charged_undelivered</source>
+                <target>Pedidos cobrados pero no entregados</target>
             </trans-unit>
             <trans-unit id="rMc4Pre">
                 <source>label.choose_gateway</source>
@@ -1058,6 +1106,10 @@
                 <source>label.guided_project_payment_basket_integrity</source>
                 <target>Leer el control de los pedidos</target>
             </trans-unit>
+            <trans-unit id="Mo8tihS">
+                <source>label.guided_project_payment_charged_undelivered</source>
+                <target>Resolver un pedido cobrado y no entregado</target>
+            </trans-unit>
             <trans-unit id="oO8CncP">
                 <source>label.guided_project_payment_discount_code</source>
                 <target>Escribir un código promocional</target>
@@ -1153,6 +1205,18 @@
             <trans-unit id="DJ0QFB2">
                 <source>label.guided_step_payment_basket_integrity_status</source>
                 <target>Mostrar todas las filas</target>
+            </trans-unit>
+            <trans-unit id="jmqTHvd">
+                <source>label.guided_step_payment_charged_undelivered_open</source>
+                <target>Abrir los pedidos validados</target>
+            </trans-unit>
+            <trans-unit id="iGQ4b2w">
+                <source>label.guided_step_payment_charged_undelivered_refund</source>
+                <target>O reembolsarlo</target>
+            </trans-unit>
+            <trans-unit id="u05Z0ay">
+                <source>label.guided_step_payment_charged_undelivered_retry</source>
+                <target>Volver a entregarlo</target>
             </trans-unit>
             <trans-unit id="liDibkq">
                 <source>label.guided_step_payment_discount_code_active</source>
@@ -1281,6 +1345,10 @@
             <trans-unit id="AETAB6H">
                 <source>label.guided_step_payment_in_app_setup_publish</source>
                 <target>Publicar los productos</target>
+            </trans-unit>
+            <trans-unit id="RUf_4vn">
+                <source>label.guided_step_payment_in_app_setup_sandbox</source>
+                <target>Indicar sus cuentas de prueba</target>
             </trans-unit>
             <trans-unit id="0PdPhme">
                 <source>label.guided_step_payment_in_app_setup_value</source>
@@ -1806,6 +1874,10 @@
                 <source>label.removed</source>
                 <target>¡eliminado!</target>
             </trans-unit>
+            <trans-unit id="_KOpSTe">
+                <source>label.retry_delivery</source>
+                <target>Volver a entregar</target>
+            </trans-unit>
             <trans-unit id="j5BWOdj">
                 <source>label.secure_payments_stripe</source>
                 <target>Pagos seguros con Stripe</target>
@@ -2109,6 +2181,14 @@
             <trans-unit id="HbJiMe3">
                 <source>text.order_registered</source>
                 <target>Pedido registrado el </target>
+            </trans-unit>
+            <trans-unit id="DemHmlA">
+                <source>text.ship_counterparts_confirm</source>
+                <target>¿Marcar las contrapartidas de este pedido como enviadas e informar al cliente por correo electrónico?</target>
+            </trans-unit>
+            <trans-unit id="rmYUj9r">
+                <source>text.ship_items_confirm</source>
+                <target>¿Marcar los artículos de este pedido como enviados e informar al cliente por correo electrónico?</target>
             </trans-unit>
             <trans-unit id="F_L9_hM">
                 <source>text.vat_number_invalid</source>

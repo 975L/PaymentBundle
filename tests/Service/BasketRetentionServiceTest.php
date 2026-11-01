@@ -11,15 +11,23 @@
 namespace c975L\PaymentBundle\Tests\Service;
 
 use c975L\ConfigBundle\Contract\UserInterface;
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Entity\Basket;
+use c975L\PaymentBundle\Entity\GiftCard;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Repository\BasketRepository;
+use c975L\PaymentBundle\Repository\DiscountRepository;
+use c975L\PaymentBundle\Repository\GiftCardRepository;
+use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketRetentionService;
+use c975L\PaymentBundle\Service\PaymentTestModeInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use Psr\Log\NullLogger;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * How long a basket lives, and what going away means.
@@ -32,6 +40,9 @@ class BasketRetentionServiceTest extends TestCase
 {
     /** @var object[] */
     private array $removed = [];
+
+    /** @var list<int> */
+    private array $credited = [];
 
     // A payment whose basket has gone is a row nothing points to any more: the relation carries no cascade, so the service has to do it itself
     public function testDeletingAnAbandonedOrderTakesItsPaymentWithIt(): void
@@ -105,7 +116,54 @@ class BasketRetentionServiceTest extends TestCase
             'findExpired' => [],
         ])->run();
 
-        $this->assertSame(['unvalidated' => 1, 'abandoned' => 2, 'archived' => 1, 'expired' => 0], $counts);
+        $this->assertSame(['released' => 0, 'unvalidated' => 1, 'abandoned' => 2, 'archived' => 1, 'expired' => 0], $counts);
+    }
+
+    // A checkout given up on stops holding the card after a day, its order staying until the thirty days are up
+    public function testAStaleClaimIsGivenBackAndTheOrderStays(): void
+    {
+        $basket = new Basket()->setDiscountCode('AAAA')->setDiscountKind(Basket::CODE_KIND_GIFT_CARD)->setDiscountAmount(1000)->setDiscountClaimed(true);
+
+        $count = $this->service(['findStaleClaims' => [$basket]])->releaseStaleClaims();
+
+        $this->assertSame(1, $count);
+        $this->assertSame([1000], $this->credited);
+        $this->assertFalse($basket->isDiscountClaimed());
+        $this->assertSame([], $this->removed);
+    }
+
+    // The validity the checkout told the customer about, read from its setting: nothing else says when a shared link runs out
+    #[DataProvider('shareValidities')]
+    public function testASharedLinkHoldsTheCodeForTheDaysTheSettingSays(mixed $setting, int $days): void
+    {
+        $repository = $this->createMock(BasketRepository::class);
+        $repository->expects($this->once())->method('findStaleClaims')->with(BasketRetentionService::CLAIM_HOURS, $days)->willReturn([]);
+
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $configService->method('hasParameter')->willReturn(true);
+        $configService->method('get')->willReturn($setting);
+
+        new BasketRetentionService($repository, $this->createStub(EntityManagerInterface::class), new NullLogger(), $this->basketCodeService(), $configService)->releaseStaleClaims();
+    }
+
+    /** @return iterable<string, array{mixed, int}> */
+    public static function shareValidities(): iterable
+    {
+        yield 'as set' => ['15', 15];
+        yield 'nothing set' => [null, BasketRetentionService::SHARE_VALIDITY_DAYS];
+        yield 'not a number' => ['soon', BasketRetentionService::SHARE_VALIDITY_DAYS];
+        yield 'zero' => ['0', BasketRetentionService::SHARE_VALIDITY_DAYS];
+    }
+
+    // The thirty days up, what the order still held goes back before it goes
+    public function testAnAbandonedOrderGivesItsCodeBack(): void
+    {
+        $basket = new Basket()->setCurrency('EUR')->setDiscountCode('AAAA')->setDiscountKind(Basket::CODE_KIND_GIFT_CARD)->setDiscountAmount(1000)->setDiscountClaimed(true);
+
+        $this->service(['findAbandoned' => [$basket]])->deleteAbandoned();
+
+        $this->assertSame([1000], $this->credited);
+        $this->assertContains($basket, $this->removed);
     }
 
     // A deleted account takes its open baskets at once and logs nothing: a validated one is left to the nightly pass, a payment possibly still on its way
@@ -128,7 +186,7 @@ class BasketRetentionServiceTest extends TestCase
     private function service(array $found, ?array &$records = null): BasketRetentionService
     {
         $repository = $this->createStub(BasketRepository::class);
-        foreach (['findUnvalidated', 'findAbandoned', 'findToArchive', 'findExpired', 'findOpenByUser'] as $method) {
+        foreach (['findStaleClaims', 'findUnvalidated', 'findAbandoned', 'findToArchive', 'findExpired', 'findOpenByUser'] as $method) {
             $repository->method($method)->willReturn($found[$method] ?? []);
         }
 
@@ -138,7 +196,7 @@ class BasketRetentionServiceTest extends TestCase
         });
 
         if (null === $records) {
-            return new BasketRetentionService($repository, $entityManager, new NullLogger());
+            return new BasketRetentionService($repository, $entityManager, new NullLogger(), $this->basketCodeService(), $this->createStub(ConfigServiceInterface::class));
         }
 
         $logger = new class ($records) extends AbstractLogger {
@@ -155,6 +213,21 @@ class BasketRetentionServiceTest extends TestCase
             }
         };
 
-        return new BasketRetentionService($repository, $entityManager, $logger);
+        return new BasketRetentionService($repository, $entityManager, $logger, $this->basketCodeService(), $this->createStub(ConfigServiceInterface::class));
+    }
+
+    // The code service as it stands, its statements played by stubs: the marker answers, the card receives
+    private function basketCodeService(): BasketCodeService
+    {
+        $basketRepository = $this->createStub(BasketRepository::class);
+        $basketRepository->method('markCodeReleased')->willReturn(true);
+
+        $giftCardRepository = $this->createStub(GiftCardRepository::class);
+        $giftCardRepository->method('findOneByCode')->willReturn(new GiftCard());
+        $giftCardRepository->method('creditAmount')->willReturnCallback(function (GiftCard $card, int $amount): void {
+            $this->credited[] = $amount;
+        });
+
+        return new BasketCodeService($this->createStub(DiscountRepository::class), $giftCardRepository, $this->createStub(TranslatorInterface::class), $this->createStub(PaymentTestModeInterface::class), $basketRepository);
     }
 }

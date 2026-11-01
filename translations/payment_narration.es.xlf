@@ -58,6 +58,18 @@
                 <source>narration.guided_step_payment_basket_integrity_status</source>
                 <target>Muestre todas las filas: la tabla se abre en lo que queda por tratar, elija «Todos los estados» para ver también los controles que no encontraron nada.</target>
             </trans-unit>
+            <trans-unit id="AQL0WcT">
+                <source>narration.guided_step_payment_charged_undelivered_open</source>
+                <target>Abra los pedidos validados. El cobrado y no entregado está entre ellos, y solo él lleva el botón del paso siguiente. Resuelva primero la causa que indica el registro.</target>
+            </trans-unit>
+            <trans-unit id="0M7dcyg">
+                <source>narration.guided_step_payment_charged_undelivered_refund</source>
+                <target>Si no se puede entregar, reembolse al cliente en el proveedor de pago: el pedido pasa solo a reembolsado, y la tarjeta regalo recupera lo que el pedido había tomado.</target>
+            </trans-unit>
+            <trans-unit id="HeyOm_E">
+                <source>narration.guided_step_payment_charged_undelivered_retry</source>
+                <target>Haga clic para repetir toda la entrega. El sitio indica si se ha realizado, y no se cobra nada una segunda vez.</target>
+            </trans-unit>
             <trans-unit id="YDh6NB0">
                 <source>narration.guided_step_payment_discount_code_active</source>
                 <target>Déjelo activo: desmarcada, la casilla suspende el código sin borrarlo ni reiniciar su contador.</target>
@@ -186,6 +198,10 @@
                 <source>narration.guided_step_payment_in_app_setup_publish</source>
                 <target>Por último, el comando de publicación crea los productos en Apple y Google a partir de lo que vende el sitio. Cada compra aparece luego en Compras en la app.</target>
             </trans-unit>
+            <trans-unit id="9hOtqqY">
+                <source>narration.guided_step_payment_in_app_setup_sandbox</source>
+                <target>Una compra de prueba de las tiendas solo se entrega a un titular indicado en payment-store-sandbox-holders. Indique la cuenta entregada a la revisión de Apple antes de enviar la aplicación, y sus probadores.</target>
+            </trans-unit>
             <trans-unit id="jjK_Jbc">
                 <source>narration.guided_step_payment_in_app_setup_value</source>
                 <target>Pegue el contenido entero del archivo, tal cual, y guarde. Repita para cada ajuste de la tienda por la que vende.</target>
@@ -292,7 +308,7 @@
             </trans-unit>
             <trans-unit id="XX0EvQ6">
                 <source>narration.guided_step_payment_shipping_send</source>
-                <target>Marque un pedido como enviado, en la fila del que acaba de embalar. El botón solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado; el clic registra el envío y avisa al cliente por correo.</target>
+                <target>Marque un pedido como enviado, en la fila del que acaba de embalar. El botón solo aparece en un pedido pagado que lleve algo que enviar y aún no marcado; el clic abre una confirmación, que registra el envío y avisa al cliente por correo.</target>
             </trans-unit>
             <trans-unit id="mxkzgZi">
                 <source>narration.guided_step_payment_shop_identity_invoice</source>

@@ -77,7 +77,11 @@ interface BasketItemProviderInterface
     public function onBasketValidated(Basket $basket, array $itemsOfThisKind, array $requestData): array;
 
     /**
-     * Called once the basket is paid, and once only, to apply the provider's own domain effects.
+     * Called once the basket is paid, to apply the provider's own domain effects.
+     *
+     * In one database transaction with the rest of the delivery: throwing rolls back what was written and moves the
+     * order back for a retry, which calls this again (see BasketService::paid()). What the transaction cannot undo,
+     * a message sent over a transport of its own, may then go out twice.
      *
      * Reached from the payment provider's webhook as well as from the customer's return to the site, so it must
      * read nothing off the current request - $checkoutData is what the site kept for it instead.

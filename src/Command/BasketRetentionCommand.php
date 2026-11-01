@@ -39,6 +39,7 @@ class BasketRetentionCommand extends Command
             ['Step', 'Baskets'],
             [
                 ['Unvalidated deleted (' . BasketRetentionService::UNVALIDATED_DAYS . ' days)', $counts['unvalidated']],
+                ['Code amounts given back (' . BasketRetentionService::CLAIM_HOURS . ' hours)', $counts['released']],
                 ['Abandoned deleted (' . BasketRetentionService::ABANDONED_DAYS . ' days)', $counts['abandoned']],
                 ['Archived (' . BasketRetentionService::ARCHIVE_YEARS . ' years)', $counts['archived']],
                 ['Expired deleted (' . BasketRetentionService::RETENTION_YEARS . ' years)', $counts['expired']],

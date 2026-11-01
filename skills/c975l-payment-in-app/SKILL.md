@@ -36,9 +36,9 @@ The bundle ships no endpoint for the app: only the site knows who its holder is.
 1. returns `accountToken($holder)` — the app **must** buy under it (`appAccountToken` at Apple, `obfuscatedAccountId` at Google), or `verify()` refuses the purchase;
 2. passes the app's proof to `verify($store, $holder, $proof)`: `{"transactionId"}` for Apple, `{"productId", "purchaseToken"}` for Google. `true` once delivered, `false` while pending or once refunded, `InvalidNotificationException` for a forged proof or another holder's, `PaymentUnavailableException` for a store without keys or that cannot be reached (keys refused, network, 5xx).
 
-The purchase is recorded before `deliver()` runs, so a failed delivery or acknowledgement is retried by the next call; a concurrent call for the same transaction answers `true` without delivering twice. A refunded row the store calls paid again is reopened and delivered.
+The purchase is recorded before `deliver()` runs, and dated once delivered, so a failed delivery or acknowledgement is retried by the next call while a restore on a delivered transaction only acknowledges it; a concurrent call for the same transaction answers `true` without delivering twice. A refunded row the store calls paid again is reopened and delivered.
 
-Never deliver on what the phone says it bought: only `verify()` asks the store itself. Apple is asked in production, then in the sandbox, because Apple's review buys in the sandbox from the production app — `payment-test-mode` plays no part here.
+Never deliver on what the phone says it bought: only `verify()` asks the store itself. Apple is asked in production, then in the sandbox, because Apple's review buys in the sandbox from the production app — `payment-test-mode` plays no part here. A sandbox purchase is delivered only to a holder listed in `payment-store-sandbox-holders` (the reviewer's account, your testers): `false` and nothing recorded for anyone else.
 
 ## Refunds
 

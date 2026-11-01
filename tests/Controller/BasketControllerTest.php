@@ -35,10 +35,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\InMemoryUser;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -75,6 +79,69 @@ class BasketControllerTest extends TestCase
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame('/shop/basket/display', $response->getTargetUrl());
         $this->assertSame(Response::HTTP_SEE_OTHER, $response->getStatusCode());
+    }
+
+    // The session still names an order, its customer having paid and never come back: the coordinates form is not drawn on it, the session lets go and the visitor starts over
+    public function testAnOrderNamedByTheSessionIsNotCheckedOutAgain(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->method('get')->willReturn(new Basket()->setStatus(BasketStatus::Paid));
+        $basketService->expects($this->once())->method('delete');
+        $basketService->expects($this->never())->method('createForm');
+
+        $response = $this->controller($basketService)->validate(new Request());
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/shop/basket/display', $response->getTargetUrl());
+    }
+
+    // The address an old link or a third party can put in front of an admin: reaching it writes nothing, and the page asks
+    public function testReachingTheShippingAddressShipsNothingAndAsks(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->never())->method('itemsShipped');
+
+        $response = $this->controller($basketService, twig: $this->twigNaming(), csrfValid: true, granted: true)->itemsShipped(Request::create('/x'), '202611-AB-12345', 'product');
+
+        $this->assertSame('@c975LPayment/basket/ship_confirm.html.twig', $response->getContent());
+    }
+
+    // A form posted from anywhere else carries no token of this session: asked again, and nothing goes out
+    public function testAPostWithoutAValidTokenShipsNothing(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->never())->method('itemsShipped');
+
+        $response = $this->controller($basketService, twig: $this->twigNaming(), csrfValid: false, granted: true)->itemsShipped(Request::create('/x', 'POST', ['_token' => 'forged']), '202611-AB-12345', 'product');
+
+        $this->assertSame('@c975LPayment/basket/ship_confirm.html.twig', $response->getContent());
+    }
+
+    public function testAPostWithItsTokenShips(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->once())->method('itemsShipped')->with('202611-AB-12345', 'product')->willReturn(new Basket());
+
+        $response = $this->controller($basketService, twig: $this->twigNaming(), csrfValid: true, granted: true)->itemsShipped(Request::create('/x', 'POST', ['_token' => 'good']), '202611-AB-12345', 'product');
+
+        $this->assertSame('@c975LPayment/basket/shipped.html.twig', $response->getContent());
+    }
+
+    // Asked of the admin alone, whatever the method
+    public function testShippingIsRefusedToAnybodyButAnAdmin(): void
+    {
+        $this->expectException(AccessDeniedException::class);
+
+        $this->controller($this->createStub(BasketServiceInterface::class), twig: $this->twigNaming(), csrfValid: true, granted: false)->itemsShipped(Request::create('/x'), '202611-AB-12345', 'product');
+    }
+
+    // The route answers the landing page and the form, under the name the back-office links to
+    public function testTheShippingRouteTakesTheLinkAndTheForm(): void
+    {
+        $route = new \ReflectionMethod(BasketController::class, 'itemsShipped')->getAttributes(Route::class)[0]->getArguments();
+
+        $this->assertSame('items_shipped', $route['name']);
+        $this->assertSame(['GET', 'POST'], $route['methods']);
     }
 
     // A visitor checking out in English comes back to the English basket, never to the writing language halfway through their own checkout
@@ -406,7 +473,16 @@ class BasketControllerTest extends TestCase
         $this->assertSame('https://checkout.example/session-1', $response->getTargetUrl());
     }
 
-    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false): BasketController
+    // Twig answering the name of the template it was asked to render, which is what the assertions read
+    private function twigNaming(): Environment
+    {
+        $twig = $this->createStub(Environment::class);
+        $twig->method('render')->willReturnArgument(0);
+
+        return $twig;
+    }
+
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false, bool $csrfValid = false, bool $granted = false): BasketController
     {
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
         $itemProviderRegistry->method('requiresAccount')->willReturn($accountRequired);
@@ -427,13 +503,13 @@ class BasketControllerTest extends TestCase
             $itemProviderRegistry,
         );
 
-        $controller->setContainer($this->container($twig, $signedIn));
+        $controller->setContainer($this->container($twig, $signedIn, $csrfValid, $granted));
 
         return $controller;
     }
 
     // What AbstractController reaches for on these paths: the router for redirectToRoute(), the request stack for addFlash(), and twig for render()
-    private function container(?Environment $twig = null, bool $signedIn = false): ContainerInterface
+    private function container(?Environment $twig = null, bool $signedIn = false, bool $csrfValid = false, bool $granted = false): ContainerInterface
     {
         $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
@@ -455,7 +531,13 @@ class BasketControllerTest extends TestCase
             $tokenStorage->setToken(new UsernamePasswordToken(new InMemoryUser('buyer@example.com', null), 'main'));
         }
 
-        $services = ['router' => $router, 'request_stack' => $requestStack, 'twig' => $twig, 'security.token_storage' => $tokenStorage];
+        $csrf = $this->createStub(CsrfTokenManagerInterface::class);
+        $csrf->method('isTokenValid')->willReturn($csrfValid);
+
+        $authorizationChecker = $this->createStub(AuthorizationCheckerInterface::class);
+        $authorizationChecker->method('isGranted')->willReturn($granted);
+
+        $services = ['router' => $router, 'request_stack' => $requestStack, 'twig' => $twig, 'security.token_storage' => $tokenStorage, 'security.csrf.token_manager' => $csrf, 'security.authorization_checker' => $authorizationChecker];
 
         $container = $this->createStub(ContainerInterface::class);
         $container->method('has')->willReturnCallback(static fn (string $id): bool => isset($services[$id]));

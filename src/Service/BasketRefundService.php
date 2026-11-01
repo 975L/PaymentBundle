@@ -50,6 +50,9 @@ class BasketRefundService
             return;
         }
 
+        // An order charged and never delivered took from its card only if it claimed: a card credited otherwise would be money created
+        $tookFromCode = !$basket->isChargedUndelivered() || $basket->isDiscountClaimed();
+
         if (!$this->basketRepository->claimRefunded($basket, $amount)) {
             $this->logger->info('Refund notification for an order not settled, or refunded already', ['basket' => $basket->getId(), 'status' => $basket->getStatus()->value]);
 
@@ -64,7 +67,9 @@ class BasketRefundService
 
         $this->logger->warning('Order {number} refunded: what it sold is no longer handed over', ['number' => $basket->getNumber(), 'event' => $notification->event->value, 'amount' => $amount]);
         $this->deactivateGiftCards($basket);
-        $this->restoreGiftCard($basket);
+        if ($tookFromCode) {
+            $this->restoreGiftCard($basket);
+        }
         // The invoice cancelled by a document of its own, the sale having been undone
         $this->invoiceService->assignCreditNote($basket);
     }

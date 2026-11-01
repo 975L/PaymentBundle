@@ -207,6 +207,27 @@ class RevolutGatewayTest extends TestCase
         $this->assertNull($notification);
     }
 
+    // What BasketService relies on for the customer back from a paid checkout: cancelling a completed order is refused with an exception, and reading it back with no url at all says it was paid
+    public function testACompletedOrderRefusesToBeCancelledAndReadsBackPaid(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('{"code":"invalid_state"}', ['http_code' => 422]),
+            new MockResponse('{"id":"ord_1","state":"completed","merchant_order_ext_ref":"42","order_amount":{"value":2500,"currency":"EUR"},"payments":[{"id":"pay_1","state":"completed","payment_method":{"type":"card"}}]}'),
+        ]);
+        $gateway = $this->gateway($this->configService(['revolut-secret' => 'sk_live_1']), false, $client);
+
+        $refused = false;
+
+        try {
+            $gateway->expireCheckout('ord_1');
+        } catch (\Exception) {
+            $refused = true;
+        }
+
+        $this->assertTrue($refused, 'A completed order cannot be cancelled');
+        $this->assertSame('42', $gateway->readReturn(new Request(), 'ord_1')?->basketId);
+    }
+
     // Revolut sends the customer back on a url the site chose before the order existed: without the reference kept on the payment there is nothing to look up
     public function testAReturnWithoutAReferenceLooksNothingUp(): void
     {

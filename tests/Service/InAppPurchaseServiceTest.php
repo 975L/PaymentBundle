@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Tests\Service;
 
+use c975L\ConfigBundle\Service\ConfigServiceInterface;
 use c975L\PaymentBundle\Contract\InAppProduct;
 use c975L\PaymentBundle\Contract\InAppProductProviderInterface;
 use c975L\PaymentBundle\Contract\InAppStoreInterface;
@@ -53,7 +54,7 @@ class InAppPurchaseServiceTest extends TestCase
 
         $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
         $this->assertSame(['deliver u1 back.a apple', 'acknowledge 1'], $this->log);
-        $this->assertSame(['u1', 'back.a', 'sandbox'], [$this->recorded?->getHolder(), $this->recorded->getProductId(), $this->recorded->getEnvironment()]);
+        $this->assertSame(['u1', 'back.a', 'production'], [$this->recorded?->getHolder(), $this->recorded->getProductId(), $this->recorded->getEnvironment()]);
     }
 
     // A proof copied from someone else's phone carries their token, not the caller's
@@ -162,6 +163,17 @@ class InAppPurchaseServiceTest extends TestCase
         $this->assertSame(['deliver u1 back.a apple'], $this->log);
     }
 
+    // Nobody sells it any more, so nothing was given: the date stays empty for the next proof to deliver it once somebody does
+    public function testARefundReversedOnAProductNoLongerSoldIsNotMarkedDelivered(): void
+    {
+        $purchase = new StorePurchase('apple', '1', 'gone.a', 'u1')->markRefunded();
+        $this->service($purchase)->applyNotification(new InAppTransaction('apple', 'gone.a', '1'));
+
+        $this->assertFalse($purchase->isRefunded());
+        $this->assertFalse($purchase->isDelivered());
+        $this->assertSame([], $this->log);
+    }
+
     public function testAPaidNotificationOfAPurchaseNeverRefundedChangesNothing(): void
     {
         $this->service(new StorePurchase('apple', '1', 'back.a', 'u1'))->applyNotification(new InAppTransaction('apple', 'back.a', '1'));
@@ -169,13 +181,85 @@ class InAppPurchaseServiceTest extends TestCase
         $this->assertSame([], $this->log);
     }
 
-    private function transaction(string $accountToken, PaymentEvent $event = PaymentEvent::Paid): InAppTransaction
+    // A test purchase on a live site is free for whoever holds a sandbox account: nothing is recorded, delivered nor acknowledged
+    public function testASandboxPurchaseIsRefusedToAHolderTheShopDidNotName(): void
     {
-        return new InAppTransaction('apple', 'back.a', '1', $accountToken, 'sandbox', $event);
+        $service = $this->service();
+        $this->answer = $this->transaction($service->accountToken('u1'), environment: 'sandbox');
+
+        $this->assertFalse($service->verify('apple', 'u1', ['transactionId' => '1']));
+        $this->assertNull($this->recorded);
+        $this->assertSame([], $this->log);
     }
 
-    private function service(?StorePurchase $existing = null, bool $flushFails = false): InAppPurchaseService
+    // Apple's review buys in the sandbox from the production app: the account the shop gave the reviewer gets through, and it alone
+    public function testASandboxPurchaseIsDeliveredToAHolderTheShopNamed(): void
     {
+        $service = $this->service(sandboxHolders: ' reviewer@example.org , u1 ');
+        $this->answer = $this->transaction($service->accountToken('u1'), environment: 'sandbox');
+
+        $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
+        $this->assertContains('deliver u1 back.a apple', $this->log);
+    }
+
+    // Apple's other test space goes the same way, only "production" being a sale
+    public function testAnyEnvironmentButProductionIsAPurchaseToGate(): void
+    {
+        $service = $this->service();
+        $this->answer = $this->transaction($service->accountToken('u1'), environment: 'xcode');
+
+        $this->assertFalse($service->verify('apple', 'u1', ['transactionId' => '1']));
+    }
+
+    // The ordinary sale needs no list at all
+    public function testAProductionPurchaseIsDeliveredWithNoList(): void
+    {
+        $service = $this->service();
+        $this->answer = $this->transaction($service->accountToken('u1'));
+
+        $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
+        $this->assertContains('deliver u1 back.a apple', $this->log);
+    }
+
+    // The same proof sent again is not delivered twice, and is still acknowledged: Google refunds what stays unacknowledged, and the first call may have failed just there
+    public function testATransactionAlreadyDeliveredIsNotDeliveredAgainAndStillAcknowledged(): void
+    {
+        $service = $this->service(new StorePurchase('apple', '1', 'back.a', 'u1')->markDelivered());
+        $this->answer = $this->transaction($service->accountToken('u1'));
+
+        $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
+        $this->assertSame(['acknowledge 1'], $this->log);
+    }
+
+    // A delivery that failed leaves the row undelivered, and the retry the app sends is what delivers it
+    public function testADeliveryThatFailedIsDeliveredOnTheRetry(): void
+    {
+        $existing = new StorePurchase('apple', '1', 'back.a', 'u1');
+        $service = $this->service($existing);
+        $this->answer = $this->transaction($service->accountToken('u1'));
+
+        $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
+
+        $this->assertContains('deliver u1 back.a apple', $this->log);
+        $this->assertTrue($existing->isDelivered());
+    }
+
+    // A refund the store reversed is delivered again, the revocation having taken it back
+    public function testARefundReversedIsNoLongerDelivered(): void
+    {
+        $this->assertFalse(new StorePurchase('apple', '1', 'back.a', 'u1')->markDelivered()->markRestored()->isDelivered());
+    }
+
+    private function transaction(string $accountToken, PaymentEvent $event = PaymentEvent::Paid, string $environment = 'production'): InAppTransaction
+    {
+        return new InAppTransaction('apple', 'back.a', '1', $accountToken, $environment, $event);
+    }
+
+    private function service(?StorePurchase $existing = null, bool $flushFails = false, string $sandboxHolders = ''): InAppPurchaseService
+    {
+        $configService = $this->createStub(ConfigServiceInterface::class);
+        $configService->method('get')->willReturnCallback(static fn (string $slug): ?string => 'payment-store-sandbox-holders' === $slug ? $sandboxHolders : null);
+
         $repository = $this->createStub(StorePurchaseRepository::class);
         $repository->method('findOneByTransaction')->willReturn($existing);
         $entityManager = $this->createStub(EntityManagerInterface::class);
@@ -186,7 +270,7 @@ class InAppPurchaseServiceTest extends TestCase
             $entityManager->method('flush')->willThrowException($this->createStub(UniqueConstraintViolationException::class));
         }
 
-        return new InAppPurchaseService(new InAppStoreRegistry([$this->store('apple'), $this->store('google')]), new InAppProductProviderRegistry([$this->provider()]), $repository, $entityManager, 'secret');
+        return new InAppPurchaseService(new InAppStoreRegistry([$this->store('apple'), $this->store('google')]), new InAppProductProviderRegistry([$this->provider()]), $repository, $entityManager, $configService, 'secret');
     }
 
     private function store(string $slug): InAppStoreInterface

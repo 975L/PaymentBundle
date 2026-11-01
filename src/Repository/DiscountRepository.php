@@ -35,7 +35,7 @@ class DiscountRepository extends ServiceEntityRepository
      *
      * A single statement rather than a read then a write: two orders settling at the same second both read the same count, and both would fit under a quota that only had room for one. The condition is the quota itself, so the database is what refuses the second.
      *
-     * It carries the switch and the dates too, and not the quota alone: a code turned off or run out of validity between the moment the basket was priced and the moment it is paid must not be counted as used - refused here, BasketService::paid() logs it and the order stands, the money having already been taken.
+     * It carries the switch and the dates too, and not the quota alone: a code turned off or run out of validity between the moment the basket was priced and the moment it is claimed must not be counted as used (see BasketCodeService::claim()).
      */
     public function claimUse(Discount $discount): bool
     {
@@ -47,5 +47,19 @@ class DiscountRepository extends ServiceEntityRepository
                 . ' AND (max_uses = 0 OR used_count < max_uses)',
             ['id' => $discount->getId(), 'now' => date('Y-m-d H:i:s')]
         );
+    }
+
+    // Gives one use back, the reverse of claimUse(), to an order that stopped being one before it was paid
+    public function releaseUse(Discount $discount): void
+    {
+        $this->getEntityManager()->getConnection()->executeStatement(
+            'UPDATE payment_discount SET used_count = used_count - 1 WHERE id = :id AND used_count > 0',
+            ['id' => $discount->getId()]
+        );
+
+        // Read back: the statement went round the unit of work, and the same request goes on to price a basket against this quota (see BasketCodeService::release()). A closed manager has no such request to serve, and refreshing would throw over the cause that closed it
+        if ($this->getEntityManager()->isOpen()) {
+            $this->getEntityManager()->refresh($discount);
+        }
     }
 }

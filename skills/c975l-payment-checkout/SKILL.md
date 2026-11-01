@@ -50,6 +50,8 @@ The return path re-reads the checkout **from the provider** (`ReturnAwareGateway
 
 A basket **edited after validation goes back to `new`**: `addItem()` and `deleteItem()` reopen it, and the checkout already opened at the provider is called off (`ExpirableGatewayInterface`). A provider's checkout session stays payable for hours and the customer still has it in a tab; without expiring it the site can only refuse the payment afterwards, by which point they are charged and take delivery of nothing.
 
+**A checkout the provider refuses to call off is read back.** The customer paid, came back with the browser's button and the webhook has not arrived: `expireCheckout()` throws, `BasketService` asks `readReturn()` with the reference kept on the payment, and found paid, settles the order through `applyNotification()`. `reopen()` then answers false: `validate()` and `payShared()` send to the order's page and open no second checkout, the edits leave it alone, and `BasketCrudController::deleteEntity()` goes through the same path with `callOffCheckout()`, keeping an order found paid. Read before the status moves, `applyNotification()` refusing a basket already `new`. Both providers go through this with no method of their own.
+
 An order the session still names — paid, customer never came back — is neither added to nor taken from: the visitor starts a new basket.
 
 ## The amount is checked
@@ -86,13 +88,13 @@ A page stating what delivery starts at reads `payment_shipping_from()` (`Twig\Sh
 
 ## Codes: one field, two things
 
-The basket page has **one** code field, and `Service\BasketCodeService` is what tells a promotional `Discount` from a `GiftCard` — the customer holds a code, not a category, and asking them which of the two they have is asking them to know how the shop is built. `resolve()` reads it, `apply()` writes it onto the basket, `redeem()` spends it. A code typed with spaces or dashes is accepted.
+The basket page has **one** code field, and `Service\BasketCodeService` is what tells a promotional `Discount` from a `GiftCard` — the customer holds a code, not a category, and asking them which of the two they have is asking them to know how the shop is built. `resolve()` reads it, `apply()` writes it onto the basket, `claim()` sets it aside and `release()` gives it back. A code typed with spaces or dashes is accepted.
 
 **One code per basket, and no stacking.** A card and a promotion applied together is a rule nobody wrote.
 
 `Discount` comes in two kinds — `KIND_PERCENTAGE` and `KIND_AMOUNT`; a `GiftCard` is a balance, spent down over as many orders as it takes, and `GiftCardService::issue()` mints one either from a purchase or by hand from the CRUD.
 
-**A code is spent in `paid()` and nowhere else.** A basket abandoned at the payment page must burn neither a quota nor a balance, and `claimPaid()` is what makes it happen once. `redeem()` answering false means it ran out between the last check and the payment: the order is paid for, so nothing is undone — it is logged.
+**A code is claimed at `validate()` and given back when the order stops being one.** `BasketCodeService::claim()` takes the amount in a conditional statement, the marker `Basket::$discountClaimed` making it once per basket; `release()` gives it back from `reopen()`, `delete()`, the retention and the back-office, and the nightly pass lets go of a checkout given up on after 24 hours, and of a shared one after `payment-share-validity` days. `paid()` claims again an order holding no claim, and when the code cannot cover it, stops: the order stays `validated` with its payment finished (`Basket::isChargedUndelivered()`), logged as critical, named on the dashboard and delivered again by a button once the shop has settled it. `claim()` asks the database and never the entity, and `release()` only touches an order still open, so the nightly pass and a payment crossing each other neither deliver an order undebited nor credit a paid one; `payShared()` claims before it opens a checkout, a reminder coming back after that pass.
 
 The free-shipping threshold is weighed against **what the basket holds**, not what is paid: a ten-euro code must not cost the customer the shipping they had earned. `shop-shipping-free` left unset is **no threshold at all**, and no longer "free from zero": read as an amount it made the comparison false on every basket, so a shop that had never set one was charging no delivery whatever its grid says.
 
@@ -173,8 +175,9 @@ a tracking barcode comes from the carrier's own API.
 terms-of-use and terms-of-sales boxes alone, and `Basket:Validation` prints `text.gdpr_information` from the
 **`ui`** catalog — core-bundle's, not `site`'s: this bundle depends on core-bundle and on nothing else — linking
 to the page `url-privacy-policy` names and skipped while that setting is empty. `payment-share-validity` (days,
-7) is what the checkout says a shared order is held for: a promise, not a mechanism — nothing is reserved and
-`BasketRetentionService` still takes it away at thirty days.
+7) is what the checkout says a shared order is held for, and how long its code stays set aside: past it
+`BasketRetentionService::releaseStaleClaims()` gives the code back, the link still answering and `payShared()`
+claiming it again if it can, until the order goes at thirty days.
 
 **Digital content or a service asks for the waiver of the right of withdrawal.** `Basket::asksWithdrawalWaiver()`
 (`CONTENT_FLAG_DIGITAL` or `CONTENT_FLAG_SERVICE`, never `CONTENT_FLAG_CF_DIGITAL`, supplied after the campaign)

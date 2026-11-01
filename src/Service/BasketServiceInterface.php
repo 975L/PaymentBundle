@@ -65,11 +65,14 @@ interface BasketServiceInterface
     public function createCheckout(?string $successUrl = null): CheckoutSession;
 
     /**
-     * Deletes the whole basket and clears it from the session.
+     * Deletes the whole basket and clears it from the session; an order the session still names stays, the session only letting go of it.
      *
      * @return array{total: int, quantity: int} always zeroed, for the front-end to reset its counters
      */
     public function delete(): array;
+
+    // Calls off the checkout a basket about to be deleted still has open and gives its code back; false when that checkout turns out to be paid, the order then being settled and to be kept
+    public function callOffCheckout(Basket $basket): bool;
 
     /**
      * Removes one line from the basket, the request body carrying {id, type}.
@@ -121,7 +124,8 @@ interface BasketServiceInterface
      *                to the "paid" page when the total is zero and no payment is needed
      *
      * @throws BasketNotOrderableException when a provider says its own entries can no longer be ordered as the
-     *                                     basket holds them - the basket is left untouched
+     *                                     basket holds them - the basket is left untouched - when a line holds less
+     *                                     than one, when its code no longer holds, or when it is an order already
      * @throws PaymentUnavailableException when the basket is to be charged and the active gateway holds no
      *                                     usable key - the basket is left untouched
      */
@@ -160,6 +164,11 @@ interface BasketServiceInterface
      *
      * Does nothing when the basket is not "validated", and nothing when it has something to pay and no payment
      * recorded as finished: the url the customer returns on is handed to them before they pay, and proves nothing.
+     *
+     * A code that no longer covers what it took off, or a provider that throws, leaves the order "validated" with its
+     * payment finished (see Basket::isChargedUndelivered()): flagged for the shop and delivered by the next attempt.
+     *
+     * @throws \Throwable whatever the provider threw, the webhook answering 500 so the payment provider replays
      */
     public function paid(Basket $basket): void;
 
