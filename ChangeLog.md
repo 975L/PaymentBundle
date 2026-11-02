@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.23.2
+
+Gift card codes kept out of the activity log
+
+- `GiftCard` carries `ActivityLogUnnamed` (02/11/2026)
+- Requires `c975l/core-bundle` ^1.86.0 (02/11/2026)
+
 ## v6.23.1
 
 The basket calls the site it is on

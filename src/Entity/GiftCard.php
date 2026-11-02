@@ -10,6 +10,7 @@
 
 namespace c975L\PaymentBundle\Entity;
 
+use c975L\ConfigBundle\Attribute\ActivityLogUnnamed;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,6 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'payment_gift_card')]
 #[ORM\UniqueConstraint(name: 'uniq_gift_card_code', columns: ['code'])]
 #[ORM\UniqueConstraint(name: 'uniq_gift_card_share_token', columns: ['share_token'])]
+#[ActivityLogUnnamed]
 class GiftCard implements \Stringable
 {
     #[ORM\Id]

@@ -384,6 +384,9 @@ histories, referrers, chat servers and link previews. That page is answered `noi
 no-referrer` and `no-store`, the confirmation email prints its URL beside the code, and the back-office register
 shows it on the card's detail page for the day a customer loses the message it was sent in.
 
+**The code is not in the activity log either.** `GiftCard` carries `#[ActivityLogUnnamed]`, its `__toString()` being
+its code: a back-office save leaves the card's type and id in that table, nothing to spend.
+
 **The code is not in that page.** With the scratch panel on (the default), the markup holds no code at all: it is
 asked for by `/gift-card/{shareToken}/code` once the panel is rubbed off — a link pasted into a chat is fetched by
 a robot that reads the markup and runs no script. A card switched off is refused that request while still showing
