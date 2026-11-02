@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.23.3
+
+Corrected stale ci.sh comment
+
+- Corrected `bin/ci.sh` comment and message: vendor follows the local composer.lock, no symlinks (02/11/2026)
+
 ## v6.23.2
 
 Gift card codes kept out of the activity log
