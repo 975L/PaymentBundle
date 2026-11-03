@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.23.4
+
+CI tests PHP 8.5 and 8.6, bin/ci.sh replays them locally
+
+- CI runs the tests on PHP 8.5 and 8.6 besides the quality job on 8.4 (03/11/2026)
+- `bin/ci.sh` runs the tests on each other PHP version installed locally (03/11/2026)
+- `bin/ci.sh` installs the latest lizard instead of 1.17.31, as the CI does (03/11/2026)
+
 ## v6.23.3
 
 Corrected stale ci.sh comment
