@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.23.5
+
+Composer states why a PHP version failed to resolve
+
+- `bin/ci.sh`: Composer states why a PHP version failed to resolve (03/11/2026)
+
 ## v6.23.4
 
 CI tests PHP 8.5 and 8.6, bin/ci.sh replays them locally
