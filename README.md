@@ -991,6 +991,13 @@ The country is only known once the customer gives an address, so the basket page
 which is what the order is charged. A page stating what delivery starts at reads `payment_shipping_from()`, the
 lowest price the whole grid holds.
 
+What a search engine reads of the same grid is built here too: `OfferSnippetBuilder` gives a satellite bundle's
+`Offer` its `shippingDetails` (`shippingDetails($weight, $downloaded)`, the grid's rate to `shop-shipping-country`,
+with a delivery time when `shop-handling-days` and `shop-transit-days` both hold a range such as `1-3`), its
+`hasMerchantReturnPolicy` (`returnPolicy($downloaded)`, from `shop-return-days` and `url-terms-of-sales`) and its
+`brand($name)`, falling back on `shop-name`. Each answers an empty array when the settings say nothing, so a graph
+never claims what the checkout would not apply.
+
 ---
 
 ## Verifying a gateway's credentials

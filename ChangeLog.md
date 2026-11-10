@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.24.0
+
+OfferSnippetBuilder shares the shipping, return and brand nodes
+
+- `OfferSnippetBuilder`: `shippingDetails()`, `returnPolicy()` and `brand()` build the schema.org nodes every Offer shares (10/11/2026)
+- README and skill `c975l-payment-checkout` document `OfferSnippetBuilder` (10/11/2026)
+
 ## v6.23.5
 
 Composer states why a PHP version failed to resolve
