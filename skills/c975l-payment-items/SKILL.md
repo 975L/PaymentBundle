@@ -1,6 +1,6 @@
 ---
 name: c975l-payment-items
-description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, ShippingBasketItemProviderInterface, shipsParcels, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize, price class, price--standalone, --price-size, price-label."
+description: "Use this skill when plugging a new kind of sellable item into the c975L basket from a satellite bundle — products, crowdfunding counterparts, services, files. Covers the provider contract, the pre/post-payment hooks and the one mistake that loses a customer's data. Triggers on: BasketItemProviderInterface, BasketItemProviderRegistry, ShippingBasketItemProviderInterface, shipsParcels, onBasketValidated, onBasketPaid, validateCheckout, validateAddition, toBasketData, getContentFlags, getKind, checkout_data, BasketNotOrderableException, BasketRecommendationProviderInterface, BasketDownloadProviderInterface, BasketDownloadRegistry, getDownloads, expiresAt, hasPaidFor, holdsItem, paywall, createInlineResponse, WeighableBasketItemProviderInterface, getWeight, shipping weight, grams, ShippingZone, ShippingRate, CatalogueBasketItemProviderInterface, getCatalogueUrl, AccountBasketItemProviderInterface, requiresAccount, sign in, app_login, payment_catalogue_url, continue shopping, ContinueShoppingButton, getTemplate, recommendations template, parent url, parent image, no-product-image, BasketLine normalize, price class, price--standalone, --price-size, price-label, getMinimumAge, age, AgeGate, age verification, flash.age_verification_required."
 ---
 
 # c975L PaymentBundle — plugging sellable items in
@@ -108,6 +108,12 @@ Answer `null` when the catalogue is not reachable for now — nothing on sale, t
 ## Selling to an account only
 
 A provider whose lines land on an account rather than at an address — credits, a subscription — also implements `Contract\AccountBasketItemProviderInterface`, **a marker with no method**. The visitor fills the basket freely; at the checkout, `BasketItemProviderRegistry::requiresAccount()` answers true as soon as one line's kind carries the marker, and an anonymous visitor is redirected to the site's **`app_login`** route with `_target_path` set back to the checkout. The marker only asks for the sign-in: `validateCheckout()` stays your own guard.
+
+## Selling to adults only
+
+Write the item's `age` on the line in `toBasketData()` (`'age' => '18-'`): the checkout reads the highest any
+line declares (`Basket::getMinimumAge()`) and waits behind CoreBundle's `AgeGate` until go.cam found the visitor
+of age. Never refuse the addition for it - the basket fills freely, and `validateAddition()` stays about stock.
 
 ## Drawing a price
 

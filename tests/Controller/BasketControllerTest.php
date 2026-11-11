@@ -24,6 +24,7 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
+use c975L\UiBundle\Service\AgeVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -218,6 +219,19 @@ class BasketControllerTest extends TestCase
         $response = $this->controller($basketService, accountRequired: true, signedIn: true)->validate(new Request());
 
         $this->assertSame('https://checkout.example/session-1', $response->getTargetUrl());
+    }
+
+    // A line for adults, a visitor not verified of age: the form posted around the gate is turned back and nothing is paid
+    public function testACheckoutForAdultsWaitsForTheAgeVerification(): void
+    {
+        $basketService = $this->basketService();
+        $basketService->method('validate')->willReturn('https://checkout.example/session-1');
+
+        $response = $this->controller($basketService, ageGateClosed: true)->validate(new Request());
+
+        $this->assertNotSame('https://checkout.example/session-1', $response->getTargetUrl());
+        $this->assertSame(Response::HTTP_SEE_OTHER, $response->getStatusCode());
+        $this->assertSame(['flash.age_verification_required'], $this->session->getFlashBag()->get('danger'));
     }
 
     // The buyer lands here with their files, so a download email that never arrived leaves nobody without what they paid for
@@ -482,7 +496,7 @@ class BasketControllerTest extends TestCase
         return $twig;
     }
 
-    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false, bool $csrfValid = false, bool $granted = false): BasketController
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false, bool $csrfValid = false, bool $granted = false, bool $ageGateClosed = false): BasketController
     {
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
         $itemProviderRegistry->method('requiresAccount')->willReturn($accountRequired);
@@ -490,6 +504,9 @@ class BasketControllerTest extends TestCase
         // The translator answers the key itself, so a flash is asserted on the key rather than on a wording
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
+
+        $ageVerifier = $this->createStub(AgeVerifier::class);
+        $ageVerifier->method('isGateClosed')->willReturn($ageGateClosed);
 
         $controller = new BasketController(
             $this->createStub(ConfigServiceInterface::class),
@@ -501,6 +518,7 @@ class BasketControllerTest extends TestCase
             $this->createNegotiator(),
             self::createSiteLocales(),
             $itemProviderRegistry,
+            $ageVerifier,
         );
 
         $controller->setContainer($this->container($twig, $signedIn, $csrfValid, $granted));

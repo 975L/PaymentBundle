@@ -48,6 +48,8 @@ final class BasketLine
     public static function normalize(array $line): array
     {
         $line['totalVat'] ??= 0;
+        // The age the line's item is meant for, as its provider wrote it ("18-"): what the checkout waits behind an age verification for (see Basket::getMinimumAge())
+        $line['age'] ??= null;
 
         $line['item'] = ($line['item'] ?? []) + [
             'vat' => 0.0,

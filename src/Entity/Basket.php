@@ -724,6 +724,21 @@ class Basket implements \Stringable
         return $this;
     }
 
+    // The highest age a line declares, read by its leading number ("18-", "16"), null when none does: the checkout waits behind UiBundle's age verification for it, whatever bundle sold the line
+    public function getMinimumAge(): ?int
+    {
+        $ages = [];
+        foreach ($this->getItems() as $itemsOfThisKind) {
+            foreach ($itemsOfThisKind as $line) {
+                if (\is_scalar($line['age']) && 1 === preg_match('/^\s*(\d+)/', (string) $line['age'], $matches)) {
+                    $ages[] = (int) $matches[1];
+                }
+            }
+        }
+
+        return [] === $ages ? null : max($ages);
+    }
+
     // What is actually charged: the items, the shipping, less whatever the code took off. Never below zero - a card worth more than the order pays it in full and keeps the rest for the next one
     public function getPayable(): int
     {

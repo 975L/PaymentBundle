@@ -518,6 +518,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>Ce colis dépasse le poids que la boutique expédie vers cette destination : contactez-nous pour finaliser la commande</target>
             </trans-unit>
+            <trans-unit id="V4BfzVa">
+                <source>flash.age_verification_required</source>
+                <target>Votre panier contient un article réservé aux personnes majeures : vérifiez votre âge avant de payer.</target>
+            </trans-unit>
             <trans-unit id="9l6W7jL">
                 <source>flash.basket_kept_paid</source>
                 <target>Ce panier n'a pas été supprimé : son paiement s'avère avoir abouti, il est conservé comme commande</target>

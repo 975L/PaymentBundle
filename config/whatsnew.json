@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-11-11",
+        "description": [
+            {
+                "en": "A basket holding an item for adults asks for an anonymous age verification by go.cam just before payment, as soon as the go.cam keys are filled in.",
+                "fr": "Un panier contenant un article pour majeurs demande une vérification d'âge anonyme par go.cam juste avant le paiement, dès que les clés go.cam sont renseignées.",
+                "es": "Una cesta que contiene un artículo para mayores de edad pide una verificación de edad anónima de go.cam justo antes del pago, en cuanto se introducen las claves go.cam."
+            }
+        ]
+    },
+    {
         "date": "2026-11-01",
         "description": [
             {

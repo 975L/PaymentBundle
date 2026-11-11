@@ -952,6 +952,10 @@ the marker `c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface`. Th
 at the checkout, an anonymous visitor holding such a line is redirected to the site's `app_login` route, then back
 to the checkout once signed in. `validateCheckout()` remains the provider's own guard.
 
+### Selling to adults only
+
+A line whose `toBasketData()` writes an `age` (`"18-"`, as ShopBundle does for a product declaring one) is paid for once CoreBundle's go.cam age verification found the visitor of age, on a site that filled its three `age-verification-*` keys. The basket is still filled freely; at the checkout, `Basket::getMinimumAge()` reads the highest age any line declares, the go.cam gate stands in place of the coordinates form, and a form posted around it is turned back with `flash.age_verification_required`. Nothing for a site without the keys, nor for a basket whose lines declare no age.
+
 ### Recommending something beside the basket
 
 A provider offering cross-sell implements `c975L\PaymentBundle\Contract\BasketRecommendationProviderInterface`:

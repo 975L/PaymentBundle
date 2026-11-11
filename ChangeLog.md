@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.25.0
+
+The checkout waits for an age verification on a line for adults
+
+- `Basket::getMinimumAge()`: the highest age any line declares (11/11/2026)
+- `BasketLine::normalize()` fills a missing `age` with null (11/11/2026)
+- `Basket:Validation` draws CoreBundle's `AgeGate` in place of the coordinates form (11/11/2026)
+- `BasketController::validate()` turns back a form posted while the age is not verified (11/11/2026)
+- `BasketController` takes `AgeVerifier` (11/11/2026) [BC-Break]
+- `c975l/core-bundle` required in ^1.89.0 (11/11/2026)
+- README and skill `c975l-payment-items`: selling to adults only (11/11/2026)
+
 ## v6.24.0
 
 OfferSnippetBuilder shares the shipping, return and brand nodes

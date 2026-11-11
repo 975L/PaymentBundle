@@ -518,6 +518,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>This parcel exceeds the weight the shop ships to this destination: contact us to complete the order</target>
             </trans-unit>
+            <trans-unit id="V4BfzVa">
+                <source>flash.age_verification_required</source>
+                <target>Your basket holds an item for adults only: verify your age before paying.</target>
+            </trans-unit>
             <trans-unit id="9l6W7jL">
                 <source>flash.basket_kept_paid</source>
                 <target>This basket was not deleted: its checkout turns out to have been paid, so it is kept as an order</target>

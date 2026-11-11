@@ -518,6 +518,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>Este paquete supera el peso que la tienda envía a este destino: contáctenos para completar el pedido</target>
             </trans-unit>
+            <trans-unit id="V4BfzVa">
+                <source>flash.age_verification_required</source>
+                <target>Su cesta contiene un artículo reservado a mayores de edad: verifique su edad antes de pagar.</target>
+            </trans-unit>
             <trans-unit id="9l6W7jL">
                 <source>flash.basket_kept_paid</source>
                 <target>Esta cesta no se ha eliminado: su pago resulta haberse completado, por lo que se conserva como pedido</target>

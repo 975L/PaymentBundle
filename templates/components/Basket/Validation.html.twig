@@ -3,6 +3,8 @@
 {% if basket.quantity > 0 %}
     <section>
         <h2 id="coordinates">{{ 'label.validate_basket'|trans }}</h2>
+        {# A line for adults: the go.cam gate stands in place of the form until the visitor is verified, the controller turning back a form posted around it #}
+        <twig:c975LUi:AgeGate age="{{ basket.minimumAge }}">
         {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
             {{ form_widget(form) }}
             {# Who the customer wants to pay through, when the shop is paid through more than one. Read straight off the request by BasketService::validate(), exactly as the "share" button below is, and checked there against what is really offered #}
@@ -33,6 +35,7 @@
                 </p>
             {% endif %}
         {{ form_end(form) }}
+        </twig:c975LUi:AgeGate>
         {# Secure payment #}
         <twig:c975LPayment:Basket:SecurePayments/>
     </section>

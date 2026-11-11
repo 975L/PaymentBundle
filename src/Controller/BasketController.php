@@ -23,6 +23,7 @@ use c975L\PaymentBundle\Registry\BasketRecommendationRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
+use c975L\UiBundle\Service\AgeVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,6 +52,7 @@ class BasketController extends AbstractController
         private readonly LocalizedRouteNegotiator $negotiator,
         private readonly SiteLocales $siteLocales,
         private readonly BasketItemProviderRegistry $itemProviderRegistry,
+        private readonly AgeVerifier $ageVerifier,
     ) {
     }
 
@@ -162,6 +164,14 @@ class BasketController extends AbstractController
         // Defines form
         $form = $this->basketService->createForm('coordinates', $basket);
         $form->handleRequest($request);
+
+        // A line for adults is paid for once go.cam found the visitor of age: the page draws the gate in place of the form, and a form posted around it is turned back here (see UiBundle's AgeVerifier)
+        if ($form->isSubmitted() && $this->ageVerifier->isGateClosed($basket->getMinimumAge())) {
+            $this->addFlash('danger', $this->translator->trans('flash.age_verification_required', [], 'payment'));
+
+            return $this->backToBasket($request);
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             // A shop whose payment keys are missing takes no order rather than answering a 500: the basket is untouched and the same thing is said on the dashboard (see PaymentAlertProvider)
             try {
