@@ -1,5 +1,12 @@
 # Changelog
 
+## v6.26.2
+
+CI replay runs the other PHP versions in parallel
+
+- `bin/ci.sh`: tests on the other PHP versions run in parallel with `composer qa`, each in its own copy, its log shown only on failure (12/11/2026)
+- `bin/ci.sh`: identical in every bundle, the versions printed are those of the binaries `composer qa` runs (12/11/2026)
+
 ## v6.26.1
 
 Reminders carry one-click unsubscribe, audit rules over the bundle
