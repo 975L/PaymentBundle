@@ -57,15 +57,16 @@ class BasketEmailFactory
      * EmailTemplateRenderer::renderNamed). This bundle ships no Twig body beside them any more - a second copy of
      * the same sentences is a second copy to keep in step, and it was already drifting.
      *
-     * @param array<string, mixed> $context on top of "basket", what the slots need
-     * @param ?string              $to      an address other than the buyer's, for the one e-mail this bundle sends
-     *                                      to somebody who never ordered anything: whoever a gift card was bought for
+     * @param array<string, mixed>  $context on top of "basket", what the slots need
+     * @param ?string               $to      an address other than the buyer's, for the one e-mail this bundle sends
+     *                                       to somebody who never ordered anything: whoever a gift card was bought for
+     * @param array<string, string> $headers extra headers on the message, such as a reminder's List-Unsubscribe
      *
      * @throws \LogicException when neither exists, which no installed PaymentBundle can produce: the declaration
      *                         is this class's own, so its absence means the bundle is half-installed and a silent
      *                         blank order confirmation is the worse of the two answers
      */
-    public function create(Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null): EmailSendRequest
+    public function create(Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null, array $headers = []): EmailSendRequest
     {
         $html = $this->emailTemplateRenderer->renderNamed(
             $template,
@@ -90,6 +91,7 @@ class BasketEmailFactory
             wrapLayout: false,
             // What that same template says it travels with - the invoice and the terms of sale a shop attaches to its order confirmations, and whatever else its bundles offer. Which ones is ticked in the builder beside the blocks, and a template with nothing ticked goes out with nothing
             attachments: $this->emailTemplateRenderer->attachmentsFor($template, ['basket' => $basket] + $context, $basket->getLocale()),
+            headers: $headers,
         );
     }
 

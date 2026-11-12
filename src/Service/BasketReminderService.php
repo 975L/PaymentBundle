@@ -89,14 +89,21 @@ class BasketReminderService
     private function remind(Basket $basket, int $rank): bool
     {
         // Two named e-mails rather than one carrying a rank: an EmailBlock has no conditional, so the second reminder is its own thing to compose and its own thing to read
+        $unsubscribeUrl = $this->unsubscribeUrl($basket);
         $sent = $this->basketEmailSender->send(
             $basket,
             'label.basket_reminder',
             1 === $rank ? 'basket_reminder_first' : 'basket_reminder_second',
             [
                 'pay_url' => $this->payUrl($basket),
-                'unsubscribe_url' => $this->unsubscribeUrl($basket),
+                'unsubscribe_url' => $unsubscribeUrl,
                 'days' => BasketRetentionService::ABANDONED_DAYS,
+            ],
+            null,
+            // The mail client's own unsubscribe button, one-click (RFC 8058): its POST lands on the same route, the share token in the url being the proof
+            [
+                'List-Unsubscribe' => '<' . $unsubscribeUrl . '>',
+                'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click',
             ],
         );
 

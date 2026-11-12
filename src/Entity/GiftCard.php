@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Attribute\ActivityLogUnnamed;
 use c975L\PaymentBundle\Repository\GiftCardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // Money somebody already paid for, carried by whoever holds the code. Not a Discount with a counter: a discount is a rule the shop writes, where this is a balance that goes down and can be spent over several orders - which is why it is issued by a purchase (see GiftCardService::issue()) and never typed in the back office
 #[ORM\Entity(repositoryClass: GiftCardRepository::class)]
@@ -30,14 +31,17 @@ class GiftCard implements \Stringable
 
     // Long and random rather than readable: this is a bearer instrument, and anybody able to guess one spends somebody else's money (see GiftCardService::generateCode())
     #[ORM\Column(length: 40)]
+    #[Assert\Length(max: 40)]
     private ?string $code = null;
 
     // What the address given to whoever the card is for carries, the code itself never being in it: a url travels through browser histories, referrers, chat servers and link previews, and a code read off one of those logs is a balance spent by somebody who never held the card. Nullable: the cards issued before the page existed carry none and are read off their code alone
     #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
     private ?string $shareToken = null;
 
     // What it was worth the day it was issued, kept beside the balance so an order can say what was spent out of what
     #[ORM\Column]
+    #[Assert\Positive]
     private int $initialAmount = 0;
 
     // What is left, in the currency's smallest unit. Goes down as orders are settled and never back up: a refund is a payment of its own, not a card being refilled
@@ -45,6 +49,7 @@ class GiftCard implements \Stringable
     private int $balance = 0;
 
     #[ORM\Column(length: 5)]
+    #[Assert\Length(max: 5)]
     private ?string $currency = null;
 
     // Empty on a card that never expires, which is what the law says of a voucher in most of Europe
@@ -53,6 +58,7 @@ class GiftCard implements \Stringable
 
     // The order that paid for it, by its number: what lets the confirmation email of that very order print the codes it bought, and an admin trace a card back to what created it
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
     private ?string $issuedByBasket = null;
 
     #[ORM\Column]
@@ -60,10 +66,12 @@ class GiftCard implements \Stringable
 
     // The picture the card was sold with, copied here rather than pointed at: the visual belongs to whichever bundle sold it, and a card outlives what that catalogue holds - a design withdrawn from sale next month must not blank a card somebody still carries. Same reasoning as the article a basket copies onto itself
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $designImage = null;
 
     // The words printed on the recto beside the picture and the amount, copied for the same reason
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $designText = null;
 
     // Whether the code is hidden under a panel to be scratched off, the way a card on a rack is. Not decoration alone: scratched, the code is not written in the page at all and is asked for only once the panel is rubbed off - a page pasted into a chat is unfurled by a robot that fetches it and runs no script

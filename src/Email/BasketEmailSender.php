@@ -32,15 +32,16 @@ class BasketEmailSender
      * the Twig path, which renders eagerly under "wrapLayout" - the body itself are all translated as they are
      * built, so nothing is left to be rendered later by a worker that would know nothing of this customer.
      *
-     * @param array<string, mixed> $context what the body template and the slots need on top of the basket
-     * @param ?string              $to      an address other than the buyer's - see BasketEmailFactory::create()
+     * @param array<string, mixed>  $context what the body template and the slots need on top of the basket
+     * @param ?string               $to      an address other than the buyer's - see BasketEmailFactory::create()
+     * @param array<string, string> $headers extra headers on the message - see BasketEmailFactory::create()
      */
-    public function send(Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null): bool
+    public function send(Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null, array $headers = []): bool
     {
         $previous = $this->useLocale($basket->getLocale());
 
         try {
-            return $this->emailService->send($this->basketEmailFactory->create($basket, $subjectKey, $template, $context, $to));
+            return $this->emailService->send($this->basketEmailFactory->create($basket, $subjectKey, $template, $context, $to, $headers));
         } finally {
             $this->useLocale($previous);
         }

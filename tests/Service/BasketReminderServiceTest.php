@@ -39,6 +39,9 @@ class BasketReminderServiceTest extends TestCase
     /** @var array<string, mixed> what the last reminder handed its template */
     private array $context = [];
 
+    /** @var array<string, string> */
+    private array $headers = [];
+
     // A shop being tried out is not selling: its orders are rehearsals, and their addresses are the shopkeeper's own
     public function testNothingGoesOutWhileTheShopIsInTestMode(): void
     {
@@ -55,6 +58,15 @@ class BasketReminderServiceTest extends TestCase
 
         $this->assertSame(1, $this->service([$basket])->send());
         $this->assertSame(1, $basket->getRemindersSent());
+    }
+
+    // The mail client's own unsubscribe button points at the same way out as the link in the body, one-click (RFC 8058)
+    public function testAReminderCarriesTheOneClickUnsubscribeHeaders(): void
+    {
+        $this->service([$this->basket()])->send();
+
+        $this->assertSame('<' . $this->context['unsubscribe_url'] . '>', $this->headers['List-Unsubscribe']);
+        $this->assertSame('List-Unsubscribe=One-Click', $this->headers['List-Unsubscribe-Post']);
     }
 
     // The retention pass reads "modification" to know when the visitor last came back: a reminder writing to it would push the purge back every time it fires, and an abandoned order would never go away
@@ -156,12 +168,13 @@ class BasketReminderServiceTest extends TestCase
         );
 
         $emailSender = $this->createStub(BasketEmailSender::class);
-        $emailSender->method('send')->willReturnCallback(function (Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null): bool {
+        $emailSender->method('send')->willReturnCallback(function (Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null, array $headers = []): bool {
             if (null !== $this->throwFor && $this->throwFor === $basket->getNumber()) {
                 throw new \RuntimeException('mailer down');
             }
 
             $this->context = $context;
+            $this->headers = $headers;
 
             return $this->sends;
         });

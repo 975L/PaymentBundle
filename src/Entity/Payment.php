@@ -14,6 +14,7 @@ use c975L\ConfigBundle\Contract\UserInterface;
 use c975L\PaymentBundle\Repository\PaymentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
 #[ORM\Table(name: 'payment_payment')]
@@ -28,23 +29,29 @@ class Payment implements \Stringable
     private bool $isFinished = false;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private ?int $amount = null;
 
     #[ORM\Column(length: 3)]
+    #[Assert\Length(max: 3)]
     private ?string $currency = null;
 
     // Which provider charged this payment (see PaymentGatewayInterface::getSlug()), the two columns below holding whatever that one calls its transaction and its method
     #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
     private ?string $gateway = null;
 
     #[ORM\Column(length: 128, nullable: true)]
+    #[Assert\Length(max: 128)]
     private ?string $transactionId = null;
 
     #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
     private ?string $paymentMethod = null;
 
     // What the provider calls the checkout opened for this payment, kept only until it is paid or called off: it is what lets an edited basket expire the checkout it had already opened
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $gatewayReference = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

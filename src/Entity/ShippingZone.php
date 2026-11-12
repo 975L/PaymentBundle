@@ -29,6 +29,7 @@ class ShippingZone implements \Stringable
 
     // What the shop calls it - "France", "Union européenne", "Reste du monde". Read by nobody but the admin: what a parcel is priced on is the country list below
     #[ORM\Column(length: 60)]
+    #[Assert\Length(max: 60)]
     private ?string $name = null;
 
     /**

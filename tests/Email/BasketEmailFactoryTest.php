@@ -33,6 +33,15 @@ class BasketEmailFactoryTest extends TestCase
         $this->assertSame('archive@shop.test', $request->bcc);
     }
 
+    // Extra headers reach the request untouched, a reminder's List-Unsubscribe among them, and none is set unasked
+    public function testItCarriesTheHeadersItIsHanded(): void
+    {
+        $headers = ['List-Unsubscribe' => '<https://example.org/out>'];
+
+        $this->assertSame($headers, $this->factory()->create($this->basket(), 'label.confirm_order', 'confirm_order', [], null, $headers)->headers);
+        $this->assertSame([], $this->factory()->create($this->basket(), 'label.confirm_order', 'confirm_order')->headers);
+    }
+
     // The composed body is a whole document, EmailTemplateRenderer having wrapped it in the site's layout already - asking UiBundle to wrap it a second time would nest one layout inside the other
     public function testItHandsOverTheComposedBodyAndNoTwigPath(): void
     {

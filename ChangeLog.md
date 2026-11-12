@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.26.1
+
+Reminders carry one-click unsubscribe, audit rules over the bundle
+
+- Reminders carry `List-Unsubscribe` and `List-Unsubscribe-Post` (one-click, RFC 8058), pointing at the reminder opt-out route (12/11/2026)
+- `BasketEmailSender::send()` and `BasketEmailFactory::create()` take optional extra headers (12/11/2026)
+- `CoordinatesType`: a contribution's message and signature bounded to 255 and 50 characters, on the server and in the page (12/11/2026)
+- `CodeRulesTest`: the audit's rules over the bundle, each exception named in `allowed()` (12/11/2026)
+- `Assert\Length(max)` on every string column of the entities, and a lower bound on refunded, minimum, gift card and payment amounts (12/11/2026)
+- Requires `c975l/core-bundle` `^1.90` (12/11/2026)
+
 ## v6.26.0
 
 Providers take a refunded order back, the checkout audit applied

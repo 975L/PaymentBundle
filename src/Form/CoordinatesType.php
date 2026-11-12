@@ -24,6 +24,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\IsTrue;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CoordinatesType extends AbstractType
@@ -103,18 +104,25 @@ class CoordinatesType extends AbstractType
                         'class' => 'alert alert-info',
                     ],
                 ])
+                // Bounded to the contributor's columns (CrowdfundingContributor: message 255, name 50), which would otherwise cut the text silently
                 ->add('contributorMessage', TextareaType::class, [
                     'label' => 'label.support_message',
                     'required' => false,
                     'mapped' => false,
+                    'constraints' => [new Length(max: 255)],
                     'attr' => [
                         'rows' => 3,
+                        'maxlength' => 255,
                     ],
                 ])
                 ->add('contributorName', TextType::class, [
                     'label' => 'label.signature',
                     'required' => false,
                     'mapped' => false,
+                    'constraints' => [new Length(max: 50)],
+                    'attr' => [
+                        'maxlength' => 50,
+                    ],
                 ])
             ;
         }

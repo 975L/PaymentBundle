@@ -53,17 +53,21 @@ class Basket implements \Stringable
     private ?int $id = null;
 
     #[ORM\Column(length: 20, nullable: true, unique: true)]
+    #[Assert\Length(max: 20)]
     private ?string $number = null;
 
     #[ORM\Column(length: 16, nullable: true)]
+    #[Assert\Length(max: 16)]
     private ?string $securityToken = null;
 
     // The second secret of an order, handed to whoever is asked to pay: it opens what is being bought and nothing of who it is for, where the token above would disclose the recipient's address
     #[ORM\Column(length: 16, nullable: true, unique: true)]
+    #[Assert\Length(max: 16)]
     private ?string $shareToken = null;
 
     // The third secret, and the only one a basket carries before it becomes an order: it is what a visitor's browser keeps, so a basket filled anonymously is still theirs once their session has been recycled - which PHP does after 24 minutes of inactivity by default, while the basket sits in the database for days (see BasketRecoverySubscriber)
     #[ORM\Column(length: 16, nullable: true, unique: true)]
+    #[Assert\Length(max: 16)]
     private ?string $recoveryToken = null;
 
     #[ORM\Column]
@@ -99,6 +103,7 @@ class Basket implements \Stringable
     private ?string $zip = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
     private ?string $country = null;
 
     // The business the invoice is made out to, when the buyer orders for one rather than for themselves
@@ -108,6 +113,7 @@ class Basket implements \Stringable
 
     // Printed on a business invoice, stored as typed once spaces and dots are dropped (FR12345678901)
     #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
     private ?string $vatNumber = null;
 
     #[ORM\Column]
@@ -120,10 +126,12 @@ class Basket implements \Stringable
 
     // The code the customer typed, kept as it was resolved rather than re-read at display time: a code deleted or expired after the order was paid must not change what that order says it was charged
     #[ORM\Column(length: 40, nullable: true)]
+    #[Assert\Length(max: 40)]
     private ?string $discountCode = null;
 
     // Which of the two the code turned out to be, one of the CODE_KIND_* above
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
     private ?string $discountKind = null;
 
     // What it actually took off, in cents - recomputed on every change of the basket (see BasketService::updateTotals()) and frozen once the order is validated
@@ -179,6 +187,7 @@ class Basket implements \Stringable
 
     // What the provider has handed back so far, in the currency's smallest unit, as the provider totals it: a partial refund leaves the order paid and is only told to the shopkeeper, who decides what it takes away
     #[ORM\Column(options: ['default' => 0])]
+    #[Assert\PositiveOrZero]
     private int $refundedAmount = 0;
 
     // How many reminders an abandoned basket has already been sent, so the second one is not the first one over again. Counted here rather than read from "modification": the retention pass reads that date to know when the visitor last touched their basket, and a reminder writing to it would push the purge back every time it fires
@@ -191,6 +200,7 @@ class Basket implements \Stringable
 
     // The language the order was placed in, remembered because the e-mails that follow it are not all sent from the customer's own request: a reminder goes out from a nightly command and a shipping notice from the shopkeeper's click, and neither would know what language to write in. Null on the orders taken before this was kept, which the site's own language answers for
     #[ORM\Column(length: 5, nullable: true)]
+    #[Assert\Length(max: 5)]
     private ?string $locale = null;
 
     // The day the invoice was issued, kept beside its number and never read off "modification": that date moves every time the order is touched - a parcel posted two days later would redate an invoice already in the customer's mailbox, and the same number would then name two documents
@@ -203,6 +213,7 @@ class Basket implements \Stringable
 
     // The invoice this order was billed under, drawn once when it is paid and never again: an invoice number is a sequence an accountant reads, not a value recomputed from the order (see InvoiceService::assign()). Null on the orders taken before the shop issued any, and on everything not yet paid
     #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
     private ?string $invoiceNumber = null;
 
     // Who issued the invoice, frozen with its number and never looked up again (see InvoiceService::assign()). A shop is renamed, moves, changes its status; an invoice has to be reproducible as it was issued for six years, so the seller block is copied onto the order rather than read back off a configuration that has since moved on. Null on every order billed before the shop started freezing it, which is what the invoice falls back on the live values for
@@ -213,6 +224,7 @@ class Basket implements \Stringable
     private ?string $invoiceSellerAddress = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $invoiceSellerEmail = null;
 
     // The registration numbers, the VAT number, or the article exempting the shop from charging any. Frozen for the sharpest reason of the four: a shopkeeper crossing the VAT threshold rewrites these, and every invoice issued before that day must keep saying what it said
@@ -221,6 +233,7 @@ class Basket implements \Stringable
 
     // The credit note cancelling the invoice once the order is refunded in full or lost to a chargeback, numbered in a series of its own (see InvoiceService::assignCreditNote()). It states the invoice's own seller and mentions, so nothing more is frozen for it. Null on every order not taken back, and on one that was never invoiced
     #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
     private ?string $creditNoteNumber = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -229,6 +242,7 @@ class Basket implements \Stringable
     // Whoever the gift cards of this order were bought for, and what the buyer wanted said to them. One address per order, not one per card: a shopper buying two cards for the same person is the ordinary case, and asking twice for two lines that go to the same mailbox helps nobody
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Email]
+    #[Assert\Length(max: 255)]
     private ?string $giftCardRecipientEmail = null;
 
     #[ORM\Column(length: 255, nullable: true)]

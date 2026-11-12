@@ -17,14 +17,19 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\IsTrue;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 
 // The checkout's own form, checked on the two things a mistake here costs: an address asked of an order that has none to deliver, and a consent that is not one
 class CoordinatesTypeTest extends TestCase
 {
-    /** @return array<string, array{type: ?string, options: array<string, mixed>}> */
-    private function build(int $contentFlags): array
+    /**
+     * @param array<string, mixed> $items
+     *
+     * @return array<string, array{type: ?string, options: array<string, mixed>}>
+     */
+    private function build(int $contentFlags, array $items = []): array
     {
         $added = [];
         $builder = $this->createStub(FormBuilderInterface::class);
@@ -36,6 +41,7 @@ class CoordinatesTypeTest extends TestCase
 
         $basket = new Basket();
         $basket->setContentFlags($contentFlags);
+        $basket->setItems($items);
 
         new CoordinatesType()->buildForm($builder, [
             'data' => $basket,
@@ -145,6 +151,18 @@ class CoordinatesTypeTest extends TestCase
         $this->assertArrayHasKey('address', $added);
         $this->assertArrayHasKey('city', $added);
         $this->assertTrue($added['name']['options']['required']);
+    }
+
+    // A contribution's message and signature are bounded to the contributor's columns, on the server as in the page, rather than cut silently
+    public function testAContributionMessageAndSignatureAreBoundedToTheirColumns(): void
+    {
+        $added = $this->build(Basket::CONTENT_FLAG_DIGITAL, ['crowdfunding' => []]);
+
+        foreach (['contributorMessage' => 255, 'contributorName' => 50] as $field => $max) {
+            $this->assertSame($max, $added[$field]['options']['attr']['maxlength'], $field);
+            $this->assertInstanceOf(Length::class, $added[$field]['options']['constraints'][0], $field);
+            $this->assertSame($max, $added[$field]['options']['constraints'][0]->max, $field);
+        }
     }
 
     // The delivery is priced on the country, and a zone naming "FR" recognises nothing in "france", "France" or "FRANCE": a list is what makes the two comparable, the ISO code being what it stores

@@ -35,9 +35,11 @@ class Discount implements \Stringable
 
     // Stored as it is typed, in upper case: a customer reading a code off a flyer types it however they like, and DiscountService normalises before looking it up
     #[ORM\Column(length: 40)]
+    #[Assert\Length(max: 40)]
     private ?string $code = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Length(max: 20)]
     private string $kind = self::KIND_PERCENTAGE;
 
     // A share out of a hundred, or a sum in the currency's smallest unit - which of the two is read off $kind, one column rather than two nullable ones nobody could tell apart
@@ -47,6 +49,7 @@ class Discount implements \Stringable
 
     // Left empty on a code that is offered in one currency only through the shop's own setting: an amount taken off a basket in another currency would be a rate nobody wrote
     #[ORM\Column(length: 5, nullable: true)]
+    #[Assert\Length(max: 5)]
     private ?string $currency = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -57,6 +60,7 @@ class Discount implements \Stringable
 
     // What the basket has to hold before the code applies, in cents - compared against the items alone, never against the shipping
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private int $minimumTotal = 0;
 
     // How many orders may use it, zero meaning as many as come

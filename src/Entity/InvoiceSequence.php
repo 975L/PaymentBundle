@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Entity;
 
 use c975L\PaymentBundle\Repository\InvoiceSequenceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // The counter an invoice number is drawn from, one row per year and per kind: locked while read so two orders settled in the same second never share a number (see InvoiceSequenceRepository::next()), restarting each January as the number says, credit notes kept in a series of their own so the invoices' one holds no gap
 #[ORM\Entity(repositoryClass: InvoiceSequenceRepository::class)]
@@ -29,6 +30,7 @@ class InvoiceSequence
 
     // Which series the counter numbers, one of the KIND_* above. The default carries the rows written before credit notes had a series of their own
     #[ORM\Column(length: 20, options: ['default' => self::KIND_INVOICE])]
+    #[Assert\Length(max: 20)]
     private string $kind = self::KIND_INVOICE;
 
     // "sequence_year" and not "year", which several engines read as a type keyword
