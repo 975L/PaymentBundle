@@ -103,7 +103,25 @@ class ShippingRateResolverTest extends TestCase
         $this->assertFalse($this->createResolver([])->exceeds('FR', 50000));
         $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [])])->exceeds('FR', 50000));
         $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [[1000, 490], [null, 1290]])])->exceeds('FR', 50000));
-        $this->assertFalse($this->createResolver([$this->zone('France', ['FR'], [[1000, 490]])])->exceeds('JP', 50000));
+    }
+
+    // A grid written for some countries does not post free everywhere else: a country no zone names is refused, unless a catch-all takes it
+    public function testACountryOutsideAWrittenGridIsRefused(): void
+    {
+        $france = $this->createResolver([$this->zone('France', ['FR'], [[1000, 490]])]);
+        $this->assertTrue($france->exceeds('JP', 300));
+        $this->assertFalse($france->shipsTo('JP'));
+        $this->assertTrue($france->shipsTo('FR'));
+
+        $world = $this->createResolver([$this->zone('France', ['FR'], [[1000, 490]]), $this->zone('Monde', [], [[null, 1990]])]);
+        $this->assertFalse($world->exceeds('JP', 300));
+        $this->assertTrue($world->shipsTo('JP'));
+
+        $this->assertTrue($this->createResolver([])->shipsTo('JP'));
+
+        // No country given yet is no country refused
+        $this->assertTrue($france->shipsTo(null));
+        $this->assertFalse($france->exceeds(null, 300));
     }
 
     // The country is compared on the code and never on what was typed, the order carrying an ISO code either way
@@ -127,6 +145,13 @@ class ShippingRateResolverTest extends TestCase
         $this->assertNull($this->createResolver([])->cheapest());
     }
 
+    // A free first tier beside paid ones is no free delivery: the page states the cheapest paid one, and zero only when every tier is free
+    public function testAFreeTierAlonePromisesNoFreeDelivery(): void
+    {
+        $this->assertSame(500, $this->createResolver([$this->zone('France', ['FR'], [[100, 0], [1000, 500], [null, 900]])])->cheapest());
+        $this->assertSame(0, $this->createResolver([$this->zone('France', ['FR'], [[100, 0], [null, 0]])])->cheapest());
+    }
+
     // The basket asks for a price and whether the parcel exceeds the grid on every change: one query for both, read again only once the service is reset
     public function testTheGridIsReadOncePerRun(): void
     {
@@ -136,6 +161,7 @@ class ShippingRateResolverTest extends TestCase
 
         $resolver->resolve('FR', 300);
         $resolver->exceeds('FR', 300);
+        $resolver->cheapest();
         $resolver->reset();
         $resolver->resolve('FR', 300);
     }

@@ -120,19 +120,33 @@ class BasketCrudControllerTest extends TestCase
         $this->controllerFor($basket, $basketService, csrfValid: true)->retryDelivery(new Request(['entityId' => 1, 'token' => 'good']));
     }
 
-    // A checkout removed from the back-office is called off at its provider; an order keeps what it spent, a charged one included, until a refund credits it
-    public function testDeletingACheckoutCallsItOffAndAnOrderIsLeftAlone(): void
+    // A checkout removed from the back-office is called off at its provider and deleted
+    public function testDeletingACheckoutCallsItOff(): void
     {
         $checkout = new Basket()->setStatus(BasketStatus::Validated);
         $basketService = $this->createMock(BasketServiceInterface::class);
         $basketService->expects($this->once())->method('callOffCheckout')->with($checkout)->willReturn(true);
         $controller = $this->controllerFor($checkout, $basketService, csrfValid: true);
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects($this->exactly(3))->method('remove');
+        $entityManager->expects($this->once())->method('remove');
 
         $controller->deleteEntity($entityManager, $checkout);
+    }
+
+    // An order, a charged one or one holding an invoice number is an accounting record: never deleted, the admin told why
+    public function testAnOrderIsNeverDeleted(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->never())->method('callOffCheckout');
+        $controller = $this->controllerFor(new Basket(), $basketService, csrfValid: true);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->never())->method('remove');
+
         $controller->deleteEntity($entityManager, new Basket()->setStatus(BasketStatus::Paid));
         $controller->deleteEntity($entityManager, new Basket()->setStatus(BasketStatus::Validated)->setPayment(new Payment()->setFinished(true)));
+        $controller->deleteEntity($entityManager, new Basket()->setStatus(BasketStatus::Validated)->setInvoiceNumber('2026-000001'));
+
+        $this->assertSame(['warning' => ['flash.order_not_deletable', 'flash.order_not_deletable', 'flash.order_not_deletable']], $this->flashes());
     }
 
     // Its checkout found paid, the basket is an order now: it stays, and the admin is told why

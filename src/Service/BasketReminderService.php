@@ -53,15 +53,36 @@ class BasketReminderService
 
         foreach ($rounds as $days => $alreadySent) {
             foreach ($this->basketRepository->findToRemind($days, $alreadySent) as $basket) {
-                if ($this->remind($basket, $alreadySent + 1)) {
+                if ($this->remindSafely($basket, $alreadySent + 1)) {
                     ++$count;
+                }
+
+                // A failed flush closes the entity manager: the reminders sent after it would never be counted, and would go out again the next night
+                if (!$this->entityManager->isOpen()) {
+                    return $count;
                 }
             }
         }
 
-        $this->entityManager->flush();
-
         return $count;
+    }
+
+    // One basket failing is logged and the others are still reminded; each count is written as soon as its e-mail is gone, so a pass cut short never sends the same reminder twice
+    private function remindSafely(Basket $basket, int $rank): bool
+    {
+        try {
+            if (!$this->remind($basket, $rank)) {
+                return false;
+            }
+
+            $this->entityManager->flush();
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->error(sprintf('Could not remind basket "%s"', $basket->getNumber()), ['exception' => $e]);
+
+            return false;
+        }
     }
 
     // Sends one reminder, and says whether it left

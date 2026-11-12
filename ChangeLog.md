@@ -1,5 +1,35 @@
 # Changelog
 
+## v6.26.0
+
+Providers take a refunded order back, the checkout audit applied
+
+- README, skill `c975l-payment-items` and whatsnew name the age verification without its service (11/11/2026)
+- `RefundableBasketItemProviderInterface::onBasketRefunded()`, called by `BasketRefundService::apply()` on a full refund of a delivered order (11/11/2026)
+- `BasketRefundService` takes `BasketItemProviderRegistry` (11/11/2026) [BC-Break]
+- An order, an invoiced basket or a recorded payment can no longer be deleted from the back-office (11/11/2026)
+- Invoice and settled order paid by gift card: gross total and VAT, then the card, then the amount due (11/11/2026)
+- `CoordinatesType` asks for the postal address only when something is posted (11/11/2026)
+- Privacy policy names the payment providers offered instead of Stripe alone (11/11/2026)
+- `ShippingRateResolver::cheapest()` returns the lowest paid tier, zero only when every tier is free (11/11/2026)
+- `ShippingRateResolverInterface::shipsTo()` (11/11/2026) [BC-Break]
+- An order to a country outside a written grid is refused with `error.shipping_unavailable` (11/11/2026)
+- `Basket` coordinates carry length constraints, the email being required (11/11/2026)
+- `BasketReminderService` writes each count as it goes, logs a failing basket and stops once a flush fails (11/11/2026)
+- The basket integrity check skips the payment link lines (11/11/2026)
+- Customer history and account section show the amount paid (11/11/2026)
+- `Discount`, `ShippingRate` and `ShippingZone` validate what the admin types (11/11/2026)
+- Gift card issued by hand: amount above zero, valid through its last day (11/11/2026)
+- `payment-link-vat-rate` read with a decimal comma (11/11/2026)
+- `payShared()` refuses an order of the other payment mode and asks the providers again (11/11/2026)
+- `findToRemind()` leaves the test mode orders out (11/11/2026)
+- A line whose kind lost its provider is refused at checkout (12/11/2026)
+- `GiftCardService::issue()` takes the mode of the order that bought the card (11/11/2026)
+- A checkout opened in the other payment mode is never reopened, the visitor starting a new basket with `error.checkout_other_mode` (12/11/2026)
+- A rehearsal checkout can be deleted from the back office once the shop is live (12/11/2026)
+- Reminder unsubscribe: a GET asks, a POST stops the reminders (11/11/2026)
+- An order is shipped once every parcel its flags carry has left (11/11/2026)
+
 ## v6.25.0
 
 The checkout waits for an age verification on a line for adults

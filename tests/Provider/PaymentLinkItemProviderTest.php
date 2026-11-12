@@ -42,6 +42,14 @@ class PaymentLinkItemProviderTest extends TestCase
         $this->assertSame(2000, $line['totalVat']);
     }
 
+    // A rate typed with a decimal comma is read as the rate it is, never cut at the comma
+    public function testARateTypedWithACommaIsReadWhole(): void
+    {
+        $line = $this->provider('5,5')->toBasketData(new PaymentLinkItem('item-1', 10550), 1);
+
+        $this->assertSame(5.5, $line['item']['vat']);
+    }
+
     // A shop charging none sets nothing, and the line is worth what it says
     public function testAShopChargingNoVatHasNoneTakenOut(): void
     {

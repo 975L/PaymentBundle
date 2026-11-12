@@ -114,7 +114,21 @@ class GiftCardServiceTest extends TestCase
     {
         $stated = new \DateTime('2027-06-30');
 
-        $this->assertSame($stated, $this->service()->issue(3000, 'EUR', null, $stated)->getValidUntil());
+        $this->assertEquals(new \DateTime('2027-06-30 23:59:59'), $this->service()->issue(3000, 'EUR', null, $stated)->getValidUntil());
+    }
+
+    // Valid through the whole of its last day: a card stated "valid until" the 30th is still spent at noon on the 30th
+    public function testACardIsValidThroughItsLastDay(): void
+    {
+        $this->assertSame('23:59:59', $this->service()->issue(3000, 'EUR')->getValidUntil()?->format('H:i:s'));
+        $this->assertTrue($this->service()->issue(3000, 'EUR', null, new \DateTime('today'))->isSpendable());
+    }
+
+    // The card takes the mode of the order that bought it, not the shop's mode at delivery: a rehearsal order delivered after the switch to live still issues a rehearsal card
+    public function testACardTakesTheModeOfTheOrderThatBoughtIt(): void
+    {
+        $this->assertTrue($this->service()->issue(3000, 'EUR', new Basket()->setTestMode(true))->isTestMode());
+        $this->assertFalse($this->service(shopInTestMode: true)->issue(3000, 'EUR', new Basket()->setTestMode(false))->isTestMode());
     }
 
     // The visual is copied onto the card and not pointed at: a design withdrawn from sale next month must not blank a card somebody still holds

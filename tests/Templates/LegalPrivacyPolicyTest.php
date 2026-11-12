@@ -16,7 +16,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
-// UiBundle's "france/privacy-policy" model includes these by name, "ignore missing" hiding any mistake: each locale must exist and name Stripe in its own unit, the app stores only on a site selling in an app
+// UiBundle's "france/privacy-policy" model includes these by name, "ignore missing" hiding any mistake: each locale must exist and name the providers the shop offers in its payment unit, the app stores only on a site selling in an app
 class LegalPrivacyPolicyTest extends TestCase
 {
     /** @return iterable<array{string}> */
@@ -32,8 +32,21 @@ class LegalPrivacyPolicyTest extends TestCase
     {
         $html = $this->render($locale, []);
         $this->assertStringContainsString('<h3 data-legal-id="third-parties.stripe">', $html);
-        $this->assertStringContainsString('Stripe', $html);
+        $this->assertStringContainsString('>Stripe</a>', $html);
+        $this->assertStringNotContainsString('Revolut', $html);
         $this->assertStringNotContainsString('third-parties.app-stores', $html);
+    }
+
+    // A shop taking Revolut alone names Revolut, never Stripe
+    #[DataProvider('locales')]
+    public function testTheProvidersOfferedAreTheOnesNamed(string $locale): void
+    {
+        $html = $this->render($locale, [], ['revolut']);
+        $this->assertStringContainsString('(Revolut)', $html);
+        $this->assertStringNotContainsString('Stripe', $html);
+
+        $both = $this->render($locale, [], ['stripe', 'revolut']);
+        $this->assertStringContainsString('>Stripe</a>, Revolut)', $both);
     }
 
     #[DataProvider('locales')]
@@ -44,12 +57,16 @@ class LegalPrivacyPolicyTest extends TestCase
         $this->assertStringContainsString('<h3 data-legal-id="third-parties.app-stores">', $html);
     }
 
-    // The template alone, the stores stubbed
-    /** @param list<string> $stores */
-    private function render(string $locale, array $stores): string
+    // The template alone, the stores and the providers stubbed
+    /**
+     * @param list<string> $stores
+     * @param list<string> $gateways
+     */
+    private function render(string $locale, array $stores, array $gateways = ['stripe']): string
     {
         $twig = new Environment(new FilesystemLoader(\dirname(__DIR__, 2) . '/templates/legal'));
         $twig->addFunction(new TwigFunction('payment_in_app_stores', static fn (): array => $stores));
+        $twig->addFunction(new TwigFunction('payment_gateways', static fn (): array => $gateways));
 
         return $twig->render('privacy-policy.' . $locale . '.html.twig');
     }

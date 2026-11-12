@@ -78,12 +78,8 @@ class ShippingHealthCheckProvider implements HealthCheckSiteWideInterface, Healt
         ];
     }
 
+    // A country named in no zone falls into the catch-all, and without one its order is refused; two catch-alls is the other half of the same question, the resolver taking the first it is handed, which is the database's own order and not a decision anybody made
     /**
-     * A country named in no zone falls into the catch-all, and without one it is posted free.
-     *
-     * Two catch-alls is the other half of the same question: the resolver takes the first it is handed, which is
-     * the database's own order and not a decision anybody made.
-     *
      * @param list<ShippingZone> $zones
      *
      * @return array<string, mixed>

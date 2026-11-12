@@ -27,15 +27,12 @@ interface ShippingRateResolverInterface
      */
     public function resolve(?string $country, int $weight): ?int;
 
-    // Whether the grid prices this country but no tier of its zone takes a parcel that heavy, the one silence an order is refused on - no zone or no tier at all is never exceeded
+    // Whether the order is refused on the grid: a country no zone names on a grid that names some (see shipsTo()), or a zone none of whose tiers takes a parcel that heavy - no grid at all, or a zone with no tier, is never exceeded
     public function exceeds(?string $country, int $weight): bool;
 
-    /**
-     * The lowest price the grid holds, whatever the zone and the weight - what a page states delivery starts at,
-     * a grid having no single rate to name any more.
-     *
-     * Null when the grid holds no tier at all, which reads as "this shop says nothing about delivery" and not as
-     * "delivery is free": the block that states it stays silent rather than promising something nobody wrote.
-     */
+    // Whether the grid posts to this country: always with no grid written at all or no country given yet, otherwise only through a zone naming it or a catch-all
+    public function shipsTo(?string $country): bool;
+
+    // The lowest price above zero the grid holds, whatever the zone and the weight, what a page states delivery starts at - zero only when every tier is free, a free first tier beside paid ones being no free delivery, and null on a grid with no tier at all, so the block says nothing rather than promising free delivery
     public function cheapest(): ?int;
 }

@@ -44,6 +44,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 - Optional `BasketRecommendationProviderInterface` for cross-sell recommendations on the basket page, the provider naming the template that draws them
 - Optional `CatalogueBasketItemProviderInterface` for the listing the "continue shopping" button goes back to — this bundle names no shop route of its own
 - Optional `ShippingBasketItemProviderInterface` for a provider whose lines can be posted — required as soon as it sells anything posted, the empty-grid warning being raised only then
+- Optional `RefundableBasketItemProviderInterface` for a provider taking back, on a full refund, what its `onBasketPaid()` wrote (credits, stock, a copy)
 - Optional `AccountBasketItemProviderInterface` marker for items landing on an account (credits, a subscription): an anonymous visitor is sent to `app_login` at the checkout, and back to it once signed in
 - Customer area: a logged-in buyer reads their own order history at `/account/orders`, each order showing its
   tracking, its lines and — through the optional `BasketDownloadProviderInterface` — the files they bought,
@@ -54,7 +55,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
   order and however long ago - so a bundle showing a paid photo, video or chapter gates it on the orders themselves
   rather than keeping a right of its own beside them. A refund in full or a chargeback lost, reported by the
   provider's webhook, sets the order `refunded` and takes the access back (see [refunds](#refunds-and-chargebacks))
-- EasyAdmin CRUD for Basket and Payment, both exported as SQL/CSV/JSON from their index, the basket's security token excluded
+- EasyAdmin CRUD for Basket and Payment, both exported as SQL/CSV/JSON from their index, the basket's security token excluded; an order, an invoiced basket and a payment tied to a basket or gone through are kept and never deleted, an abandoned basket only
 - Status report and health check contributions: the orders left to ship and the payments started and never
   confirmed land in `/status/report`, and `c975l:health-check:run` asks the active gateway whether its keys still
   authenticate — a revoked or mistyped key reads from the config exactly like a working one
@@ -205,8 +206,10 @@ the site. The order stays the one record of the sale:
 - **Refunded in full**, or **a dispute lost**: the order goes `refunded`, dated (`refundedAt`), and stops handing
   anything over - `hasPaidFor()` answers no, the customer area shows it with its refund but without its files, and
   the gift cards it bought are deactivated (the orders they already paid for are left alone). A gift card that
-  paid part of it is credited back, and its invoice is cancelled by a [credit note](#invoices). It stays in the
-  books, the archive, the integrity checks and the member's data export.
+  paid part of it is credited back, and its invoice is cancelled by a [credit note](#invoices). Every provider
+  implementing `RefundableBasketItemProviderInterface` is then told to take back what it wrote at delivery (see
+  [taking a refunded line back](#taking-a-refunded-line-back)). It stays in the books, the archive, the integrity
+  checks and the member's data export.
 - **Refunded in part**: nothing changes on its own - a gesture on the postage is no reason to take the book back.
   The amount is kept on the order and the dashboard warns for 30 days, opening the order listing filtered on the
   refunded ones, so the shopkeeper decides.
@@ -277,7 +280,7 @@ counterparts or prints.
 | `basket_shared_pay` | `/shop/basket/pay/{number}/{shareToken}` | The payer's page: what is bought and what it costs, **and nothing of who it is for** |
 | `basket_shared_paid` | `/shop/basket/pay/{number}/{shareToken}/done` | Where the payer lands, which is never the customer's own order page |
 | `basket_short_pay` | `/pay/{shareToken}` | The same payer's page at an address short enough to travel in a text message — a 302 to `basket_shared_pay`, its token read whatever its case |
-| `basket_reminder_unsubscribe` | `/shop/basket/pay/{number}/{shareToken}/no-reminder` | The way out every reminder of an unpaid order carries: one click, no confirmation step |
+| `basket_reminder_unsubscribe` | `/shop/basket/pay/{number}/{shareToken}/no-reminder` | The way out every reminder of an unpaid order carries: a GET asks, a POST from the page's button stops them |
 | `gift_card_display` | `/gift-card/{shareToken}` | The card as whoever it was bought for sees it - no account, `noindex`, `no-store`, and no code in the markup |
 | `gift_card_reveal` | `/gift-card/{shareToken}/code` | What the scratch panel asks for, refused on a card taken out of circulation |
 | `gift_card_pdf` | `/gift-card/{shareToken}/pdf` | The card as a file to print or keep, its code on it, refused on a card taken out of circulation |
@@ -472,7 +475,7 @@ nothing either, and fall back on the same live values they were already being dr
 | E-mail | `payment:invoice`, ticked on whichever templates the shop wants it on (see UiBundle's email attachments) — see [Documents attached to the e-mails](#documents-attached-to-the-e-mails) |
 
 **A buyer may have it made out to their business**: the coordinates form offers a company name and a VAT number,
-printed in the billed-to block, and asks a digital order for the business' postal address once a company is given.
+printed in the billed-to block, and asks an order posting nothing (files, a service, credits, an e-mailed gift card) for the business' postal address once a company is given - the postal address being asked of an order only when something is posted.
 The next basket of that member is prefilled from their last business order; emptying the company drops the rest.
 It is still a PDF, not an e-invoice — a Factur-X document, PDF/A-3 with its XML inside, sent through an approved
 platform — and nothing here pretends to be one.
@@ -601,9 +604,10 @@ carries, the payment one and the way out, are built on that same token.
 
 **No consent is asked for, and a way out is carried instead.** A reminder is the follow-up of an order the
 customer placed themselves and left unpaid, not prospection: it goes out without being asked for, and every one
-of them carries the `reminder_unsubscribe` slot whose link stops them in one click, with no confirmation step
-(`basket_reminder_unsubscribe`, which stamps `Basket::$reminderOptOutAt` and renders
-`basket/reminder_unsubscribed.html.twig`). The opposition is read by the query itself rather than by the caller.
+of them carries the `reminder_unsubscribe` slot whose link stops them (`basket_reminder_unsubscribe`). Opening
+it only asks, on `basket/reminder_unsubscribe.html.twig`: link scanners open every link of an e-mail on its arrival,
+and would otherwise stop the reminders before anyone read them. Its button posts to the same url, the share token
+being the proof, which stamps `Basket::$reminderOptOutAt` and renders `basket/reminder_unsubscribed.html.twig`. The opposition is read by the query itself rather than by the caller.
 Payment links are left out of the reminders altogether — nobody walked out of a checkout there, the order having
 been written in the back-office by a shopkeeper who chases their own client themselves. Nothing is sent while the
 shop is in test mode.
@@ -626,7 +630,9 @@ nothing of who it is for**. Handing over the security token instead would hand t
 the recipient's name and address, which is the one thing a gift must not disclose.
 
 An order already settled, or taken back to a basket by its customer, says so and offers nothing to pay rather
-than opening a second checkout. The payer lands on a page of their own once the provider is done with them, and
+than opening a second checkout. An order frozen in the other payment mode (a rehearsal once the shop is live, or
+the reverse) is refused, and each provider is asked again whether its lines can still be ordered - its refusal is
+what the payer is told. The payer lands on a page of their own once the provider is done with them, and
 never on the customer's order history.
 
 The link the customer is given is the short one, `/pay/{shareToken}` — the same address a payment link travels
@@ -655,7 +661,8 @@ counterpart, supplied after the campaign, asks for none. The three boxes are che
 browser. The moment it is ticked is dated on the order (`withdrawalWaived`) and confirmed in the order e-mail by the
 `withdrawal_waived` slot. An order shared is waived by whoever pays it, on the payer's page.
 
-The privacy policy of UiBundle's `france/privacy-policy` model names Stripe in its "third-parties" section, from
+The privacy policy of UiBundle's `france/privacy-policy` model names the payment providers the shop offers
+(`payment_gateways()`) in its "third-parties" section, from
 `templates/legal/privacy-policy.{fr,en,es}.html.twig` - and Apple and Google once an in-app store is set up, see
 [selling in a mobile app](#selling-in-a-mobile-app).
 
@@ -734,6 +741,11 @@ rather than edited by hand. While it is on:
   `4929 4205 7359 5709` for Revolut), from the `label.test_mode_<slug>_card` keys of the `payment` domain — a
   provider shipping no such key is simply left out of the banner
 - a payment links to the provider's test dashboard from the back-office, where the transaction actually exists
+
+An order keeps the mode it was placed in: a shared or reminded one is never settled in the other mode, a checkout
+opened in the other mode is never reopened (the visitor is told so with `error.checkout_other_mode` and starts a new
+basket; once the shop is live, a rehearsal one can be deleted from the back office), a gift card takes the mode of the order
+that bought it, and no reminder is sent for a rehearsal.
 
 Nothing reads a key to guess any of this: a live key holding the word "test" anywhere used to turn a real shop
 into a rehearsal, and a test key not holding it charged nobody while the site claimed it did.
@@ -952,9 +964,25 @@ the marker `c975L\PaymentBundle\Contract\AccountBasketItemProviderInterface`. Th
 at the checkout, an anonymous visitor holding such a line is redirected to the site's `app_login` route, then back
 to the checkout once signed in. `validateCheckout()` remains the provider's own guard.
 
+### Taking a refunded line back
+
+A provider whose `onBasketPaid()` wrote something of its own — credits, a stock count, a numbered copy — also
+implements `c975L\PaymentBundle\Contract\RefundableBasketItemProviderInterface`, which extends
+`BasketItemProviderInterface` with one method:
+
+```php
+public function onBasketRefunded(Basket $basket, array $itemsOfThisKind): void
+```
+
+It is called once the order is refunded in full or a dispute lost, the order already `refunded`, with this
+provider's own lines, after the credit note - never on a partial refund, never twice, and never on an order charged
+but not delivered, whose effects were rolled back with it. It is reached from the provider's webhook, so it
+reads nothing off the request. An exception is logged and the other providers are still told, the refund itself
+standing. A provider whose access is read off the order alone (`hasPaidFor()`) needs nothing of it.
+
 ### Selling to adults only
 
-A line whose `toBasketData()` writes an `age` (`"18-"`, as ShopBundle does for a product declaring one) is paid for once CoreBundle's go.cam age verification found the visitor of age, on a site that filled its three `age-verification-*` keys. The basket is still filled freely; at the checkout, `Basket::getMinimumAge()` reads the highest age any line declares, the go.cam gate stands in place of the coordinates form, and a form posted around it is turned back with `flash.age_verification_required`. Nothing for a site without the keys, nor for a basket whose lines declare no age.
+A line whose `toBasketData()` writes an `age` (`"18-"`, as ShopBundle does for a product declaring one) is paid for once CoreBundle's age verification found the visitor of age, on a site that filled its three `age-verification-*` keys. The basket is still filled freely; at the checkout, `Basket::getMinimumAge()` reads the highest age any line declares, the age gate stands in place of the coordinates form, and a form posted around it is turned back with `flash.age_verification_required`. Nothing for a site without the keys, nor for a basket whose lines declare no age.
 
 ### Recommending something beside the basket
 
@@ -974,12 +1002,13 @@ the same screen. A parcel is charged at the **first tier it fits in**, that tier
 no ceiling catches everything above the others. The zone naming **no country** is the default one, where a country
 named in no other falls — a shop posting everywhere at one tariff writes that zone and nothing else.
 
-**Nothing written is nothing charged.** No zone, no default zone, or a zone holding no tier, and delivery is
+**Nothing written is nothing charged.** No zone at all, or a zone holding no tier, and delivery is
 free. That is deliberate and it is silent, so `ShippingHealthCheckProvider` reports each of those cases on the
 dashboard - an empty grid only where something posted is on sale (see above) - rather than leaving them to be found on a month of orders, every row linking to the zone list. A parcel
 heavier than every tier of its zone is the exception: the shop never said what it costs, so `validate()` refuses
 the order rather than posting it free - above `shop-shipping-free` too, and the basket page says so beforehand
-(`shippingTooHeavy` in its json). The dashboard names the zones holding no tier and the zones stopping short on two
+(`shippingTooHeavy` in its json). So is a country no zone names on a grid without a default zone: a grid written
+for some countries does not post free everywhere else, and the order is refused with `error.shipping_unavailable`. The dashboard names the zones holding no tier and the zones stopping short on two
 separate rows, the first posting free and the second refusing.
 
 The parcel's weight is summed from the lines whose provider implements `WeighableBasketItemProviderInterface`; a
@@ -993,7 +1022,8 @@ loaded with whatever demo dataset the application installs.
 The country is only known once the customer gives an address, so the basket page prices the parcel on
 `shop-shipping-country` and reads as an estimate; `validate()` counts the basket again once the address is bound,
 which is what the order is charged. A page stating what delivery starts at reads `payment_shipping_from()`, the
-lowest price the whole grid holds.
+lowest price above zero the whole grid holds - zero only when every tier is free, a free first tier beside paid
+ones being no free delivery.
 
 What a search engine reads of the same grid is built here too: `OfferSnippetBuilder` gives a satellite bundle's
 `Offer` its `shippingDetails` (`shippingDetails($weight, $downloaded)`, the grid's rate to `shop-shipping-country`,

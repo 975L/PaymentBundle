@@ -18,6 +18,7 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Management\BasketIntegrityHealthCheckProvider;
+use c975L\PaymentBundle\Provider\PaymentLinkItemProvider;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\PaymentRepository;
@@ -155,6 +156,17 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
         $this->assertCount(6, $rows);
         $this->assertSame(HealthCheckResult::STATUS_ERROR, $row['status']);
         $this->assertSame('crowdfunding (unknown kind)', $row['details']['offenders'][0]['info']);
+    }
+
+    // A payment link waiting for its money sells nothing of the catalogue: no article stands behind its line, and it is no error
+    public function testAPendingPaymentLinkIsNotAMissingItem(): void
+    {
+        $basket = $this->order('2026-000050', BasketStatus::Validated);
+        $basket->setItems([PaymentLinkItemProvider::KIND => ['link' => ['total' => 100, 'quantity' => 1]]]);
+
+        $row = $this->row($this->provider(['findPayable' => [$basket]], false)->runChecks(), BasketIntegrityHealthCheckProvider::ROW_UNRESOLVABLE_ITEMS);
+
+        $this->assertSame(HealthCheckResult::STATUS_OK, $row['status']);
     }
 
     // HealthCheckRunner drops every row of a provider that throws, and no rows at all reads as "nothing to report". The row says the verdict is missing, not that the shop is broken, so HealthCheckErrorRow makes it a warning

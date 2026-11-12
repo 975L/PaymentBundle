@@ -339,6 +339,8 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.email IS NOT NULL')
             ->andWhere('b.remindersSent = :sent')
             ->andWhere('b.modification < :date')
+            // Reminders only go out while the shop charges for real (see BasketReminderService::send()): a rehearsal order is never sent to be paid live
+            ->andWhere('b.testMode = false')
             ->setParameter('status', BasketStatus::Validated)
             ->setParameter('service', Basket::CONTENT_FLAG_SERVICE)
             ->setParameter('sent', $alreadySent)

@@ -12,6 +12,7 @@ namespace c975L\PaymentBundle\Entity;
 
 use c975L\PaymentBundle\Repository\ShippingRateRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // One weight tier of one zone: what a parcel costs up to that weight. A zone's tiers are read smallest first, and the first one the parcel fits in is the one it is charged at
 #[ORM\Entity(repositoryClass: ShippingRateRepository::class)]
@@ -29,10 +30,12 @@ class ShippingRate implements \Stringable
 
     // The heaviest parcel this tier covers, in grams, the weight itself included - a 1000 g tier posts a parcel of exactly 1000 g. Null is the tier with no ceiling, the one that catches everything above the others, and a zone without it refuses to post what none of its tiers covers
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero]
     private ?int $maxWeight = null;
 
     // What the shop charges for that parcel, in cents like every other amount here. Zero is a legitimate tier: it is how a shop posts light parcels free without touching the franco threshold
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private int $price = 0;
 
     public function __toString(): string

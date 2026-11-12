@@ -77,18 +77,25 @@ class Basket implements \Stringable
     private BasketStatus $status = BasketStatus::New;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 100)]
     private ?string $email = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $name = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $address = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $city = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Length(max: 10)]
     private ?string $zip = null;
 
     #[ORM\Column(length: 50, nullable: true)]
@@ -234,6 +241,7 @@ class Basket implements \Stringable
     private ?UserInterface $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $message = null;
 
     // What the basket page's JavaScript is answered with, so the three secrets are taken out of it: they guard the order-tracking page, the shared payment page and the basket itself, and none of them is anything the browser has to be told

@@ -280,7 +280,7 @@
             </trans-unit>
             <trans-unit id="BoUVFIg">
                 <source>narration.guided_step_payment_shipping_grid_countries</source>
-                <target>Pick the countries posted at this tariff. Leave the list empty for the default zone, the one a country named nowhere else falls into: write that one too, or such an order is delivered free of charge.</target>
+                <target>Pick the countries posted at this tariff. Leave the list empty for the default zone, the one a country named nowhere else falls into: write that one too, or such an order is refused.</target>
             </trans-unit>
             <trans-unit id="HZ7XxE7">
                 <source>narration.guided_step_payment_shipping_grid_name</source>

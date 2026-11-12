@@ -168,7 +168,8 @@ class BasketService implements BasketServiceInterface
     {
         return ['basket' => $this->basket->toArray() + [
             'vat' => $this->vatCalculator->breakdown($this->basket)['amount'],
-            'shippingTooHeavy' => $this->tooHeavy(),
+            // The weight alone: a country outside the grid is said at the checkout, in its own words
+            'shippingTooHeavy' => $this->tooHeavy() && $this->shippingRateResolver->shipsTo($this->country()),
         ]];
     }
 
@@ -376,7 +377,14 @@ class BasketService implements BasketServiceInterface
     private function assertItemsOrderable(): void
     {
         foreach ($this->basket->getItems() as $type => $itemsOfThisKind) {
-            $error = $this->itemProviderRegistry->get($type)->validateCheckout($this->basket, $itemsOfThisKind);
+            // A kind whose bundle has gone could not be delivered, and would leave the order charged for nothing
+            try {
+                $provider = $this->itemProviderRegistry->get($type);
+            } catch (\InvalidArgumentException) {
+                throw new BasketNotOrderableException($this->translator->trans('flash.payment_unavailable', [], 'payment'));
+            }
+
+            $error = $provider->validateCheckout($this->basket, $itemsOfThisKind);
             if (null !== $error) {
                 throw new BasketNotOrderableException($error);
             }
@@ -432,6 +440,13 @@ class BasketService implements BasketServiceInterface
 
         // The same order posted again goes back to being a basket first: the checkout it opened is called off and what it held of its code given back, before the code is read against the card. Flushed apart so a refusal below comes back to a basket that says so
         if (BasketStatus::Validated === $this->basket->getStatus()) {
+            // Opened in the other payment mode, its checkout may still be paid: the order is kept as it stands and the visitor starts a new basket, never told it is paid
+            if ($this->isCheckoutOfTheOtherMode($this->basket)) {
+                $this->session?->remove('basket');
+
+                throw new BasketNotOrderableException($this->translator->trans('error.checkout_other_mode', [], 'payment'));
+            }
+
             // The customer came back from the provider by the browser's back button, having paid: their order is what they are shown, and nothing is opened to charge them again
             if (!$this->reopen($this->basket)) {
                 $this->entityManager->flush();
@@ -452,11 +467,11 @@ class BasketService implements BasketServiceInterface
         // Counted again now that the address is bound, and this is the last pass: the coordinates form has just written the country on the basket, and until it did, the delivery was priced on the zone the shop posts to by default. What is charged has to be what the parcel actually costs to where it goes - the status turns to "validated" three lines below, after which refreshItems() lets nothing move again
         $this->updateTotals();
 
-        // Refused rather than posted free: the grid stops short of this parcel, and only the shop can say what it costs. Flushed before it refuses, so the basket they come back to shows the delivery of the country it was refused for - the same rule as assertUnchanged()
+        // Refused rather than posted free: the grid stops short of this parcel, or names no zone for its country, and only the shop can say what it costs. Flushed before it refuses, so the basket they come back to shows the delivery of the country it was refused for - the same rule as assertUnchanged()
         if ($this->tooHeavy()) {
             $this->entityManager->flush();
 
-            throw new BasketNotOrderableException($this->translator->trans('error.shipping_too_heavy', [], 'payment'));
+            throw new BasketNotOrderableException($this->translator->trans($this->shippingRateResolver->shipsTo($this->country()) ? 'error.shipping_too_heavy' : 'error.shipping_unavailable', [], 'payment'));
         }
 
         // Refused rather than charged silently: the total the customer clicked "pay" on was the one estimated on the shop's default country, and no page of the site ever showed them this one
@@ -579,6 +594,11 @@ class BasketService implements BasketServiceInterface
             throw new PaymentUnavailableException('This order is not waiting for a payment');
         }
 
+        // Paid in the mode it was frozen in: a rehearsal order is never charged for real, nor a real one settled with a test card
+        if ($basket->isTestMode() !== $this->testMode->isEnabled()) {
+            throw new PaymentUnavailableException('This order was placed in the other payment mode');
+        }
+
         // The provider the order was opened with, which is the one the customer chose; the payer is given no choice of their own, and falls back on the shop's default when that provider no longer charges
         $this->gateway = $this->resolveGateway($basket->getPayment()?->getGateway());
         if (null === $this->gateway) {
@@ -586,6 +606,13 @@ class BasketService implements BasketServiceInterface
         }
 
         $this->basket = $basket;
+
+        // Frozen for days, what it holds may have run out or been withdrawn since: asked again of each provider, as validate() asks it
+        try {
+            $this->assertItemsOrderable();
+        } catch (BasketNotOrderableException $e) {
+            throw new PaymentUnavailableException($e->getMessage(), 0, $e);
+        }
 
         // A reminder comes back after the nightly pass let go of the code, which may have been spent since: nobody is charged for an order the code can no longer cover, the money would only be held undelivered
         if (!$this->basketCodeService->claim($basket)) {
@@ -849,20 +876,23 @@ class BasketService implements BasketServiceInterface
         }
         // Only a paid order leaves: a shipped one has already gone, and a refunded one going out would read as "shipped" again and hand back what the refund took away
         if (BasketStatus::Paid === $basket->getStatus()) {
-            $items = $basket->getItems();
+            // Read off its flags as findAwaitingShipping() reads them: "product" is every parcel that is not a counterpart, a print of another bundle included
+            $flags = $basket->getContentFlags();
 
             // Items
-            if ('product' === $type && isset($items['product'])) {
+            if ('product' === $type && 0 !== ($flags & Basket::CONTENT_FLAG_PHYSICAL)) {
                 $basket->setItemsShipped(new \DateTime());
             }
 
             // Counterparts
-            if ('crowdfunding' === $type && isset($items['crowdfunding'])) {
+            if ('crowdfunding' === $type && 0 !== ($flags & Basket::CONTENT_FLAG_CF_SHIPPING)) {
                 $basket->setCounterpartsShipped(new \DateTime());
             }
 
-            // Check if there's items and counterparts and if both have been shipped
-            if (1 === count($items) or (null !== $basket->getItemsShipped() and null !== $basket->getCounterpartsShipped())) {
+            // Shipped once every parcel it carries has left: a line posted nothing, a skin or a file, waits for no shipment
+            $itemsLeft = 0 === ($flags & Basket::CONTENT_FLAG_PHYSICAL) || null !== $basket->getItemsShipped();
+            $counterpartsLeft = 0 === ($flags & Basket::CONTENT_FLAG_CF_SHIPPING) || null !== $basket->getCounterpartsShipped();
+            if ($itemsLeft && $counterpartsLeft) {
                 $basket->setStatus(BasketStatus::Shipped);
             }
             $basket->setModification(new \DateTime());
@@ -1094,7 +1124,22 @@ class BasketService implements BasketServiceInterface
     // What the back-office asks before deleting a basket, a customer's tab being able to pay its checkout afterwards: the same way out as delete(), which answers false when that checkout turns out to be paid, the order being settled and kept
     public function callOffCheckout(Basket $basket): bool
     {
+        // A rehearsal checkout can only ever be paid with a test card: the live shop lets it go, what it held of its code given back
+        if ($basket->isTestMode() && BasketStatus::Validated === $basket->getStatus() && $this->isCheckoutOfTheOtherMode($basket)) {
+            $this->basketCodeService->release($basket);
+
+            return true;
+        }
+
         return $this->reopen($basket);
+    }
+
+    // Whether this basket opened a checkout, still unpaid, in the other payment mode: out of reach of the current keys, it can neither be called off nor reopened
+    private function isCheckoutOfTheOtherMode(Basket $basket): bool
+    {
+        $payment = $basket->getPayment();
+
+        return null !== $payment?->getGatewayReference() && true !== $payment->isFinished() && $basket->isTestMode() !== $this->testMode->isEnabled();
     }
 
     // A basket edited after it was validated no longer matches the checkout the customer is looking at, so it goes back to being a basket. The checkout left open at the provider can then deliver nothing - paid() only ever delivers a "validated" basket - and validate() numbers it again, with a new order number and a new security token that make the old return url useless
@@ -1126,6 +1171,15 @@ class BasketService implements BasketServiceInterface
         // A payment already settled is no longer a checkout to call off
         if (null === $payment || null === $reference || true === $payment->isFinished()) {
             return false;
+        }
+
+        // Opened in the other mode, its checkout is out of reach of the current keys and may still be paid: the order is kept, and the visitor starts a new basket
+        if ($this->isCheckoutOfTheOtherMode($basket)) {
+            if ($this->session?->get('basket') === $basket->getId()) {
+                $this->session->remove('basket');
+            }
+
+            return true;
         }
 
         // Asked of the provider that opened it, which the active one may no longer be

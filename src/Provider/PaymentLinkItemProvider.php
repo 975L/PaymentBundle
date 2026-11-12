@@ -113,6 +113,7 @@ class PaymentLinkItemProvider implements BasketItemProviderInterface
     // The rate the shop takes out of what it typed, prices being held VAT included everywhere here. Zero for a shop that charges none, which is what the setting holds until it is filled in
     private function vatRate(): float
     {
-        return max(0.0, (float) $this->configService->get('payment-link-vat-rate'));
+        // A decimal comma is how a French admin types 5,5: read as a point rather than cut at it
+        return max(0.0, (float) str_replace(',', '.', (string) $this->configService->get('payment-link-vat-rate')));
     }
 }

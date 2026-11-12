@@ -89,16 +89,17 @@
                 <td class="amount">{{ (basket.shipping / 100)|format_currency(basket.currency) }}</td>
             </tr>
         {% endif %}
-        {# A code or a card taken off, named as the customer knows it #}
-        {% if basket.discountAmount > 0 %}
+        {# A gift card is a means of payment, not a discount: the total and its VAT stay the gross ones, the card and the amount due coming after them #}
+        {% set paidByGiftCard = basket.discountKind == 'gift_card' and basket.discountAmount > 0 %}
+        {% if basket.discountAmount > 0 and not paidByGiftCard %}
             <tr>
-                <th colspan="4">{{ (basket.discountKind == 'gift_card' ? 'label.gift_card' : 'label.discount')|trans }} {{ basket.discountCode }}</th>
+                <th colspan="4">{{ 'label.discount'|trans }} {{ basket.discountCode }}</th>
                 <td class="amount">-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}</td>
             </tr>
         {% endif %}
         <tr class="grand-total">
             <th colspan="4">{{ 'label.total_incl_vat'|trans }}</th>
-            <td class="amount">{{ (basket.payable / 100)|format_currency(basket.currency) }}</td>
+            <td class="amount">{{ ((paidByGiftCard ? basket.total + basket.shipping : basket.payable) / 100)|format_currency(basket.currency) }}</td>
         </tr>
         {# One line per rate, which is what an invoice states - a shop charging no VAT states none and says why in its own mentions below #}
         {% for rate in vat.rates %}
@@ -107,6 +108,16 @@
                 <td class="amount">{{ (rate.amount / 100)|format_currency(basket.currency) }}</td>
             </tr>
         {% endfor %}
+        {% if paidByGiftCard %}
+            <tr>
+                <th colspan="4">{{ 'label.gift_card'|trans }} {{ basket.discountCode }}</th>
+                <td class="amount">-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}</td>
+            </tr>
+            <tr class="grand-total">
+                <th colspan="4">{{ 'label.amount_due'|trans }}</th>
+                <td class="amount">{{ (basket.payable / 100)|format_currency(basket.currency) }}</td>
+            </tr>
+        {% endif %}
     </tfoot>
 </table>
 

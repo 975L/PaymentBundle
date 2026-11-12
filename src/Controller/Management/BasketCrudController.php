@@ -422,10 +422,17 @@ class BasketCrudController extends AbstractCrudController
         return $this->redirect($index);
     }
 
-    // A checkout removed from here is called off at its provider and gives back what it held of its code, one found paid being settled and kept; an order keeps what it spent, a charged one included, a refund being the way that goes back
+    // A checkout removed from here is called off at its provider and gives back what it held of its code, one found paid being settled and kept; an order, a charged one included, is never deleted, a refund being the way money goes back
     public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
-        if ($entityInstance instanceof Basket && !$entityInstance->isOrder() && !$this->basketService->callOffCheckout($entityInstance)) {
+        // An accounting record kept for ten years, its invoice number in an unbroken sequence
+        if ($entityInstance instanceof Basket && ($entityInstance->isOrder() || null !== $entityInstance->getInvoiceNumber())) {
+            $this->addFlash('warning', $this->translator->trans('flash.order_not_deletable', [], 'payment'));
+
+            return;
+        }
+
+        if ($entityInstance instanceof Basket && !$this->basketService->callOffCheckout($entityInstance)) {
             $this->addFlash('warning', $this->translator->trans('flash.basket_kept_paid', [], 'payment'));
 
             return;

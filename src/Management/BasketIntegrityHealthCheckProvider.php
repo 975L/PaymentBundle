@@ -16,6 +16,7 @@ use c975L\ConfigBundle\Management\HealthCheckSiteWideInterface;
 use c975L\ConfigBundle\Service\SiteUrlResolver;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
+use c975L\PaymentBundle\Provider\PaymentLinkItemProvider;
 use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\PaymentRepository;
@@ -190,6 +191,11 @@ class BasketIntegrityHealthCheckProvider implements HealthCheckSiteWideInterface
         $missing = [];
 
         foreach ($basket->getItems() as $kind => $itemsOfThisKind) {
+            // A payment link sells nothing of the catalogue: its line is the whole order, and no article stands behind it to be found
+            if (PaymentLinkItemProvider::KIND === $kind) {
+                continue;
+            }
+
             if (!$this->itemProviderRegistry->has($kind)) {
                 $missing[] = $kind . ' (unknown kind)';
                 continue;

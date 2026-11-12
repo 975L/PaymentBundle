@@ -352,7 +352,7 @@
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
-                <target>Los países enviados a esta tarifa. Déjelo vacío para la zona por defecto, aquella donde cae un país no nombrado en ninguna otra: escríbala también, o ese pedido saldrá con envío gratuito.</target>
+                <target>Los países enviados a esta tarifa. Déjelo vacío para la zona por defecto, aquella donde cae un país no nombrado en ninguna otra: escríbala también, o ese pedido se rechazará.</target>
             </trans-unit>
             <trans-unit id="ebRCRvl">
                 <source>description.guided_step_payment_shipping_grid_name</source>
@@ -466,6 +466,10 @@
                 <source>error.already_ordered</source>
                 <target>Este pedido ya está registrado: su cesta vuelve a empezar</target>
             </trans-unit>
+            <trans-unit id="rbixXQO">
+                <source>error.checkout_other_mode</source>
+                <target>Este pedido se realizó en el otro modo de pago: su cesta vuelve a empezar</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Este código ya no se aplica a este pedido como antes: se ha actualizado el precio</target>
@@ -518,6 +522,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>Este paquete supera el peso que la tienda envía a este destino: contáctenos para completar el pedido</target>
             </trans-unit>
+            <trans-unit id="YohpwqS">
+                <source>error.shipping_unavailable</source>
+                <target>La tienda no envía a este país: contáctenos para completar el pedido</target>
+            </trans-unit>
             <trans-unit id="V4BfzVa">
                 <source>flash.age_verification_required</source>
                 <target>Su cesta contiene un artículo reservado a mayores de edad: verifique su edad antes de pagar.</target>
@@ -541,6 +549,10 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>Ningún pedido pendiente de envío tiene una dirección que imprimir.</target>
+            </trans-unit>
+            <trans-unit id="AZ4HA_b">
+                <source>flash.order_not_deletable</source>
+                <target>Un pedido, una factura o su pago es un documento contable: no se puede eliminar</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -650,6 +662,10 @@
                 <source>label.amount</source>
                 <target>Cantidad</target>
             </trans-unit>
+            <trans-unit id="aOXKnhI">
+                <source>label.amount_due</source>
+                <target>Importe a pagar</target>
+            </trans-unit>
             <trans-unit id="NMKPjze">
                 <source>label.archived</source>
                 <target>Archivado</target>
@@ -717,6 +733,14 @@
             <trans-unit id="2k6GVfP">
                 <source>label.basket_reminder_unsubscribe</source>
                 <target>Recibe este mensaje porque realizó este pedido sin pagarlo. Para no volver a recibir avisos: %url%</target>
+            </trans-unit>
+            <trans-unit id="LD7JcTE">
+                <source>label.basket_reminder_unsubscribe_button</source>
+                <target>No recibir más recordatorios</target>
+            </trans-unit>
+            <trans-unit id="GilkGBL">
+                <source>label.basket_reminder_unsubscribe_confirm</source>
+                <target>Detener los recordatorios</target>
             </trans-unit>
             <trans-unit id="PlWktlj">
                 <source>label.basket_reminder_unsubscribed</source>
@@ -1604,7 +1628,7 @@
             </trans-unit>
             <trans-unit id="aq3sSYY">
                 <source>label.health_check_shipping_default_zone_none</source>
-                <target>Sin zona por defecto: un país que no figura en ninguna zona se envía sin gastos</target>
+                <target>Sin zona por defecto: un pedido a un país que no figura en ninguna zona se rechaza</target>
             </trans-unit>
             <trans-unit id="Uh8crwT">
                 <source>label.health_check_shipping_default_zone_ok</source>
@@ -2130,6 +2154,10 @@
                 <source>label.zip</source>
                 <target>Código postal</target>
             </trans-unit>
+            <trans-unit id="rA8h07l">
+                <source>text.basket_reminder_unsubscribe_confirm</source>
+                <target>¿Ya no desea recibir recordatorios del pedido %number%? Confirme a continuación.</target>
+            </trans-unit>
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>Hecho: no volveremos a hablarle de este pedido. Todavía puede pagarlo desde el enlace que recibió antes.</target>
@@ -2149,6 +2177,14 @@
             <trans-unit id="1NHAIWI">
                 <source>text.credit_note_cancels</source>
                 <target>Anula la factura %number% del %date%.</target>
+            </trans-unit>
+            <trans-unit id="8ra5UK.">
+                <source>text.discount_dates_reversed</source>
+                <target>La fecha de fin debe ser posterior a la fecha de inicio</target>
+            </trans-unit>
+            <trans-unit id="QStWAeS">
+                <source>text.discount_percentage_too_high</source>
+                <target>Un porcentaje no puede superar 100</target>
             </trans-unit>
             <trans-unit id="1BIdF4I">
                 <source>text.download_expires_on</source>

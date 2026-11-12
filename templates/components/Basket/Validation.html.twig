@@ -3,7 +3,7 @@
 {% if basket.quantity > 0 %}
     <section>
         <h2 id="coordinates">{{ 'label.validate_basket'|trans }}</h2>
-        {# A line for adults: the go.cam gate stands in place of the form until the visitor is verified, the controller turning back a form posted around it #}
+        {# A line for adults: the age gate stands in place of the form until the visitor is verified, the controller turning back a form posted around it #}
         <twig:c975LUi:AgeGate age="{{ basket.minimumAge }}">
         {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
             {{ form_widget(form) }}

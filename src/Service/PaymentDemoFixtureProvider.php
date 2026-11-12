@@ -47,7 +47,7 @@ class PaymentDemoFixtureProvider implements DemoFixtureProviderInterface
         yield $this->zone('label.payment_sample_zone_home', ['FR'], self::HOME);
         yield $this->zone('label.payment_sample_zone_around', ['BE', 'CH', 'DE', 'ES', 'IT', 'LU'], self::AROUND);
 
-        // No countries is what makes a zone the catch-all, without which an order posted anywhere else resolves no zone and ships free - and the shipping health check says so on the very screen a demo shows
+        // No countries is what makes a zone the catch-all, without which an order posted anywhere else resolves no zone and is refused - and the shipping health check says so on the very screen a demo shows
         yield $this->zone('label.payment_sample_zone_elsewhere', [], self::ELSEWHERE);
     }
 

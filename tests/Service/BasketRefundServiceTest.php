@@ -10,12 +10,15 @@
 
 namespace c975L\PaymentBundle\Tests\Service;
 
+use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\PaymentNotification;
+use c975L\PaymentBundle\Contract\RefundableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\GiftCard;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Enum\PaymentEvent;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketCodeService;
 use c975L\PaymentBundle\Service\BasketRefundService;
@@ -191,12 +194,86 @@ class BasketRefundServiceTest extends TestCase
         $this->assertSame(BasketStatus::Paid, $this->basket->getStatus());
     }
 
+    // A full refund tells each provider that wrote something of its own, with its own lines, once - the replay changing nothing
+    public function testAFullRefundTellsTheRefundableProvidersOnce(): void
+    {
+        $this->basket->setItems(['product' => [12 => ['quantity' => 1]], 'credits' => [3 => ['quantity' => 2]]]);
+        $credits = $this->createMock(RefundableBasketItemProviderInterface::class);
+        $credits->method('getKind')->willReturn('credits');
+        $credits->expects($this->once())->method('onBasketRefunded')->with($this->basket, $this->basket->getItems()['credits']);
+        $product = $this->createStub(BasketItemProviderInterface::class);
+        $product->method('getKind')->willReturn('product');
+
+        $service = $this->service(providers: [$product, $credits]);
+        $service->apply($this->refund(2500));
+        $service->apply($this->refund(2500));
+    }
+
+    // An order charged and never delivered had its providers' effects rolled back: none is told to take back what it never wrote
+    public function testAChargedUndeliveredOrderTellsNoProvider(): void
+    {
+        $this->basket->setStatus(BasketStatus::Validated)->setPayment(new Payment()->setFinished(true))->setItems(['credits' => [3 => ['quantity' => 2]]]);
+        $credits = $this->createMock(RefundableBasketItemProviderInterface::class);
+        $credits->method('getKind')->willReturn('credits');
+        $credits->expects($this->never())->method('onBasketRefunded');
+
+        $this->service(providers: [$credits])->apply($this->refund(2500));
+
+        $this->assertSame(BasketStatus::Refunded, $this->basket->getStatus());
+    }
+
+    // Told after the credit note: a provider failing cannot keep the bundle's own steps from running
+    public function testTheProvidersAreToldAfterTheCreditNote(): void
+    {
+        $this->basket->setItems(['credits' => [3 => ['quantity' => 2]]]);
+        $calls = [];
+        $invoice = $this->createStub(InvoiceService::class);
+        $invoice->method('assignCreditNote')->willReturnCallback(static function () use (&$calls): void {
+            $calls[] = 'credit_note';
+        });
+        $credits = $this->createStub(RefundableBasketItemProviderInterface::class);
+        $credits->method('getKind')->willReturn('credits');
+        $credits->method('onBasketRefunded')->willReturnCallback(static function () use (&$calls): void {
+            $calls[] = 'provider';
+        });
+
+        $this->service(invoiceService: $invoice, providers: [$credits])->apply($this->refund(2500));
+
+        $this->assertSame(['credit_note', 'provider'], $calls);
+    }
+
+    // A partial refund leaves the order paid: no provider is told to take anything back
+    public function testAPartialRefundTellsNoProvider(): void
+    {
+        $credits = $this->createMock(RefundableBasketItemProviderInterface::class);
+        $credits->method('getKind')->willReturn('product');
+        $credits->expects($this->never())->method('onBasketRefunded');
+
+        $this->service(providers: [$credits])->apply($this->refund(500));
+    }
+
+    // One provider failing is logged and the next one is still told, the refund itself standing
+    public function testAFailingProviderDoesNotStopTheOthers(): void
+    {
+        $this->basket->setItems(['product' => [12 => ['quantity' => 1]], 'credits' => [3 => ['quantity' => 2]]]);
+        $failing = $this->createStub(RefundableBasketItemProviderInterface::class);
+        $failing->method('getKind')->willReturn('product');
+        $failing->method('onBasketRefunded')->willThrowException(new \RuntimeException('down'));
+        $credits = $this->createMock(RefundableBasketItemProviderInterface::class);
+        $credits->method('getKind')->willReturn('credits');
+        $credits->expects($this->once())->method('onBasketRefunded');
+
+        $this->service(providers: [$failing, $credits])->apply($this->refund(2500));
+
+        $this->assertSame(BasketStatus::Refunded, $this->basket->getStatus());
+    }
+
     private function refund(int $amount): PaymentNotification
     {
         return new PaymentNotification(null, 'stripe', 'pi_1', null, $amount, PaymentEvent::Refunded);
     }
 
-    private function service(?int $expectedFlushes = null, ?BasketCodeService $basketCodeService = null, ?InvoiceService $invoiceService = null): BasketRefundService
+    private function service(?int $expectedFlushes = null, ?BasketCodeService $basketCodeService = null, ?InvoiceService $invoiceService = null, array $providers = []): BasketRefundService
     {
         $payment = $this->basket->getPayment() ?? new Payment();
         $payment->setBasket($this->basket);
@@ -220,7 +297,7 @@ class BasketRefundServiceTest extends TestCase
             $basketCodeService->method('restore')->willReturn(true);
         }
 
-        return new BasketRefundService($this->repository, $basketCodeService, $giftCardService, $invoiceService ?? $this->createStub(InvoiceService::class), $entityManager, new NullLogger());
+        return new BasketRefundService($this->repository, $basketCodeService, $giftCardService, $invoiceService ?? $this->createStub(InvoiceService::class), $entityManager, new NullLogger(), new BasketItemProviderRegistry($providers));
     }
 
     // The database stood in for: the claim moves only a settled order, which is what makes a replay harmless, and the finders return it while it is settled, as their queries do

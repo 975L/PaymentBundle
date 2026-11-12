@@ -33,6 +33,9 @@ class BasketReminderServiceTest extends TestCase
 {
     private bool $sends = true;
 
+    // The number of the basket whose e-mail throws, null for none
+    private ?string $throwFor = null;
+
     /** @var array<string, mixed> what the last reminder handed its template */
     private array $context = [];
 
@@ -103,6 +106,35 @@ class BasketReminderServiceTest extends TestCase
         $this->assertStringContainsString($basket->getShareToken(), $this->context['pay_url']);
     }
 
+    // One basket throwing is logged and the next one still reminded, each count written as soon as its e-mail is gone
+    public function testABasketThrowingDoesNotStopTheOthers(): void
+    {
+        $failing = $this->basket()->setNumber('item-1');
+        $next = $this->basket()->setNumber('item-2');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        // The token minted for each, then one count written for the one that went out
+        $entityManager->expects($this->exactly(3))->method('flush');
+        $entityManager->method('isOpen')->willReturn(true);
+
+        $this->throwFor = 'item-1';
+        $this->assertSame(1, $this->service([$failing, $next], entityManager: $entityManager)->send());
+        $this->assertSame(0, $failing->getRemindersSent());
+        $this->assertSame(1, $next->getRemindersSent());
+    }
+
+    // A flush failing closes the entity manager: the pass stops there rather than e-mail reminders it can no longer count
+    public function testAClosedEntityManagerStopsThePass(): void
+    {
+        $failing = $this->basket()->setNumber('item-1');
+        $next = $this->basket()->setNumber('item-2');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('isOpen')->willReturn(false);
+
+        $this->throwFor = 'item-1';
+        $this->assertSame(0, $this->service([$failing, $next], entityManager: $entityManager)->send());
+        $this->assertSame(0, $next->getRemindersSent());
+    }
+
     private function basket(): Basket
     {
         return new Basket()
@@ -115,7 +147,7 @@ class BasketReminderServiceTest extends TestCase
     /**
      * @param Basket[] $due the baskets owed their first reminder
      */
-    private function service(array $due, bool $testMode = false): BasketReminderService
+    private function service(array $due, bool $testMode = false, ?EntityManagerInterface $entityManager = null): BasketReminderService
     {
         $repository = $this->createStub(BasketRepository::class);
         // Only the first round has anything to hand back: the second asks for the baskets that already had one
@@ -125,6 +157,10 @@ class BasketReminderServiceTest extends TestCase
 
         $emailSender = $this->createStub(BasketEmailSender::class);
         $emailSender->method('send')->willReturnCallback(function (Basket $basket, string $subjectKey, string $template, array $context = [], ?string $to = null): bool {
+            if (null !== $this->throwFor && $this->throwFor === $basket->getNumber()) {
+                throw new \RuntimeException('mailer down');
+            }
+
             $this->context = $context;
 
             return $this->sends;
@@ -146,10 +182,19 @@ class BasketReminderServiceTest extends TestCase
             $repository,
             $emailSender,
             $basketService,
-            $this->createStub(EntityManagerInterface::class),
+            $entityManager ?? $this->openEntityManager(),
             $testModeStub,
             $urlGenerator,
             $this->createStub(LoggerInterface::class),
         );
+    }
+
+    // A stub answers false to isOpen() unless told otherwise, which would end every pass after its first basket
+    private function openEntityManager(): EntityManagerInterface
+    {
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('isOpen')->willReturn(true);
+
+        return $entityManager;
     }
 }

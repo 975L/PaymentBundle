@@ -165,7 +165,7 @@ class BasketController extends AbstractController
         $form = $this->basketService->createForm('coordinates', $basket);
         $form->handleRequest($request);
 
-        // A line for adults is paid for once go.cam found the visitor of age: the page draws the gate in place of the form, and a form posted around it is turned back here (see UiBundle's AgeVerifier)
+        // A line for adults is paid for once the age verification found the visitor of age: the page draws the gate in place of the form, and a form posted around it is turned back here (see UiBundle's AgeVerifier)
         if ($form->isSubmitted() && $this->ageVerifier->isGateClosed($basket->getMinimumAge())) {
             $this->addFlash('danger', $this->translator->trans('flash.age_verification_required', [], 'payment'));
 
@@ -338,8 +338,10 @@ class BasketController extends AbstractController
         if ($request->isMethod('POST') && $payable && !$waiverMissing) {
             try {
                 return $this->redirect($this->basketService->payShared($basket), Response::HTTP_SEE_OTHER);
-            } catch (PaymentUnavailableException) {
-                $this->addFlash('danger', $this->translator->trans('flash.payment_unavailable', [], 'payment'));
+            } catch (PaymentUnavailableException $e) {
+                // An article no longer orderable is said in the provider's own words, already translated
+                $previous = $e->getPrevious();
+                $this->addFlash('danger', $previous instanceof BasketNotOrderableException ? $previous->getMessage() : $this->translator->trans('flash.payment_unavailable', [], 'payment'));
             }
         }
 
@@ -384,15 +386,22 @@ class BasketController extends AbstractController
             'number' => '.{15,20}',
             'shareToken' => '[a-f0-9]{16}',
         ],
-        methods: ['GET']
+        methods: ['GET', 'POST']
     )]
-    public function unsubscribeReminder(?Basket $basket, EntityManagerInterface $entityManager): Response
+    public function unsubscribeReminder(?Basket $basket, Request $request, EntityManagerInterface $entityManager): Response
     {
         if (null === $basket || !$basket->isShared()) {
             throw $this->createNotFoundException();
         }
 
-        // No confirmation step: the link is in the recipient's own e-mail and asking to hear no more is what they came for, where a second click is what makes people mark the message as spam instead. Written again on a second visit rather than left alone, the date being of no use beyond saying the opposition was made
+        // A GET only asks: link scanners open every link of an e-mail on its arrival, and would stop the reminders before anyone read them. The share token in the url is the proof
+        if (!$request->isMethod('POST')) {
+            return $this->render('@c975LPayment/basket/reminder_unsubscribe.html.twig', [
+                'basket' => $basket,
+            ]);
+        }
+
+        // Written again on a second visit rather than left alone, the date being of no use beyond saying the opposition was made
         $basket->setReminderOptOutAt(new \DateTime());
         $entityManager->flush();
 

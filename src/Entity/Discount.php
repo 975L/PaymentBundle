@@ -13,6 +13,8 @@ namespace c975L\PaymentBundle\Entity;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 // A promotional code, written by hand in the back office and offered to whoever the shop hands it to - collective by nature, where a GiftCard is one bearer's own money
 #[ORM\Entity(repositoryClass: DiscountRepository::class)]
@@ -40,6 +42,7 @@ class Discount implements \Stringable
 
     // A share out of a hundred, or a sum in the currency's smallest unit - which of the two is read off $kind, one column rather than two nullable ones nobody could tell apart
     #[ORM\Column]
+    #[Assert\Positive]
     private int $value = 0;
 
     // Left empty on a code that is offered in one currency only through the shop's own setting: an amount taken off a basket in another currency would be a rate nobody wrote
@@ -233,5 +236,24 @@ class Discount implements \Stringable
         $this->testMode = $testMode;
 
         return $this;
+    }
+
+    // A share above a hundred takes off more than the basket holds, and a code ending before it starts is never valid
+    #[Assert\Callback]
+    public function validateRule(ExecutionContextInterface $context): void
+    {
+        if (self::KIND_PERCENTAGE === $this->kind && $this->value > 100) {
+            $context->buildViolation('text.discount_percentage_too_high')
+                ->setTranslationDomain('payment')
+                ->atPath('value')
+                ->addViolation();
+        }
+
+        if (null !== $this->validFrom && null !== $this->validUntil && $this->validFrom > $this->validUntil) {
+            $context->buildViolation('text.discount_dates_reversed')
+                ->setTranslationDomain('payment')
+                ->atPath('validUntil')
+                ->addViolation();
+        }
     }
 }

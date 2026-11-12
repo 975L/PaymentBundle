@@ -1,0 +1,16 @@
+{% extends 'layout.html.twig' %}
+{% trans_default_domain 'payment' %}
+
+{# Asked before anything is written: a link scanner opening the e-mail's links follows this page and clicks nothing #}
+{% set title = 'label.basket_reminder_unsubscribe_confirm'|trans %}
+{% set robots = 'noindex, follow' %}
+
+{% block content %}
+    <section class="text-center">
+        <p class="text lead">{{ 'text.basket_reminder_unsubscribe_confirm'|trans({'%number%': basket.number}) }}</p>
+        {# Posted to its own url, the share token in it being the proof #}
+        <form method="post" data-turbo="false">
+            <button type="submit" class="btn btn-large btn-primary">{{ 'label.basket_reminder_unsubscribe_button'|trans }}</button>
+        </form>
+    </section>
+{% endblock %}

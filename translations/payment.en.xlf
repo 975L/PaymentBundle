@@ -352,7 +352,7 @@
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
-                <target>The countries posted at this tariff. Leave the list empty for the default zone, the one a country named nowhere else falls into - write that one too, or such an order is delivered free of charge.</target>
+                <target>The countries posted at this tariff. Leave the list empty for the default zone, the one a country named nowhere else falls into - write that one too, or such an order is refused.</target>
             </trans-unit>
             <trans-unit id="ebRCRvl">
                 <source>description.guided_step_payment_shipping_grid_name</source>
@@ -466,6 +466,10 @@
                 <source>error.already_ordered</source>
                 <target>This order is already recorded: your basket starts over</target>
             </trans-unit>
+            <trans-unit id="rbixXQO">
+                <source>error.checkout_other_mode</source>
+                <target>This order was placed in the other payment mode: your basket starts over</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>This code no longer applies to this order the way it did: the price has been updated</target>
@@ -518,6 +522,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>This parcel exceeds the weight the shop ships to this destination: contact us to complete the order</target>
             </trans-unit>
+            <trans-unit id="YohpwqS">
+                <source>error.shipping_unavailable</source>
+                <target>The shop does not ship to this country: contact us to complete the order</target>
+            </trans-unit>
             <trans-unit id="V4BfzVa">
                 <source>flash.age_verification_required</source>
                 <target>Your basket holds an item for adults only: verify your age before paying.</target>
@@ -541,6 +549,10 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>No order is waiting to be posted with an address to print.</target>
+            </trans-unit>
+            <trans-unit id="AZ4HA_b">
+                <source>flash.order_not_deletable</source>
+                <target>An order, an invoice or its payment is an accounting record: it cannot be deleted</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -650,6 +662,10 @@
                 <source>label.amount</source>
                 <target>Amount</target>
             </trans-unit>
+            <trans-unit id="aOXKnhI">
+                <source>label.amount_due</source>
+                <target>Amount due</target>
+            </trans-unit>
             <trans-unit id="NMKPjze">
                 <source>label.archived</source>
                 <target>Archived</target>
@@ -717,6 +733,14 @@
             <trans-unit id="2k6GVfP">
                 <source>label.basket_reminder_unsubscribe</source>
                 <target>You are receiving this message because you placed this order without paying for it. To hear no more about it: %url%</target>
+            </trans-unit>
+            <trans-unit id="LD7JcTE">
+                <source>label.basket_reminder_unsubscribe_button</source>
+                <target>Stop reminding me</target>
+            </trans-unit>
+            <trans-unit id="GilkGBL">
+                <source>label.basket_reminder_unsubscribe_confirm</source>
+                <target>Stop the reminders</target>
             </trans-unit>
             <trans-unit id="PlWktlj">
                 <source>label.basket_reminder_unsubscribed</source>
@@ -1604,7 +1628,7 @@
             </trans-unit>
             <trans-unit id="aq3sSYY">
                 <source>label.health_check_shipping_default_zone_none</source>
-                <target>No default zone: a country named in no zone is posted free of charge</target>
+                <target>No default zone: an order to a country named in no zone is refused</target>
             </trans-unit>
             <trans-unit id="Uh8crwT">
                 <source>label.health_check_shipping_default_zone_ok</source>
@@ -2130,6 +2154,10 @@
                 <source>label.zip</source>
                 <target>Zip code</target>
             </trans-unit>
+            <trans-unit id="rA8h07l">
+                <source>text.basket_reminder_unsubscribe_confirm</source>
+                <target>You no longer wish to be reminded of order %number%? Confirm below.</target>
+            </trans-unit>
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>Done: we will not mention this order again. You can still pay for it from the link you were sent earlier.</target>
@@ -2149,6 +2177,14 @@
             <trans-unit id="1NHAIWI">
                 <source>text.credit_note_cancels</source>
                 <target>Cancels invoice %number% of %date%.</target>
+            </trans-unit>
+            <trans-unit id="8ra5UK.">
+                <source>text.discount_dates_reversed</source>
+                <target>The end date must come after the start date</target>
+            </trans-unit>
+            <trans-unit id="QStWAeS">
+                <source>text.discount_percentage_too_high</source>
+                <target>A percentage cannot exceed 100</target>
             </trans-unit>
             <trans-unit id="1BIdF4I">
                 <source>text.download_expires_on</source>

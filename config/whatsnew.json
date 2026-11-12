@@ -3,9 +3,34 @@
         "date": "2026-11-11",
         "description": [
             {
-                "en": "A basket holding an item for adults asks for an anonymous age verification by go.cam just before payment, as soon as the go.cam keys are filled in.",
-                "fr": "Un panier contenant un article pour majeurs demande une vérification d'âge anonyme par go.cam juste avant le paiement, dès que les clés go.cam sont renseignées.",
-                "es": "Una cesta que contiene un artículo para mayores de edad pide una verificación de edad anónima de go.cam justo antes del pago, en cuanto se introducen las claves go.cam."
+                "en": "A basket holding an item for adults asks for an anonymous age verification just before payment, as soon as an age verification service is set up.",
+                "fr": "Un panier contenant un article pour majeurs demande une vérification d'âge anonyme juste avant le paiement, dès qu'un outil de vérification d'âge est configuré.",
+                "es": "Una cesta que contiene un artículo para mayores de edad pide una verificación de edad anónima justo antes del pago, en cuanto se configura un servicio de verificación de edad."
+            },
+            {
+                "en": "A paid or invoiced order, and its payment, can no longer be deleted from the back-office: only an abandoned basket can.",
+                "fr": "Une commande payée ou facturée, et son paiement, ne peuvent plus être supprimés depuis le back-office : seul un panier abandonné peut l'être.",
+                "es": "Un pedido pagado o facturado, y su pago, ya no pueden eliminarse desde el back-office: solo una cesta abandonada puede eliminarse."
+            },
+            {
+                "en": "An invoice paid with a gift card states the full total and its VAT, then the card, then the amount due.",
+                "fr": "Une facture réglée par carte cadeau indique le total TTC complet et sa TVA, puis la carte, puis le net à payer.",
+                "es": "Una factura pagada con tarjeta regalo indica el total completo con IVA y su IVA, luego la tarjeta y luego el importe a pagar."
+            },
+            {
+                "en": "An order with nothing to post, such as a service, credits or an emailed gift card, no longer asks for a postal address.",
+                "fr": "Une commande sans colis, comme un service, des crédits ou une carte cadeau envoyée par e-mail, ne demande plus d'adresse postale.",
+                "es": "Un pedido sin paquete, como un servicio, créditos o una tarjeta regalo enviada por correo, ya no pide dirección postal."
+            },
+            {
+                "en": "An order to a country no shipping zone covers is now refused, unless you write a default zone.",
+                "fr": "Une commande vers un pays qu'aucune zone de livraison ne couvre est désormais refusée, sauf si vous écrivez une zone par défaut.",
+                "es": "Un pedido a un país que ninguna zona de envío cubre se rechaza ahora, salvo que escriba una zona por defecto."
+            },
+            {
+                "en": "A customer stopping the payment reminders now confirms it with a button, so that a mail scanner opening the link no longer stops them.",
+                "fr": "Un client qui arrête les rappels de paiement le confirme désormais par un bouton : un antivirus de messagerie qui ouvre le lien ne les arrête plus.",
+                "es": "Un cliente que detiene los recordatorios de pago lo confirma ahora con un botón: un antivirus de correo que abre el enlace ya no los detiene."
             }
         ]
     },

@@ -57,6 +57,17 @@ class CoordinatesTypeTest extends TestCase
         }
     }
 
+    // Nothing posted, nothing to address: a service, credits, an emailed gift card or a digital counterpart only offer the address for a business invoice
+    public function testAnOrderPostingNothingOnlyOffersAnAddressForABusinessInvoice(): void
+    {
+        foreach ([Basket::CONTENT_FLAG_SERVICE, Basket::CONTENT_FLAG_SERVICE | Basket::CONTENT_FLAG_GIFT_CARD, Basket::CONTENT_FLAG_CF_DIGITAL, Basket::FLAG_DIGITAL_ONLY] as $flags) {
+            $added = $this->build($flags);
+
+            $this->assertArrayNotHasKey('name', $added, (string) $flags);
+            $this->assertFalse($added['address']['options']['required'], (string) $flags);
+        }
+    }
+
     // A company alone is an invoice made out to nobody's address, and a VAT number starts with its country's letters
     public function testABusinessInvoiceNeedsTheAddressAndAValidVatNumber(): void
     {

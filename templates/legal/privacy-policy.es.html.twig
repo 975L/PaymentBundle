@@ -1,7 +1,8 @@
-{# The payment providers, in the "third-parties" section of UiBundle's "france/privacy-policy" model, which includes it when this bundle is installed - the app stores only once one is fully set up #}
-<h3 data-legal-id="third-parties.stripe">Pago (Stripe)</h3>
+{# The payment providers, in the "third-parties" section of UiBundle's "france/privacy-policy" model, which includes it when this bundle is installed - the app stores only once one is fully set up; the payment unit names the providers the shop offers, linked to their privacy policy where its address is known, and keeps its historical id so an edit made to it on a site still applies #}
+{% set policies = {'stripe': 'https://stripe.com/es/privacy'} %}
+<h3 data-legal-id="third-parties.stripe">Pago</h3>
 <div>
-	Los pagos los procesa Stripe, proveedor certificado PCI-DSS. Los datos de su tarjeta se introducen en Stripe y nunca nos llegan: solo recibimos la confirmación del pago, con la dirección de correo electrónico y el nombre del pagador. Estos datos se tratan según la <a href="https://stripe.com/es/privacy" target="_blank" rel="noopener">política de privacidad de Stripe</a>.
+	Los pagos son procesados por nuestro proveedor de pagos{% if payment_gateways() is not empty %} ({% for slug in payment_gateways() %}{% if policies[slug] is defined %}<a href="{{ policies[slug] }}" target="_blank" rel="noopener">{{ slug|capitalize }}</a>{% else %}{{ slug|capitalize }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}){% endif %}, certificado PCI-DSS. Los datos de su tarjeta se introducen en dicho proveedor y nunca nos llegan: solo recibimos la confirmación del pago, con la dirección de correo electrónico y el nombre del pagador. Estos datos se tratan según la política de privacidad de dicho proveedor.
 </div>
 {% if payment_in_app_stores() is not empty %}
 <h3 data-legal-id="third-parties.app-stores">Compras en la aplicación (Apple, Google)</h3>

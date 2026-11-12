@@ -106,6 +106,8 @@ class BasketRepositoryTest extends TestCase
         $this->assertStringContainsString('b.reminderOptOutAt IS NULL', $this->dql);
         $this->assertStringContainsString('b.contentflags != :service', $this->dql);
         $this->assertStringContainsString('b.email IS NOT NULL', $this->dql);
+        // A rehearsal order is never sent to be paid live
+        $this->assertStringContainsString('b.testMode = false', $this->dql);
         $this->assertSame(BasketStatus::Validated, $this->parameters['status']);
         $this->assertSame(Basket::CONTENT_FLAG_SERVICE, $this->parameters['service']);
     }

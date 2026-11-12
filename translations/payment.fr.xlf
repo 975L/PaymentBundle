@@ -352,7 +352,7 @@
             </trans-unit>
             <trans-unit id="dPyH5v5">
                 <source>description.guided_step_payment_shipping_grid_countries</source>
-                <target>Les pays livrés à ce tarif. À laisser vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs — écrivez-la aussi, sans quoi une telle commande part en livraison gratuite.</target>
+                <target>Les pays livrés à ce tarif. À laisser vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs — écrivez-la aussi, sans quoi une telle commande est refusée.</target>
             </trans-unit>
             <trans-unit id="ebRCRvl">
                 <source>description.guided_step_payment_shipping_grid_name</source>
@@ -466,6 +466,10 @@
                 <source>error.already_ordered</source>
                 <target>Cette commande est déjà enregistrée : votre panier repart de zéro</target>
             </trans-unit>
+            <trans-unit id="rbixXQO">
+                <source>error.checkout_other_mode</source>
+                <target>Cette commande a été passée dans l'autre mode de paiement : votre panier repart de zéro</target>
+            </trans-unit>
             <trans-unit id="3CzEeUY">
                 <source>error.code_changed</source>
                 <target>Ce code n'est plus celui qui s'appliquait à cette commande : le prix a été mis à jour</target>
@@ -518,6 +522,10 @@
                 <source>error.shipping_too_heavy</source>
                 <target>Ce colis dépasse le poids que la boutique expédie vers cette destination : contactez-nous pour finaliser la commande</target>
             </trans-unit>
+            <trans-unit id="YohpwqS">
+                <source>error.shipping_unavailable</source>
+                <target>La boutique n'expédie pas vers ce pays : contactez-nous pour finaliser la commande</target>
+            </trans-unit>
             <trans-unit id="V4BfzVa">
                 <source>flash.age_verification_required</source>
                 <target>Votre panier contient un article réservé aux personnes majeures : vérifiez votre âge avant de payer.</target>
@@ -541,6 +549,10 @@
             <trans-unit id="FoMAdAa">
                 <source>flash.no_shipping_labels</source>
                 <target>Aucune commande en attente d'expédition avec une adresse à imprimer.</target>
+            </trans-unit>
+            <trans-unit id="AZ4HA_b">
+                <source>flash.order_not_deletable</source>
+                <target>Une commande, une facture ou son paiement est une pièce comptable : elle ne se supprime pas</target>
             </trans-unit>
             <trans-unit id="dvhXWqe">
                 <source>flash.payment_link_created</source>
@@ -650,6 +662,10 @@
                 <source>label.amount</source>
                 <target>Montant</target>
             </trans-unit>
+            <trans-unit id="aOXKnhI">
+                <source>label.amount_due</source>
+                <target>Net à payer</target>
+            </trans-unit>
             <trans-unit id="NMKPjze">
                 <source>label.archived</source>
                 <target>Archivée</target>
@@ -717,6 +733,14 @@
             <trans-unit id="2k6GVfP">
                 <source>label.basket_reminder_unsubscribe</source>
                 <target>Vous recevez ce message parce que vous avez passé cette commande sans la régler. Pour ne plus en être informé : %url%</target>
+            </trans-unit>
+            <trans-unit id="LD7JcTE">
+                <source>label.basket_reminder_unsubscribe_button</source>
+                <target>Ne plus recevoir de rappel</target>
+            </trans-unit>
+            <trans-unit id="GilkGBL">
+                <source>label.basket_reminder_unsubscribe_confirm</source>
+                <target>Arrêter les rappels</target>
             </trans-unit>
             <trans-unit id="PlWktlj">
                 <source>label.basket_reminder_unsubscribed</source>
@@ -1604,7 +1628,7 @@
             </trans-unit>
             <trans-unit id="aq3sSYY">
                 <source>label.health_check_shipping_default_zone_none</source>
-                <target>Aucune zone par défaut : un pays nommé dans aucune zone part en port gratuit</target>
+                <target>Aucune zone par défaut : une commande vers un pays nommé dans aucune zone est refusée</target>
             </trans-unit>
             <trans-unit id="Uh8crwT">
                 <source>label.health_check_shipping_default_zone_ok</source>
@@ -2130,6 +2154,10 @@
                 <source>label.zip</source>
                 <target>Code postal</target>
             </trans-unit>
+            <trans-unit id="rA8h07l">
+                <source>text.basket_reminder_unsubscribe_confirm</source>
+                <target>Vous ne souhaitez plus recevoir de rappel pour la commande %number% ? Confirmez ci-dessous.</target>
+            </trans-unit>
             <trans-unit id="BY7BrsF">
                 <source>text.basket_reminder_unsubscribed</source>
                 <target>C'est fait : nous ne vous reparlerons plus de cette commande. Vous pouvez toujours la régler depuis le lien reçu précédemment.</target>
@@ -2149,6 +2177,14 @@
             <trans-unit id="1NHAIWI">
                 <source>text.credit_note_cancels</source>
                 <target>Annule la facture %number% du %date%.</target>
+            </trans-unit>
+            <trans-unit id="8ra5UK.">
+                <source>text.discount_dates_reversed</source>
+                <target>La date de fin doit suivre la date de début</target>
+            </trans-unit>
+            <trans-unit id="QStWAeS">
+                <source>text.discount_percentage_too_high</source>
+                <target>Un pourcentage ne peut pas dépasser 100</target>
             </trans-unit>
             <trans-unit id="1BIdF4I">
                 <source>text.download_expires_on</source>

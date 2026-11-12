@@ -165,7 +165,7 @@ class MoneyOnADatabaseTest extends TestCase
 
         $invoiceService = new InvoiceService(new InvoiceSequenceRepository($registry), $this->entityManager, $configService, $this->createStub(PdfGeneratorInterface::class), new VatCalculator($this->createStub(BasketItemProviderRegistry::class)));
 
-        $this->refundService = new BasketRefundService($this->basketRepository, $this->codeService, new GiftCardService(new GiftCardRepository($registry), $this->entityManager, $this->createStub(PaymentTestModeInterface::class), $configService), $invoiceService, $this->entityManager, $this->logger());
+        $this->refundService = new BasketRefundService($this->basketRepository, $this->codeService, new GiftCardService(new GiftCardRepository($registry), $this->entityManager, $this->createStub(PaymentTestModeInterface::class), $configService), $invoiceService, $this->entityManager, $this->logger(), new BasketItemProviderRegistry([]));
     }
 
     // Every statement of the lot, on the schema the entities really generate: a column named wrong fails here and nowhere else

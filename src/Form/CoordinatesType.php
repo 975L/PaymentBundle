@@ -37,8 +37,8 @@ class CoordinatesType extends AbstractType
                 'required' => true,
             ])
         ;
-        // Shipping address if not full digital
-        if (1 !== $options['data']->getContentFlags()) {
+        // Shipping address only when something is posted: digital items, services, credits and an emailed gift card go nowhere
+        if (0 !== ($options['data']->getContentFlags() & Basket::FLAG_NEEDS_SHIPPING)) {
             $builder
                 ->add('name', TextType::class, [
                     'label' => 'label.name',
@@ -139,7 +139,7 @@ class CoordinatesType extends AbstractType
                 'help' => 'description.vat_number',
             ])
         ;
-        if (1 === $options['data']->getContentFlags()) {
+        if (0 === ($options['data']->getContentFlags() & Basket::FLAG_NEEDS_SHIPPING)) {
             $builder
                 ->add('address', TextType::class, [
                     'label' => 'label.address',
@@ -205,7 +205,7 @@ class CoordinatesType extends AbstractType
         $resolver->setRequired('config');
     }
 
-    // An emptied company takes the rest of the prefilled business details with it, so a buyer ordering for themselves this time isn't invoiced with a VAT number or, on a digital order, an address that belong to their company
+    // An emptied company takes the rest of the prefilled business details with it, so a buyer ordering for themselves this time isn't invoiced with a VAT number or, on an order posting nothing, an address that belong to their company
     public function forgetBusiness(Basket $basket): void
     {
         if (null !== $basket->getCompany()) {
@@ -213,7 +213,7 @@ class CoordinatesType extends AbstractType
         }
 
         $basket->setVatNumber(null);
-        if (1 === $basket->getContentFlags()) {
+        if (0 === ($basket->getContentFlags() & Basket::FLAG_NEEDS_SHIPPING)) {
             $basket
                 ->setAddress(null)
                 ->setZip(null)

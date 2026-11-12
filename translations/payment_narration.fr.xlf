@@ -280,7 +280,7 @@
             </trans-unit>
             <trans-unit id="BoUVFIg">
                 <source>narration.guided_step_payment_shipping_grid_countries</source>
-                <target>Choisissez les pays livrés à ce tarif. Laissez la liste vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs : écrivez-la aussi, sans quoi une telle commande part en livraison gratuite.</target>
+                <target>Choisissez les pays livrés à ce tarif. Laissez la liste vide pour la zone par défaut, celle où tombe un pays nommé nulle part ailleurs : écrivez-la aussi, sans quoi une telle commande est refusée.</target>
             </trans-unit>
             <trans-unit id="HZ7XxE7">
                 <source>narration.guided_step_payment_shipping_grid_name</source>

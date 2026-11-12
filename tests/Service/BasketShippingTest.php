@@ -93,7 +93,7 @@ class BasketShippingTest extends TestCase
     // Two kinds, shipped by two hands: the first one moves nothing but its own date
     public function testAnOrderOfTwoKindsWaitsForTheSecondOne(): void
     {
-        $basket = $this->basket(['product' => [1 => []], 'crowdfunding' => [1 => []]]);
+        $basket = $this->basket(['product' => [1 => []], 'crowdfunding' => [1 => []]], Basket::CONTENT_FLAG_PHYSICAL | Basket::CONTENT_FLAG_CF_SHIPPING);
         $service = $this->service($this->repository('SHOP-1', $basket));
 
         $service->itemsShipped('SHOP-1', 'product');
@@ -105,6 +105,27 @@ class BasketShippingTest extends TestCase
         $service->itemsShipped('SHOP-1', 'crowdfunding');
 
         $this->assertNotNull($basket->getCounterpartsShipped());
+        $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
+    }
+
+    // A second kind posting nothing, a skin or a file, waits for no shipment: the parcel leaving ships the order
+    public function testAKindPostingNothingDoesNotHoldTheOrderBack(): void
+    {
+        $basket = $this->basket(['product' => [1 => []], 'card_skin' => [1 => []]], Basket::CONTENT_FLAG_PHYSICAL | Basket::CONTENT_FLAG_DIGITAL);
+
+        $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
+
+        $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
+    }
+
+    // A parcel of another bundle, a print for instance, leaves through the same "product" shipment
+    public function testAPhysicalLineOfAnotherKindIsShippedAsAProduct(): void
+    {
+        $basket = $this->basket(['gallery_print' => [1 => []]]);
+
+        $this->service($this->repository('SHOP-1', $basket))->itemsShipped('SHOP-1', 'product');
+
+        $this->assertNotNull($basket->getItemsShipped());
         $this->assertSame(BasketStatus::Shipped, $basket->getStatus());
     }
 
@@ -149,13 +170,14 @@ class BasketShippingTest extends TestCase
     /**
      * @param array<string, mixed> $items
      */
-    private function basket(array $items): Basket
+    private function basket(array $items, int $flags = Basket::CONTENT_FLAG_PHYSICAL): Basket
     {
         $basket = new Basket()
             ->setNumber('SHOP-1')
             ->setStatus(BasketStatus::Paid)
             ->setItems($items)
         ;
+        $basket->setContentFlags($flags);
 
         // The message carries the row's id, which only a persisted basket holds
         new \ReflectionProperty(Basket::class, 'id')->setValue($basket, 42);

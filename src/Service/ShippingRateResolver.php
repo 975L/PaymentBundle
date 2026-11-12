@@ -54,6 +54,11 @@ class ShippingRateResolver implements ShippingRateResolverInterface, ResetInterf
 
     public function exceeds(?string $country, int $weight): bool
     {
+        // A grid written for some countries does not say delivery is free everywhere else
+        if (!$this->shipsTo($country)) {
+            return true;
+        }
+
         $rates = $this->zoneFor($country)?->getRates();
         if (null === $rates || $rates->isEmpty()) {
             return false;
@@ -62,17 +67,30 @@ class ShippingRateResolver implements ShippingRateResolverInterface, ResetInterf
         return !$rates->exists(static fn (int $key, ShippingRate $rate): bool => $rate->covers($weight));
     }
 
+    public function shipsTo(?string $country): bool
+    {
+        // A country not given yet is no country refused: the address decides at the checkout
+        return null === $country || '' === trim($country) || [] === $this->zones() || null !== $this->zoneFor($country);
+    }
+
     public function cheapest(): ?int
     {
         $prices = [];
 
-        foreach ($this->zoneRepository->findActive() as $zone) {
+        foreach ($this->zones() as $zone) {
             foreach ($zone->getRates() as $rate) {
                 $prices[] = $rate->getPrice();
             }
         }
 
-        return [] === $prices ? null : min($prices);
+        if ([] === $prices) {
+            return null;
+        }
+
+        // A free first tier is no free delivery: zero only when every tier is free
+        $paid = array_filter($prices, static fn (int $price): bool => $price > 0);
+
+        return [] === $paid ? 0 : min($paid);
     }
 
     // Forgets the grid between two messages of a worker, which lives longer than the edit of a zone (autoconfigured on kernel.reset)
@@ -81,12 +99,19 @@ class ShippingRateResolver implements ShippingRateResolverInterface, ResetInterf
         $this->zones = null;
     }
 
+    // The active zones, read once per run
+    /** @return list<ShippingZone> */
+    private function zones(): array
+    {
+        return $this->zones ??= $this->zoneRepository->findActive();
+    }
+
     // The zone that names this country, failing which the one naming none - the catch-all a shop writes when it posts everywhere at one tariff
     private function zoneFor(?string $country): ?ShippingZone
     {
         $catchAll = null;
 
-        foreach ($this->zones ??= $this->zoneRepository->findActive() as $zone) {
+        foreach ($this->zones() as $zone) {
             if ($zone->holdsCountry($country)) {
                 return $zone;
             }

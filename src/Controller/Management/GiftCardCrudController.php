@@ -33,6 +33,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\Translation\t;
@@ -105,6 +106,8 @@ class GiftCardCrudController extends AbstractCrudController
                 // Typed in the currency the customer reads, stored in cents like every other amount here
                 'divisor' => 100,
                 'currency' => strtoupper(trim((string) $this->configService->get('shop-currency'))),
+                // A card worth nothing is no card
+                'constraints' => [new GreaterThan(0)],
             ])
             ->add('currency', TextType::class, [
                 'label' => t('label.currency', [], 'payment'),

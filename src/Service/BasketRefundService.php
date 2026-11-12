@@ -11,15 +11,17 @@
 namespace c975L\PaymentBundle\Service;
 
 use c975L\PaymentBundle\Contract\PaymentNotification;
+use c975L\PaymentBundle\Contract\RefundableBasketItemProviderInterface;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Enum\PaymentEvent;
+use c975L\PaymentBundle\Registry\BasketItemProviderRegistry;
 use c975L\PaymentBundle\Repository\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-// Money going back to the customer, as a provider reports it: the order stays the one record of the sale, and its status alone says whether it still hands anything over - no right is kept beside it to take away
+// Money going back to the customer, as a provider reports it: the order stays the one record of the sale, and its status alone says whether it still hands anything over, and a provider that wrote something of its own is told to take it back (see RefundableBasketItemProviderInterface)
 class BasketRefundService
 {
     public function __construct(
@@ -29,6 +31,7 @@ class BasketRefundService
         private readonly InvoiceService $invoiceService,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
+        private readonly BasketItemProviderRegistry $providerRegistry,
     ) {
     }
 
@@ -52,6 +55,8 @@ class BasketRefundService
 
         // An order charged and never delivered took from its card only if it claimed: a card credited otherwise would be money created
         $tookFromCode = !$basket->isChargedUndelivered() || $basket->isDiscountClaimed();
+        // An order never delivered had its providers' effects rolled back with it (see BasketService::deliver()): nothing of theirs to take back
+        $delivered = !$basket->isChargedUndelivered();
 
         if (!$this->basketRepository->claimRefunded($basket, $amount)) {
             $this->logger->info('Refund notification for an order not settled, or refunded already', ['basket' => $basket->getId(), 'status' => $basket->getStatus()->value]);
@@ -72,6 +77,28 @@ class BasketRefundService
         }
         // The invoice cancelled by a document of its own, the sale having been undone
         $this->invoiceService->assignCreditNote($basket);
+
+        // Told last, so a provider failing cannot keep the bundle's own steps from running
+        if ($delivered) {
+            $this->notifyProviders($basket);
+        }
+    }
+
+    // Each provider that wrote something of its own at delivery takes it back; one failing is logged and does not keep the others from being told, the refund itself standing
+    private function notifyProviders(Basket $basket): void
+    {
+        foreach ($basket->getItems() as $kind => $itemsOfThisKind) {
+            $provider = $this->providerRegistry->has($kind) ? $this->providerRegistry->get($kind) : null;
+            if (!$provider instanceof RefundableBasketItemProviderInterface) {
+                continue;
+            }
+
+            try {
+                $provider->onBasketRefunded($basket, $itemsOfThisKind);
+            } catch (\Throwable $e) {
+                $this->logger->error('Order {number} refunded: the "{kind}" provider failed to take its items back', ['number' => $basket->getNumber(), 'kind' => $kind, 'exception' => $e]);
+            }
+        }
     }
 
     // The payment the provider names, which is what the checkout recorded as its transaction - the basket id never travels on a charge or a dispute

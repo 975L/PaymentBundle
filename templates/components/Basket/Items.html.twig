@@ -45,24 +45,31 @@
                     <td colspan="4">{{ 'error.shipping_too_heavy'|trans }}</td>
                 </tr>
             {% endif %}
-            {# What a code took off - one line whichever of the two it is, the customer holding a code and not a category #}
-            <tr class="basket-code" data-basket-target="codeRow"{% if basket.discountAmount <= 0 %} hidden{% endif %}>
-                <th scope="row" colspan="3">
-                    {# The code itself only where the basket is the reader's own: this table is rendered read-only on the pages a shared order is settled from, and a gift card is a bearer instrument whose leftover balance whoever reads the code can spend #}
-                    <span data-basket-target="codeLabel">
-                        {%- if basket.discountAmount > 0 -%}
-                            {{ (basket.discountKind == 'gift_card' ? 'label.gift_card' : 'label.discount')|trans }}{% if editable %} {{ basket.discountCode }}{% endif %}
-                        {%- endif -%}
-                    </span>
-                    {% if editable %}
-                        <button type="button" class="btn btn-secondary btn-small" data-action="basket#removeCode">{{ 'label.remove'|trans }}</button>
-                    {% endif %}
-                </th>
-                <td><span data-basket-target="codeAmount">{% if basket.discountAmount > 0 %}-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}{% endif %}</span></td>
-            </tr>
+            {# What a code took off - one line whichever of the two it is, the customer holding a code and not a category; drawn before or after the total depending on its kind #}
+            {% set codeRow %}
+                <tr class="basket-code" data-basket-target="codeRow"{% if basket.discountAmount <= 0 %} hidden{% endif %}>
+                    <th scope="row" colspan="3">
+                        {# The code itself only where the basket is the reader's own: this table is rendered read-only on the pages a shared order is settled from, and a gift card is a bearer instrument whose leftover balance whoever reads the code can spend #}
+                        <span data-basket-target="codeLabel">
+                            {%- if basket.discountAmount > 0 -%}
+                                {{ (basket.discountKind == 'gift_card' ? 'label.gift_card' : 'label.discount')|trans }}{% if editable %} {{ basket.discountCode }}{% endif %}
+                            {%- endif -%}
+                        </span>
+                        {% if editable %}
+                            <button type="button" class="btn btn-secondary btn-small" data-action="basket#removeCode">{{ 'label.remove'|trans }}</button>
+                        {% endif %}
+                    </th>
+                    <td><span data-basket-target="codeAmount">{% if basket.discountAmount > 0 %}-{{ (basket.discountAmount / 100)|format_currency(basket.currency) }}{% endif %}</span></td>
+                </tr>
+            {% endset %}
+            {# A gift card is a means of payment, not a discount: once the order is settled, the total and its VAT stay the gross ones and the card comes after them, as on the invoice; while the basket can still change, one line the controller keeps up to date #}
+            {% set paidByGiftCard = not editable and basket.discountKind == 'gift_card' and basket.discountAmount > 0 %}
+            {% if not paidByGiftCard %}
+                {{ codeRow }}
+            {% endif %}
             <tr class="total">
                 <th scope="row" colspan="3">{{ 'label.total_incl_vat'|trans }}</th>
-                <td class="big"><strong><span data-basket-target="total">{{ (basket.payable / 100)|format_currency(basket.currency) }}</span></strong></td>
+                <td class="big"><strong><span data-basket-target="total">{{ ((paidByGiftCard ? basket.total + basket.shipping : basket.payable) / 100)|format_currency(basket.currency) }}</span></strong></td>
             </tr>
             {# One line per rate once the basket is settled, which is what an invoice states; while it can still change, a single line the controller keeps up to date, the rates present being whatever the next click makes them #}
             {% if editable %}
@@ -77,6 +84,13 @@
                         <td>{{ (rate.amount / 100)|format_currency(basket.currency) }}</td>
                     </tr>
                 {% endfor %}
+            {% endif %}
+            {% if paidByGiftCard %}
+                {{ codeRow }}
+                <tr class="total">
+                    <th scope="row" colspan="3">{{ 'label.amount_due'|trans }}</th>
+                    <td class="big"><strong>{{ (basket.payable / 100)|format_currency(basket.currency) }}</strong></td>
+                </tr>
             {% endif %}
         </tfoot>
     </table>

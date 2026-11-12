@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // A group of countries posted at the same tariff, written by hand in the back office. The countries are held once here rather than on every weight tier, so a country added to a zone is typed once and no tier is left behind
 #[ORM\Entity(repositoryClass: ShippingZoneRepository::class)]
@@ -49,6 +50,7 @@ class ShippingZone implements \Stringable
     /** @var Collection<int, ShippingRate> */
     #[ORM\OneToMany(targetEntity: ShippingRate::class, mappedBy: 'zone', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['maxWeight' => \SortDirection::Ascending])]
+    #[Assert\Valid]
     private Collection $rates;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

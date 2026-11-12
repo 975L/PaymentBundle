@@ -384,13 +384,8 @@ class BasketControllerTest extends TestCase
         ;
     }
 
-    /**
-     * The way out carried by every reminder of an unpaid order.
-     *
-     * One click and nothing else: the link is in the recipient's own e-mail and asking to hear no more is what
-     * they came for, where a second click is what makes people mark the message as spam instead.
-     */
-    public function testTheUnsubscribeLinkStopsTheRemindersInOneClick(): void
+    // The way out carried by every reminder of an unpaid order: the click on the confirmation page, or a mail client's one-click POST, stops the reminders
+    public function testPostingTheUnsubscribeAddressStopsTheReminders(): void
     {
         $basket = new Basket()
             ->setNumber('202608-AB-12345')
@@ -398,12 +393,29 @@ class BasketControllerTest extends TestCase
         ;
 
         $response = $this->controller($this->createStub(BasketServiceInterface::class), twig: $this->createStub(Environment::class))
-            ->unsubscribeReminder($basket, $this->entityManager())
+            ->unsubscribeReminder($basket, Request::create('/', 'POST', ['List-Unsubscribe' => 'One-Click']), $this->entityManager())
         ;
 
         $this->assertNotNull($basket->getReminderOptOutAt());
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertTrue($this->flushed);
+    }
+
+    // A link scanner opens every link of an e-mail on its arrival: the GET only asks, and writes nothing
+    public function testOpeningTheUnsubscribeAddressOnlyAsks(): void
+    {
+        $basket = new Basket()
+            ->setNumber('202608-AB-12345')
+            ->setShareToken('aaaabbbbccccdddd')
+        ;
+
+        $response = $this->controller($this->createStub(BasketServiceInterface::class), twig: $this->createStub(Environment::class))
+            ->unsubscribeReminder($basket, Request::create('/'), $this->entityManager())
+        ;
+
+        $this->assertNull($basket->getReminderOptOutAt());
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertFalse($this->flushed);
     }
 
     // The address is guarded by the order number and the share token together, so an order carrying no token is one nobody can be unsubscribed from
@@ -412,7 +424,7 @@ class BasketControllerTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
 
         $this->controller($this->createStub(BasketServiceInterface::class))
-            ->unsubscribeReminder(new Basket(), $this->entityManager())
+            ->unsubscribeReminder(new Basket(), Request::create('/'), $this->entityManager())
         ;
     }
 

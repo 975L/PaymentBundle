@@ -17,6 +17,7 @@ use c975L\ConfigBundle\Service\Export\TableExporter;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Registry\PaymentGatewayRegistry;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\ActionGroup;
@@ -47,6 +48,18 @@ class PaymentCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly PaymentGatewayRegistry $gatewayRegistry,
     ) {
+    }
+
+    // A payment gone through is part of the accounting records, and one tied to a basket is what the provider's webhook finds its order by: both kept, the admin told why
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof Payment && (null !== $entityInstance->getBasket() || true === $entityInstance->isFinished())) {
+            $this->addFlash('warning', $this->translator->trans('flash.order_not_deletable', [], 'payment'));
+
+            return;
+        }
+
+        parent::deleteEntity($entityManager, $entityInstance);
     }
 
     public static function getEntityFqcn(): string

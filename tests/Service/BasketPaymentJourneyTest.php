@@ -78,6 +78,12 @@ class BasketPaymentJourneyTest extends TestCase
     /** @var array<string, mixed> */
     private array $handedBack = [];
 
+    // What the provider answers when asked whether the order can still be placed, null for yes
+    private ?string $checkoutError = null;
+
+    // Whether the line's kind still has a provider registered, false once its bundle is gone
+    private bool $kindRegistered = true;
+
     // ---------------------------------------------------------------- paid()
 
     // The step the whole tunnel rests on: reaching the return url without having paid delivers nothing
@@ -694,6 +700,89 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame('stripe', $basket->getPayment()->getGateway());
     }
 
+    // A shared order is paid in the mode it was frozen in: a rehearsal is never charged for real, a real order never settled with a test card
+    public function testASharedOrderOfTheOtherModeIsNotCharged(): void
+    {
+        foreach ([[true, false], [false, true]] as [$orderInTest, $shopInTest]) {
+            $basket = $this->basket(2500, $this->payment(2500, finished: false));
+            $basket->setShareToken('1111222233334444')->setTestMode($orderInTest);
+
+            try {
+                $this->service($basket, $this->returnAwareGateway(null), testMode: $shopInTest)->payShared($basket);
+                $this->fail('An order of the other mode was charged');
+            } catch (PaymentUnavailableException) {
+                $this->assertSame([], $this->expired);
+            }
+        }
+    }
+
+    // Frozen for days, a shared order is asked of its providers again: an article no longer orderable opens no checkout, and the provider's words travel with the refusal
+    public function testASharedOrderNoLongerOrderableIsNotCharged(): void
+    {
+        $this->checkoutError = 'Sold out';
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setShareToken('1111222233334444');
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null))->payShared($basket);
+            $this->fail('An order no longer orderable was charged');
+        } catch (PaymentUnavailableException $e) {
+            $this->assertSame('Sold out', $e->getPrevious()?->getMessage());
+        }
+
+        $this->assertSame([], $this->expired);
+    }
+
+    // A line whose bundle has gone could never be delivered: the payer is turned back with the shop's own words, no checkout opened
+    public function testASharedOrderOfAKindNoLongerSoldIsNotCharged(): void
+    {
+        $this->kindRegistered = false;
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setShareToken('1111222233334444');
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null))->payShared($basket);
+            $this->fail('An order of a kind no longer sold was charged');
+        } catch (PaymentUnavailableException $e) {
+            $this->assertInstanceOf(BasketNotOrderableException::class, $e->getPrevious());
+        }
+
+        $this->assertSame([], $this->expired);
+    }
+
+    // A checkout opened in the other mode is out of reach of the current keys and may still be paid: the order is kept as it is, and the visitor starts a new basket
+    public function testACheckoutOfTheOtherModeIsNeverReopened(): void
+    {
+        $basket = $this->basket(2500, $this->payment(2500, finished: false));
+        $basket->setTestMode(false);
+        $session = $this->sessionNaming(42);
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $session, testMode: true)->validate(new Request());
+            $this->fail('A checkout of the other mode was answered as paid');
+        } catch (BasketNotOrderableException $e) {
+            $this->assertSame('error.checkout_other_mode', $e->getMessage());
+        }
+
+        $this->assertSame(BasketStatus::Validated, $basket->getStatus());
+        $this->assertSame('cs_1', $basket->getPayment()->getGatewayReference());
+        $this->assertSame([], $this->expired);
+        $this->assertFalse($session->has('basket'));
+    }
+
+    // The live shop lets a rehearsal checkout go from the back office, a test card being all that can pay it; a live one stays while the shop is in test
+    public function testOnlyARehearsalCheckoutOfTheOtherModeIsCalledOff(): void
+    {
+        $rehearsal = $this->basket(2500, $this->payment(2500, finished: false));
+        $rehearsal->setTestMode(true);
+        $this->assertTrue($this->service($rehearsal, $this->returnAwareGateway(null), testMode: false)->callOffCheckout($rehearsal));
+
+        $live = $this->basket(2500, $this->payment(2500, finished: false));
+        $live->setTestMode(false);
+        $this->assertFalse($this->service($live, $this->returnAwareGateway(null), testMode: true)->callOffCheckout($live));
+        $this->assertSame([], $this->expired);
+    }
+
     // Delivery hands it back, and the webhook is the path that has nowhere else to read it from
     public function testTheWebhookHandsTheCheckoutDataBackToTheProvider(): void
     {
@@ -805,6 +894,27 @@ class BasketPaymentJourneyTest extends TestCase
         $this->assertSame(BasketStatus::New, $basket->getStatus());
     }
 
+    // A country no zone names on a written grid is refused, and told so rather than told the parcel is too heavy
+    public function testACountryOutsideTheGridIsRefusedAsUnavailable(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus(BasketStatus::New);
+        $basket->setCountry('JP');
+        $resolver = $this->createStub(ShippingRateResolverInterface::class);
+        $resolver->method('exceeds')->willReturn(true);
+        $resolver->method('shipsTo')->willReturn(false);
+
+        try {
+            $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $resolver)
+                ->validate(new Request());
+            $this->fail('A country outside the grid was posted free');
+        } catch (BasketNotOrderableException $e) {
+            $this->assertSame('error.shipping_unavailable', $e->getMessage());
+        }
+
+        $this->assertSame(BasketStatus::New, $basket->getStatus());
+    }
+
     // The same parcel goes through to a country whose zone takes it, the default one stopping short being only an estimate
     public function testAParcelTheZoneOfItsAddressTakesGoesThrough(): void
     {
@@ -846,6 +956,22 @@ class BasketPaymentJourneyTest extends TestCase
             ->getJson();
 
         $this->assertTrue($json['basket']['shippingTooHeavy']);
+    }
+
+    // A country outside the grid is no parcel too heavy: the page does not say so, the checkout refusing it in its own words
+    public function testTheBasketPageIsNotToldACountryOutsideTheGridIsTooHeavy(): void
+    {
+        $basket = $this->basket(2500, null);
+        $basket->setStatus(BasketStatus::New);
+        $basket->setContentFlags(Basket::CONTENT_FLAG_PHYSICAL);
+        $basket->setCountry('JP');
+        $resolver = $this->createStub(ShippingRateResolverInterface::class);
+        $resolver->method('exceeds')->willReturn(true);
+        $resolver->method('shipsTo')->willReturn(false);
+
+        $json = $this->service($basket, $this->returnAwareGateway(null), $this->sessionNaming(42), shippingRateResolver: $resolver)->getJson();
+
+        $this->assertFalse($json['basket']['shippingTooHeavy']);
     }
 
     // ------------------------------------------------------- stored quantities
@@ -1031,6 +1157,7 @@ class BasketPaymentJourneyTest extends TestCase
         $resolver = $this->createStub(ShippingRateResolverInterface::class);
         $resolver->method('resolve')->willReturnCallback(static fn (?string $country): ?int => 'DE' === $country ? null : 490);
         $resolver->method('exceeds')->willReturnCallback(static fn (?string $country): bool => 'DE' === $country);
+        $resolver->method('shipsTo')->willReturn(true);
 
         return $resolver;
     }
@@ -1121,7 +1248,7 @@ class BasketPaymentJourneyTest extends TestCase
             $entityManager ?? $this->createStub(EntityManagerInterface::class),
             $this->requestStack($session),
             $this->createStub(PaymentFormFactoryInterface::class),
-            $this->createStub(TranslatorInterface::class),
+            $this->translator(),
             $this->messageBus(),
             $urlGenerator ?? $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(LoggerInterface::class),
@@ -1135,6 +1262,15 @@ class BasketPaymentJourneyTest extends TestCase
             $shippingRateResolver ?? $this->createStub(ShippingRateResolverInterface::class),
             $refundService ?? $this->createStub(BasketRefundService::class),
         );
+    }
+
+    // Every message read as its key
+    private function translator(): TranslatorInterface
+    {
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        return $translator;
     }
 
     // The row the session names, and the database answering whether this call is the one that moved it to paid
@@ -1159,6 +1295,7 @@ class BasketPaymentJourneyTest extends TestCase
     {
         $provider = $this->createStub(\c975L\PaymentBundle\Contract\BasketItemProviderInterface::class);
         $provider->method('onBasketValidated')->willReturn(['contributor' => 'Camille']);
+        $provider->method('validateCheckout')->willReturnCallback(fn (): ?string => $this->checkoutError);
         $provider->method('getContentFlags')->willReturnCallback(fn (): int => $this->providerFlags);
         $provider->method('onBasketPaid')->willReturnCallback(function (Basket $basket, array $items, array $checkoutData): void {
             $this->delivered[] = 'product';
@@ -1166,7 +1303,7 @@ class BasketPaymentJourneyTest extends TestCase
         });
 
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
-        $itemProviderRegistry->method('get')->willReturn($provider);
+        $itemProviderRegistry->method('get')->willReturnCallback(fn (): \c975L\PaymentBundle\Contract\BasketItemProviderInterface => $this->kindRegistered ? $provider : throw new \InvalidArgumentException('No provider'));
 
         return $itemProviderRegistry;
     }
