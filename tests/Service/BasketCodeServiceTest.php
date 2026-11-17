@@ -69,7 +69,7 @@ class BasketCodeServiceTest extends TestCase
 
     public function testAnExpiredCodeIsRefused(): void
     {
-        $discount = $this->discount()->setValidUntil(new \DateTime('-1 day'));
+        $discount = $this->discount()->setValidUntil(new \DateTimeImmutable('-1 day'));
 
         $this->assertSame('error.code_expired', $this->service(discount: $discount)->resolve('NOEL', 10000, 0, 0, 'EUR')['error']);
     }

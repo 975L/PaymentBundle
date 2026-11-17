@@ -68,7 +68,7 @@ class BasketRefundService
         $basket
             ->setStatus(BasketStatus::Refunded)
             ->setRefundedAmount($amount)
-            ->setRefundedAt(new \DateTime());
+            ->setRefundedAt(new \DateTimeImmutable());
 
         $this->logger->warning('Order {number} refunded: what it sold is no longer handed over', ['number' => $basket->getNumber(), 'event' => $notification->event->value, 'amount' => $amount]);
         $this->deactivateGiftCards($basket);
@@ -124,8 +124,8 @@ class BasketRefundService
 
         $basket
             ->setRefundedAmount($amount)
-            ->setRefundedAt(new \DateTime())
-            ->setModification(new \DateTime());
+            ->setRefundedAt(new \DateTimeImmutable())
+            ->setModification(new \DateTimeImmutable());
         $this->entityManager->flush();
 
         $this->logger->warning('Order {number} refunded in part ({amount} of {payable}): it still hands over what it sold', ['number' => $basket->getNumber(), 'amount' => $amount, 'payable' => $basket->getPayable()]);

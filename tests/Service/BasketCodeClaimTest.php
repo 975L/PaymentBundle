@@ -137,11 +137,11 @@ class BasketCodeClaimTest extends TestCase
     public function testValidatingDatesTheOrder(): void
     {
         $basket = $this->basketWithCard(1, 3000);
-        $basket->setModification(new \DateTime('-3 days'));
+        $basket->setModification(new \DateTimeImmutable('-3 days'));
 
         $this->service($basket)->validate($this->request());
 
-        $this->assertGreaterThan(new \DateTime('-1 minute'), $basket->getModification());
+        $this->assertGreaterThan(new \DateTimeImmutable('-1 minute'), $basket->getModification());
     }
 
     // Validating twice in a row is one order: the claim of the first pass is given back before the second takes it, and the card ends up debited once

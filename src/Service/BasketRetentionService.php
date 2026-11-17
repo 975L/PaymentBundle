@@ -123,7 +123,7 @@ class BasketRetentionService
     public function archiveDelivered(): int
     {
         $count = 0;
-        $now = new \DateTime();
+        $now = new \DateTimeImmutable();
 
         foreach ($this->basketRepository->findToArchive(self::ARCHIVE_YEARS) as $basket) {
             $basket->setArchived($now);

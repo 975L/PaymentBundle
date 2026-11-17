@@ -81,7 +81,7 @@ class PaymentStatusProvider implements StatusProviderInterface
             ->getQuery()
             ->getSingleScalarResult();
 
-        return null === $oldest ? null : new \DateTime((string) $oldest)->format('Y-m-d');
+        return null === $oldest ? null : new \DateTimeImmutable((string) $oldest)->format('Y-m-d');
     }
 
     private function stalledPayments(): int
@@ -91,7 +91,7 @@ class PaymentStatusProvider implements StatusProviderInterface
             ->where('b.status = :validated')
             ->andWhere('b.modification < :before')
             ->setParameter('validated', BasketStatus::Validated)
-            ->setParameter('before', new \DateTime('-' . self::STALLED_PAYMENT_HOURS . ' hours'))
+            ->setParameter('before', new \DateTimeImmutable('-' . self::STALLED_PAYMENT_HOURS . ' hours'))
             ->getQuery()
             ->getSingleScalarResult();
     }

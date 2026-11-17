@@ -119,8 +119,8 @@ class BasketMalformedRequestTest extends TestCase
         $basket->setTotal(0);
         $basket->setShipping(0);
         $basket->setQuantity(0);
-        $basket->setCreation(new \DateTime());
-        $basket->setModification(new \DateTime());
+        $basket->setCreation(new \DateTimeImmutable());
+        $basket->setModification(new \DateTimeImmutable());
         $basket->setItems([]);
 
         return $basket;

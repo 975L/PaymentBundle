@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.27.0
+
+[BC-Break] Basket, payment, discount, gift card and shipping zone dates stored as immutable dates
+
+- [BC-Break] Every date column is `datetime_immutable`, its getter returning `\DateTimeImmutable` (17/11/2026)
+- Date setters still accept any `\DateTimeInterface`, stored immutable (17/11/2026)
+- Date query parameters and date form fields immutable too (17/11/2026)
+
 ## v6.26.2
 
 CI replay runs the other PHP versions in parallel

@@ -197,7 +197,7 @@ class BasketCodeService
             return $wrongMode;
         }
 
-        $now = new \DateTime();
+        $now = new \DateTimeImmutable();
         if ((null !== $discount->getValidFrom() && $discount->getValidFrom() > $now) || (null !== $discount->getValidUntil() && $discount->getValidUntil() < $now)) {
             return $this->refused('error.code_expired');
         }
@@ -251,7 +251,7 @@ class BasketCodeService
             return $wrongMode;
         }
 
-        if (null !== $giftCard->getValidUntil() && $giftCard->getValidUntil() < new \DateTime()) {
+        if (null !== $giftCard->getValidUntil() && $giftCard->getValidUntil() < new \DateTimeImmutable()) {
             return $this->refused('error.code_expired');
         }
 

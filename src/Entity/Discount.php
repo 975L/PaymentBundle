@@ -52,11 +52,11 @@ class Discount implements \Stringable
     #[Assert\Length(max: 5)]
     private ?string $currency = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $validFrom = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $validFrom = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $validUntil = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $validUntil = null;
 
     // What the basket has to hold before the code applies, in cents - compared against the items alone, never against the shipping
     #[ORM\Column]
@@ -79,12 +79,12 @@ class Discount implements \Stringable
     #[ORM\Column]
     private bool $testMode = false;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $creation = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $creation = null;
 
     public function __construct()
     {
-        $this->creation = new \DateTime();
+        $this->creation = new \DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -146,26 +146,26 @@ class Discount implements \Stringable
         return $this;
     }
 
-    public function getValidFrom(): ?\DateTimeInterface
+    public function getValidFrom(): ?\DateTimeImmutable
     {
         return $this->validFrom;
     }
 
     public function setValidFrom(?\DateTimeInterface $validFrom): static
     {
-        $this->validFrom = $validFrom;
+        $this->validFrom = null === $validFrom ? null : \DateTimeImmutable::createFromInterface($validFrom);
 
         return $this;
     }
 
-    public function getValidUntil(): ?\DateTimeInterface
+    public function getValidUntil(): ?\DateTimeImmutable
     {
         return $this->validUntil;
     }
 
     public function setValidUntil(?\DateTimeInterface $validUntil): static
     {
-        $this->validUntil = $validUntil;
+        $this->validUntil = null === $validUntil ? null : \DateTimeImmutable::createFromInterface($validUntil);
 
         return $this;
     }
@@ -218,14 +218,14 @@ class Discount implements \Stringable
         return $this;
     }
 
-    public function getCreation(): ?\DateTimeInterface
+    public function getCreation(): ?\DateTimeImmutable
     {
         return $this->creation;
     }
 
     public function setCreation(?\DateTimeInterface $creation): static
     {
-        $this->creation = $creation;
+        $this->creation = null === $creation ? null : \DateTimeImmutable::createFromInterface($creation);
 
         return $this;
     }

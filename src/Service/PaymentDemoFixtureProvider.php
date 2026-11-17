@@ -61,7 +61,7 @@ class PaymentDemoFixtureProvider implements DemoFixtureProviderInterface
             ->setName($this->translator->trans($nameKey, [], 'payment'))
             ->setCountries($countries)
             ->setActive(true)
-            ->setCreation(new \DateTime(self::CREATION))
+            ->setCreation(new \DateTimeImmutable(self::CREATION))
         ;
 
         foreach ($brackets as [$maxWeight, $price]) {

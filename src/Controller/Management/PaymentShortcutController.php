@@ -59,7 +59,7 @@ class PaymentShortcutController extends AbstractController
         if (null !== $config && $this->isCsrfTokenValid($route, $request->request->get('_token'))) {
             $enabled = !$this->configService->getBool($config->getValue());
             $config->setValue($enabled);
-            $config->setModification(new \DateTime());
+            $config->setModification(new \DateTimeImmutable());
 
             $this->manager->flush();
             $this->configService->invalidateCache();

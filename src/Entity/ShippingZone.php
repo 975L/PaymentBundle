@@ -54,13 +54,13 @@ class ShippingZone implements \Stringable
     #[Assert\Valid]
     private Collection $rates;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $creation = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $creation = null;
 
     public function __construct()
     {
         $this->rates = new ArrayCollection();
-        $this->creation = new \DateTime();
+        $this->creation = new \DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -157,14 +157,14 @@ class ShippingZone implements \Stringable
         return $this;
     }
 
-    public function getCreation(): ?\DateTimeInterface
+    public function getCreation(): ?\DateTimeImmutable
     {
         return $this->creation;
     }
 
     public function setCreation(\DateTimeInterface $creation): static
     {
-        $this->creation = $creation;
+        $this->creation = \DateTimeImmutable::createFromInterface($creation);
 
         return $this;
     }

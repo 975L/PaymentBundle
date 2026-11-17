@@ -53,8 +53,8 @@ class GiftCard implements \Stringable
     private ?string $currency = null;
 
     // Empty on a card that never expires, which is what the law says of a voucher in most of Europe
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $validUntil = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $validUntil = null;
 
     // The order that paid for it, by its number: what lets the confirmation email of that very order print the codes it bought, and an admin trace a card back to what created it
     #[ORM\Column(length: 20, nullable: true)]
@@ -82,12 +82,12 @@ class GiftCard implements \Stringable
     #[ORM\Column]
     private bool $testMode = false;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $creation = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $creation = null;
 
     public function __construct()
     {
-        $this->creation = new \DateTime();
+        $this->creation = new \DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -148,14 +148,14 @@ class GiftCard implements \Stringable
         return $this;
     }
 
-    public function getValidUntil(): ?\DateTimeInterface
+    public function getValidUntil(): ?\DateTimeImmutable
     {
         return $this->validUntil;
     }
 
     public function setValidUntil(?\DateTimeInterface $validUntil): static
     {
-        $this->validUntil = $validUntil;
+        $this->validUntil = null === $validUntil ? null : \DateTimeImmutable::createFromInterface($validUntil);
 
         return $this;
     }
@@ -184,14 +184,14 @@ class GiftCard implements \Stringable
         return $this;
     }
 
-    public function getCreation(): ?\DateTimeInterface
+    public function getCreation(): ?\DateTimeImmutable
     {
         return $this->creation;
     }
 
     public function setCreation(?\DateTimeInterface $creation): static
     {
-        $this->creation = $creation;
+        $this->creation = null === $creation ? null : \DateTimeImmutable::createFromInterface($creation);
 
         return $this;
     }
@@ -247,7 +247,7 @@ class GiftCard implements \Stringable
     // What is left to spend, said as the card says it: a card switched off or out of date is worth nothing whatever its balance, and the page showing it must not print a figure the checkout would refuse
     public function isSpendable(): bool
     {
-        return $this->active && $this->balance > 0 && (null === $this->validUntil || $this->validUntil >= new \DateTime());
+        return $this->active && $this->balance > 0 && (null === $this->validUntil || $this->validUntil >= new \DateTimeImmutable());
     }
 
     public function isTestMode(): bool

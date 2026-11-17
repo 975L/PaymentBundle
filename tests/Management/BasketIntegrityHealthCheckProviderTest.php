@@ -266,7 +266,7 @@ class BasketIntegrityHealthCheckProviderTest extends TestCase
             ->setShipping(0)
             ->setQuantity(0)
             ->setItems([])
-            ->setCreation(new \DateTime())
+            ->setCreation(new \DateTimeImmutable())
         ;
 
         new \ReflectionProperty(Basket::class, 'id')->setValue($basket, $id);

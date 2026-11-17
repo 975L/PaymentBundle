@@ -402,7 +402,7 @@ class BasketController extends AbstractController
         }
 
         // Written again on a second visit rather than left alone, the date being of no use beyond saying the opposition was made
-        $basket->setReminderOptOutAt(new \DateTime());
+        $basket->setReminderOptOutAt(new \DateTimeImmutable());
         $entityManager->flush();
 
         return $this->render('@c975LPayment/basket/reminder_unsubscribed.html.twig');

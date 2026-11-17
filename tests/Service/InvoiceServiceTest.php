@@ -28,7 +28,7 @@ class InvoiceServiceTest extends TestCase
     {
         $number = $this->service()->assign(new Basket());
 
-        $this->assertSame(sprintf('FA%d-0007', (int) new \DateTime()->format('Y')), $number);
+        $this->assertSame(sprintf('FA%d-0007', (int) new \DateTimeImmutable()->format('Y')), $number);
     }
 
     public function testAShopSetsItsOwnPrefix(): void
@@ -97,11 +97,11 @@ class InvoiceServiceTest extends TestCase
         $this->service()->assign($basket);
         $issued = $basket->getInvoiceDate();
 
-        $basket->setModification(new \DateTime('+2 days'));
+        $basket->setModification(new \DateTimeImmutable('+2 days'));
 
         $this->assertNotNull($issued);
         $this->assertSame($issued, $basket->getInvoiceDate());
-        $this->assertSame(new \DateTime()->format('Y-m-d'), $issued->format('Y-m-d'));
+        $this->assertSame(new \DateTimeImmutable()->format('Y-m-d'), $issued->format('Y-m-d'));
     }
 
     // Nothing is invoiced before it is paid, and an order is numbered when it is paid: no number, no document
@@ -205,12 +205,12 @@ class InvoiceServiceTest extends TestCase
     public function testACreditNoteIsNumberedInItsOwnSeries(): void
     {
         $sequence = $this->createMock(InvoiceSequenceRepository::class);
-        $sequence->expects($this->once())->method('next')->with((int) new \DateTime()->format('Y'), InvoiceSequence::KIND_CREDIT_NOTE)->willReturn(3);
+        $sequence->expects($this->once())->method('next')->with((int) new \DateTimeImmutable()->format('Y'), InvoiceSequence::KIND_CREDIT_NOTE)->willReturn(3);
 
         $basket = new Basket()->setInvoiceNumber('FA2026-0001');
 
-        $this->assertSame(sprintf('AV%d-0003', (int) new \DateTime()->format('Y')), $this->service(sequence: $sequence)->assignCreditNote($basket));
-        $this->assertSame($basket->getCreditNoteNumber(), sprintf('AV%d-0003', (int) new \DateTime()->format('Y')));
+        $this->assertSame(sprintf('AV%d-0003', (int) new \DateTimeImmutable()->format('Y')), $this->service(sequence: $sequence)->assignCreditNote($basket));
+        $this->assertSame($basket->getCreditNoteNumber(), sprintf('AV%d-0003', (int) new \DateTimeImmutable()->format('Y')));
         $this->assertNotNull($basket->getCreditNoteDate());
     }
 

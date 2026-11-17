@@ -100,7 +100,7 @@ class GiftCardServiceTest extends TestCase
     {
         $giftCard = $this->service()->issue(3000, 'EUR');
 
-        $this->assertEquals(new \DateTime('+12 months')->format('Y-m-d'), $giftCard->getValidUntil()?->format('Y-m-d'));
+        $this->assertEquals(new \DateTimeImmutable('+12 months')->format('Y-m-d'), $giftCard->getValidUntil()?->format('Y-m-d'));
     }
 
     // Zero months is what a shop that wants no expiry sets
@@ -112,16 +112,16 @@ class GiftCardServiceTest extends TestCase
     // A date stated by the caller wins over the setting: the admin issuing a card by hand may say when it runs out
     public function testAStatedDateWinsOverTheSetting(): void
     {
-        $stated = new \DateTime('2027-06-30');
+        $stated = new \DateTimeImmutable('2027-06-30');
 
-        $this->assertEquals(new \DateTime('2027-06-30 23:59:59'), $this->service()->issue(3000, 'EUR', null, $stated)->getValidUntil());
+        $this->assertEquals(new \DateTimeImmutable('2027-06-30 23:59:59'), $this->service()->issue(3000, 'EUR', null, $stated)->getValidUntil());
     }
 
     // Valid through the whole of its last day: a card stated "valid until" the 30th is still spent at noon on the 30th
     public function testACardIsValidThroughItsLastDay(): void
     {
         $this->assertSame('23:59:59', $this->service()->issue(3000, 'EUR')->getValidUntil()?->format('H:i:s'));
-        $this->assertTrue($this->service()->issue(3000, 'EUR', null, new \DateTime('today'))->isSpendable());
+        $this->assertTrue($this->service()->issue(3000, 'EUR', null, new \DateTimeImmutable('today'))->isSpendable());
     }
 
     // The card takes the mode of the order that bought it, not the shop's mode at delivery: a rehearsal order delivered after the switch to live still issues a rehearsal card

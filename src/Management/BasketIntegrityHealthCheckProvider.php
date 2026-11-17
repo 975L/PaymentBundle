@@ -70,7 +70,7 @@ class BasketIntegrityHealthCheckProvider implements HealthCheckSiteWideInterface
             return [];
         }
 
-        $since = new \DateTime('-' . self::MONTHS . ' months');
+        $since = new \DateTimeImmutable('-' . self::MONTHS . ' months');
 
         return [
             $this->guard($siteRoot . self::ROW_CHARGED_NOT_DELIVERED, 'label.health_check_basket_charged_not_delivered', fn () => $this->chargedNotDelivered($since)),
@@ -87,7 +87,7 @@ class BasketIntegrityHealthCheckProvider implements HealthCheckSiteWideInterface
     {
         $offenders = [];
 
-        foreach ($this->paymentRepository->findFinishedWithoutDeliveredBasket($since, new \DateTime('-' . self::GRACE_MINUTES . ' minutes'), self::MAX_OFFENDERS) as $payment) {
+        foreach ($this->paymentRepository->findFinishedWithoutDeliveredBasket($since, new \DateTimeImmutable('-' . self::GRACE_MINUTES . ' minutes'), self::MAX_OFFENDERS) as $payment) {
             $basket = $payment->getBasket();
 
             $offenders[] = [

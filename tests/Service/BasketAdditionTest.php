@@ -230,8 +230,8 @@ class BasketAdditionTest extends TestCase
         $basket->setTotal(1000 * $quantity);
         $basket->setShipping(0);
         $basket->setQuantity($quantity);
-        $basket->setCreation(new \DateTime());
-        $basket->setModification(new \DateTime());
+        $basket->setCreation(new \DateTimeImmutable());
+        $basket->setModification(new \DateTimeImmutable());
         $basket->setItems(['product' => [7 => [
             'quantity' => $quantity,
             'total' => 1000 * $quantity,

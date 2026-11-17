@@ -117,6 +117,7 @@ class GiftCardCrudController extends AbstractCrudController
                 'label' => t('label.valid_until', [], 'payment'),
                 'required' => false,
                 'widget' => 'single_text',
+                'input' => 'datetime_immutable',
                 'help' => t('help.gift_card_valid_until', [], 'payment'),
             ])
             // Part of the form rather than written in the template: EasyAdmin's own form theme is what gives it the dashboard's button

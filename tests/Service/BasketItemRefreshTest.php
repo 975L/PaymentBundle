@@ -153,8 +153,8 @@ class BasketItemRefreshTest extends TestCase
         $basket->setTotal($line['total']);
         $basket->setShipping(0);
         $basket->setQuantity($line['quantity']);
-        $basket->setCreation(new \DateTime());
-        $basket->setModification(new \DateTime());
+        $basket->setCreation(new \DateTimeImmutable());
+        $basket->setModification(new \DateTimeImmutable());
         $basket->setItems([$kind => [$id => $line]]);
 
         return $basket;

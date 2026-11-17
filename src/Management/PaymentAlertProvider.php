@@ -99,7 +99,7 @@ class PaymentAlertProvider implements AlertProviderInterface
     /** @return list<array{label: string, description: ?string, severity: Config::SEVERITY_*, url: string, role?: string}> */
     private function partialRefundAlerts(): array
     {
-        $count = $this->basketRepository->countPartiallyRefundedSince(new \DateTime('-30 days'));
+        $count = $this->basketRepository->countPartiallyRefundedSince(new \DateTimeImmutable('-30 days'));
         if (0 === $count) {
             return [];
         }
@@ -123,7 +123,7 @@ class PaymentAlertProvider implements AlertProviderInterface
     /** @return list<array{label: string, description: ?string, severity: Config::SEVERITY_*, url: string, role?: string}> */
     private function chargedUndeliveredAlerts(): array
     {
-        $count = $this->basketRepository->countChargedUndeliveredSince(new \DateTime('-30 days'));
+        $count = $this->basketRepository->countChargedUndeliveredSince(new \DateTimeImmutable('-30 days'));
         if (0 === $count) {
             return [];
         }

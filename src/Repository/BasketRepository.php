@@ -39,7 +39,7 @@ class BasketRepository extends ServiceEntityRepository
         $updated = $this->getEntityManager()
             ->createQuery('UPDATE ' . Basket::class . ' b SET b.status = :paid, b.modification = :now WHERE b.id = :id AND b.status = :validated')
             ->setParameter('paid', BasketStatus::Paid)
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('id', $basket->getId())
             ->setParameter('validated', BasketStatus::Validated)
             ->execute();
@@ -80,7 +80,7 @@ class BasketRepository extends ServiceEntityRepository
         $updated = $this->getEntityManager()
             ->createQuery('UPDATE ' . Basket::class . ' b SET b.status = :refunded, b.refundedAt = :now, b.refundedAmount = :amount, b.modification = :now WHERE b.id = :id AND b.status IN (:settled)')
             ->setParameter('refunded', BasketStatus::Refunded)
-            ->setParameter('now', new \DateTime())
+            ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('amount', $amount)
             ->setParameter('id', $basket->getId())
             ->setParameter('settled', $basket->isChargedUndelivered() ? [BasketStatus::Validated] : BasketStatus::SETTLED)
@@ -157,7 +157,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.status = :status')
             ->andWhere('b.modification < :date')
             ->setParameter('status', BasketStatus::New)
-            ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->setParameter('date', new \DateTimeImmutable('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
     }
@@ -310,7 +310,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.modification < :date')
             ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->setParameter('status', BasketStatus::Validated)
-            ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->setParameter('date', new \DateTimeImmutable('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
     }
@@ -344,7 +344,7 @@ class BasketRepository extends ServiceEntityRepository
             ->setParameter('status', BasketStatus::Validated)
             ->setParameter('service', Basket::CONTENT_FLAG_SERVICE)
             ->setParameter('sent', $alreadySent)
-            ->setParameter('date', new \DateTime('-' . $days . ' days'))
+            ->setParameter('date', new \DateTimeImmutable('-' . $days . ' days'))
             ->getQuery()
             ->getResult();
     }
@@ -360,8 +360,8 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('(b.shareToken IS NULL AND b.modification < :date) OR (b.shareToken IS NOT NULL AND b.modification < :sharedDate)')
             ->andWhere('p.id IS NULL OR p.isFinished = false')
             ->setParameter('status', BasketStatus::Validated)
-            ->setParameter('date', new \DateTime('-' . $hours . ' hours'))
-            ->setParameter('sharedDate', new \DateTime('-' . $sharedDays . ' days'))
+            ->setParameter('date', new \DateTimeImmutable('-' . $hours . ' hours'))
+            ->setParameter('sharedDate', new \DateTimeImmutable('-' . $sharedDays . ' days'))
             ->getQuery()
             ->getResult();
     }
@@ -375,7 +375,7 @@ class BasketRepository extends ServiceEntityRepository
             ->andWhere('b.archived IS NULL')
             ->andWhere('b.creation < :date')
             ->setParameter('statuses', BasketStatus::RECORDED)
-            ->setParameter('date', new \DateTime('-' . $years . ' years'))
+            ->setParameter('date', new \DateTimeImmutable('-' . $years . ' years'))
             ->getQuery()
             ->getResult();
     }
@@ -390,11 +390,11 @@ class BasketRepository extends ServiceEntityRepository
      */
     public function findExpired(int $years): array
     {
-        $year = (int) new \DateTime()->format('Y') - $years;
+        $year = (int) new \DateTimeImmutable()->format('Y') - $years;
 
         return $this->createQueryBuilder('b')
             ->andWhere('b.creation < :date')
-            ->setParameter('date', new \DateTime($year . '-01-01'))
+            ->setParameter('date', new \DateTimeImmutable($year . '-01-01'))
             ->getQuery()
             ->getResult();
     }

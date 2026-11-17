@@ -154,7 +154,7 @@ class BasketRecoverySubscriber
     private function createCookie(Request $request, string $token): Cookie
     {
         // Kept for the very window the purge works to, so the visitor is never sent back to a basket it has already taken away
-        $expires = new \DateTime('+' . BasketRetentionService::UNVALIDATED_DAYS . ' days');
+        $expires = new \DateTimeImmutable('+' . BasketRetentionService::UNVALIDATED_DAYS . ' days');
 
         return new Cookie(
             name: self::COOKIE_NAME,

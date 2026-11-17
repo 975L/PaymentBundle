@@ -1,5 +1,12 @@
 # UPGRADE
 
+## v6.26 > v6.27
+
+**Entity dates are immutable** (same SQL columns, no migration): their getters return `\DateTimeImmutable`.
+Code calling `modify()`, `setTime()`, `add()`... on them must use the returned date
+(`$date = $date->modify('+1 day')`), the call no longer changing the entity's own. The setters still accept a
+`\DateTime`; a form field mapped to one of these dates needs `'input' => 'datetime_immutable'`.
+
 ## v6.22 > v6.23
 
 **A code is set aside at validation, and a store's transaction is delivered once.** `payment_basket` gains

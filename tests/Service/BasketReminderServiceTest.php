@@ -72,12 +72,12 @@ class BasketReminderServiceTest extends TestCase
     // The retention pass reads "modification" to know when the visitor last came back: a reminder writing to it would push the purge back every time it fires, and an abandoned order would never go away
     public function testAReminderLeavesTheModificationDateAlone(): void
     {
-        $modification = new \DateTime('2026-01-01 10:00:00');
+        $modification = new \DateTimeImmutable('2026-01-01 10:00:00');
         $basket = $this->basket()->setModification($modification);
 
         $this->service([$basket])->send();
 
-        $this->assertEquals(new \DateTime('2026-01-01 10:00:00'), $basket->getModification());
+        $this->assertEquals(new \DateTimeImmutable('2026-01-01 10:00:00'), $basket->getModification());
     }
 
     // Counted only once the e-mail is really gone: a shop whose mailer was down for an evening reminds its customers the day after instead of never
@@ -152,7 +152,7 @@ class BasketReminderServiceTest extends TestCase
         return new Basket()
             ->setStatus(BasketStatus::Validated)
             ->setEmail('someone@example.org')
-            ->setModification(new \DateTime('-2 days'))
+            ->setModification(new \DateTimeImmutable('-2 days'))
         ;
     }
 

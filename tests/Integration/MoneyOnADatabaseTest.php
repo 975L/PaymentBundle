@@ -119,6 +119,8 @@ class MoneyOnADatabaseTest extends TestCase
         $config = ORMSetup::createAttributeMetadataConfig([\dirname(__DIR__, 2) . '/src/Entity', __DIR__ . '/Fixture'], true);
         $config->setNamingStrategy(new UnderscoreNamingStrategy(\CASE_LOWER, true));
         $config->enableNativeLazyObjects(true);
+        // The schema written through DBAL's editor, the only way left in Doctrine ORM 4
+        $config->setUseSchemaEditorApi(true);
 
         $resolver = new ResolveTargetEntityListener();
         $resolver->addResolveTargetEntity(UserInterface::class, DatabaseTestUser::class, []);
@@ -358,7 +360,7 @@ class MoneyOnADatabaseTest extends TestCase
         $this->assertSame(5000, (int) $connection->fetchOne('SELECT initial_amount FROM payment_gift_card'));
         $this->assertSame(0, $this->balance());
         $this->assertNull($held->getInvoiceNumber());
-        $this->assertSame(1, $this->basketRepository->countChargedUndeliveredSince(new \DateTime('-1 day')));
+        $this->assertSame(1, $this->basketRepository->countChargedUndeliveredSince(new \DateTimeImmutable('-1 day')));
 
         $this->onPaid = static function (): void {
         };
@@ -487,7 +489,7 @@ class MoneyOnADatabaseTest extends TestCase
         array_map($this->codeService->claim(...), [$givenUp, $noPayment, $charged, $shared]);
         $this->assertSame(0, $this->balance());
 
-        $this->entityManager->getConnection()->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTime('-25 hours')->format('Y-m-d H:i:s')]);
+        $this->entityManager->getConnection()->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTimeImmutable('-25 hours')->format('Y-m-d H:i:s')]);
         $this->entityManager->clear();
 
         $retention = new BasketRetentionService($this->basketRepository, $this->entityManager, $this->logger(), $this->codeService, $this->shareValidity(7));
@@ -516,8 +518,8 @@ class MoneyOnADatabaseTest extends TestCase
         array_map($this->codeService->claim(...), [$running, $runOut, $paid]);
 
         $connection = $this->entityManager->getConnection();
-        $connection->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTime('-6 days')->format('Y-m-d H:i:s')]);
-        $connection->executeStatement('UPDATE payment_basket SET modification = :old WHERE id IN (:one, :two)', ['old' => new \DateTime('-8 days')->format('Y-m-d H:i:s'), 'one' => $runOut->getId(), 'two' => $paid->getId()]);
+        $connection->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTimeImmutable('-6 days')->format('Y-m-d H:i:s')]);
+        $connection->executeStatement('UPDATE payment_basket SET modification = :old WHERE id IN (:one, :two)', ['old' => new \DateTimeImmutable('-8 days')->format('Y-m-d H:i:s'), 'one' => $runOut->getId(), 'two' => $paid->getId()]);
         $this->entityManager->clear();
 
         $retention = new BasketRetentionService($this->basketRepository, $this->entityManager, $this->logger(), $this->codeService, $this->shareValidity(7));
@@ -540,7 +542,7 @@ class MoneyOnADatabaseTest extends TestCase
         $charged = $this->storedBasket(BasketStatus::Validated);
         $this->attachPayment($charged, finished: true);
         $connection = $this->entityManager->getConnection();
-        $connection->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTime('-40 days')->format('Y-m-d H:i:s')]);
+        $connection->executeStatement('UPDATE payment_basket SET modification = :old', ['old' => new \DateTimeImmutable('-40 days')->format('Y-m-d H:i:s')]);
         $this->entityManager->clear();
 
         $this->assertSame([$unpaid->getId()], array_map(static fn (Basket $basket): ?int => $basket->getId(), $this->basketRepository->findAbandoned(30)));
@@ -778,8 +780,8 @@ class MoneyOnADatabaseTest extends TestCase
         $basket->setQuantity(1);
         $basket->setCurrency('EUR');
         $basket->setEmail('marie@example.org');
-        $basket->setCreation(new \DateTime());
-        $basket->setModification(new \DateTime());
+        $basket->setCreation(new \DateTimeImmutable());
+        $basket->setModification(new \DateTimeImmutable());
         $basket->setContentFlags(Basket::CONTENT_FLAG_DIGITAL);
         $basket->setRecoveryToken(bin2hex(random_bytes(8)));
         $basket->setItems(['product' => [1 => [
@@ -802,7 +804,7 @@ class MoneyOnADatabaseTest extends TestCase
     private function attachPayment(Basket $basket, bool $finished, ?string $transaction = null): void
     {
         $payment = new \c975L\PaymentBundle\Entity\Payment();
-        $payment->setCreation(new \DateTime())->setModification(new \DateTime())->setGateway('stripe')->setAmount($basket->getPayable())->setCurrency('EUR')->setFinished($finished)->setTransactionId($transaction);
+        $payment->setCreation(new \DateTimeImmutable())->setModification(new \DateTimeImmutable())->setGateway('stripe')->setAmount($basket->getPayable())->setCurrency('EUR')->setFinished($finished)->setTransactionId($transaction);
         $payment->setBasket($basket);
         $basket->setPayment($payment);
         $this->entityManager->persist($payment);

@@ -88,8 +88,8 @@ class BasketRepositoryTest extends TestCase
         $this->assertStringContainsString('b.discountClaimed = true', $this->dql);
         $this->assertStringContainsString('(b.shareToken IS NULL AND b.modification < :date) OR (b.shareToken IS NOT NULL AND b.modification < :sharedDate)', $this->dql);
         $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
-        $this->assertEqualsWithDelta(new \DateTime('-24 hours')->getTimestamp(), $this->parameters['date']->getTimestamp(), 5);
-        $this->assertEqualsWithDelta(new \DateTime('-7 days')->getTimestamp(), $this->parameters['sharedDate']->getTimestamp(), 5);
+        $this->assertEqualsWithDelta(new \DateTimeImmutable('-24 hours')->getTimestamp(), $this->parameters['date']->getTimestamp(), 5);
+        $this->assertEqualsWithDelta(new \DateTimeImmutable('-7 days')->getTimestamp(), $this->parameters['sharedDate']->getTimestamp(), 5);
     }
 
     /**
@@ -115,7 +115,7 @@ class BasketRepositoryTest extends TestCase
     // An order with nothing to pay carries no payment row at all (see BasketService::paid()), so reading it as unpaid would report every free order there ever was
     public function testTheIntegrityQueryLeavesTheOrdersWithNothingToPayOut(): void
     {
-        $this->createRepository()->findDeliveredWithoutFinishedPayment(new \DateTime('-12 months'));
+        $this->createRepository()->findDeliveredWithoutFinishedPayment(new \DateTimeImmutable('-12 months'));
 
         $this->assertStringContainsString('b.total + b.shipping - b.discountAmount > 0', $this->dql);
         $this->assertStringContainsString('p.id IS NULL OR p.isFinished = false', $this->dql);
@@ -125,7 +125,7 @@ class BasketRepositoryTest extends TestCase
     // "eur" and "EUR" are one and the same currency, and a check reporting them as two would report every order of a shop storing them differently on each side
     public function testTheAmountQueryComparesTheCurrencyWhateverItsCase(): void
     {
-        $this->createRepository()->findWithPaymentAmountMismatch(new \DateTime('-12 months'));
+        $this->createRepository()->findWithPaymentAmountMismatch(new \DateTimeImmutable('-12 months'));
 
         $this->assertStringContainsString('LOWER(p.currency) <> LOWER(b.currency)', $this->dql);
         $this->assertStringContainsString('p.isFinished = true', $this->dql);
@@ -159,7 +159,7 @@ class BasketRepositoryTest extends TestCase
      */
     public function testEveryIntegrityQueryLeavesTheTestOrdersOut(): void
     {
-        $since = new \DateTime('-12 months');
+        $since = new \DateTimeImmutable('-12 months');
         $queries = [
             fn () => $this->createRepository()->findDeliveredWithoutFinishedPayment($since),
             fn () => $this->createRepository()->findWithPaymentAmountMismatch($since),

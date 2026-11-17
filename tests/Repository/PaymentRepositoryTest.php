@@ -38,7 +38,7 @@ class PaymentRepositoryTest extends TestCase
      */
     public function testAPaymentSettlingATestOrderIsLeftOut(): void
     {
-        $this->createRepository()->findFinishedWithoutDeliveredBasket(new \DateTime('-12 months'), new \DateTime('-60 minutes'));
+        $this->createRepository()->findFinishedWithoutDeliveredBasket(new \DateTimeImmutable('-12 months'), new \DateTimeImmutable('-60 minutes'));
 
         $this->assertStringContainsString('b.id IS NULL OR b.testMode = false', $this->dql);
     }
@@ -46,7 +46,7 @@ class PaymentRepositoryTest extends TestCase
     // A payment carrying no order at all has no test flag to be read off, and is the very case this check exists for
     public function testAPaymentWithNoOrderAtAllIsStillReported(): void
     {
-        $this->createRepository()->findFinishedWithoutDeliveredBasket(new \DateTime('-12 months'), new \DateTime('-60 minutes'));
+        $this->createRepository()->findFinishedWithoutDeliveredBasket(new \DateTimeImmutable('-12 months'), new \DateTimeImmutable('-60 minutes'));
 
         $this->assertStringContainsString('b.id IS NULL OR b.status NOT IN (:delivered)', $this->dql);
         $this->assertStringContainsString('p.isFinished = true', $this->dql);

@@ -85,13 +85,13 @@ class GiftCardService
     {
         $months = (int) $this->configService->get('payment-gift-card-validity');
 
-        return $months > 0 ? new \DateTime('+' . $months . ' months') : null;
+        return $months > 0 ? new \DateTimeImmutable('+' . $months . ' months') : null;
     }
 
     // A card is valid through the whole of its last day, not refused from its first second
     private function endOfDay(?\DateTimeInterface $date): ?\DateTimeInterface
     {
-        return null === $date ? null : \DateTime::createFromInterface($date)->setTime(23, 59, 59);
+        return null === $date ? null : \DateTimeImmutable::createFromInterface($date)->setTime(23, 59, 59);
     }
 
     // A code no row already holds. Retried rather than trusted: the odds are negligible, but a collision would hand a second customer the first one's balance, and the unique index would only say so on the flush

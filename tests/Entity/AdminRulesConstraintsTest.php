@@ -38,9 +38,9 @@ class AdminRulesConstraintsTest extends TestCase
     // A code ending before it starts is refused, one with either date left empty accepted
     public function testADiscountEndingBeforeItStartsIsRefused(): void
     {
-        $this->assertSame(['validUntil'], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTime('2026-12-01'))->setValidUntil(new \DateTime('2026-11-01')))));
-        $this->assertSame([], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTime('2026-11-01'))->setValidUntil(new \DateTime('2026-12-01')))));
-        $this->assertSame([], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTime('2026-11-01')))));
+        $this->assertSame(['validUntil'], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTimeImmutable('2026-12-01'))->setValidUntil(new \DateTimeImmutable('2026-11-01')))));
+        $this->assertSame([], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTimeImmutable('2026-11-01'))->setValidUntil(new \DateTimeImmutable('2026-12-01')))));
+        $this->assertSame([], $this->paths($this->validate(new Discount()->setValue(10)->setValidFrom(new \DateTimeImmutable('2026-11-01')))));
     }
 
     // A negative price or weight on a tier is refused through its zone, the screen editing both at once

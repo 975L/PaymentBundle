@@ -158,32 +158,32 @@ class Basket implements \Stringable
     #[ORM\OneToOne(inversedBy: 'basket')]
     private ?Payment $payment = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $creation = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $creation = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $modification = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $modification = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $itemsShipped = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $itemsShipped = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $counterpartsShipped = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $counterpartsShipped = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $downloaded = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $downloaded = null;
 
     // When the payer ticked the waiver of their right of withdrawal: the proof the seller keeps of an express waiver, null where none was asked
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $withdrawalWaived = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $withdrawalWaived = null;
 
     // When the order left the back-office active list: it is still kept for the ten years the accounting obligation asks for, but it has stopped being current business once the legal warranty has run out, and setting it apart is what the CNIL asks for rather than leaving it among the orders being handled
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $archived = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $archived = null;
 
     // When the provider last reported money handed back: the date the customer area and the back office show beside the "refunded" status, which says what but not when. Set on a partial refund too, the order then staying paid - which is what lets the dashboard tell the shopkeeper about the recent ones (see PaymentAlertProvider)
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $refundedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $refundedAt = null;
 
     // What the provider has handed back so far, in the currency's smallest unit, as the provider totals it: a partial refund leaves the order paid and is only told to the shopkeeper, who decides what it takes away
     #[ORM\Column(options: ['default' => 0])]
@@ -195,8 +195,8 @@ class Basket implements \Stringable
     private int $remindersSent = 0;
 
     // The day the customer asked to hear no more about this order. Null for as long as they have not: a reminder is not prospection but the follow-up of an order they placed themselves and left unpaid, so it goes out without being asked for - and stops the moment the link at the foot of it is clicked
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $reminderOptOutAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $reminderOptOutAt = null;
 
     // The language the order was placed in, remembered because the e-mails that follow it are not all sent from the customer's own request: a reminder goes out from a nightly command and a shipping notice from the shopkeeper's click, and neither would know what language to write in. Null on the orders taken before this was kept, which the site's own language answers for
     #[ORM\Column(length: 5, nullable: true)]
@@ -204,8 +204,8 @@ class Basket implements \Stringable
     private ?string $locale = null;
 
     // The day the invoice was issued, kept beside its number and never read off "modification": that date moves every time the order is touched - a parcel posted two days later would redate an invoice already in the customer's mailbox, and the same number would then name two documents
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $invoiceDate = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $invoiceDate = null;
 
     // Whether the checkout was opened while the shop was charging with the provider's test keys. Stamped when the order is frozen and never afterwards - the toggle can be flipped back between the moment an order is validated and the moment it is paid, and what a rehearsal is, is an order charged against test keys. Read by InvoiceService, which numbers no such order: an invoice sequence an accountant reads holds no document for a sale that never happened
     #[ORM\Column]
@@ -236,8 +236,8 @@ class Basket implements \Stringable
     #[Assert\Length(max: 30)]
     private ?string $creditNoteNumber = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $creditNoteDate = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $creditNoteDate = null;
 
     // Whoever the gift cards of this order were bought for, and what the buyer wanted said to them. One address per order, not one per card: a shopper buying two cards for the same person is the ordinary case, and asking twice for two lines that go to the same mailbox helps nobody
     #[ORM\Column(length: 255, nullable: true)]
@@ -530,98 +530,98 @@ class Basket implements \Stringable
         return 0 !== ($this->contentflags & (self::CONTENT_FLAG_DIGITAL | self::CONTENT_FLAG_SERVICE));
     }
 
-    public function getCreation(): ?\DateTimeInterface
+    public function getCreation(): ?\DateTimeImmutable
     {
         return $this->creation;
     }
 
     public function setCreation(\DateTimeInterface $creation): static
     {
-        $this->creation = $creation;
+        $this->creation = \DateTimeImmutable::createFromInterface($creation);
 
         return $this;
     }
 
-    public function getModification(): ?\DateTimeInterface
+    public function getModification(): ?\DateTimeImmutable
     {
         return $this->modification;
     }
 
     public function setModification(\DateTimeInterface $modification): static
     {
-        $this->modification = $modification;
+        $this->modification = \DateTimeImmutable::createFromInterface($modification);
 
         return $this;
     }
 
-    public function getItemsShipped(): ?\DateTimeInterface
+    public function getItemsShipped(): ?\DateTimeImmutable
     {
         return $this->itemsShipped;
     }
 
     public function setItemsShipped(?\DateTimeInterface $itemsShipped): static
     {
-        $this->itemsShipped = $itemsShipped;
+        $this->itemsShipped = null === $itemsShipped ? null : \DateTimeImmutable::createFromInterface($itemsShipped);
 
         return $this;
     }
 
-    public function getCounterpartsShipped(): ?\DateTimeInterface
+    public function getCounterpartsShipped(): ?\DateTimeImmutable
     {
         return $this->counterpartsShipped;
     }
 
     public function setCounterpartsShipped(?\DateTimeInterface $counterpartsShipped): static
     {
-        $this->counterpartsShipped = $counterpartsShipped;
+        $this->counterpartsShipped = null === $counterpartsShipped ? null : \DateTimeImmutable::createFromInterface($counterpartsShipped);
 
         return $this;
     }
 
-    public function getDownloaded(): ?\DateTimeInterface
+    public function getDownloaded(): ?\DateTimeImmutable
     {
         return $this->downloaded;
     }
 
     public function setDownloaded(?\DateTimeInterface $downloaded): static
     {
-        $this->downloaded = $downloaded;
+        $this->downloaded = null === $downloaded ? null : \DateTimeImmutable::createFromInterface($downloaded);
 
         return $this;
     }
 
-    public function getWithdrawalWaived(): ?\DateTimeInterface
+    public function getWithdrawalWaived(): ?\DateTimeImmutable
     {
         return $this->withdrawalWaived;
     }
 
     public function setWithdrawalWaived(?\DateTimeInterface $withdrawalWaived): static
     {
-        $this->withdrawalWaived = $withdrawalWaived;
+        $this->withdrawalWaived = null === $withdrawalWaived ? null : \DateTimeImmutable::createFromInterface($withdrawalWaived);
 
         return $this;
     }
 
-    public function getArchived(): ?\DateTimeInterface
+    public function getArchived(): ?\DateTimeImmutable
     {
         return $this->archived;
     }
 
     public function setArchived(?\DateTimeInterface $archived): static
     {
-        $this->archived = $archived;
+        $this->archived = null === $archived ? null : \DateTimeImmutable::createFromInterface($archived);
 
         return $this;
     }
 
-    public function getRefundedAt(): ?\DateTimeInterface
+    public function getRefundedAt(): ?\DateTimeImmutable
     {
         return $this->refundedAt;
     }
 
     public function setRefundedAt(?\DateTimeInterface $refundedAt): static
     {
-        $this->refundedAt = $refundedAt;
+        $this->refundedAt = null === $refundedAt ? null : \DateTimeImmutable::createFromInterface($refundedAt);
 
         return $this;
     }
@@ -650,14 +650,14 @@ class Basket implements \Stringable
         return $this;
     }
 
-    public function getReminderOptOutAt(): ?\DateTimeInterface
+    public function getReminderOptOutAt(): ?\DateTimeImmutable
     {
         return $this->reminderOptOutAt;
     }
 
     public function setReminderOptOutAt(?\DateTimeInterface $reminderOptOutAt): static
     {
-        $this->reminderOptOutAt = $reminderOptOutAt;
+        $this->reminderOptOutAt = null === $reminderOptOutAt ? null : \DateTimeImmutable::createFromInterface($reminderOptOutAt);
 
         return $this;
     }
@@ -907,26 +907,26 @@ class Basket implements \Stringable
         return $this;
     }
 
-    public function getCreditNoteDate(): ?\DateTimeInterface
+    public function getCreditNoteDate(): ?\DateTimeImmutable
     {
         return $this->creditNoteDate;
     }
 
     public function setCreditNoteDate(?\DateTimeInterface $creditNoteDate): static
     {
-        $this->creditNoteDate = $creditNoteDate;
+        $this->creditNoteDate = null === $creditNoteDate ? null : \DateTimeImmutable::createFromInterface($creditNoteDate);
 
         return $this;
     }
 
-    public function getInvoiceDate(): ?\DateTimeInterface
+    public function getInvoiceDate(): ?\DateTimeImmutable
     {
         return $this->invoiceDate;
     }
 
     public function setInvoiceDate(?\DateTimeInterface $invoiceDate): static
     {
-        $this->invoiceDate = $invoiceDate;
+        $this->invoiceDate = null === $invoiceDate ? null : \DateTimeImmutable::createFromInterface($invoiceDate);
 
         return $this;
     }

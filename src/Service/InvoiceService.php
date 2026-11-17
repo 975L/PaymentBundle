@@ -49,11 +49,11 @@ class InvoiceService
             return null;
         }
 
-        $year = (int) new \DateTime()->format('Y');
+        $year = (int) new \DateTimeImmutable()->format('Y');
         $number = sprintf(self::FORMAT, $this->prefix(), $year, $this->invoiceSequenceRepository->next($year));
 
         $basket->setInvoiceNumber($number);
-        $basket->setInvoiceDate(new \DateTime());
+        $basket->setInvoiceDate(new \DateTimeImmutable());
         // Frozen in the same breath as the number: the two are the document, and an invoice numbered without its issuer is one that will be reissued under whoever the shop has become since. Frozen as the configuration holds it and not as a template printed it, the formatting being the renderer's business (see the invoice template) - a value frozen already escaped would be escaped a second time on the way out
         $basket->setInvoiceIssuer(
             $this->config('site-owner'),
@@ -73,11 +73,11 @@ class InvoiceService
             return $basket->getCreditNoteNumber();
         }
 
-        $year = (int) new \DateTime()->format('Y');
+        $year = (int) new \DateTimeImmutable()->format('Y');
         $number = sprintf(self::FORMAT, $this->prefix('shop-credit-note-prefix', 'AV'), $year, $this->invoiceSequenceRepository->next($year, InvoiceSequence::KIND_CREDIT_NOTE));
 
         $basket->setCreditNoteNumber($number);
-        $basket->setCreditNoteDate(new \DateTime());
+        $basket->setCreditNoteDate(new \DateTimeImmutable());
         $this->entityManager->flush();
 
         return $number;

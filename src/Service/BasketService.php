@@ -110,8 +110,8 @@ class BasketService implements BasketServiceInterface
         $basket->setQuantity(0);
         $basket->setCurrency($this->configService->get('shop-currency'));
         $basket->setShipping(0);
-        $basket->setCreation(new \DateTime());
-        $basket->setModification(new \DateTime());
+        $basket->setCreation(new \DateTimeImmutable());
+        $basket->setModification(new \DateTimeImmutable());
         $basket->setStatus(BasketStatus::New);
         $basket->setUser($this->user);
         $this->prefillBusiness($basket);
@@ -516,7 +516,7 @@ class BasketService implements BasketServiceInterface
     {
         $this->basket->setStatus(BasketStatus::Validated);
         // The last change this order sees: the nightly pass counts from here how long its checkout has been given up on (see BasketRepository::findStaleClaims())
-        $this->basket->setModification(new \DateTime());
+        $this->basket->setModification(new \DateTimeImmutable());
         // The one moment the customer's own request is here to be asked: everything sent afterwards is sent from somewhere else
         $this->basket->setLocale($this->requestStack->getCurrentRequest()?->getLocale());
         $this->basket->setNumber($this->generateOrderNumber());
@@ -525,7 +525,7 @@ class BasketService implements BasketServiceInterface
         $this->basket->setTestMode($this->testMode->isEnabled());
         // The waiver the coordinates form has just made the customer tick, dated as the proof of it; an order shared is waived by whoever pays it (see payShared())
         if (!$forSharing && $this->basket->asksWithdrawalWaiver()) {
-            $this->basket->setWithdrawalWaived(new \DateTime());
+            $this->basket->setWithdrawalWaived(new \DateTimeImmutable());
         }
         $this->entityManager->persist($this->basket);
 
@@ -621,7 +621,7 @@ class BasketService implements BasketServiceInterface
 
         // The payer is the one contracting, so the waiver is theirs: the page asked for it before calling this (see BasketController::sharedPay())
         if ($basket->asksWithdrawalWaiver()) {
-            $basket->setWithdrawalWaived(new \DateTime());
+            $basket->setWithdrawalWaived(new \DateTimeImmutable());
         }
 
         $paidUrl = $this->urlGenerator->generate(
@@ -694,8 +694,8 @@ class BasketService implements BasketServiceInterface
             ->setEmail($email)
             // Stamped from the back-office request, the e-mails that follow being sent from a webhook that knows no language
             ->setLocale($this->requestStack->getCurrentRequest()?->getLocale())
-            ->setCreation(new \DateTime())
-            ->setModification(new \DateTime())
+            ->setCreation(new \DateTimeImmutable())
+            ->setModification(new \DateTimeImmutable())
         ;
 
         // Attached to nobody: the admin writing the link is not the customer buying it, and an order filed under their account would show up in their own order history
@@ -736,7 +736,7 @@ class BasketService implements BasketServiceInterface
 
         // The claim went round the unit of work, which still holds the basket as it was read
         $basket->setStatus(BasketStatus::Paid);
-        $basket->setModification(new \DateTime());
+        $basket->setModification(new \DateTimeImmutable());
 
         if ($this->deliver($basket)) {
             // Dispatch messages emails
@@ -881,12 +881,12 @@ class BasketService implements BasketServiceInterface
 
             // Items
             if ('product' === $type && 0 !== ($flags & Basket::CONTENT_FLAG_PHYSICAL)) {
-                $basket->setItemsShipped(new \DateTime());
+                $basket->setItemsShipped(new \DateTimeImmutable());
             }
 
             // Counterparts
             if ('crowdfunding' === $type && 0 !== ($flags & Basket::CONTENT_FLAG_CF_SHIPPING)) {
-                $basket->setCounterpartsShipped(new \DateTime());
+                $basket->setCounterpartsShipped(new \DateTimeImmutable());
             }
 
             // Shipped once every parcel it carries has left: a line posted nothing, a skin or a file, waits for no shipment
@@ -895,7 +895,7 @@ class BasketService implements BasketServiceInterface
             if ($itemsLeft && $counterpartsLeft) {
                 $basket->setStatus(BasketStatus::Shipped);
             }
-            $basket->setModification(new \DateTime());
+            $basket->setModification(new \DateTimeImmutable());
 
             $this->entityManager->persist($basket);
             $this->entityManager->flush();
@@ -1006,7 +1006,7 @@ class BasketService implements BasketServiceInterface
         $this->addToItems($items, $type, $itemId, $item, $provider, $quantity);
 
         $this->basket->setItems($items);
-        $this->basket->setModification(new \DateTime());
+        $this->basket->setModification(new \DateTimeImmutable());
 
         $this->updateTotals();
         $this->entityManager->persist($this->basket);
@@ -1045,7 +1045,7 @@ class BasketService implements BasketServiceInterface
         }
 
         $this->basketCodeService->apply($this->basket, $resolution);
-        $this->basket->setModification(new \DateTime());
+        $this->basket->setModification(new \DateTimeImmutable());
 
         $this->entityManager->persist($this->basket);
         $this->entityManager->flush();
@@ -1066,7 +1066,7 @@ class BasketService implements BasketServiceInterface
             return $this->getJson();
         }
         $this->basketCodeService->clear($this->basket);
-        $this->basket->setModification(new \DateTime());
+        $this->basket->setModification(new \DateTimeImmutable());
 
         $this->entityManager->persist($this->basket);
         $this->entityManager->flush();
@@ -1102,7 +1102,7 @@ class BasketService implements BasketServiceInterface
         }
 
         $this->basket->setItems($items);
-        $this->basket->setModification(new \DateTime());
+        $this->basket->setModification(new \DateTimeImmutable());
 
         $this->updateTotals();
         $this->entityManager->persist($this->basket);
@@ -1269,7 +1269,7 @@ class BasketService implements BasketServiceInterface
     public function createPayment(?string $gatewayReference = null): void
     {
         // A checkout abandoned and started again re-prices the same basket: its payment row is written over rather than replaced, Basket holding exactly one Payment and a second only orphaning the first
-        $payment = $this->basket->getPayment() ?? new Payment()->setCreation(new \DateTime());
+        $payment = $this->basket->getPayment() ?? new Payment()->setCreation(new \DateTimeImmutable());
 
         $payment->setBasket($this->basket);
         $payment->setFinished(false);
@@ -1278,7 +1278,7 @@ class BasketService implements BasketServiceInterface
         $payment->setCurrency($this->basket->getCurrency());
         $payment->setGateway(($this->gateway ?? $this->gatewayRegistry->getActive())->getSlug());
         $payment->setGatewayReference($gatewayReference);
-        $payment->setModification(new \DateTime());
+        $payment->setModification(new \DateTimeImmutable());
         $payment->setUser($this->user);
 
         $this->entityManager->persist($payment);
@@ -1404,7 +1404,7 @@ class BasketService implements BasketServiceInterface
             $payment->setPaymentMethod($notification->paymentMethod);
             $payment->setFinished(true);
             $payment->setGatewayReference(null);
-            $payment->setModification(new \DateTime());
+            $payment->setModification(new \DateTimeImmutable());
 
             $this->entityManager->persist($payment);
         }
