@@ -35,10 +35,21 @@ class c975LPaymentBundle extends AbstractBundle
 
     public function prependExtension(ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void
     {
+        // Lifted under "test" as UiBundle's own limiters are, a functional suite driving its whole run from one address; hasParameter() guards a bare ContainerBuilder holding no kernel parameter
+        $testEnvironment = $containerBuilder->hasParameter('kernel.environment') && 'test' === $containerBuilder->getParameter('kernel.environment');
+
         $containerBuilder->prependExtensionConfig('framework', [
             'asset_mapper' => [
                 'paths' => [
                     __DIR__ . '/../assets' => '@c975l/payment-bundle',
+                ],
+            ],
+            // The codes typed in the basket (see BasketController::applyCode()), per caller, declared here so no site has to: a gift card's code is money, and guessing one must not be free. An app declaring its own "payment_code" still decides, its config being merged over this one
+            'rate_limiter' => [
+                'payment_code' => [
+                    'policy' => $testEnvironment ? 'no_limit' : 'sliding_window',
+                    'limit' => 10,
+                    'interval' => '15 minutes',
                 ],
             ],
         ]);

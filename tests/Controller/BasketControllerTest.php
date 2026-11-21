@@ -25,6 +25,7 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\UiBundle\Service\AgeVerifier;
+use c975L\UiBundle\Service\RateLimiterGuard;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -36,6 +37,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
+use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
@@ -499,6 +504,71 @@ class BasketControllerTest extends TestCase
         $this->assertSame('https://checkout.example/session-1', $response->getTargetUrl());
     }
 
+    // A code is money when it is a gift card's: past the limit, the caller is told to wait and the service is not even asked, so guessing costs time
+    public function testCodesTriedPastTheLimitAreRefusedWithoutBeingRead(): void
+    {
+        $basketService = $this->createMock(BasketServiceInterface::class);
+        $basketService->expects($this->exactly(2))->method('applyCode')->willReturn(['error' => 'error.code_unknown']);
+        $controller = $this->controller($basketService, codeLimiter: $this->codeLimiter(2));
+
+        $answers = [];
+        foreach (['CODE-1', 'CODE-2', 'CODE-3'] as $code) {
+            $answers[] = $controller->applyCode($this->codeRequest($code, '192.0.2.1'));
+        }
+
+        $this->assertSame(Response::HTTP_TOO_MANY_REQUESTS, $answers[2]->getStatusCode());
+        $this->assertSame(['error' => 'error.code_too_many_attempts'], json_decode((string) $answers[2]->getContent(), true));
+    }
+
+    // A page of another site posting text/plain in the visitor's name is refused before it spends one of their tries
+    public function testABodyNotDeclaredJsonCostsNoTry(): void
+    {
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('applyCode')->willReturn([]);
+        $controller = $this->controller($basketService, codeLimiter: $this->codeLimiter(1));
+        $forged = Request::create('/shop/basket/code', 'POST', server: ['REMOTE_ADDR' => '192.0.2.1', 'CONTENT_TYPE' => 'text/plain'], content: (string) json_encode(['code' => 'CODE-1']));
+
+        try {
+            $controller->applyCode($forged);
+            $this->fail('A body not declared JSON was read.');
+        } catch (UnsupportedMediaTypeHttpException) {
+            $this->assertSame(Response::HTTP_OK, $controller->applyCode($this->codeRequest('CODE-1', '192.0.2.1'))->getStatusCode());
+        }
+    }
+
+    // Counted per caller: one guesser reaching the limit leaves the next customer free to type their own code
+    public function testTheLimitIsCountedPerCaller(): void
+    {
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('applyCode')->willReturn([]);
+        $controller = $this->controller($basketService, codeLimiter: $this->codeLimiter(1));
+
+        $controller->applyCode($this->codeRequest('CODE-1', '192.0.2.1'));
+
+        $this->assertSame(Response::HTTP_OK, $controller->applyCode($this->codeRequest('CODE-1', '198.51.100.7'))->getStatusCode());
+    }
+
+    // A site that took the limiter away still answers the code
+    public function testWithoutALimiterTheCodeIsStillApplied(): void
+    {
+        $basketService = $this->createStub(BasketServiceInterface::class);
+        $basketService->method('applyCode')->willReturn([]);
+
+        $this->assertSame(Response::HTTP_OK, $this->controller($basketService)->applyCode($this->codeRequest('CODE-1', '192.0.2.1'))->getStatusCode());
+    }
+
+    // The limiter the bundle prepends, held in memory with the limit a scenario needs
+    private function codeLimiter(int $limit): RateLimiterFactoryInterface
+    {
+        return new RateLimiterFactory(['id' => 'payment_code', 'policy' => 'sliding_window', 'limit' => $limit, 'interval' => '15 minutes'], new InMemoryStorage());
+    }
+
+    // A code posted the way basket.js posts it, from that address
+    private function codeRequest(string $code, string $ip): Request
+    {
+        return Request::create('/shop/basket/code', 'POST', server: ['REMOTE_ADDR' => $ip, 'CONTENT_TYPE' => 'application/json'], content: (string) json_encode(['code' => $code]));
+    }
+
     // Twig answering the name of the template it was asked to render, which is what the assertions read
     private function twigNaming(): Environment
     {
@@ -508,7 +578,7 @@ class BasketControllerTest extends TestCase
         return $twig;
     }
 
-    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false, bool $csrfValid = false, bool $granted = false, bool $ageGateClosed = false): BasketController
+    private function controller(BasketServiceInterface $basketService, ?BasketDownloadRegistry $downloadRegistry = null, ?Environment $twig = null, ?BasketRecommendationRegistry $recommendationRegistry = null, bool $accountRequired = false, bool $signedIn = false, bool $csrfValid = false, bool $granted = false, bool $ageGateClosed = false, ?RateLimiterFactoryInterface $codeLimiter = null): BasketController
     {
         $itemProviderRegistry = $this->createStub(BasketItemProviderRegistry::class);
         $itemProviderRegistry->method('requiresAccount')->willReturn($accountRequired);
@@ -531,6 +601,8 @@ class BasketControllerTest extends TestCase
             self::createSiteLocales(),
             $itemProviderRegistry,
             $ageVerifier,
+            new RateLimiterGuard(),
+            $codeLimiter,
         );
 
         $controller->setContainer($this->container($twig, $signedIn, $csrfValid, $granted));

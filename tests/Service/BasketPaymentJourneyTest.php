@@ -1226,7 +1226,7 @@ class BasketPaymentJourneyTest extends TestCase
 
     private function jsonRequest(array $data): Request
     {
-        return new Request([], [], [], [], [], [], json_encode($data));
+        return new Request([], [], [], [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
     }
 
     private function paymentTestMode(bool $enabled): PaymentTestModeInterface

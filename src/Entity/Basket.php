@@ -715,6 +715,16 @@ class Basket implements \Stringable
         return $this->discountCode;
     }
 
+    // The code as a log names it: a gift card's code is the money still on it, so only its last four characters, and none of a code too short to hide the rest
+    public function getMaskedDiscountCode(): ?string
+    {
+        if (null === $this->discountCode) {
+            return null;
+        }
+
+        return '…' . (mb_strlen($this->discountCode) > 8 ? mb_substr($this->discountCode, -4) : '');
+    }
+
     public function setDiscountCode(?string $discountCode): static
     {
         $this->discountCode = $discountCode;

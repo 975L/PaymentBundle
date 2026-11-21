@@ -498,6 +498,10 @@
                 <source>error.code_nothing_to_discount</source>
                 <target>Il n'y a rien à déduire sur ce panier</target>
             </trans-unit>
+            <trans-unit id="5uJUWl6">
+                <source>error.code_too_many_attempts</source>
+                <target>Trop de codes essayés : patientez quelques minutes avant d'en essayer un autre</target>
+            </trans-unit>
             <trans-unit id="lkpD2cn">
                 <source>error.code_unknown</source>
                 <target>Ce code n'existe pas</target>

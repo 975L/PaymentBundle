@@ -27,6 +27,7 @@ use c975L\PaymentBundle\Service\InvoiceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -90,6 +91,23 @@ class BasketRefundServiceTest extends TestCase
         $this->service(basketCodeService: $code)->apply($this->refund(2500));
 
         $this->assertSame(BasketStatus::Refunded, $this->basket->getStatus());
+    }
+
+    // A card gone from the database is named in the error by its last four characters: a code read whole off the logs is money anyone could spend elsewhere
+    public function testACardThatCouldNotBeCreditedIsLoggedMasked(): void
+    {
+        $this->basket->setStatus(BasketStatus::Validated)->setPayment(new Payment()->setFinished(true))->setDiscountClaimed(true)->setDiscountCode('AAAABBBBCCCCDDDD');
+        $code = $this->createStub(BasketCodeService::class);
+        $code->method('restore')->willReturn(false);
+        $logged = [];
+        $logger = $this->createStub(LoggerInterface::class);
+        $logger->method('error')->willReturnCallback(static function (string $message, array $context) use (&$logged): void {
+            $logged[] = $context['code'] ?? null;
+        });
+
+        $this->service(basketCodeService: $code, logger: $logger)->apply($this->refund(2500));
+
+        $this->assertSame(['…DDDD'], $logged);
     }
 
     // Held because the code no longer covered it: nothing was taken off the card, so nothing is credited to it
@@ -273,7 +291,7 @@ class BasketRefundServiceTest extends TestCase
         return new PaymentNotification(null, 'stripe', 'pi_1', null, $amount, PaymentEvent::Refunded);
     }
 
-    private function service(?int $expectedFlushes = null, ?BasketCodeService $basketCodeService = null, ?InvoiceService $invoiceService = null, array $providers = []): BasketRefundService
+    private function service(?int $expectedFlushes = null, ?BasketCodeService $basketCodeService = null, ?InvoiceService $invoiceService = null, array $providers = [], ?LoggerInterface $logger = null): BasketRefundService
     {
         $payment = $this->basket->getPayment() ?? new Payment();
         $payment->setBasket($this->basket);
@@ -297,7 +315,7 @@ class BasketRefundServiceTest extends TestCase
             $basketCodeService->method('restore')->willReturn(true);
         }
 
-        return new BasketRefundService($this->repository, $basketCodeService, $giftCardService, $invoiceService ?? $this->createStub(InvoiceService::class), $entityManager, new NullLogger(), new BasketItemProviderRegistry($providers));
+        return new BasketRefundService($this->repository, $basketCodeService, $giftCardService, $invoiceService ?? $this->createStub(InvoiceService::class), $entityManager, $logger ?? new NullLogger(), new BasketItemProviderRegistry($providers));
     }
 
     // The database stood in for: the claim moves only a settled order, which is what makes a replay harmless, and the finders return it while it is settled, as their queries do

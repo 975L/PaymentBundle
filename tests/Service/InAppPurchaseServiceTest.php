@@ -23,6 +23,7 @@ use c975L\PaymentBundle\Registry\InAppProductProviderRegistry;
 use c975L\PaymentBundle\Registry\InAppStoreRegistry;
 use c975L\PaymentBundle\Repository\StorePurchaseRepository;
 use c975L\PaymentBundle\Service\InAppPurchaseService;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -36,6 +37,8 @@ class InAppPurchaseServiceTest extends TestCase
     private ?StorePurchase $recorded = null;
     private ?InAppTransaction $answer = null;
     private bool $acknowledgeFails = false;
+    private bool $claimLost = false;
+    private bool $deliverFails = false;
 
     // The same holder always buys under the same token, a UUID the stores accept, and two holders never share one
     public function testTheAccountTokenIsAStableUuidPerHolder(): void
@@ -122,6 +125,34 @@ class InAppPurchaseServiceTest extends TestCase
 
         $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
         $this->assertSame([], $this->log);
+    }
+
+    // Two requests verifying a purchase recorded already: the one whose statement did not date the row delivers nothing, and still acknowledges
+    public function testAPurchaseClaimedByAConcurrentRequestIsNotDeliveredTwice(): void
+    {
+        $service = $this->service(new StorePurchase('apple', '1', 'back.a', 'u1'));
+        $this->answer = $this->transaction($service->accountToken('u1'));
+        $this->claimLost = true;
+
+        $this->assertTrue($service->verify('apple', 'u1', ['transactionId' => '1']));
+        $this->assertSame(['rollback', 'acknowledge 1'], $this->log);
+    }
+
+    // A delivery that fails rolls its date back off the row, so the retry is the one that delivers
+    public function testAFailedDeliveryGivesItsClaimBack(): void
+    {
+        $purchase = new StorePurchase('apple', '1', 'back.a', 'u1');
+        $service = $this->service($purchase);
+        $this->answer = $this->transaction($service->accountToken('u1'));
+        $this->deliverFails = true;
+
+        try {
+            $service->verify('apple', 'u1', ['transactionId' => '1']);
+            $this->fail('The delivery failure was swallowed');
+        } catch (\RuntimeException) {
+            $this->assertSame(['rollback'], $this->log);
+            $this->assertFalse($purchase->isDelivered());
+        }
     }
 
     public function testAPendingPurchaseGivesNothingYet(): void
@@ -262,7 +293,17 @@ class InAppPurchaseServiceTest extends TestCase
 
         $repository = $this->createStub(StorePurchaseRepository::class);
         $repository->method('findOneByTransaction')->willReturn($existing);
+        $repository->method('claimDelivery')->willReturnCallback(fn (): bool => !$this->claimLost);
+        $repository->method('restore')->willReturnCallback(static function (StorePurchase $purchase): void {
+            $purchase->markRestored();
+        });
+        $connection = $this->createStub(Connection::class);
+        $connection->method('isTransactionActive')->willReturn(true);
+        $connection->method('rollBack')->willReturnCallback(function (): void {
+            $this->log[] = 'rollback';
+        });
         $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
         $entityManager->method('persist')->willReturnCallback(function (object $entity): void {
             $this->recorded = $entity instanceof StorePurchase ? $entity : null;
         });
@@ -340,6 +381,7 @@ class InAppPurchaseServiceTest extends TestCase
 
             public function deliver(string $holder, string $productId, string $store): void
             {
+                $this->test->deliverFails() && throw new \RuntimeException('The provider is down');
                 $this->test->log('deliver ' . $holder . ' ' . $productId . ' ' . $store);
             }
 
@@ -358,6 +400,11 @@ class InAppPurchaseServiceTest extends TestCase
     public function acknowledgeFails(): bool
     {
         return $this->acknowledgeFails;
+    }
+
+    public function deliverFails(): bool
+    {
+        return $this->deliverFails;
     }
 
     public function log(string $line): void

@@ -132,6 +132,22 @@ class BasketBehaviourTest extends JsCase
         $this->assertSame('PERIME', $refused['left'], 'A refused code was wiped from the field, so the customer can neither see what they typed nor correct it.');
     }
 
+    // Too many codes tried from this address: the server says to wait, in its own sentence, rather than the page's generic failure
+    public function testTooManyCodesTriedShowsTheServersSentence(): void
+    {
+        $refused = $this->basket(
+            'answer("/shop/basket/code", { error: "Trop de codes essayes." }, 429);
+             target("code").value = "CODE-1";
+             root.querySelector("#apply").click();
+             await settle();
+
+             return { said: message().textContent, left: target("code").value };'
+        );
+
+        $this->assertSame('Trop de codes essayes.', $refused['said'], 'A code refused for too many tries is answered with the generic failure, which does not tell the customer to wait.');
+        $this->assertSame('CODE-1', $refused['left'], 'A code refused for too many tries was wiped from the field.');
+    }
+
     public function testATakenCodeIsClearedFromTheFieldAndAppliedToTheTotals(): void
     {
         $taken = $this->basket(
@@ -390,7 +406,7 @@ class BasketBehaviourTest extends JsCase
              const message = () => root.querySelector(".global-message");
              const target = (name) => root.querySelector("[data-basket-target=" + name + "]");
              const asked = (path) => window.__requests.filter((request) => request.url === path).length;
-             const answer = (path, body) => { window.__answers[path] = { body }; }; ';
+             const answer = (path, body, status = 200) => { window.__answers[path] = { body, status }; }; ';
 
         return $this->observe(
             $this->page(),
@@ -427,7 +443,7 @@ class BasketBehaviourTest extends JsCase
 
                  return answer.fail
                      ? Promise.reject(new Error("offline"))
-                     : Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(answer.body) });
+                     : Promise.resolve({ ok: (answer.status ?? 200) < 400, status: answer.status ?? 200, json: () => Promise.resolve(answer.body) });
              };',
             json_encode(array_replace(self::BASKET, $basket), \JSON_THROW_ON_ERROR),
             $failing ? '{ fail: true }' : '{ body: { basket: window.__basket } }'

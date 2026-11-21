@@ -11,6 +11,7 @@
 namespace c975L\PaymentBundle\Service;
 
 use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Contract\InAppProductProviderInterface;
 use c975L\PaymentBundle\Contract\InAppTransaction;
 use c975L\PaymentBundle\Entity\StorePurchase;
 use c975L\PaymentBundle\Enum\PaymentEvent;
@@ -82,20 +83,43 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
                 return true;
             }
         } elseif ($purchase->isRefunded()) {
-            $purchase->markRestored();
-            $this->entityManager->flush();
+            $this->purchaseRepository->restore($purchase);
         }
 
         // Delivered once per transaction, the date on the row telling a retry from a replay: a restore asks for nothing more than the acknowledgement that may still be missing
-        if (!$purchase->isDelivered()) {
-            $provider->deliver($holder, $transaction->productId, $store);
-            $purchase->markDelivered();
-            $this->entityManager->flush();
-        }
+        $this->deliverOnce($purchase, $provider);
 
         $this->storeRegistry->get($store)->acknowledge($transaction);
 
         return true;
+    }
+
+    // Delivers a purchase once: the row dated and the product given in one transaction, so a concurrent request waits on the row and finds it delivered, and a delivery that fails or a process that dies leaves it undated for the retry
+    private function deliverOnce(StorePurchase $purchase, InAppProductProviderInterface $provider): void
+    {
+        if ($purchase->isDelivered()) {
+            return;
+        }
+        $connection = $this->entityManager->getConnection();
+        $connection->beginTransaction();
+        try {
+            if (!$this->purchaseRepository->claimDelivery($purchase)) {
+                $connection->rollBack();
+
+                return;
+            }
+            $provider->deliver($purchase->getHolder(), $purchase->getProductId(), $purchase->getStore());
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+
+            throw $exception;
+        }
+
+        // The entity told what the row now says
+        $purchase->markDelivered();
     }
 
     // Whether the shop named this holder as one who may buy in a store's test space: the review account it hands Apple, its own testers. Nobody by default (see the "payment-store-sandbox-holders" setting)
@@ -117,13 +141,10 @@ class InAppPurchaseService implements InAppPurchaseServiceInterface
 
         $provider = $this->providerRegistry->forProduct($purchase->getProductId());
         if ($isReversal) {
-            $purchase->markRestored();
-            $this->entityManager->flush();
+            $this->purchaseRepository->restore($purchase);
             // No provider sells it any more: left undelivered, for the next proof to find once one does
             if (null !== $provider) {
-                $provider->deliver($purchase->getHolder(), $purchase->getProductId(), $purchase->getStore());
-                $purchase->markDelivered();
-                $this->entityManager->flush();
+                $this->deliverOnce($purchase, $provider);
             }
 
             return;

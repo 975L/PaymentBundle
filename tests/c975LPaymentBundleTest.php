@@ -13,11 +13,14 @@ namespace c975L\PaymentBundle\Tests;
 use c975L\PaymentBundle\c975LPaymentBundle;
 use c975L\PaymentBundle\Contract\BasketItemProviderInterface;
 use c975L\PaymentBundle\Contract\BasketRecommendationProviderInterface;
+use c975L\PaymentBundle\Controller\BasketController;
 use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Reference;
 
 class c975LPaymentBundleTest extends TestCase
 {
@@ -36,6 +39,30 @@ class c975LPaymentBundleTest extends TestCase
         $this->assertCount(1, $paths);
         $this->assertSame(realpath(\dirname(__DIR__) . '/assets'), realpath(array_key_first($paths)));
         $this->assertSame('@c975l/payment-bundle', reset($paths));
+    }
+
+    // The basket's codes are limited with nothing written in the app: ten tries per caller in a quarter of an hour
+    public function testPrependExtensionDeclaresTheCodeLimiter(): void
+    {
+        $container = new ContainerBuilder();
+
+        new c975LPaymentBundle()->prependExtension($this->createStub(ContainerConfigurator::class), $container);
+
+        $this->assertSame(
+            ['policy' => 'sliding_window', 'limit' => 10, 'interval' => '15 minutes'],
+            $container->getExtensionConfig('framework')[0]['rate_limiter']['payment_code'] ?? null
+        );
+    }
+
+    // A functional suite runs from one address, and would answer itself 429
+    public function testTheCodeLimiterIsLiftedUnderTest(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
+
+        new c975LPaymentBundle()->prependExtension($this->createStub(ContainerConfigurator::class), $container);
+
+        $this->assertSame('no_limit', $container->getExtensionConfig('framework')[0]['rate_limiter']['payment_code']['policy'] ?? null);
     }
 
     public function testBuildRegistersACompilerPassTaggingBasketItemProviders(): void
@@ -61,6 +88,19 @@ class c975LPaymentBundleTest extends TestCase
         new c975LPaymentBundle()->getContainerExtension()->load([], $container);
 
         $this->assertTrue($container->hasDefinition(BasketServiceInterface::class) || $container->hasAlias(BasketServiceInterface::class));
+    }
+
+    // The controller is handed the limiter the bundle declares, optionally: a name mistyped here would leave the route unlimited with nothing to say so
+    public function testTheCodeRouteIsHandedTheCodeLimiter(): void
+    {
+        $container = new ContainerBuilder();
+
+        new c975LPaymentBundle()->getContainerExtension()->load([], $container);
+        $argument = $container->getDefinition(BasketController::class)->getArgument('$codeLimiterFactory');
+
+        $this->assertInstanceOf(Reference::class, $argument);
+        $this->assertSame('limiter.payment_code', (string) $argument);
+        $this->assertSame(ContainerInterface::IGNORE_ON_INVALID_REFERENCE, $argument->getInvalidBehavior());
     }
 
     public function testGetPathReturnsTheBundleRootDirectory(): void

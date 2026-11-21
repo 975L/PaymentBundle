@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.28.2
+
+Code tries limited, JSON-only basket routes, store delivery claimed once
+
+- Basket JSON routes refuse a body not sent as `application/json` with a 415, closing cross-site text/plain posts (21/11/2026)
+- `basket_code_apply` limited to 10 tries per caller in 15 minutes by the `payment_code` limiter the bundle declares (21/11/2026)
+- `basket.js` prints the server's sentence on a 429 (21/11/2026)
+- Logged discount and gift-card codes masked to their last four characters by `Basket::getMaskedDiscountCode()` (21/11/2026)
+- A store purchase's delivery claimed by one conditional statement in the delivery's transaction, so two concurrent verifications deliver once and a failed one is retried (21/11/2026)
+- A reversed store refund reopened by one conditional statement, never wiping a delivery made meanwhile (21/11/2026)
+
 ## v6.28.1
 
 `php-http/discovery` plugin allowed, as in the other bundles

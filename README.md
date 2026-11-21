@@ -274,7 +274,7 @@ counterparts or prints.
 | `basket_json` | `/shop/basket/json` | The basket's total and quantity, for the header's counter |
 | `basket_validate` | `/shop/basket/validate` | Numbers the basket and sends the customer to the provider - or straight to `basket_paid` when there is nothing to pay |
 | `basket_paid` | `/shop/basket/paid/{number}/{securityToken}` | Where the customer comes back. Confirms the payment **with the provider** before anything is delivered |
-| `basket_code_apply` | `/shop/basket/code` (POST) | Applies the one code the basket field takes, a promotional code or a gift card |
+| `basket_code_apply` | `/shop/basket/code` (POST) | Applies the one code the basket field takes, a promotional code or a gift card - ten tries per caller in 15 minutes, then a 429 |
 | `basket_code_remove` | `/shop/basket/code` (DELETE) | Takes the code back off |
 | `basket_shared` | `/shop/basket/shared/{number}/{securityToken}` | The customer's own page for an order they handed over, carrying the link to send |
 | `basket_shared_pay` | `/shop/basket/pay/{number}/{shareToken}` | The payer's page: what is bought and what it costs, **and nothing of who it is for** |
@@ -291,6 +291,11 @@ counterparts or prints.
 | `payment_store_notification` | `/payment/store/{store}` (POST) | Where Apple and Google announce a refund of an in-app purchase - see [selling in a mobile app](#selling-in-a-mobile-app) |
 | `payment_webhook` | `/payment/webhook/{gateway}` (POST) | Where a provider announces a payment, a refund or a lost dispute - **the endpoint to declare in its dashboard**, with the events listed under [Stripe](#configure-stripe-webhook) and [Revolut](#configure-revolut) |
 | `set_timezone` | `/set-timezone` (POST) | The browser's own timezone, posted once per browsing session by `basket.js` and held in the session so the dates this bundle prints read in the hour of whoever is reading them. Only a known identifier is kept |
+
+`basket_add`, `basket_product_delete` and `basket_code_apply` read a JSON body sent as `Content-Type: application/json`
+and answer 415 to anything else: a page of another site can post `text/plain` without a CORS preflight, never JSON,
+which is what stands in for a CSRF token on these routes. `basket.js` sends that header; a site calling them from a
+script of its own sends it too.
 
 `basket_display`, `basket_validate`, `customer_orders` and `customer_order` each have a `_localized` twin at
 `/{_locale}/...`, answering in every language the site declares: the writing language keeps its bare url, and a
@@ -356,6 +361,13 @@ know how the shop is built. Spaces and dashes are ignored, so a code read off a 
 written.
 
 **One code per basket, and no stacking**: a card and a promotion applied together is a rule nobody wrote.
+
+**A code is not guessed for free.** `basket_code_apply` is limited per caller (the client ip, by its /64 in IPv6) by
+the `payment_code` limiter this bundle declares itself: 10 tries in 15 minutes, a sliding window, lifted under the
+`test` environment. Past it, the answer is a 429 carrying `error.code_too_many_attempts`, which `basket.js` prints
+as it prints any refused code. A site declaring its own `framework.rate_limiter.payment_code` decides instead. The
+logs never carry a code whole: `Basket::getMaskedDiscountCode()` keeps the last four characters of a long one, none
+of a short one.
 
 `Discount` comes in two kinds, `percentage` and `amount`, and carries its own validity window, its quota and
 the minimum it applies from. A `GiftCard` is a balance rather than a reduction: it pays the order down, over as
@@ -823,7 +835,10 @@ app, so `payment-test-mode` plays no part here. A sandbox purchase is delivered 
 and your own testers; for anyone else `verify()` answers `false` and records nothing.
 
 A transaction is delivered once, the date on its row telling a retry from a replay: a failed delivery is retried by
-the next call, while a "Restore purchases" on a delivered one only acknowledges it.
+the next call, while a "Restore purchases" on a delivered one only acknowledges it. The date is taken by one
+conditional statement (`StorePurchaseRepository::claimDelivery()`), so of two calls verifying the same proof at once
+only one calls `deliver()`; the claim and the delivery share one transaction, so a delivery that throws or a process
+that dies rolls the date back for the retry.
 
 **Refunds** reach `POST /payment/store/{store}`:
 

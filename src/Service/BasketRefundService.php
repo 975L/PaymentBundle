@@ -135,7 +135,7 @@ class BasketRefundService
     private function restoreGiftCard(Basket $basket): void
     {
         if (!$this->basketCodeService->restore($basket)) {
-            $this->logger->error('Order {number} refunded: the gift card {code} it was partly paid with no longer exists, {amount} not credited back', ['number' => $basket->getNumber(), 'code' => $basket->getDiscountCode(), 'amount' => $basket->getDiscountAmount()]);
+            $this->logger->error('Order {number} refunded: the gift card {code} it was partly paid with no longer exists, {amount} not credited back', ['number' => $basket->getNumber(), 'code' => $basket->getMaskedDiscountCode(), 'amount' => $basket->getDiscountAmount()]);
         }
     }
 

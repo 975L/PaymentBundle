@@ -20,6 +20,11 @@ services:
         tags:
             - { name: 'ui.script', priority: 100 }
 
+    # Same reading as UiBundle's limiters: this bundle prepends "payment_code" itself, so the code route is never served unlimited, and a site that took the limiter away still gets a controller rather than a container that refuses to compile
+    c975L\PaymentBundle\Controller\BasketController:
+        arguments:
+            $codeLimiterFactory: '@?limiter.payment_code'
+
     c975L\PaymentBundle\Registry\PaymentGatewayRegistry:
         arguments:
             $gateways: !tagged_iterator payment.gateway

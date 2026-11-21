@@ -498,6 +498,10 @@
                 <source>error.code_nothing_to_discount</source>
                 <target>There is nothing to deduct on this basket</target>
             </trans-unit>
+            <trans-unit id="5uJUWl6">
+                <source>error.code_too_many_attempts</source>
+                <target>Too many codes tried: wait a few minutes before trying another one</target>
+            </trans-unit>
             <trans-unit id="lkpD2cn">
                 <source>error.code_unknown</source>
                 <target>No such code</target>

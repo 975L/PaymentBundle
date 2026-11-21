@@ -40,6 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -757,7 +758,7 @@ class BasketService implements BasketServiceInterface
             // Never more value than the code covered: the customer paid the rest by card, so the order is neither delivered for free nor lost, but kept charged and undelivered for the shop to settle
             if (!$this->basketCodeService->claim($basket)) {
                 $connection->rollBack();
-                $this->holdOrder($basket, 'the code ' . $basket->getDiscountCode() . ' no longer covers ' . $basket->getDiscountAmount());
+                $this->holdOrder($basket, 'the code ' . $basket->getMaskedDiscountCode() . ' no longer covers ' . $basket->getDiscountAmount());
 
                 return false;
             }
@@ -1024,6 +1025,8 @@ class BasketService implements BasketServiceInterface
      */
     public function applyCode(Request $request): array
     {
+        // Read first, so a body refused moves nothing: reopening calls a checkout off at the provider
+        $data = $this->readPayload($request);
         $this->basket = $this->get();
 
         // Nothing is added to an order, nor to a basket the session no longer names
@@ -1035,7 +1038,6 @@ class BasketService implements BasketServiceInterface
             return $this->getJson();
         }
 
-        $data = $this->readPayload($request);
         $code = isset($data['code']) && \is_string($data['code']) ? $data['code'] : '';
 
         $resolution = $this->basketCodeService->resolveForBasket($code, $this->basket, $this->giftCardTotal());
@@ -1077,6 +1079,8 @@ class BasketService implements BasketServiceInterface
     // Deletes item from basket
     public function deleteItem(Request $request): array
     {
+        // Read first, so a body refused moves nothing: reopening calls a checkout off at the provider
+        $data = $this->readPayload($request);
         $this->basket = $this->get();
 
         // Nothing is taken out of an order, nor out of a basket the session no longer names
@@ -1088,7 +1092,6 @@ class BasketService implements BasketServiceInterface
             return $this->getJson();
         }
 
-        $data = $this->readPayload($request);
         if (!isset($data['id'], $data['type']) || !\is_string($data['type'])) {
             throw new BadRequestHttpException('The body must carry "id" and "type".');
         }
@@ -1114,6 +1117,11 @@ class BasketService implements BasketServiceInterface
     // The JSON body a basket call carries, an unreadable one being the caller's error and answered as such rather than as a crash of the site
     private function readPayload(Request $request): array
     {
+        // Declared JSON or refused: a cross-site page can post text/plain without a preflight, never application/json, which is what stands in for a csrf token on these routes
+        if ('json' !== $request->getContentTypeFormat()) {
+            throw new UnsupportedMediaTypeHttpException('The request body must be sent as application/json.');
+        }
+
         try {
             return $request->toArray();
         } catch (JsonException) {

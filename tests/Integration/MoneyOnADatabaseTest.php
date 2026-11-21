@@ -24,6 +24,7 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Entity\GiftCard;
 use c975L\PaymentBundle\Entity\InvoiceSequence;
+use c975L\PaymentBundle\Entity\StorePurchase;
 use c975L\PaymentBundle\Enum\BasketStatus;
 use c975L\PaymentBundle\Enum\PaymentEvent;
 use c975L\PaymentBundle\Exception\BasketNotOrderableException;
@@ -709,6 +710,55 @@ class MoneyOnADatabaseTest extends TestCase
         $this->assertNotNull($this->entityManager->getConnection()->fetchOne('SELECT delivered FROM payment_store_purchase'));
     }
 
+    // The statement a delivery is claimed with, on the real schema: taken once, given back by the rollback of a failed delivery, taken again by the retry
+    public function testADeliveryIsClaimedOnceAndGivenBackOnAFailure(): void
+    {
+        $purchase = new StorePurchase('apple', 'transaction', 'product', 'holder');
+        $this->entityManager->persist($purchase);
+        $this->entityManager->flush();
+        $repository = new StorePurchaseRepository($this->registry);
+        $connection = $this->entityManager->getConnection();
+
+        $connection->beginTransaction();
+        $this->assertTrue($repository->claimDelivery($purchase));
+        $this->assertFalse($repository->claimDelivery($purchase));
+        $connection->rollBack();
+        $this->assertTrue($repository->claimDelivery($purchase));
+    }
+
+    // A request that read the row undelivered while another was delivering it: the date the other wrote is what it reads, and it delivers nothing
+    public function testAPurchaseDeliveredBehindTheServiceIsNotDeliveredAgain(): void
+    {
+        $deliveries = 0;
+        $provider = $this->createStub(InAppProductProviderInterface::class);
+        $provider->method('deliver')->willReturnCallback(static function () use (&$deliveries): void {
+            ++$deliveries;
+        });
+        $service = $this->storeService($provider, 'production');
+        $purchase = new StorePurchase('apple', 'transaction', 'product', 'holder');
+        $this->entityManager->persist($purchase);
+        $this->entityManager->flush();
+        $this->entityManager->getConnection()->executeStatement("UPDATE payment_store_purchase SET delivered = '2026-01-01 00:00:00'");
+
+        $this->assertTrue($service->verify('apple', 'holder', ['holder' => 'holder']));
+        $this->assertSame(0, $deliveries);
+    }
+
+    // A reversed refund read twice: the second restore finds the row counted again and leaves the delivery the first one made
+    public function testASecondRestoreLeavesTheDeliveryAlone(): void
+    {
+        $purchase = new StorePurchase('apple', 'transaction', 'product', 'holder')->markDelivered()->markRefunded();
+        $this->entityManager->persist($purchase);
+        $this->entityManager->flush();
+        $repository = new StorePurchaseRepository($this->registry);
+
+        $repository->restore($purchase);
+        $this->assertFalse($purchase->isRefunded());
+        $this->assertTrue($repository->claimDelivery($purchase));
+        $repository->restore($purchase);
+        $this->assertNotNull($this->entityManager->getConnection()->fetchOne('SELECT delivered FROM payment_store_purchase'));
+    }
+
     public function testASandboxPurchaseGoesOnlyToAHolderTheShopNamed(): void
     {
         $provider = $this->createStub(InAppProductProviderInterface::class);
@@ -735,7 +785,7 @@ class MoneyOnADatabaseTest extends TestCase
                 return 1;
             }
         });
-        $service->addItem(new Request(content: (string) json_encode(['id' => 1, 'quantity' => -1, 'type' => 'product'])));
+        $service->addItem(new Request(server: ['CONTENT_TYPE' => 'application/json'], content: (string) json_encode(['id' => 1, 'quantity' => -1, 'type' => 'product'])));
 
         $this->assertSame(BasketService::MAX_LINE_QUANTITY + 4, $this->reload($basket)->getItems()['product'][1]['quantity']);
     }

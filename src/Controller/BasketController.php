@@ -24,12 +24,15 @@ use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Service\BasketServiceInterface;
 use c975L\PaymentBundle\Service\InvoiceService;
 use c975L\UiBundle\Service\AgeVerifier;
+use c975L\UiBundle\Service\RateLimiterGuard;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -53,6 +56,8 @@ class BasketController extends AbstractController
         private readonly SiteLocales $siteLocales,
         private readonly BasketItemProviderRegistry $itemProviderRegistry,
         private readonly AgeVerifier $ageVerifier,
+        private readonly RateLimiterGuard $rateLimiterGuard,
+        private readonly ?RateLimiterFactoryInterface $codeLimiterFactory = null,
     ) {
     }
 
@@ -453,6 +458,17 @@ class BasketController extends AbstractController
     )]
     public function applyCode(Request $request): JsonResponse
     {
+        // A body not declared JSON is refused before it costs a try, or a page of another site could spend the visitor's tries in their name
+        if ('json' !== $request->getContentTypeFormat()) {
+            throw new UnsupportedMediaTypeHttpException('The request body must be sent as application/json.');
+        }
+
+        // Counted per caller rather than per session, which a guesser drops with its cookie; no client ip fails open rather than lumping every such visitor onto one shared bucket, as UiBundle's own routes do
+        $clientIp = $request->getClientIp();
+        if (null !== $clientIp && !$this->rateLimiterGuard->isAcceptedForIp($this->codeLimiterFactory, $clientIp)) {
+            return new JsonResponse(['error' => $this->translator->trans('error.code_too_many_attempts', [], 'payment')], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
         return new JsonResponse($this->basketService->applyCode($request));
     }
 

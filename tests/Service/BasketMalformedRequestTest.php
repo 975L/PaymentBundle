@@ -35,6 +35,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -54,7 +55,7 @@ class BasketMalformedRequestTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->service(null)->addItem(new Request());
+        $this->service(null)->addItem($this->jsonRequest(null));
     }
 
     // A body read but incomplete: the three keys are what the basket is asked for
@@ -81,7 +82,7 @@ class BasketMalformedRequestTest extends TestCase
         $entityManager->expects($this->never())->method('flush');
 
         try {
-            $this->service(null, true, $entityManager)->addItem(new Request());
+            $this->service(null, true, $entityManager)->addItem($this->jsonRequest(null));
         } catch (BadRequestHttpException) {
             $this->addToAssertionCount(1);
         }
@@ -92,7 +93,7 @@ class BasketMalformedRequestTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->service($this->basket())->deleteItem(new Request());
+        $this->service($this->basket())->deleteItem($this->jsonRequest(null));
     }
 
     // The third call reads a body too, and answers an unreadable one the same way
@@ -100,7 +101,38 @@ class BasketMalformedRequestTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->service($this->basket())->applyCode(new Request());
+        $this->service($this->basket())->applyCode($this->jsonRequest(null));
+    }
+
+    // A body not declared JSON is what a cross-site page posts without a preflight, as text/plain: refused before it is read, by each of the three calls
+    public function testABodyNotDeclaredJsonIsRefusedByTheThreeCalls(): void
+    {
+        $body = (string) json_encode(['type' => 'product', 'id' => 7, 'quantity' => 1, 'code' => 'CODE-1']);
+        $calls = ['addItem', 'deleteItem', 'applyCode'];
+
+        foreach ($calls as $call) {
+            try {
+                $this->service($this->basket())->{$call}(new Request([], [], [], [], [], ['CONTENT_TYPE' => 'text/plain'], $body));
+                $this->fail(sprintf('%s read a body a cross-site form can send.', $call));
+            } catch (UnsupportedMediaTypeHttpException) {
+                $this->addToAssertionCount(1);
+            }
+        }
+    }
+
+    // Refused before the basket is reopened: a validated basket keeps its checkout and its code, whatever a cross-site page posted
+    public function testABodyNotDeclaredJsonLeavesAValidatedBasketAlone(): void
+    {
+        foreach (['deleteItem', 'applyCode'] as $call) {
+            $basket = $this->basket()->setStatus(BasketStatus::Validated);
+
+            try {
+                $this->service($basket)->{$call}(new Request([], [], [], [], [], ['CONTENT_TYPE' => 'text/plain'], '{"code":"CODE-1","type":"product","id":7}'));
+                $this->fail(sprintf('%s read a body a cross-site form can send.', $call));
+            } catch (UnsupportedMediaTypeHttpException) {
+                $this->assertSame(BasketStatus::Validated, $basket->getStatus(), sprintf('%s reopened the basket before refusing the body.', $call));
+            }
+        }
     }
 
     // A body that reads but carries no code is not malformed: it is a code the shop does not know, which the customer is told about
@@ -126,9 +158,10 @@ class BasketMalformedRequestTest extends TestCase
         return $basket;
     }
 
-    private function jsonRequest(array $data): Request
+    // A body declared JSON, empty when there is no data at all
+    private function jsonRequest(?array $data): Request
     {
-        return new Request([], [], [], [], [], [], json_encode($data));
+        return new Request([], [], [], [], [], ['CONTENT_TYPE' => 'application/json'], null === $data ? '' : json_encode($data));
     }
 
     private function service(?Basket $basket, bool $known = true, ?EntityManagerInterface $entityManager = null): BasketService

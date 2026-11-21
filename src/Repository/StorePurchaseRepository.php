@@ -28,4 +28,27 @@ class StorePurchaseRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['store' => $store, 'transactionId' => $transactionId]);
     }
+
+    // Counts a refunded purchase again, the refund having been reversed, in one conditional statement: a request that read the row refunded before another delivered it writes nothing over that delivery. The entity is then read back from the row
+    public function restore(StorePurchase $purchase): void
+    {
+        $this->getEntityManager()
+            ->createQuery('UPDATE ' . StorePurchase::class . ' p SET p.isRefunded = false, p.refunded = NULL, p.delivered = NULL WHERE p.id = :id AND p.isRefunded = true')
+            ->setParameter('id', $purchase->getId())
+            ->execute();
+
+        $this->getEntityManager()->refresh($purchase);
+    }
+
+    // Dates the delivery of a purchase not delivered yet, and says whether this call is the one that did: of two requests verifying the same proof at once, only one delivers (see InAppPurchaseService)
+    public function claimDelivery(StorePurchase $purchase): bool
+    {
+        $updated = $this->getEntityManager()
+            ->createQuery('UPDATE ' . StorePurchase::class . ' p SET p.delivered = :now WHERE p.id = :id AND p.delivered IS NULL')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('id', $purchase->getId())
+            ->execute();
+
+        return 1 === $updated;
+    }
 }

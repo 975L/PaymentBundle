@@ -45,6 +45,8 @@ class CodeRulesTest extends CodeRulesTestCase
                 'c975L\\PaymentBundle\\Repository\\GiftCardRepository::claimAmount' => 'Visitor and order rows (baskets, discount uses, gift card balances), read live and never held in a cached fragment',
                 'c975L\\PaymentBundle\\Repository\\GiftCardRepository::creditAmount' => 'A gift card balance, read live and never held in a cached fragment',
                 'c975L\\PaymentBundle\\Repository\\InvoiceSequenceRepository::bump' => 'The invoice counter, an atomic claim read by nothing cached',
+                'c975L\\PaymentBundle\\Repository\\StorePurchaseRepository::claimDelivery' => 'A store purchase row, an atomic claim read by nothing cached',
+                'c975L\\PaymentBundle\\Repository\\StorePurchaseRepository::restore' => 'A store purchase row, an atomic claim read by nothing cached',
             ],
         ];
     }

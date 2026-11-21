@@ -242,6 +242,18 @@ class BasketCodeClaimTest extends TestCase
         $this->assertSame(100, $this->card->getBalance());
     }
 
+    // The card still holds money, and whoever reads the logs could spend it: the line names it by its last four characters only
+    public function testAHeldOrderLogsItsCodeMasked(): void
+    {
+        $this->card->setBalance(100);
+        $basket = $this->chargedBasketWithCard(1000);
+
+        $this->service($basket)->paid($basket);
+
+        $this->assertStringNotContainsString('AAAABBBBCCCCDDDD', $this->critical[0]);
+        $this->assertStringContainsString('the code …DDDD no longer covers', $this->critical[0]);
+    }
+
     // The way out once the shop has put the card right: the same order, delivered once
     public function testAHeldOrderIsDeliveredOnceTheCodeCoversIt(): void
     {
@@ -436,8 +448,9 @@ class BasketCodeClaimTest extends TestCase
 
             public function log($level, \Stringable | string $message, array $context = []): void
             {
+                // The reason written out, being where a code would show
                 if ('critical' === $level) {
-                    $this->critical[] = (string) $message;
+                    $this->critical[] = strtr((string) $message, ['{reason}' => (string) ($context['reason'] ?? '')]);
                 }
             }
         };

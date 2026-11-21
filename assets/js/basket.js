@@ -199,7 +199,8 @@ export default class extends Controller {
                 "Content-Type": "application/json",
             }
         })
-            .then((response) => this.readAnswer(response))
+            // Too many codes tried carries the server's own sentence, read like any other refusal of a code
+            .then((response) => (429 === response.status ? response.json() : this.readAnswer(response)))
             .then((data) => {
                 // Dropped so the next read sees the basket as this call left it
                 basketDataPromise = null;
