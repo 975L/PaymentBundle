@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.28.0
+
+Payments and discount codes read on the site's MCP endpoint
+
+- `PaymentMcpProvider`: an agent lists and reads the payments and the discount codes, read only, with the rights of its token's account (21/11/2026)
+- Requires `c975l/core-bundle` `^1.96` (21/11/2026)
+- `Payment::getCurrency()` returns null for a payment without currency yet (21/11/2026)
+- `php-http/discovery` plugin declared disabled in `allow-plugins`, so `composer qa` no longer stops on its prompt (21/11/2026)
+
 ## v6.27.0
 
 [BC-Break] Basket, payment, discount, gift card and shipping zone dates stored as immutable dates

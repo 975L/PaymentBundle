@@ -112,7 +112,7 @@ class Payment implements \Stringable
 
     public function getCurrency(): ?string
     {
-        return strtoupper($this->currency);
+        return null === $this->currency ? null : strtoupper($this->currency);
     }
 
     public function setGateway(?string $gateway)

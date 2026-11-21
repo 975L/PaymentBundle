@@ -24,7 +24,7 @@ Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBund
 ## Contents
 
 - **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
-- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [AI agent skills](#ai-agent-skills)
+- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [MCP tools](#mcp-tools) · [AI agent skills](#ai-agent-skills)
 
 ## Features
 
@@ -1169,6 +1169,16 @@ Three things stay outside this bundle, on purpose:
 
 A page gating a whole gallery asks once per media, so keep the answer for the request rather than calling this in a
 loop over a hundred thumbnails.
+
+## MCP tools
+
+The payments bring their tools to the site's MCP endpoint, `/api/mcp`, which c975l/core-bundle serves and opens (see its README, "Opening the site to AI agents"): `Mcp\PaymentMcpProvider`, under the `payment` key of the agent tokens, for an account holding `site-role-admin` as on the back office. Every tool reads: none refunds, captures, changes a status or writes a code, and none gives the customer's name, e-mail or address. Amounts are in cents.
+
+| Tool | Does |
+| --- | --- |
+| `payment_list` | The latest payments, only those gone through or not when `finished` is given, with amount, provider, date and the number and status of their order |
+| `payment_get` | A `payment` with its provider transaction and its order's total, shipping, discount, refund, invoice number and country |
+| `payment_discount_list` | The discount codes holding the `search` words, every code without them, with their kind, value, validity, minimum total and uses |
 
 ## AI agent skills
 

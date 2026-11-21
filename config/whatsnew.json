@@ -1,5 +1,15 @@
 [
     {
+        "date": "2026-11-21",
+        "description": [
+            {
+                "en": "An AI agent holding an agent token of an account administering the payments can list and read the payments and the discount codes, without the customers' names, e-mails or addresses; refunds and codes stay yours, from the back office.",
+                "fr": "Un agent IA muni d'un jeton d'agent d'un compte qui administre les paiements peut lister et lire les paiements et les codes de réduction, sans le nom, l'e-mail ni l'adresse des clients ; les remboursements et les codes restent les vôtres, depuis le back-office.",
+                "es": "Un agente de IA con un token de agente de una cuenta que administra los pagos puede listar y leer los pagos y los códigos de descuento, sin el nombre, el correo ni la dirección de los clientes; los reembolsos y los códigos siguen siendo suyos, desde el back-office."
+            }
+        ]
+    },
+    {
         "date": "2026-11-11",
         "description": [
             {
