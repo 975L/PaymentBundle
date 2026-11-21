@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.28.1
+
+`php-http/discovery` plugin allowed, as in the other bundles
+
+- `php-http/discovery` plugin allowed in `allow-plugins`, as in the other c975L bundles (21/11/2026)
+
 ## v6.28.0
 
 Payments and discount codes read on the site's MCP endpoint
