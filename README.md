@@ -5,11 +5,15 @@
 [![PHP Version](https://img.shields.io/packagist/php-v/c975l/payment-bundle)](https://packagist.org/packages/c975l/payment-bundle)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/44b3a42b6a63445a8d9da90769659b13)](https://app.codacy.com/gh/975L/PaymentBundle/dashboard)
 
-![PaymentBundle](.github/images/PaymentBundle.svg)
+<p align="center"><img src=".github/images/PaymentBundle.svg" alt="PaymentBundle"></p>
 
 **A basket, a checkout and online payment by Stripe or Revolut for any c975L site that sells something.**
 
 **[Bundle page](https://bundles.975l.com/en/pages/payment-bundle) · [Tutorials](https://bundles.975l.com/en/tutoriels/payment-bundle) · [Block kinds](https://bundles.975l.com/en/pages/blocks/Payment) · [Live demo](https://bundles.975l.com/demo/) · [Demo back-office](https://bundles.975l.com/demo/login)**
+
+[![Watch the PaymentBundle film](.github/images/showcase.jpg)](https://youtu.be/qA4eryb0Zs4)
+
+▶ [Watch the film](https://youtu.be/qA4eryb0Zs4) · [PaymentBundle's page](https://bundles.975l.com/en/pages/payment-bundle)
 
 > **TL;DR** — PaymentBundle gives the site one basket and one checkout, paid through Stripe or Revolut, for whatever the other bundles sell: shop products, crowdfunding contributions, credits. It rests on CoreBundle and does not need ShopBundle. Install it with Composer, then set your payment provider keys and webhook.
 
@@ -45,19 +49,24 @@ Then follow the full [installation](#installation) section below.
 
 > **For developers** — The generic Basket/checkout engine, and Stripe or Revolut payments, for the ecosystem. It never knows the concrete entity classes it sells: a satellite bundle (ShopBundle for products, CrowdfundingBundle for campaigns…) implements `BasketItemProviderInterface` and its items become buyable. Adding a new kind of sellable item means implementing that one interface.
 
-<details>
-<summary>Contents</summary>
+### Contents
 
 - **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
 - **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [MCP tools](#mcp-tools) · [AI agent skills](#ai-agent-skills)
-
-</details>
 
 ---
 
 ## Why PaymentBundle
 
 Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBundle) + [ConfigBundle](https://github.com/975L/ConfigBundle) foundation to get a generic Basket/checkout engine and Stripe or Revolut payments — no dependency on ShopBundle, CrowdfundingBundle or any other satellite bundle, so it drops into any c975L site that needs checkout. Satellite bundles plug their own sellable items into the basket via `BasketItemProviderInterface`, without PaymentBundle ever knowing their concrete entity classes; [ShopBundle](https://github.com/975L/ShopBundle) and [CrowdfundingBundle](https://github.com/975L/CrowdfundingBundle) both rest on this foundation instead of shipping their own checkout.
+
+> [!TIP]
+> If this project **helps you save development time**:
+>
+> - [**star** it on GitHub](https://github.com/975L/PaymentBundle) — helps others find it
+> - [**open an issue**](https://github.com/975L/PaymentBundle/issues/new) to share how you use it — genuinely useful feedback
+>
+> And if you'd like to support the work directly, the **Sponsor** button at the top of the GitHub page is there for that. Thank you!
 
 ---
 
@@ -1256,13 +1265,3 @@ and not in `.env`, that nothing outside `StripeGateway` may import `Stripe\*`, t
 over rather than stashed in the session — alongside the routes, the entities, the config slugs and the
 contracts, each named as it actually is in the sources. `tests/SkillsTest.php` fails as soon as one of those
 names stops matching the code.
-
----
-
-> [!TIP]
-> If this project **helps you save development time**:
->
-> - [**star** it on GitHub](https://github.com/975L/PaymentBundle) — helps others find it
-> - [**open an issue**](https://github.com/975L/PaymentBundle/issues/new) to share how you use it — genuinely useful feedback
->
-> And if you'd like to support the work directly, the **Sponsor** button at the top of the GitHub page is there for that. Thank you!
