@@ -1187,13 +1187,15 @@ loop over a hundred thumbnails.
 
 ## MCP tools
 
-The payments bring their tools to the site's MCP endpoint, `/api/mcp`, which c975l/core-bundle serves and opens (see its README, "Opening the site to AI agents"): `Mcp\PaymentMcpProvider`, under the `payment` key of the agent tokens, for an account holding `site-role-admin` as on the back office. Every tool reads: none refunds, captures, changes a status or writes a code, and none gives the customer's name, e-mail or address. Amounts are in cents.
+The payments bring their tools to the site's MCP endpoint, `/api/mcp`, which c975l/core-bundle serves and opens (see its README, "Opening the site to AI agents"): `Mcp\PaymentMcpProvider`, under the `payment` key of the agent tokens, for an account holding `site-role-admin` as on the back office, the orders' tools joined from `Mcp\PaymentOrderTools`. Every tool reads: none refunds, captures, ships, changes a status or writes a code, and none gives the customer's name, e-mail, address, company, message, the order's tokens or a gift card's code, which is masked to its last four characters. Amounts are in cents.
 
 | Tool | Does |
 | --- | --- |
 | `payment_list` | The latest payments, only those gone through or not when `finished` is given, with amount, provider, date and the number and status of their order |
 | `payment_get` | A `payment` with its provider transaction and its order's total, shipping, discount, refund, invoice number and country |
 | `payment_discount_list` | The discount codes holding the `search` words, every code without them, with their kind, value, validity, minimum total and uses |
+| `payment_order_list` | The latest orders, the archived ones apart, filtered on a `status` (`to_send` for the paid ones with a parcel still to post, `paid`, `shipped`, `refunded` or `archived`), on the days placed `from` and `to` (`YYYY-MM-DD`, the last included) and given `limit` at most (50 by default, 100 at most), with their number, status, totals and what is still to send |
+| `payment_order_get` | An order by its `number`, as a payment names it: status, dates, lines with their frozen totals, discount, shipping and what ships, refund, invoice and credit note numbers, its payment's provider and what is still to send |
 
 ## AI agent skills
 

@@ -1,5 +1,20 @@
 [
     {
+        "date": "2026-11-23",
+        "description": [
+            {
+                "en": "An AI agent holding an agent token of an account administering the payments can now list and read the orders: those still to send, shipped, refunded or archived, over the days you choose, with their lines, totals, discount and shipping, without the customers' names, e-mails or addresses; shipping and refunding stay yours, from the back office.",
+                "fr": "Un agent IA muni d'un jeton d'agent d'un compte qui administre les paiements peut maintenant lister et lire les commandes : celles à envoyer, expédiées, remboursées ou archivées, sur les jours que vous choisissez, avec leurs lignes, totaux, réduction et livraison, sans le nom, l'e-mail ni l'adresse des clients ; les envois et les remboursements restent les vôtres, depuis le back-office.",
+                "es": "Un agente de IA con un token de agente de una cuenta que administra los pagos ahora puede listar y leer los pedidos: los pendientes de envío, enviados, reembolsados o archivados, en los días que elija, con sus líneas, totales, descuento y envío, sin el nombre, el correo ni la dirección de los clientes; los envíos y los reembolsos siguen siendo suyos, desde el back-office."
+            },
+            {
+                "en": "A gift card's code is no longer given whole to an AI agent reading a payment, only its last four characters.",
+                "fr": "Le code d'une carte cadeau n'est plus donné en entier à un agent IA qui lit un paiement, seulement ses quatre derniers caractères.",
+                "es": "El código de una tarjeta regalo ya no se da entero a un agente de IA que lee un pago, solo sus cuatro últimos caracteres."
+            }
+        ]
+    },
+    {
         "date": "2026-11-21",
         "description": [
             {

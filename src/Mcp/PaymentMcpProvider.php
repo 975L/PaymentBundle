@@ -12,15 +12,14 @@ namespace c975L\PaymentBundle\Mcp;
 
 use c975L\ConfigBundle\Mcp\McpTool;
 use c975L\ConfigBundle\Mcp\McpToolProviderInterface;
-use c975L\ConfigBundle\Service\ConfigServiceInterface;
+use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\PaymentRepository;
 use Mcp\Server\Exception\ToolCallException;
-use Symfony\Bundle\SecurityBundle\Security;
 
-// The payments and discount codes on the site's MCP endpoint, for an account administering them on the back office: read only, no refund, capture or code ever written, no customer identity nor address given
+// The payments and discount codes on the site's MCP endpoint, for an account administering them on the back office: read only, no refund, capture or code ever written, no customer identity nor address given - the orders' tools joined from PaymentOrderTools
 class PaymentMcpProvider implements McpToolProviderInterface
 {
     // Rows a list gives at most
@@ -29,8 +28,8 @@ class PaymentMcpProvider implements McpToolProviderInterface
     public function __construct(
         private readonly PaymentRepository $paymentRepository,
         private readonly DiscountRepository $discountRepository,
-        private readonly ConfigServiceInterface $configService,
-        private readonly Security $security,
+        private readonly PaymentMcpAccess $access,
+        private readonly PaymentOrderTools $orderTools,
     ) {
     }
 
@@ -43,7 +42,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
     // How the payments' tools go together
     public function getMcpInstructions(): string
     {
-        return 'Payments and discount codes are read only, amounts in cents of their currency. Refunds, captures and codes are handled by a human from the back office.';
+        return 'Payments, discount codes and orders are read only, amounts in cents of their currency. An order is read by its number, which a payment names. Refunds, captures, shipments and codes are handled by a human from the back office.';
     }
 
     // The tools of the payments, none of them writing
@@ -52,6 +51,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
         yield new McpTool('payment_list', 'Payments', 'The latest payments, gone through or not, with amount, provider, date and the status of the order they pay.', $this->list(...));
         yield new McpTool('payment_get', 'Payment', 'A payment with its provider transaction and its order: totals, discount, refund, invoice, country.', $this->get(...));
         yield new McpTool('payment_discount_list', 'Discount codes', 'The discount codes whose code holds the search words, every code without them, with their value, validity and uses.', $this->discounts(...));
+        yield from $this->orderTools->getMcpTools();
     }
 
     // The latest payments, only those gone through or not when asked
@@ -62,7 +62,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
      */
     public function list(?bool $finished = null): array
     {
-        $this->guard();
+        $this->access->guard();
         $builder = $this->paymentRepository->createQueryBuilder('p')
             ->leftJoin('p.basket', 'b')
             ->addSelect('b')
@@ -83,7 +83,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
      */
     public function get(int $payment): array
     {
-        $this->guard();
+        $this->access->guard();
         $found = $this->paymentRepository->find($payment);
         if (!$found instanceof Payment) {
             throw new ToolCallException(sprintf('No payment %d.', $payment));
@@ -96,7 +96,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
             'modified' => $found->getModification()?->format('Y-m-d H:i'),
             'total' => $basket?->getTotal(),
             'shipping' => $basket?->getShipping(),
-            'discountCode' => $basket?->getDiscountCode(),
+            'discountCode' => $basket instanceof Basket ? PaymentOrderTools::code($basket) : null,
             'discountAmount' => $basket?->getDiscountAmount(),
             'refundedAmount' => $basket?->getRefundedAmount(),
             'refunded' => $basket?->getRefundedAt()?->format('Y-m-d H:i'),
@@ -113,7 +113,7 @@ class PaymentMcpProvider implements McpToolProviderInterface
      */
     public function discounts(?string $search = null): array
     {
-        $this->guard();
+        $this->access->guard();
         $builder = $this->discountRepository->createQueryBuilder('d')
             ->orderBy('d.creation', \SortDirection::Descending)
             ->setMaxResults(self::LIMIT);
@@ -122,14 +122,6 @@ class PaymentMcpProvider implements McpToolProviderInterface
         }
 
         return array_map($this->discount(...), $builder->getQuery()->getResult());
-    }
-
-    // Payments and codes are the admin's business, as on the back office
-    private function guard(): void
-    {
-        if (!$this->security->isGranted((string) $this->configService->get('site-role-admin'))) {
-            throw new ToolCallException('This account may not read the payments.');
-        }
     }
 
     // A payment in a list, its order named by its number, never by its customer

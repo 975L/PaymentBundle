@@ -15,11 +15,12 @@ use c975L\PaymentBundle\Entity\Basket;
 use c975L\PaymentBundle\Entity\Discount;
 use c975L\PaymentBundle\Entity\Payment;
 use c975L\PaymentBundle\Enum\BasketStatus;
+use c975L\PaymentBundle\Mcp\PaymentMcpAccess;
 use c975L\PaymentBundle\Mcp\PaymentMcpProvider;
+use c975L\PaymentBundle\Mcp\PaymentOrderTools;
+use c975L\PaymentBundle\Repository\BasketRepository;
 use c975L\PaymentBundle\Repository\DiscountRepository;
 use c975L\PaymentBundle\Repository\PaymentRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Mcp\Server\Exception\ToolCallException;
 use PHPUnit\Framework\TestCase;
@@ -27,10 +28,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class PaymentMcpProviderTest extends TestCase
 {
-    private string $dql = '';
-
-    /** @var array<string, mixed> */
-    private array $parameters = [];
+    use QueryBuilderStubTrait;
 
     // The tools named under the "payment" key, none of them writing
     public function testTools(): void
@@ -38,8 +36,8 @@ class PaymentMcpProviderTest extends TestCase
         $tools = iterator_to_array($this->provider()->getMcpTools(), false);
 
         $this->assertSame('payment', $this->provider()->getMcpKey());
-        $this->assertSame(['payment_list', 'payment_get', 'payment_discount_list'], array_map(static fn ($tool): string => $tool->name, $tools));
-        $this->assertSame([false, false, false], array_map(static fn ($tool): bool => $tool->writes || $tool->destroys, $tools));
+        $this->assertSame(['payment_list', 'payment_get', 'payment_discount_list', 'payment_order_list', 'payment_order_get'], array_map(static fn ($tool): string => $tool->name, $tools));
+        $this->assertSame([false, false, false, false, false], array_map(static fn ($tool): bool => $tool->writes || $tool->destroys, $tools));
     }
 
     // A payment read with its order's figures, never its customer's name, e-mail or address
@@ -68,6 +66,22 @@ class PaymentMcpProviderTest extends TestCase
         $this->assertSame(['item-1', 'paid', 1500, 'CATALOG', 'FR', true], [$found['order'], $found['status'], $found['total'], $found['discountCode'], $found['country'], $found['finished']]);
         $this->assertStringNotContainsString('customer', (string) json_encode($found));
         $this->assertStringNotContainsString('address-1', (string) json_encode($found));
+    }
+
+    // A gift card's code read masked to its last characters on a payment: the full code is the money still on the card
+    public function testGetMasksAGiftCardCode(): void
+    {
+        $basket = new Basket()
+            ->setDiscountCode('CATALOG-ITEM-1234')
+            ->setDiscountKind(Basket::CODE_KIND_GIFT_CARD);
+        $payment = new Payment();
+        $payment->setBasket($basket);
+        $repository = $this->createStub(PaymentRepository::class);
+        $repository->method('find')->willReturn($payment);
+
+        $found = $this->provider($repository)->get(1);
+
+        $this->assertSame('…1234', $found['discountCode']);
     }
 
     // The payments filtered on going through when asked, every one without it
@@ -126,36 +140,8 @@ class PaymentMcpProviderTest extends TestCase
         $config->method('get')->willReturn('ROLE_ADMIN');
         $security = $this->createStub(Security::class);
         $security->method('isGranted')->willReturn($granted);
+        $access = new PaymentMcpAccess($config, $security);
 
-        return new PaymentMcpProvider($repository ?? $this->createStub(PaymentRepository::class), $discountRepository ?? $this->createStub(DiscountRepository::class), $config, $security);
-    }
-
-    // A real query builder whose DQL and parameters are read back, the rows given
-    /**
-     * @param class-string $entity
-     * @param list<object> $rows
-     */
-    private function builder(string $entity, string $alias, array $rows): QueryBuilder
-    {
-        $entityManager = $this->createStub(EntityManagerInterface::class);
-        $entityManager->method('createQuery')->willReturnCallback(function (string $dql) use ($rows): Query {
-            $this->dql = $dql;
-            $this->parameters = [];
-            $query = $this->createStub(Query::class);
-            $query->method('setParameters')->willReturnCallback(function (mixed $parameters) use (&$query): Query {
-                foreach ($parameters as $parameter) {
-                    $this->parameters[$parameter->getName()] = $parameter->getValue();
-                }
-
-                return $query;
-            });
-            $query->method('setFirstResult')->willReturnSelf();
-            $query->method('setMaxResults')->willReturnSelf();
-            $query->method('getResult')->willReturn($rows);
-
-            return $query;
-        });
-
-        return new QueryBuilder($entityManager)->select($alias)->from($entity, $alias);
+        return new PaymentMcpProvider($repository ?? $this->createStub(PaymentRepository::class), $discountRepository ?? $this->createStub(DiscountRepository::class), $access, new PaymentOrderTools($this->createStub(BasketRepository::class), $access));
     }
 }

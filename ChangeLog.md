@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.29.0
+
+Orders read on the site's MCP endpoint, gift-card codes masked
+
+- `PaymentOrderTools`: `payment_order_list` lists the orders by status (`to_send`, `paid`, `shipped`, `refunded`, `archived`), days placed and limit, read only (23/11/2026)
+- `payment_order_get` reads an order by its number with its lines, totals, discount, shipping and what is still to send, without its customer (23/11/2026)
+- `PaymentMcpAccess` holds the role check and the day parsing every payment tool shares (23/11/2026)
+- `payment_get` masks a gift card's code to its last four characters (23/11/2026)
+
 ## v6.28.2
 
 Code tries limited, JSON-only basket routes, store delivery claimed once
