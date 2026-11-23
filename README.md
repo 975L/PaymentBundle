@@ -11,9 +11,9 @@
 
 **[Bundle page](https://bundles.975l.com/en/pages/payment-bundle) · [Tutorials](https://bundles.975l.com/en/tutoriels/payment-bundle) · [Block kinds](https://bundles.975l.com/en/pages/blocks/Payment) · [Live demo](https://bundles.975l.com/demo/) · [Demo back-office](https://bundles.975l.com/demo/login)**
 
-[![Watch the PaymentBundle film](.github/images/showcase.jpg)](https://youtu.be/qA4eryb0Zs4)
+[![Watch the PaymentBundle film](.github/images/showcase.jpg)](https://youtu.be/LBXJItcPh3M)
 
-▶ [Watch the film](https://youtu.be/qA4eryb0Zs4) · [PaymentBundle's page](https://bundles.975l.com/en/pages/payment-bundle)
+▶ [Watch the film](https://youtu.be/LBXJItcPh3M) · [PaymentBundle's page](https://bundles.975l.com/en/pages/payment-bundle)
 
 > **TL;DR** — PaymentBundle gives the site one basket and one checkout, paid through Stripe or Revolut, for whatever the other bundles sell: shop products, crowdfunding contributions, credits. It rests on CoreBundle and does not need ShopBundle. Install it with Composer, then set your payment provider keys and webhook.
 
