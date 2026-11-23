@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.29.1
+
+README opened on a short overview for humans
+
+- README opened on a short overview for humans, the reference folded below it (23/11/2026)
+
 ## v6.29.0
 
 Orders read on the site's MCP endpoint, gift-card codes masked

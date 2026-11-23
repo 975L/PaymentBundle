@@ -1,30 +1,65 @@
 # PaymentBundle
 
-Symfony bundle providing the generic basket and checkout engine plus Stripe and Revolut payments for the c975L ecosystem — any bundle plugs its own sellable items in through `BasketItemProviderInterface`, without PaymentBundle ever knowing their concrete entity classes.
-
 [![GitHub](https://img.shields.io/github/license/975L/PaymentBundle)](https://github.com/975L/PaymentBundle/blob/main/LICENSE)
 [![Packagist Version](https://img.shields.io/packagist/v/c975l/payment-bundle)](https://packagist.org/packages/c975l/payment-bundle)
 [![PHP Version](https://img.shields.io/packagist/php-v/c975l/payment-bundle)](https://packagist.org/packages/c975l/payment-bundle)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/44b3a42b6a63445a8d9da90769659b13)](https://app.codacy.com/gh/975L/PaymentBundle/dashboard)
 
+![PaymentBundle](.github/images/PaymentBundle.svg)
+
+**A basket, a checkout and online payment by Stripe or Revolut for any c975L site that sells something.**
+
 **[Bundle page](https://bundles.975l.com/en/pages/payment-bundle) · [Tutorials](https://bundles.975l.com/en/tutoriels/payment-bundle) · [Block kinds](https://bundles.975l.com/en/pages/blocks/Payment) · [Live demo](https://bundles.975l.com/demo/) · [Demo back-office](https://bundles.975l.com/demo/login)**
+
+> **TL;DR** — PaymentBundle gives the site one basket and one checkout, paid through Stripe or Revolut, for whatever the other bundles sell: shop products, crowdfunding contributions, credits. It rests on CoreBundle and does not need ShopBundle. Install it with Composer, then set your payment provider keys and webhook.
+
+## What you get
+
+- One basket and checkout for everything the site sells, with a basket bar on every page
+- Stripe and Revolut payments, the customer picking one when both are set up
+- Promotional codes and gift cards entered in one basket field
+- Delivery priced on zones and weight tiers written in the back office
+- A customer area with the order history and the files bought
+- Payment links for what the catalog does not sell, and shared payment so somebody else settles an order
+- Selling inside a mobile app through the App Store and Google Play
+- A test mode, and a weekly check of the orders against their payments
+
+## Quick start
+
+```bash
+composer require c975l/payment-bundle
+```
+
+Then follow the full [installation](#installation) section below.
+
+## For AI agents
+
+- Skills, read straight from `vendor/c975l/payment-bundle/skills/` by a coding agent:
+  - [`c975l-payment-checkout`](skills/c975l-payment-checkout/SKILL.md) — the basket, the checkout and what makes an order real
+  - [`c975l-payment-gateway`](skills/c975l-payment-gateway/SKILL.md) — adding, configuring or debugging a payment provider
+  - [`c975l-payment-in-app`](skills/c975l-payment-in-app/SKILL.md) — selling in a mobile app through Apple and Google
+  - [`c975l-payment-items`](skills/c975l-payment-items/SKILL.md) — plugging a new kind of sellable item in from another bundle
+- MCP: an AI agent reads the payments, discount codes and orders through the site's MCP endpoint (CoreBundle's `/api/mcp`), with the rights of its token's account, nothing written: `payment_list`, `payment_get`, `payment_discount_list`, `payment_order_list`, `payment_order_get` (see [MCP tools](#mcp-tools)).
+
+## Reference
+
+> **For developers** — The generic Basket/checkout engine, and Stripe or Revolut payments, for the ecosystem. It never knows the concrete entity classes it sells: a satellite bundle (ShopBundle for products, CrowdfundingBundle for campaigns…) implements `BasketItemProviderInterface` and its items become buyable. Adding a new kind of sellable item means implementing that one interface.
+
+<details>
+<summary>Contents</summary>
+
+- **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
+- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [MCP tools](#mcp-tools) · [AI agent skills](#ai-agent-skills)
+
+</details>
 
 ---
 
 ## Why PaymentBundle
 
-![PaymentBundle](.github/images/PaymentBundle.svg)
-
 Add PaymentBundle on top of the shared [UiBundle](https://github.com/975L/UiBundle) + [ConfigBundle](https://github.com/975L/ConfigBundle) foundation to get a generic Basket/checkout engine and Stripe or Revolut payments — no dependency on ShopBundle, CrowdfundingBundle or any other satellite bundle, so it drops into any c975L site that needs checkout. Satellite bundles plug their own sellable items into the basket via `BasketItemProviderInterface`, without PaymentBundle ever knowing their concrete entity classes; [ShopBundle](https://github.com/975L/ShopBundle) and [CrowdfundingBundle](https://github.com/975L/CrowdfundingBundle) both rest on this foundation instead of shipping their own checkout.
 
 ---
-
-> **TL;DR** — The generic Basket/checkout engine, and Stripe or Revolut payments, for the ecosystem. It never knows the concrete entity classes it sells: a satellite bundle (ShopBundle for products, CrowdfundingBundle for campaigns…) implements `BasketItemProviderInterface` and its items become buyable. Adding a new kind of sellable item means implementing that one interface.
-
-## Contents
-
-- **Setup** — [requirements](#requirements) · [installation](#installation) · [assets](#install-assets) · [Stripe webhook](#configure-stripe-webhook) · [Revolut keys and webhook](#configure-revolut) · [refunds and chargebacks](#refunds-and-chargebacks) · [Stimulus controllers](#register-stimulus-controllers)
-- **Using it** — [test mode](#test-mode) · [documents attached to the e-mails](#documents-attached-to-the-e-mails) · [adding a payment provider](#adding-a-payment-provider) · [adding a new kind of sellable item](#adding-a-new-kind-of-sellable-item) · [verifying a gateway's credentials](#verifying-a-gateways-credentials) · [what the orders are checked for](#what-the-orders-are-checked-for) · [offering bought files in the customer area](#offering-bought-files-in-the-customer-area) · [gating a media behind a purchase](#gating-a-media-behind-a-purchase) · [offering several providers](#offering-several-providers) · [selling in a mobile app](#selling-in-a-mobile-app) · [block kinds](#block-kinds) · [VAT](#vat) · [payment links](#payment-links) · [routes](#public-routes) · [commands](#commands) · [MCP tools](#mcp-tools) · [AI agent skills](#ai-agent-skills)
 
 ## Features
 
